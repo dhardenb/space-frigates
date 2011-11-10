@@ -1,5 +1,3 @@
-
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
   <title>Space Battle</title>
@@ -48,6 +46,15 @@ var StartingDistanceFromCenter = 100;
 var roundingConstant = AvailablePixels * .02;
 
 document.documentElement.addEventListener("keydown", KeyPress, false);
+
+/** Initialization code. 
+ * If you use your own event management code, change it as required.
+ */
+if (window.addEventListener)
+        /** DOMMouseScroll is for mozilla. */
+        window.addEventListener('DOMMouseScroll', wheel, false);
+/** IE/Opera. */
+window.onmousewheel = document.onmousewheel = wheel;
 
 function getHTTPObject()
 {
@@ -410,6 +417,7 @@ function CreateExplosion(SourceGameObject)
     CreateParticalObject(SourceGameObject);
   }
 }
+
 function CreateShieldObject(ShieldSource)
 {
   var NewShield = new GameObject(gameObjectId, 'Shield', ShieldSource.LocationX, ShieldSource.LocationY, 0, Math.random()*360, Math.random()*10, 'hidden', 1, 'None', 0, 0, Math.random()*10);
@@ -703,6 +711,7 @@ function renderDebugger(parentNode)
   Debugger_Heading.appendChild(document.createTextNode("Heading: 0"));
   DebugerGroupElement.appendChild(Debugger_Heading);
 }
+
 function renderAutoPilot(parentNode)
 {
   var autoPilot = document.createElementNS(svgNS,"g");
@@ -754,21 +763,25 @@ function fireButtonOnMouseOver()
 {
   fireButtonBackground.setAttributeNS(null, "stroke", "yellow");
 }
+
 function fireButtonOnMouseOut()
 {
   fireButtonBackground.setAttributeNS(null, "stroke", "gray");
   fireButtonBackground.setAttributeNS(null, "fill", "dimgray");
 }
+
 function fireButtonOnMouseDown()
 {
   fireButtonBackground.setAttributeNS(null, "fill", "gray");
   var newCommand = new CommandObject(0, 0, PlayerObjects[0].ship, tick+commandDelay);
   IssueCommand(newCommand);
 }
+
 function fireButtonOnMouseUp()
 {
   fireButtonBackground.setAttributeNS(null, "fill", "dimgray");
 }
+
 function fireButtonOnClick()
 {
   fireButtonBackground.setAttributeNS(null, "fill", "gray");
@@ -1046,6 +1059,7 @@ function ProcessCommand(Command, GameObject)
     GameObject.Velocity = 0;
   }
 }
+
 function BoundryChecking()
 {
   for (var i = 0; i < GameObjects.length; i++)
@@ -1376,6 +1390,7 @@ function UpdateMap()
   y = HumanShip.LocationY * -1;
   MapGroupElement.setAttribute('transform', 'scale(' + newCurrentScale + ') translate('+ x +','+ y +')');
 }
+
 function handle(delta)
 {
   if (delta < 0)
@@ -1432,15 +1447,6 @@ function wheel(event)
   }
 	event.returnValue = false;
 }
-
-/** Initialization code. 
- * If you use your own event management code, change it as required.
- */
-if (window.addEventListener)
-        /** DOMMouseScroll is for mozilla. */
-        window.addEventListener('DOMMouseScroll', wheel, false);
-/** IE/Opera. */
-window.onmousewheel = document.onmousewheel = wheel;
 
     ]]></script>
   </head>
