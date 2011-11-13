@@ -25,12 +25,12 @@ function Init()
 
   // Render the Console Components
   renderScope(ConsoleGroupElement);
-  renderRibbon(ConsoleGroupElement);
-  renderMissionSummary(ConsoleGroupElement);
-  renderCapacitor(ConsoleGroupElement);
-  renderDebugger(ConsoleGroupElement);
-  renderAutoPilot(ConsoleGroupElement);
-  renderFireButton(ConsoleGroupElement);
+  // renderRibbon(ConsoleGroupElement);
+  // renderMissionSummary(ConsoleGroupElement);
+  // renderCapacitor(ConsoleGroupElement);
+  // renderDebugger(ConsoleGroupElement);
+  // renderAutoPilot(ConsoleGroupElement);
+  // renderFireButton(ConsoleGroupElement);
 }
 
 function NewGame()
