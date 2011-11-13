@@ -93,10 +93,10 @@ function UpdateShipElement(ShipObject)
   
   if (ShipObject.Type == 'HumanShip')
   {
-    Capacitor_Current_Energy_Element.firstChild.nodeValue = 'Energy: ' + Math.ceil(ShipObject.Capacitor);
-    Debugger_Velocity.firstChild.nodeValue = 'Velocity: ' + Math.round(ShipObject.Velocity);
-    FramesPerSecondElement.firstChild.nodeValue = 'FPS: ' + FramesPerSecond;
-    Debugger_Heading.firstChild.nodeValue = 'Heading: ' + Math.round(ShipObject.Heading);
-    Mission_Summary_Level.firstChild.nodeValue = 'Level: ' + Level;
+    // Capacitor_Current_Energy_Element.firstChild.nodeValue = 'Energy: ' + Math.ceil(ShipObject.Capacitor);
+    // Debugger_Velocity.firstChild.nodeValue = 'Velocity: ' + Math.round(ShipObject.Velocity);
+    // FramesPerSecondElement.firstChild.nodeValue = 'FPS: ' + FramesPerSecond;
+    // Debugger_Heading.firstChild.nodeValue = 'Heading: ' + Math.round(ShipObject.Heading);
+    // Mission_Summary_Level.firstChild.nodeValue = 'Level: ' + Level;
   }
 }
