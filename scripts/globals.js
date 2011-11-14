@@ -25,12 +25,6 @@ function Init()
 
   // Render the Scope
   renderScope(ConsoleGroupElement);
-  // renderRibbon(ConsoleGroupElement);
-  // renderMissionSummary(ConsoleGroupElement);
-  // renderCapacitor(ConsoleGroupElement);
-  // renderDebugger(ConsoleGroupElement);
-  // renderAutoPilot(ConsoleGroupElement);
-  // renderFireButton(ConsoleGroupElement);
 }
 
 function NewGame()
@@ -96,6 +90,7 @@ function GameLoop()
     SendCommandsToServer();
     UpdateGameObjects();
     CollisionDetection();
+    BoundryChecking();
     UpdateMap(); // I put this here because updatign the map is based on the new position of the local players ship.
     UpdateGameElements();
     
@@ -354,6 +349,7 @@ function ProcessCommand(Command, GameObject)
 
 function BoundryChecking()
 {
+  var MapRadius = (AvailablePixels - componentOffset * 4) / 2;
   for (var i = 0; i < GameObjects.length; i++)
   {
     // Check to see if GameObject has flown past the border. I do this by measuring the distance
