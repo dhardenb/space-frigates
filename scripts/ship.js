@@ -7,7 +7,6 @@ function CreateShipObject(ShipType, ComputerShipNumber)
     var HumanPlayer = new PlayerObject(-1, gameObjectId)
     GameObjects.push(HumanShip);
     PlayerObjects.push(HumanPlayer);
-    // SetStartingPosition(HumanShip, 180); // If I don't set the start position of the ship, it should get set to the very center
     CreateShipElement(HumanShip);
     UpdateShipElement(HumanShip);
   }
@@ -17,7 +16,7 @@ function CreateShipObject(ShipType, ComputerShipNumber)
     var ComputerPlayer = new PlayerObject(ComputerShipNumber, gameObjectId)
     GameObjects.push(NewComputerShip);
     PlayerObjects.push(ComputerPlayer);
-    SetStartingPosition(NewComputerShip, 180 + ((360 / (Level + 1)) * (ComputerShipNumber + 1)));
+    SetStartingPosition(NewComputerShip);
     CreateShipElement(NewComputerShip);
     UpdateShipElement(NewComputerShip);
   }
@@ -90,13 +89,55 @@ function CreateShipElement(ShipObject)
 function UpdateShipElement(ShipObject)
 {
   ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+') ');
+}
+
+function SetStartingPosition(GameObject)
+{
+  var angle = Math.floor(Math.random() * 360);
   
-  if (ShipObject.Type == 'HumanShip')
+  // (AvailablePixels - componentOffset * 4) / 2 == The Radius Of The Map
+  var distanceFromCenter = Math.floor(Math.random() * (AvailablePixels - componentOffset * 4) / 2 + 1);
+  
+  if (angle == 0)
   {
-    // Capacitor_Current_Energy_Element.firstChild.nodeValue = 'Energy: ' + Math.ceil(ShipObject.Capacitor);
-    // Debugger_Velocity.firstChild.nodeValue = 'Velocity: ' + Math.round(ShipObject.Velocity);
-    // FramesPerSecondElement.firstChild.nodeValue = 'FPS: ' + FramesPerSecond;
-    // Debugger_Heading.firstChild.nodeValue = 'Heading: ' + Math.round(ShipObject.Heading);
-    // Mission_Summary_Level.firstChild.nodeValue = 'Level: ' + Level;
+    GameObject.LocationX = 0;
+    GameObject.LocationY = distanceFromCenter * -1;
   }
+  else if (angle == 90)
+  {
+    GameObject.LocationX = distanceFromCenter;
+    GameObject.LocationY = 0;
+  }
+  else if (angle == 180)
+  {
+    GameObject.LocationX = 0;
+    GameObject.LocationY = distanceFromCenter;
+  }
+  else if (angle == 270)
+  {
+    GameObject.LocationX = distanceFromCenter * -1;
+    GameObject.LocationY = 0;
+  }
+  else if (angle < 90)
+  {
+    GameObject.LocationX = distanceFromCenter * Math.sin(angle * 0.0174532925);
+    GameObject.LocationY = distanceFromCenter * Math.cos(angle * 0.0174532925) * -1;
+  }
+  else if (angle < 180)
+  {
+    GameObject.LocationX = distanceFromCenter * Math.sin((180 - angle) * 0.0174532925);
+    GameObject.LocationY = distanceFromCenter * Math.cos((180 - angle) * 0.0174532925);
+  }
+  else if (angle < 270)
+  {
+    GameObject.LocationX = distanceFromCenter * Math.sin((angle - 180) * 0.0174532925) * -1;
+    GameObject.LocationY = distanceFromCenter * Math.cos((angle - 180) * 0.0174532925);
+  }
+  else // 360
+  {
+    GameObject.LocationX = distanceFromCenter * Math.sin((360 - angle) * 0.0174532925) * -1;
+    GameObject.LocationY = distanceFromCenter * Math.cos((360 - angle) * 0.0174532925) * -1;
+  }
+
+  GameObject.Facing = Math.random()*360+1;
 }

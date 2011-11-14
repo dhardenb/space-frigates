@@ -36,23 +36,18 @@ function NewGame()
     
   GameOver = false;
   CountdownTimer = 25;
-  Level = Level + 1;
-  EnemyCount = Level;
+  playerObjectId = 0;
   gameObjectId = 0;
   
   GameObjects.length = 0;
   
   CreateShipObject('Human', 0);
 
-  for (var i=0, j=Level; i<j; i++)
-  {
-    CreateShipObject('Computer', i);
-  }
-
   FrameCounter = 0;
 
-  Timer = setInterval("UpdateFramesPerSecond()", 1000);
-  GameLoopInterval = setInterval("GameLoop()", 40);
+  FrameCounterInterval = setInterval("UpdateFramesPerSecond()", 1000);
+  EnemyShipCreationInterval = setInterval("EnemyShipCreationLoop()", 1000);
+  GameInterval = setInterval("GameLoop()", 40);
 }
 
 function ClearGameObjects()
@@ -70,6 +65,13 @@ function UpdateFramesPerSecond()
   FramesPerSecond = FrameCounter;
   FrameCounter = 0;
 }
+
+function EnemyShipCreationLoop()
+{
+	// Create one new enemy ship per second!
+    CreateShipObject('Computer', playerObjectId);
+    playerObjectId++;
+}
     
 function GameLoop()
 {
@@ -77,8 +79,9 @@ function GameLoop()
   
   if(CountdownTimer < 1)
   {
-    window.clearInterval(Timer);
-    window.clearInterval(GameLoopInterval);
+    window.clearInterval(FrameCounterInterval);
+    window.clearInterval(GameInterval);
+    window.clearInterval(EnemyShipCreationInterval);
   }
   else
   {
@@ -255,14 +258,14 @@ function ProcessCommand(Command, GameObject)
 {
   switch (Command)
   {
-    case 0:
+    case 0: // Fire
       if (GameObject.Capacitor > 2)
       {
         CreateMissileObject(GameObject);
-        GameObject.Capacitor = GameObject.Capacitor - 3;
+        // GameObject.Capacitor = GameObject.Capacitor - 3;
       }
       break;
-    case 3:
+    case 3: // Rotate Right
       if (GameObject.Capacitor > 0)
       {
         if (GameObject.RotationDirection == 'Clockwise')
@@ -283,10 +286,10 @@ function ProcessCommand(Command, GameObject)
             GameObject.RotationDirection = 'None';
           }
         }
-        GameObject.Capacitor = GameObject.Capacitor - 1;
+        // GameObject.Capacitor = GameObject.Capacitor - 1;
       }
       break;
-    case 1:
+    case 1: // Rotate Left
       if (GameObject.Capacitor > 0)
       {
         if (GameObject.RotationDirection == 'CounterClockwise')
@@ -307,21 +310,21 @@ function ProcessCommand(Command, GameObject)
             GameObject.RotationDirection = 'None';
           }
         }
-        GameObject.Capacitor = GameObject.Capacitor - 1;
+        // GameObject.Capacitor = GameObject.Capacitor - 1;
       }
       break;
-    case 2:
+    case 2: // Accelerate
       if (GameObject.Capacitor > 0)
       {
         FindNewVelocity(GameObject, GameObject.Facing, 1)
-        GameObject.Capacitor = GameObject.Capacitor - 1;
+        // GameObject.Capacitor = GameObject.Capacitor - 1;
       }
       break;
-    case 4:
+    case 4: // Brake
       if (GameObject.Velocity > 0 && GameObject.Capacitor > 0)
       {
         GameObject.Velocity = GameObject.Velocity - 1;
-        GameObject.Capacitor = GameObject.Capacitor - 1;
+        // GameObject.Capacitor = GameObject.Capacitor - 1;
       }
       
       if (GameObject.RotationVelocity > 0 && GameObject.Capacitor > 0)
@@ -333,7 +336,7 @@ function ProcessCommand(Command, GameObject)
           GameObject.RotationDirection = 'None';
         }
 
-        GameObject.Capacitor = GameObject.Capacitor - 1;
+        // GameObject.Capacitor = GameObject.Capacitor - 1;
       }
       break;
   }
@@ -430,13 +433,6 @@ function RemoveGameObject(GameObject)
     case 'HumanShip':
       GameOver = true;
       break;
-    case 'ComputerShip':
-      EnemyCount = EnemyCount - 1;
-      if (EnemyCount < 1)
-      {
-        GameOver = true;
-      }
-      break;
   }
   
   for (var j = 0; j < GameObjects.length; j++)
@@ -450,51 +446,5 @@ function RemoveGameObject(GameObject)
       i++;
     }
   }
-}
-
-function SetStartingPosition(GameObject, Angle)
-{
-  if (Angle == 0)
-  {
-    GameObject.LocationX = 0;
-    GameObject.LocationY = StartingDistanceFromCenter * -1;
-  }
-  else if (Angle == 90)
-  {
-    GameObject.LocationX = StartingDistanceFromCenter;
-    GameObject.LocationY = 0;
-  }
-  else if (Angle == 180)
-  {
-    GameObject.LocationX = 0;
-    GameObject.LocationY = StartingDistanceFromCenter;
-  }
-  else if (Angle == 270)
-  {
-    GameObject.LocationX = StartingDistanceFromCenter * -1;
-    GameObject.LocationY = 0;
-  }
-  else if (Angle < 90)
-  {
-    GameObject.LocationX = StartingDistanceFromCenter * Math.sin(Angle * 0.0174532925);
-    GameObject.LocationY = StartingDistanceFromCenter * Math.cos(Angle * 0.0174532925) * -1;
-  }
-  else if (Angle < 180)
-  {
-    GameObject.LocationX = StartingDistanceFromCenter * Math.sin((180 - Angle) * 0.0174532925);
-    GameObject.LocationY = StartingDistanceFromCenter * Math.cos((180 - Angle) * 0.0174532925);
-  }
-  else if (Angle < 270)
-  {
-    GameObject.LocationX = StartingDistanceFromCenter * Math.sin((Angle - 180) * 0.0174532925) * -1;
-    GameObject.LocationY = StartingDistanceFromCenter * Math.cos((Angle - 180) * 0.0174532925);
-  }
-  else // 360
-  {
-    GameObject.LocationX = StartingDistanceFromCenter * Math.sin((360 - Angle) * 0.0174532925) * -1;
-    GameObject.LocationY = StartingDistanceFromCenter * Math.cos((360 - Angle) * 0.0174532925) * -1;
-  }
-
-  GameObject.Facing = Angle + 180;
 }
 

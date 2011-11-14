@@ -15,8 +15,6 @@
       var svgNS = "http://www.w3.org/2000/svg";
       var GameOver = true;
       var CountdownTimer = 25;
-      var EnemyCount = 0;
-      var Level = 0;
       var GameObjects = new Array();
       var DeadObjects = new Array();
       var PlayerObjects = new Array();
@@ -36,6 +34,7 @@
       var singlePlayer = false;
       var commandDelay = 1;
 
+      var playerObjectId = 0;
       var gameObjectId = 0;
       var availableHeight = window.innerHeight - 22;
       var availableWidth = window.innerWidth - 22;
