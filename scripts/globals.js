@@ -23,7 +23,7 @@ function Init()
   ShipConsoleElement.setAttributeNS(null, "fill", 'gray');
   ConsoleGroupElement.appendChild(ShipConsoleElement);
 
-  // Render the Console Components
+  // Render the Scope
   renderScope(ConsoleGroupElement);
   // renderRibbon(ConsoleGroupElement);
   // renderMissionSummary(ConsoleGroupElement);
@@ -249,25 +249,6 @@ function KeyPress(evt)
   {
     evt.preventDefault();
   }
-
-  // Zoom In
-  else if(evt.keyCode==107) 
-  {
-    evt.preventDefault();
-    
-    if (ZoomLevel > 100)
-    {
-      ZoomLevel = ZoomLevel - 100;
-    }
-  }
-
-  // Zoom Out
-  else if(evt.keyCode==109) 
-  {
-    evt.preventDefault();
-    ZoomLevel = ZoomLevel + 100;
-  }
-
   // enter - newgame
   else if(evt.keyCode==13 && GameOver == true)
   {
@@ -585,59 +566,3 @@ function UpdateMap()
   MapGroupElement.setAttribute('transform', 'scale(' + newCurrentScale + ') translate('+ x +','+ y +')');
 }
 
-function handle(delta)
-{
-  if (delta < 0)
-    ZoomLevel = ZoomLevel + 50;
-  else
-    if (ZoomLevel > 50)
-    {
-      ZoomLevel = ZoomLevel - 50;
-    }
-}
-
-function wheel(event)
-{
-  var delta = 0;
-  
-  // For IE.
-  if (!event)
-  {
-    event = window.event;
-  }
-  
-  if (event.wheelDelta)
-  { /* IE/Opera. */
-    delta = event.wheelDelta/120;
-    /** In Opera 9, delta differs in sign as compared to IE.
-     */
-    if (window.opera)
-    {
-      delta = -delta;
-      }
-  }
-  else if (event.detail) 
-  { /** Mozilla case. */
-    /** In Mozilla, sign of delta is different than in IE.
-     * Also, delta is multiple of 3.
-     */
-    delta = -event.detail/3;
-  }
-  /** If delta is nonzero, handle it.
-   * Basically, delta is now positive if wheel was scrolled up,
-   * and negative, if wheel was scrolled down.
-   */
-  if (delta)
-  {
-    handle(delta);
-  }
-  /** Prevent default actions caused by mouse wheel.
-   * That might be ugly, but we handle scrolls somehow
-   * anyway, so don't bother here..
-   */
-  if (event.preventDefault)
-  {
-    event.preventDefault();
-  }
-	event.returnValue = false;
-}

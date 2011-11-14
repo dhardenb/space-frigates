@@ -54,16 +54,7 @@
       var roundingConstant = AvailablePixels * .02;
 
       document.documentElement.addEventListener("keydown", KeyPress, false);
-
-      if (window.addEventListener)
-      {
-        // DOMMouseScroll is for mozilla.
-        window.addEventListener('DOMMouseScroll', wheel, false);
-      }
-     
-      // IE/Opera
-      window.onmousewheel = document.onmousewheel = wheel;
-     
+      
     ]]></script>
   </head>
   <body>
