@@ -202,61 +202,6 @@ function getHTTPObject()
   }
 }
 
-function KeyPress(evt)
-{
-  // Spare Bar: Fire!
-  if(evt.keyCode == 32)
-  {
-    evt.preventDefault();
-    var newCommand = new CommandObject(0, 0, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
-  }
-  // Rotate CounterClockwise
-  else if(evt.keyCode == 37)
-  {
-    evt.preventDefault();
-    var newCommand = new CommandObject(0, 1, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
-  }
-  // Forward Thruster
-  else if(evt.keyCode==38)
-  {
-    evt.preventDefault();
-    var newCommand = new CommandObject(0, 2, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
-  }
-  // Rotate Clockwise
-  else if(evt.keyCode==39)
-  {
-    evt.preventDefault();
-    var newCommand = new CommandObject(0, 3, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
-  }
-  // Brakes
-  else if(evt.keyCode==40)
-  {
-    evt.preventDefault();
-    var newCommand = new CommandObject(0, 4, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
-  }
-  // Center Map on Ship
-  else if(evt.keyCode==67)
-  {
-    evt.preventDefault();
-  }
-  // Shields
-  else if(evt.keyCode==83) 
-  {
-    evt.preventDefault();
-  }
-  // enter - newgame
-  else if(evt.keyCode==13 && GameOver == true)
-  {
-    evt.preventDefault();
-    NewGame();
-  }
-}
-
 function CreateShieldObject(ShieldSource)
 {
   var NewShield = new GameObject(gameObjectId, 'Shield', ShieldSource.LocationX, ShieldSource.LocationY, 0, Math.random()*360, Math.random()*10, 'hidden', 1, 'None', 0, 0, Math.random()*10);

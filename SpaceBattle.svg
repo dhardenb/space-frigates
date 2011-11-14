@@ -9,6 +9,7 @@
     <script src="./scripts/partical.js"></script>
     <script src="./scripts/fire_button.js"></script>
     <script src="./scripts/physics.js"></script>
+    <script src="./scripts/keyboard_events.js"></script>
     <script type="text/ecmascript"><![CDATA[
   
       var svgNS = "http://www.w3.org/2000/svg";
