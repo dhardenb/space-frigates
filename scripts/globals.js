@@ -91,7 +91,6 @@ function GameLoop()
     UpdateGameObjects();
     CollisionDetection();
     BoundryChecking();
-    UpdateMap(); // I put this here because updatign the map is based on the new position of the local players ship.
     UpdateGameElements();
     
     tick++;
@@ -497,13 +496,5 @@ function SetStartingPosition(GameObject, Angle)
   }
 
   GameObject.Facing = Angle + 180;
-}
-    
-function UpdateMap()
-{
-  newCurrentScale = AvailablePixels / ZoomLevel;
-  x = HumanShip.LocationX * -1;
-  y = HumanShip.LocationY * -1;
-  MapGroupElement.setAttribute('transform', 'scale(' + newCurrentScale + ') translate('+ x +','+ y +')');
 }
 
