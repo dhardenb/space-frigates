@@ -1,7 +1,7 @@
 function KeyPress(evt)
 {
   // ENTER - Start
-  if(evt.keyCode==13 && GameOver == true)
+  if(evt.keyCode==13 && GameOver == true && CountdownTimer < 1)
   {
     evt.preventDefault();
     NewGame();

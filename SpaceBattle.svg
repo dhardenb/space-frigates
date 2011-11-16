@@ -14,7 +14,7 @@
   
       var svgNS = "http://www.w3.org/2000/svg";
       var GameOver = true;
-      var CountdownTimer = 25;
+      var CountdownTimer = 0;
       var GameObjects = new Array();
       var DeadObjects = new Array();
       var PlayerObjects = new Array();
