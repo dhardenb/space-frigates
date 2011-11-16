@@ -351,7 +351,7 @@ function ProcessCommand(Command, GameObject)
 
 function BoundryChecking()
 {
-  var MapRadius = (AvailablePixels - componentOffset * 4) / 2;
+  var MapRadius = (AvailablePixels - componentOffset * 4) / 2 / CurrentScale;
   for (var i = 0; i < GameObjects.length; i++)
   {
     // Check to see if GameObject has flown past the border. I do this by measuring the distance
