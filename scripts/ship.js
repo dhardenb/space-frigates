@@ -95,8 +95,8 @@ function SetStartingPosition(GameObject)
 {
   var angle = Math.floor(Math.random() * 360);
   
-  // (AvailablePixels - componentOffset * 4) / 2 == The Radius Of The Map
-  var distanceFromCenter = Math.floor(Math.random() * (AvailablePixels - componentOffset * 4) / 2 + 1);
+  // (AvailablePixels - componentOffset * 4) / 2 / CurrentScale == The Radius Of The Map
+  var distanceFromCenter = Math.floor(Math.random() * (AvailablePixels - componentOffset * 4) / 2 / CurrentScale + 1);
   
   if (angle == 0)
   {
