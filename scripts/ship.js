@@ -29,7 +29,7 @@ function UpdateShipObject(ShipObject)
   {
     if (CommandObjects[i].target == ShipObject.Id && CommandObjects[i].tick == tick)
     {
-      ProcessCommand(CommandObjects[i].command, ShipObject)
+      ProcessShipCommand(CommandObjects[i].command, ShipObject)
     }
   }
   

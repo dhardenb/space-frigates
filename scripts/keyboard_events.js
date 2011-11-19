@@ -12,7 +12,7 @@ function KeyPress(evt)
   {
     evt.preventDefault();
     var newCommand = new CommandObject(0, 0, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
+    CommandObjects.push(newCommand);
   }
   
   // LEFT_ARROW - Rotate CounterClockwise
@@ -20,7 +20,7 @@ function KeyPress(evt)
   {
     evt.preventDefault();
     var newCommand = new CommandObject(0, 1, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
+    CommandObjects.push(newCommand);
   }
   
   // UP_ARROW - Forward Thruster
@@ -28,7 +28,7 @@ function KeyPress(evt)
   {
     evt.preventDefault();
     var newCommand = new CommandObject(0, 2, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
+    CommandObjects.push(newCommand);
   }
   
   // RIGHT_ARROW - Rotate Clockwise
@@ -36,7 +36,7 @@ function KeyPress(evt)
   {
     evt.preventDefault();
     var newCommand = new CommandObject(0, 3, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
+    CommandObjects.push(newCommand);
   }
   
   // DOWN_ARROW - Stop
@@ -44,6 +44,6 @@ function KeyPress(evt)
   {
     evt.preventDefault();
     var newCommand = new CommandObject(0, 4, PlayerObjects[0].ship, tick+commandDelay);
-    IssueCommand(newCommand);
+    CommandObjects.push(newCommand);
   }
 }
