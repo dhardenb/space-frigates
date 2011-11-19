@@ -7,7 +7,6 @@
     <script src="./scripts/ship.js"></script>
     <script src="./scripts/missile.js"></script>
     <script src="./scripts/partical.js"></script>
-    <script src="./scripts/fire_button.js"></script>
     <script src="./scripts/physics.js"></script>
     <script src="./scripts/keyboard_events.js"></script>
     <script type="text/ecmascript"><![CDATA[
