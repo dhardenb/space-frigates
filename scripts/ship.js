@@ -1,9 +1,8 @@
-function CreateShipObject(ShipType, ComputerShipNumber)
+function CreateShipObject(ShipType)
 {
   if (ShipType == 'Human')
   {
-    // I'm making the human ship pointer global so that I can easily get it's coordinates for updating the map perspective.
-    HumanShip = new GameObject(gameObjectId, 'HumanShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
+    var HumanShip = new GameObject(gameObjectId, 'HumanShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
     var HumanPlayer = new PlayerObject(-1, gameObjectId)
     GameObjects.push(HumanShip);
     PlayerObjects.push(HumanPlayer);
@@ -12,13 +11,14 @@ function CreateShipObject(ShipType, ComputerShipNumber)
   }
   else
   {
-    var NewComputerShip = new GameObject(gameObjectId, 'ComputerShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
-    var ComputerPlayer = new PlayerObject(ComputerShipNumber, gameObjectId)
-    GameObjects.push(NewComputerShip);
+    var ComputerShip = new GameObject(gameObjectId, 'ComputerShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
+    var ComputerPlayer = new PlayerObject(playerObjectId, gameObjectId)
+    GameObjects.push(ComputerShip);
     PlayerObjects.push(ComputerPlayer);
-    SetStartingPosition(NewComputerShip);
-    CreateShipElement(NewComputerShip);
-    UpdateShipElement(NewComputerShip);
+    SetStartingPosition(ComputerShip);
+    CreateShipElement(ComputerShip);
+    UpdateShipElement(ComputerShip);
+    playerObjectId++;
   }
   gameObjectId++;
 }
