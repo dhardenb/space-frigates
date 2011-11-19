@@ -68,9 +68,7 @@ function UpdateFramesPerSecond()
 
 function EnemyShipCreationLoop()
 {
-	// Create one new enemy ship per second!
-    CreateShipObject('Computer', playerObjectId);
-    playerObjectId++;
+    CreateShipObject('Computer');
 }
     
 function GameLoop()
@@ -338,8 +336,6 @@ function CollisionDetection()
     }
   }
   
-  RemoveDeadObjects();
-  
   for (var k = 0; k < GameObjects.length; k++)
   {
     if ((GameObjects[k].Type == "Missile") && (GameObjects[k].Fuel < 1))
@@ -373,6 +369,9 @@ function RemoveGameObject(GameObject)
     case 'HumanShip':
       GameOver = true;
       break;
+    case 'ComputerShip':
+      // RemovePlayerObject(GameObject);
+      break;
   }
   
   for (var j = 0; j < GameObjects.length; j++)
@@ -384,6 +383,17 @@ function RemoveGameObject(GameObject)
     else
     {
       i++;
+    }
+  }
+}
+
+function removePlayerObject(GameObject)
+{
+  for (var x=0; x < PlayerObjects.length; x++)
+  {
+    if (PlayerObject[x].ship == GameObject.id)
+    {
+      PlayerObjects.splice(x,1);
     }
   }
 }
