@@ -164,15 +164,6 @@ function UpdateGameObjects()
   }
 }
 
-function CreateShieldObject(ShieldSource)
-{
-  var NewShield = new GameObject(gameObjectId, 'Shield', ShieldSource.LocationX, ShieldSource.LocationY, 0, Math.random()*360, Math.random()*10, 'hidden', 1, 'None', 0, 0, Math.random()*10);
-  gameObjectId++;
-  GameObjects.push(NewPartical);
-  CreateParticalElement(NewPartical);
-  FindNewVelocity(NewPartical, ParticalSource.Heading, ParticalSource.Velocity); 
-}
-
 function CreateExplosion(SourceGameObject)
 {
   for (var i=0; i<ExplosionSize; i++)
