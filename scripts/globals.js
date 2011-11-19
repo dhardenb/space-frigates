@@ -90,7 +90,7 @@ function GameLoop()
       CountdownTimer = CountdownTimer - 1;
     }
     
-    SendCommandsToServer();
+    issueAiCommands();
     UpdateGameObjects();
     CollisionDetection();
     BoundryChecking();
@@ -100,7 +100,7 @@ function GameLoop()
   }
 }
 
-function SendCommandsToServer()
+function issueAiCommands()
 {
   for (var i=1, j=PlayerObjects.length; i<j; i++)
   {
@@ -117,51 +117,35 @@ function Think(PlayerObject)
   {
     case 1:
       var ThrusterCommand = new CommandObject(PlayerObject.id, 2, PlayerObject.ship, tick+commandDelay);
-      IssueCommand(ThrusterCommand);
+      CommandObjects.push(ThrusterCommand);
       break;
     case 3:
     case 4:
     case 11:
       var FireCommand = new CommandObject(PlayerObject.id, 0, PlayerObject.ship, tick+commandDelay);
-      IssueCommand(FireCommand);
+      CommandObjects.push(FireCommand);
       break;
     case 6:
     case 7:
       var RotateCounterClockwiseCommand = new CommandObject(PlayerObject.id, 1, PlayerObject.ship, tick+commandDelay);
-      IssueCommand(RotateCounterClockwiseCommand);
+      CommandObjects.push(RotateCounterClockwiseCommand);
       break;
     case 8:
     case 9:
       var RotateClockwiseCommand = new CommandObject(PlayerObject.id, 3, PlayerObject.ship, tick+commandDelay);
-      IssueCommand(RotateClockwiseCommand);
+      CommandObjects.push(RotateClockwiseCommand);
       break;
     case 2:
     case 5:
     case 10:
       var BrakesCommand = new CommandObject(PlayerObject.id, 4, PlayerObject.ship, tick+commandDelay);
-      IssueCommand(BrakesCommand);
+      CommandObjects.push(BrakesCommand);
       break;
   }
 }
 
-function IssueCommand(newCommand)
-{
-  if (singlePlayer == true)
-  {
-    httpObject = getHTTPObject();
-    if (httpObject != null)
-    {
-      httpObject.open("GET", "space_battle_server.php?player=" + newCommand.player + "&type=" + newCommand.command + "&target=" + newCommand.target + "&tick=" + newCommand.tick, true);
-      httpObject.send(null);
-    }
-  }
-  CommandObjects.push(newCommand);
-}
-
 function UpdateGameObjects()
 {
-  // Can not optimize this loop because the ProcessCommand can
-  // add new objects tothe GameObjects array!!!
   for (var i=0; i<GameObjects.length; i++)
   {
     switch (GameObjects[i].Type)
@@ -177,25 +161,6 @@ function UpdateGameObjects()
         UpdateParticalObject(GameObjects[i]);
         break;
     }
-  }
-  
-  DeleteOldCommands();
-}
-
-function getHTTPObject()
-{
-  if (window.ActiveXObject)
-  {
-    return new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  else if (window.XMLHttpRequest)
-  {
-    return new XMLHttpRequest();
-  }
-  else 
-  {
-    alert("Your browser does not support AJAX.");
-    return null;
   }
 }
 
@@ -214,22 +179,6 @@ function CreateExplosion(SourceGameObject)
   {
     CreateParticalObject(SourceGameObject);
   }
-}
-
-function DeleteOldCommands()
-{
-  numberOfCommandsToDelete = 0;
-  
-  for (var i=0, j=CommandObjects.length; i<j; i++)
-  {
-    if (CommandObjects[i].tick > tick)
-    {
-      numberOfCommandsToDelete = i;
-      break;
-    }
-  }
-  
-  CommandObjects.splice(0, numberOfCommandsToDelete)
 }
 
 function UpdateGameElements()
@@ -254,7 +203,7 @@ function UpdateGameElements()
   
 }
 
-function ProcessCommand(Command, GameObject)
+function ProcessShipCommand(Command, GameObject)
 {
   switch (Command)
   {
