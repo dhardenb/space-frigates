@@ -11,7 +11,7 @@ function KeyPress(evt)
   else if(evt.keyCode == 32)
   {
     evt.preventDefault();
-    var newCommand = new CommandObject(0, 0, PlayerObjects[0].ship, tick+commandDelay);
+    var newCommand = new CommandObject(0, 0, PlayerObjects[0].shipId, tick+commandDelay);
     CommandObjects.push(newCommand);
   }
   
@@ -19,7 +19,7 @@ function KeyPress(evt)
   else if(evt.keyCode == 37)
   {
     evt.preventDefault();
-    var newCommand = new CommandObject(0, 1, PlayerObjects[0].ship, tick+commandDelay);
+    var newCommand = new CommandObject(0, 1, PlayerObjects[0].shipId, tick+commandDelay);
     CommandObjects.push(newCommand);
   }
   
@@ -27,7 +27,7 @@ function KeyPress(evt)
   else if(evt.keyCode==38)
   {
     evt.preventDefault();
-    var newCommand = new CommandObject(0, 2, PlayerObjects[0].ship, tick+commandDelay);
+    var newCommand = new CommandObject(0, 2, PlayerObjects[0].shipId, tick+commandDelay);
     CommandObjects.push(newCommand);
   }
   
@@ -35,7 +35,7 @@ function KeyPress(evt)
   else if(evt.keyCode==39)
   {
     evt.preventDefault();
-    var newCommand = new CommandObject(0, 3, PlayerObjects[0].ship, tick+commandDelay);
+    var newCommand = new CommandObject(0, 3, PlayerObjects[0].shipId, tick+commandDelay);
     CommandObjects.push(newCommand);
   }
   
@@ -43,7 +43,7 @@ function KeyPress(evt)
   else if(evt.keyCode==40)
   {
     evt.preventDefault();
-    var newCommand = new CommandObject(0, 4, PlayerObjects[0].ship, tick+commandDelay);
+    var newCommand = new CommandObject(0, 4, PlayerObjects[0].shipId, tick+commandDelay);
     CommandObjects.push(newCommand);
   }
 }

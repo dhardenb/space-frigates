@@ -16,10 +16,10 @@ function GameObject(Id, Type, LocationX, LocationY, Facing, Heading, Velocity, S
   this.svgElement;
 }
 
-function PlayerObject(id, ship)
+function PlayerObject(id, shipId)
 {
   this.id = id;
-  this.ship = ship;
+  this.shipId = shipId;
 }
 
 function CommandObject(player, command, target, tick)

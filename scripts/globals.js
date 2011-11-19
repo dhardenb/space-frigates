@@ -100,11 +100,11 @@ function GameLoop()
 
 function issueAiCommands()
 {
-  for (var i=1, j=PlayerObjects.length; i<j; i++)
+  if (FrameCounter == 10)
   {
-    if (FrameCounter == i+1)
+    for (var x=1; x<PlayerObjects.length; x++)
     {
-      Think(PlayerObjects[i]);
+      Think(PlayerObjects[x]);
     }
   }
 }
@@ -114,29 +114,29 @@ function Think(PlayerObject)
   switch (Math.floor(Math.random()*11+1))
   {
     case 1:
-      var ThrusterCommand = new CommandObject(PlayerObject.id, 2, PlayerObject.ship, tick+commandDelay);
+      var ThrusterCommand = new CommandObject(PlayerObject.id, 2, PlayerObject.shipId, tick+commandDelay);
       CommandObjects.push(ThrusterCommand);
       break;
     case 3:
     case 4:
     case 11:
-      var FireCommand = new CommandObject(PlayerObject.id, 0, PlayerObject.ship, tick+commandDelay);
+      var FireCommand = new CommandObject(PlayerObject.id, 0, PlayerObject.shipId, tick+commandDelay);
       CommandObjects.push(FireCommand);
       break;
     case 6:
     case 7:
-      var RotateCounterClockwiseCommand = new CommandObject(PlayerObject.id, 1, PlayerObject.ship, tick+commandDelay);
+      var RotateCounterClockwiseCommand = new CommandObject(PlayerObject.id, 1, PlayerObject.shipId, tick+commandDelay);
       CommandObjects.push(RotateCounterClockwiseCommand);
       break;
     case 8:
     case 9:
-      var RotateClockwiseCommand = new CommandObject(PlayerObject.id, 3, PlayerObject.ship, tick+commandDelay);
+      var RotateClockwiseCommand = new CommandObject(PlayerObject.id, 3, PlayerObject.shipId, tick+commandDelay);
       CommandObjects.push(RotateClockwiseCommand);
       break;
     case 2:
     case 5:
     case 10:
-      var BrakesCommand = new CommandObject(PlayerObject.id, 4, PlayerObject.ship, tick+commandDelay);
+      var BrakesCommand = new CommandObject(PlayerObject.id, 4, PlayerObject.shipId, tick+commandDelay);
       CommandObjects.push(BrakesCommand);
       break;
   }
@@ -391,7 +391,7 @@ function removePlayerObject(GameObject)
 {
   for (var x=0; x < PlayerObjects.length; x++)
   {
-    if (PlayerObject[x].ship == GameObject.id)
+    if (PlayerObject[x].shipId == GameObject.id)
     {
       PlayerObjects.splice(x,1);
     }
