@@ -2,6 +2,7 @@
   <head>
     <title>Space Battle</title>
     <script src="./scripts/globals.js"></script>
+    <script src="./scripts/ScoreView.js"></script>
     <script src="./scripts/gui.js"></script>
     <script src="./scripts/objects.js"></script>
     <script src="./scripts/ship.js"></script>
@@ -29,6 +30,7 @@
       var ExplosionSize = 20;
       var MissileFuel = 100;
       var tick = 0;
+      var score = 0;
 
       var singlePlayer = false;
       var commandDelay = 1;

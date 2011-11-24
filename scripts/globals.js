@@ -25,6 +25,9 @@ function Init()
 
   // Render the Scope
   renderScope(ConsoleGroupElement);
+  
+  // Render the score view
+  renderScore(ConsoleGroupElement);
 }
 
 function NewGame()
@@ -44,6 +47,8 @@ function NewGame()
   CreateShipObject('Human', 0);
 
   FrameCounter = 0;
+  score = 0;
+  ScoreText.firstChild.nodeValue = score;
 
   FrameCounterInterval = setInterval("UpdateFramesPerSecond()", 1000);
   EnemyShipCreationInterval = setInterval("EnemyShipCreationLoop()", 1000);
@@ -370,7 +375,8 @@ function RemoveGameObject(GameObject)
       GameOver = true;
       break;
     case 'ComputerShip':
-      // RemovePlayerObject(GameObject);
+      score++;
+      ScoreText.firstChild.nodeValue = score;
       break;
   }
   
