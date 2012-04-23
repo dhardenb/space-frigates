@@ -28,6 +28,8 @@ function Init()
   
   // Render the score view
   renderScore(ConsoleGroupElement);
+  
+  NewGame();
 }
 
 function NewGame()
@@ -38,7 +40,7 @@ function NewGame()
   CommandRequestObjects.length = 0;
     
   GameOver = false;
-  CountdownTimer = 25;
+  CountdownTimer = 100;
   playerObjectId = 0;
   gameObjectId = 0;
   
@@ -85,6 +87,7 @@ function GameLoop()
     window.clearInterval(FrameCounterInterval);
     window.clearInterval(GameInterval);
     window.clearInterval(EnemyShipCreationInterval);
+    NewGame();
   }
   else
   {
