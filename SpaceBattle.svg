@@ -1,6 +1,8 @@
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Space Battle</title>
+    <meta charset="UTF-8" />
     <script src="./scripts/globals.js"></script>
     <script src="./scripts/ScoreView.js"></script>
     <script src="./scripts/gui.js"></script>
