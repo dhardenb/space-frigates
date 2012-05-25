@@ -28,7 +28,7 @@ header("Content-type: image/svg+xml");
       var CommandRequestObjects = new Array();
       var FrameCounter = 0;
       var FramesPerSecond = 0;
-      var ZoomLevel = 800;
+      var ZoomLevel = 400;
       var GameSpeed = .66;
       var CapacitorMax = 25;
       var CapacitorInput = .16;
