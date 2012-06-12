@@ -80,6 +80,7 @@ function CreateShipElement(ShipObject)
   
   ShipObject.svgElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
   ShipObject.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
+  ShipObject.svgElement.setAttributeNS(null, 'stroke-width', 2 / CurrentScale);
   ShipObject.svgElement.setAttributeNS(null, 'fill', 'black');
   ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+')');
 
