@@ -1,3 +1,46 @@
+var svgNS = "http://www.w3.org/2000/svg";
+var GameOver = true;
+var CountdownTimer = 0;
+var GameObjects = new Array();
+var DeadObjects = new Array();
+var PlayerObjects = new Array();
+var CommandObjects = new Array();
+var CommandRequestObjects = new Array();
+var FrameCounter = 0;
+var FramesPerSecond = 0;
+var ZoomLevel = 400;
+var GameSpeed = .66;
+var CapacitorMax = 25;
+var CapacitorInput = .16;
+var MissileVelocity = 5;
+var ExplosionSize = 20;
+var MissileFuel = 100;
+var tick = 0;
+var score = 0;
+
+var singlePlayer = false;
+var commandDelay = 1;
+
+var playerObjectId = 0;
+var gameObjectId = 0;
+
+var availableWidth = window.innerWidth - 22;
+var availableHeight = window.innerHeight - 22;
+
+if (availableHeight < availableWidth)
+{
+AvailablePixels = availableHeight;
+}
+else
+{
+AvailablePixels = availableWidth;
+}
+
+var componentOffset = AvailablePixels * .01
+var CurrentScale = AvailablePixels / ZoomLevel;
+var StartingDistanceFromCenter = 100;
+var roundingConstant = AvailablePixels * .02;
+
 function Init()
 {
   // Resize the canvas
@@ -6,28 +49,18 @@ function Init()
   CanvasElement.setAttributeNS(null, "width", availableWidth);
 
   // Render the ConsoleGroup
-  var ConsoleGroupElement = document.createElementNS(svgNS,"g");
-  verticalMargins = (availableWidth - AvailablePixels) / 2;
-  horizontalMargins = (availableHeight - AvailablePixels) / 2;
-  ConsoleGroupElement.setAttribute('transform', 'translate('+verticalMargins+','+horizontalMargins+')');
-  CanvasElement.appendChild(ConsoleGroupElement);
-
-  // Render the Console
-  var ShipConsoleElement = document.createElementNS(svgNS,"rect");
-  ShipConsoleElement.setAttributeNS(null, "x", 0);	
-  ShipConsoleElement.setAttributeNS(null, "y", 0);
-  ShipConsoleElement.setAttributeNS(null, "rx", roundingConstant);
-  ShipConsoleElement.setAttributeNS(null, "ry", roundingConstant);
-  ShipConsoleElement.setAttributeNS(null, "height", AvailablePixels);	
-  ShipConsoleElement.setAttributeNS(null, "width", AvailablePixels);
-  ShipConsoleElement.setAttributeNS(null, "fill", 'gray');
-  ConsoleGroupElement.appendChild(ShipConsoleElement);
-
-  // Render the Scope
-  renderScope(ConsoleGroupElement);
+  map = document.createElementNS(svgNS,"g");
+  map.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + CurrentScale + ')');
+  CanvasElement.appendChild(map);
   
-  // Render the score view
-  renderScore(ConsoleGroupElement);
+  var scope = document.createElementNS(svgNS,"circle");
+  scope.setAttributeNS(null, "cx", 0);	
+  scope.setAttributeNS(null, "cy", 0);		
+  scope.setAttributeNS(null, "r", (AvailablePixels / 2 / CurrentScale));
+  scope.setAttributeNS(null, "stroke", "yellow");
+  scope.setAttributeNS(null, "stroke-width", "2px");
+  scope.setAttributeNS(null, "fill", "black");
+  map.appendChild(scope);
   
   NewGame();
 }
@@ -49,8 +82,6 @@ function NewGame()
   CreateShipObject('Human', 0);
 
   FrameCounter = 0;
-  score = 0;
-  ScoreText.firstChild.nodeValue = score;
 
   FrameCounterInterval = setInterval("UpdateFramesPerSecond()", 1000);
   EnemyShipCreationInterval = setInterval("EnemyShipCreationLoop()", 1000);
@@ -297,7 +328,7 @@ function ProcessShipCommand(Command, GameObject)
 
 function BoundryChecking()
 {
-  var MapRadius = (AvailablePixels - componentOffset * 4) / 2 / CurrentScale;
+  var MapRadius = AvailablePixels / 2 / CurrentScale;
   for (var i = 0; i < GameObjects.length; i++)
   {
     // Check to see if GameObject has flown past the border. I do this by measuring the distance
@@ -378,8 +409,6 @@ function RemoveGameObject(GameObject)
       GameOver = true;
       break;
     case 'ComputerShip':
-      score++;
-      ScoreText.firstChild.nodeValue = score;
       break;
   }
   
