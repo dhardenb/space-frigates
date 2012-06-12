@@ -83,7 +83,7 @@ function CreateShipElement(ShipObject)
   ShipObject.svgElement.setAttributeNS(null, 'fill', 'black');
   ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+')');
 
-  MapGroupElement.appendChild(ShipObject.svgElement);
+  map.appendChild(ShipObject.svgElement);
 }
 
 function UpdateShipElement(ShipObject)

@@ -64,7 +64,7 @@ function CreateMissileElement(MissileObject)
   MissileObject.svgElement.setAttributeNS(null, 'cy', MissileObject.LocationY);
   MissileObject.svgElement.setAttributeNS(null, 'r', MissileObject.Size);		
   MissileObject.svgElement.setAttributeNS(null, 'fill', 'yellow');
-  MapGroupElement.appendChild(MissileObject.svgElement);
+  map.appendChild(MissileObject.svgElement);
 }
 
 function UpdateMissileElement(MissileObject)
