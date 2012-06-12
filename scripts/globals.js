@@ -60,7 +60,7 @@ function Init()
   scope.setAttributeNS(null, "cx", 0);	
   scope.setAttributeNS(null, "cy", 0);		
   scope.setAttributeNS(null, "r", ((AvailablePixels - 22) / 2 / CurrentScale));
-  scope.setAttributeNS(null, "stroke", "green");
+  scope.setAttributeNS(null, "stroke", "gray");
   scope.setAttributeNS(null, "stroke-width", "2px");
   scope.setAttributeNS(null, "stroke-opacity", 0.5);
   scope.setAttributeNS(null, "fill", "black");
