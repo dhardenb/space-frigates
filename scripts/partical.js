@@ -26,8 +26,8 @@ function CreateParticalElement(ParticalObject)
   ParticalObject.svgElement = document.createElementNS(svgNS,"circle");
   ParticalObject.svgElement.setAttributeNS(null, 'cx', ParticalObject.LocationX);	
   ParticalObject.svgElement.setAttributeNS(null, 'cy', ParticalObject.LocationY);	
-  ParticalObject.svgElement.setAttributeNS(null, 'r', ParticalObject.Size);		
-  ParticalObject.svgElement.setAttributeNS(null, 'fill', 'yellow');
+  ParticalObject.svgElement.setAttributeNS(null, 'r', ParticalObject.Size / CurrentScale);		
+  ParticalObject.svgElement.setAttributeNS(null, 'fill', 'red');
   map.appendChild(ParticalObject.svgElement);
 }
 
