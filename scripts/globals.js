@@ -41,10 +41,13 @@ var CurrentScale = AvailablePixels / ZoomLevel;
 var StartingDistanceFromCenter = 100;
 var roundingConstant = AvailablePixels * .02;
 
+var starCollection;
+var CanvasElement;
+
 function Init()
 {
   // Resize the canvas
-  var CanvasElement = document.getElementById("Canvas");
+  CanvasElement = document.getElementById("Canvas");
   CanvasElement.setAttributeNS(null, "height", availableHeight);	
   CanvasElement.setAttributeNS(null, "width", availableWidth);
 
@@ -56,11 +59,27 @@ function Init()
   var scope = document.createElementNS(svgNS,"circle");
   scope.setAttributeNS(null, "cx", 0);	
   scope.setAttributeNS(null, "cy", 0);		
-  scope.setAttributeNS(null, "r", (AvailablePixels / 2 / CurrentScale));
-  scope.setAttributeNS(null, "stroke", "yellow");
+  scope.setAttributeNS(null, "r", ((AvailablePixels - 22) / 2 / CurrentScale));
+  scope.setAttributeNS(null, "stroke", "green");
   scope.setAttributeNS(null, "stroke-width", "2px");
+  scope.setAttributeNS(null, "stroke-opacity", 0.5);
   scope.setAttributeNS(null, "fill", "black");
   map.appendChild(scope);
+  
+  starCollection = new StarCollection;
+				
+  for (var x = 0; x < window.innerWidth - 22; x++)
+  {
+	for (var y = 0; y < window.innerHeight - 22; y++)
+	{
+	  if (Math.floor((Math.random()*1000)+1) == 1)
+	    {
+		  var newStar = new StarModel({ xLocation: x, yLocation: y, alpha: Math.random(), brightning: Math.round(Math.random()), twinkleRate: Math.random()*0.1});
+		  starCollection.add(newStar);
+		  new StarView({model: newStar});
+		}
+	}
+  }
   
   NewGame();
 }
