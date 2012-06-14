@@ -42,29 +42,57 @@ var StartingDistanceFromCenter = 100;
 var roundingConstant = AvailablePixels * .02;
 
 var starCollection;
-var CanvasElement;
+
+var backgroundGroup;
+var scopeGroup;
+var portGroup;
+var translateGroup;
+var rotateGroup;
+var mapGroup;
 
 function Init()
 {
-  // Resize the canvas
-  CanvasElement = document.getElementById("Canvas");
-  CanvasElement.setAttributeNS(null, "height", availableHeight);	
-  CanvasElement.setAttributeNS(null, "width", availableWidth);
 
-  // Render the ConsoleGroup
-  map = document.createElementNS(svgNS,"g");
-  map.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + CurrentScale + ')');
-  CanvasElement.appendChild(map);
+  var background = document.getElementById("background");
+  background.setAttributeNS(null, "height", availableHeight);	
+  background.setAttributeNS(null, "width", availableWidth);
+  
+  backgroundGroup = document.createElementNS(svgNS,"g");
+  backgroundGroup.setAttribute('id', 'backgroundGroup');
+  background.appendChild(backgroundGroup);
+  
+  scopeGroup = document.createElementNS(svgNS,"g");
+  scopeGroup.setAttribute('id', 'scopeGroup');
+  scopeGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+')');
+  background.appendChild(scopeGroup);
   
   var scope = document.createElementNS(svgNS,"circle");
   scope.setAttributeNS(null, "cx", 0);	
   scope.setAttributeNS(null, "cy", 0);		
-  scope.setAttributeNS(null, "r", ((AvailablePixels - 22) / 2 / CurrentScale));
+  scope.setAttributeNS(null, "r", ((AvailablePixels - 22) / 2));
   scope.setAttributeNS(null, "stroke", "gray");
   scope.setAttributeNS(null, "stroke-width", "2px");
   scope.setAttributeNS(null, "stroke-opacity", 0.5);
   scope.setAttributeNS(null, "fill", "black");
-  map.appendChild(scope);
+  scope.setAttributeNS(null, "fill-opacity", 0.0);
+  scopeGroup.appendChild(scope);
+  
+  portGroup = document.createElementNS(svgNS,"g");
+  portGroup.setAttribute('id', 'portGroup');
+  portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + CurrentScale + ')');
+  background.appendChild(portGroup);
+  
+  rotateGroup = document.createElementNS(svgNS,"g");
+  rotateGroup.setAttribute('id', 'rotateGroup');
+  portGroup.appendChild(rotateGroup);
+  
+  translateGroup = document.createElementNS(svgNS,"g");
+  translateGroup.setAttribute('id', 'translateGroup');
+  rotateGroup.appendChild(translateGroup);
+  
+  mapGroup = document.createElementNS(svgNS,"g");
+  mapGroup.setAttribute('id', 'mapGroup');
+  translateGroup.appendChild(mapGroup);
   
   starCollection = new StarCollection;
 				
@@ -149,7 +177,7 @@ function GameLoop()
     issueAiCommands();
     UpdateGameObjects();
     CollisionDetection();
-    BoundryChecking();
+    // BoundryChecking();
     UpdateGameElements();
     
     tick++;
@@ -248,101 +276,6 @@ function UpdateGameElements()
   }
   
   
-}
-
-function ProcessShipCommand(Command, GameObject)
-{
-  switch (Command)
-  {
-    case 0: // Fire
-      if (GameObject.Capacitor > 2)
-      {
-        CreateMissileObject(GameObject);
-        // GameObject.Capacitor = GameObject.Capacitor - 3;
-      }
-      break;
-    case 3: // Rotate Right
-      if (GameObject.Capacitor > 0)
-      {
-        if (GameObject.RotationDirection == 'Clockwise')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
-        }
-        else if (GameObject.RotationDirection == 'None')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
-          GameObject.RotationDirection = 'Clockwise';
-        }
-        else // GameObject.RotationDirection == 'CounterClockwise'
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
-       
-          if (GameObject.RotationVelocity == 0)
-          {
-            GameObject.RotationDirection = 'None';
-          }
-        }
-        // GameObject.Capacitor = GameObject.Capacitor - 1;
-      }
-      break;
-    case 1: // Rotate Left
-      if (GameObject.Capacitor > 0)
-      {
-        if (GameObject.RotationDirection == 'CounterClockwise')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
-        }
-        else if (GameObject.RotationDirection == 'None')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
-          GameObject.RotationDirection = 'CounterClockwise';
-        }
-        else
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
-          
-          if (GameObject.RotationVelocity == 0)
-          {
-            GameObject.RotationDirection = 'None';
-          }
-        }
-        // GameObject.Capacitor = GameObject.Capacitor - 1;
-      }
-      break;
-    case 2: // Accelerate
-      if (GameObject.Capacitor > 0)
-      {
-        FindNewVelocity(GameObject, GameObject.Facing, 1)
-        // GameObject.Capacitor = GameObject.Capacitor - 1;
-      }
-      break;
-    case 4: // Brake
-      if (GameObject.Velocity > 0 && GameObject.Capacitor > 0)
-      {
-        GameObject.Velocity = GameObject.Velocity - 1;
-        // GameObject.Capacitor = GameObject.Capacitor - 1;
-      }
-      
-      if (GameObject.RotationVelocity > 0 && GameObject.Capacitor > 0)
-      {
-        GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
-          
-        if (GameObject.RotationVelocity == 0)
-        {
-          GameObject.RotationDirection = 'None';
-        }
-
-        // GameObject.Capacitor = GameObject.Capacitor - 1;
-      }
-      break;
-  }
-
-  // This should really get checked by each indivifual command
-  // but I'm feeling lzy tonight...
-  if (GameObject.Velocity < 0)
-  {
-    GameObject.Velocity = 0;
-  }
 }
 
 function BoundryChecking()
