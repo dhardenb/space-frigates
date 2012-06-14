@@ -28,7 +28,7 @@ function CreateParticalElement(ParticalObject)
   ParticalObject.svgElement.setAttributeNS(null, 'cy', ParticalObject.LocationY);	
   ParticalObject.svgElement.setAttributeNS(null, 'r', ParticalObject.Size / CurrentScale);		
   ParticalObject.svgElement.setAttributeNS(null, 'fill', 'red');
-  map.appendChild(ParticalObject.svgElement);
+  mapGroup.appendChild(ParticalObject.svgElement);
 }
 
 function UpdateParticalElement(ParticalObject)

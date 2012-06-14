@@ -64,7 +64,7 @@ var StarView = Backbone.View.extend(
 		this.el.setAttributeNS(null, "fill", this.model.get("fill"));
 		this.el.setAttributeNS(null, "fill-opacity", this.model.get("alpha"));
 			
-		CanvasElement.appendChild(this.el);
+		backgroundGroup.appendChild(this.el);
 	},
 		
 	update: function()
