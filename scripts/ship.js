@@ -37,11 +37,11 @@ function UpdateShipObject(ShipObject)
   {
     if (ShipObject.RotationDirection == 'CounterClockwise')
     {
-      ShipObject.Facing = ShipObject.Facing - ShipObject.RotationVelocity * 5 * GameSpeed; 
+      ShipObject.Facing = ShipObject.Facing - ShipObject.RotationVelocity * 3 * GameSpeed; 
     }
     else
     {
-      ShipObject.Facing = ShipObject.Facing + ShipObject.RotationVelocity * 5 * GameSpeed;
+      ShipObject.Facing = ShipObject.Facing + ShipObject.RotationVelocity * 3 * GameSpeed;
     }
   }
 
@@ -84,12 +84,22 @@ function CreateShipElement(ShipObject)
   ShipObject.svgElement.setAttributeNS(null, 'fill', 'black');
   ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+')');
 
-  map.appendChild(ShipObject.svgElement);
+  mapGroup.appendChild(ShipObject.svgElement);
 }
 
 function UpdateShipElement(ShipObject)
-{
-  ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+') ');
+{  
+  ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+')');
+  
+  if (ShipObject.Type == 'HumanShip')
+  {
+    var x = 0 - ShipObject.LocationX;
+    var y = 0 - ShipObject.LocationY;
+    var z = 0 - ShipObject.Facing;
+    
+    rotateGroup.setAttribute('transform', 'translate('+ 0 +','+ 0 +') rotate('+ z +')');
+    translateGroup.setAttribute('transform', 'translate('+ x +','+ y +') rotate('+ 0 +')');
+  }
 }
 
 function SetStartingPosition(GameObject)
@@ -141,4 +151,81 @@ function SetStartingPosition(GameObject)
   }
 
   GameObject.Facing = Math.random()*360+1;
+}
+
+function ProcessShipCommand(Command, GameObject)
+{
+  switch (Command)
+  {
+    case 0: // Fire
+      if (GameObject.Capacitor > 2)
+      {
+        CreateMissileObject(GameObject);
+        // GameObject.Capacitor = GameObject.Capacitor - 3;
+      }
+      break;
+    case 3: // Rotate Right
+        if (GameObject.RotationDirection == 'None')
+        {
+          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
+          GameObject.RotationDirection = 'Clockwise';
+        }
+        else if (GameObject.RotationDirection == 'CounterClockwise')
+        {
+          GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
+       
+          if (GameObject.RotationVelocity == 0)
+          {
+            GameObject.RotationDirection = 'None';
+          }
+        }
+      break;
+    case 1: // Rotate Left
+        if (GameObject.RotationDirection == 'None')
+        {
+          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
+          GameObject.RotationDirection = 'CounterClockwise';
+        }
+        else if (GameObject.RotationDirection == 'Clockwise')
+        {
+          GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
+          
+          if (GameObject.RotationVelocity == 0)
+          {
+            GameObject.RotationDirection = 'None';
+          }
+        }
+      break;
+    case 2: // Accelerate
+      if (GameObject.Capacitor > 0)
+      {
+        FindNewVelocity(GameObject, GameObject.Facing, 1)
+        // GameObject.Capacitor = GameObject.Capacitor - 1;
+      }
+      break;
+    case 4: // Brake
+      if (GameObject.Velocity > 0 && GameObject.Capacitor > 0)
+      {
+        GameObject.Velocity = GameObject.Velocity - 1;
+        // GameObject.Capacitor = GameObject.Capacitor - 1;
+      }
+      
+      if (GameObject.RotationVelocity > 0 && GameObject.Capacitor > 0)
+      {
+        GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
+          
+        if (GameObject.RotationVelocity == 0)
+        {
+          GameObject.RotationDirection = 'None';
+        }
+      }
+      break;
+  }
+
+  // This should really get checked by each indivifual command
+  // but I'm feeling lzy tonight...
+  if (GameObject.Velocity < 0)
+  {
+    GameObject.Velocity = 0;
+  }
 }
