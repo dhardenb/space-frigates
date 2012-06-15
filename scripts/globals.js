@@ -36,7 +36,6 @@ else
 AvailablePixels = availableWidth;
 }
 
-var componentOffset = AvailablePixels * .01
 var CurrentScale = AvailablePixels / ZoomLevel;
 var StartingDistanceFromCenter = 100;
 var roundingConstant = AvailablePixels * .02;
