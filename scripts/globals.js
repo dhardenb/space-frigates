@@ -38,7 +38,6 @@ AvailablePixels = availableWidth;
 
 var CurrentScale = AvailablePixels / ZoomLevel;
 var StartingDistanceFromCenter = 100;
-var roundingConstant = AvailablePixels * .02;
 
 var starCollection;
 
