@@ -23,7 +23,7 @@ function UpdateParticalObject(ParticalObject)
 
 function CreateParticalElement(ParticalObject)
 {
-  ParticalObject.svgElement = document.createElementNS(svgNS,"circle");
+  ParticalObject.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
   ParticalObject.svgElement.setAttributeNS(null, 'cx', ParticalObject.LocationX);	
   ParticalObject.svgElement.setAttributeNS(null, 'cy', ParticalObject.LocationY);	
   ParticalObject.svgElement.setAttributeNS(null, 'r', ParticalObject.Size / CurrentScale);		
@@ -36,3 +36,20 @@ function UpdateParticalElement(ParticalObject)
   ParticalObject.svgElement.setAttributeNS(null, 'cx', ParticalObject.LocationX);	
   ParticalObject.svgElement.setAttributeNS(null, 'cy', ParticalObject.LocationY);
 }
+
+// Sameple of using inheritance for the object. Hope this works with models too.
+
+/* var Pannel = Backbone.View.extend({
+   initialize: function(options){
+      console.log('Pannel initialized');
+      this.foo = 'bar';
+   }
+});
+
+var PannelAdvanced = Pannel.extend({
+   initialize: function(options){
+      this.constructor.__super__.initialize.apply(this, [options])
+      console.log('PannelAdvanced initialized');
+      console.log(this.foo); // Log: bar
+   }
+}); */

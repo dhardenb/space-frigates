@@ -1,11 +1,12 @@
-var svgNS = "http://www.w3.org/2000/svg";
-var GameOver = true;
-var CountdownTimer = 0;
+
 var GameObjects = new Array();
 var DeadObjects = new Array();
 var PlayerObjects = new Array();
 var CommandObjects = new Array();
 var CommandRequestObjects = new Array();
+
+var GameOver = true;
+var CountdownTimer = 0;
 var FrameCounter = 0;
 var FramesPerSecond = 0;
 var ZoomLevel = 400;
@@ -55,16 +56,16 @@ function Init()
   background.setAttributeNS(null, "height", availableHeight);	
   background.setAttributeNS(null, "width", availableWidth);
   
-  backgroundGroup = document.createElementNS(svgNS,"g");
+  backgroundGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
   backgroundGroup.setAttribute('id', 'backgroundGroup');
   background.appendChild(backgroundGroup);
   
-  scopeGroup = document.createElementNS(svgNS,"g");
+  scopeGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
   scopeGroup.setAttribute('id', 'scopeGroup');
   scopeGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+')');
   background.appendChild(scopeGroup);
   
-  var scope = document.createElementNS(svgNS,"circle");
+  var scope = document.createElementNS("http://www.w3.org/2000/svg","circle");
   scope.setAttributeNS(null, "cx", 0);	
   scope.setAttributeNS(null, "cy", 0);		
   scope.setAttributeNS(null, "r", ((AvailablePixels - 22) / 2));
@@ -75,20 +76,20 @@ function Init()
   scope.setAttributeNS(null, "fill-opacity", 0.0);
   scopeGroup.appendChild(scope);
   
-  portGroup = document.createElementNS(svgNS,"g");
+  portGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
   portGroup.setAttribute('id', 'portGroup');
   portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + CurrentScale + ')');
   background.appendChild(portGroup);
   
-  rotateGroup = document.createElementNS(svgNS,"g");
+  rotateGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
   rotateGroup.setAttribute('id', 'rotateGroup');
   portGroup.appendChild(rotateGroup);
   
-  translateGroup = document.createElementNS(svgNS,"g");
+  translateGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
   translateGroup.setAttribute('id', 'translateGroup');
   rotateGroup.appendChild(translateGroup);
   
-  mapGroup = document.createElementNS(svgNS,"g");
+  mapGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
   mapGroup.setAttribute('id', 'mapGroup');
   translateGroup.appendChild(mapGroup);
   

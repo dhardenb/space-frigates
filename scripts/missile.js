@@ -59,7 +59,7 @@ function UpdateMissileObject(MissileObject)
 
 function CreateMissileElement(MissileObject)
 {
-  MissileObject.svgElement = document.createElementNS(svgNS,"circle");
+  MissileObject.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
   MissileObject.svgElement.setAttributeNS(null, 'cx', MissileObject.LocationX);
   MissileObject.svgElement.setAttributeNS(null, 'cy', MissileObject.LocationY);
   MissileObject.svgElement.setAttributeNS(null, 'r', MissileObject.Size);		

@@ -67,7 +67,7 @@ function UpdateShipObject(ShipObject)
 
 function CreateShipElement(ShipObject)
 {
-  ShipObject.svgElement = document.createElementNS(svgNS,"path");
+  ShipObject.svgElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 
   if (ShipObject.Type == 'HumanShip')
   {
