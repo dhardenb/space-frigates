@@ -4,7 +4,6 @@ var GameObjects = new Array();
 var DeadObjects = new Array();
 var PlayerObjects = new Array();
 var CommandObjects = new Array();
-var CommandRequestObjects = new Array();
 var starCollection;
 
 // Used to control and maintain the game loop
@@ -118,7 +117,6 @@ function NewGame()
   ClearGameObjects()
   PlayerObjects.length = 0;
   CommandObjects.length = 0;
-  CommandRequestObjects.length = 0;
     
   GameOver = false;
   CountdownTimer = 100;
