@@ -1,30 +1,34 @@
 
+// Various Object Arrays
 var GameObjects = new Array();
 var DeadObjects = new Array();
 var PlayerObjects = new Array();
 var CommandObjects = new Array();
 var CommandRequestObjects = new Array();
+var starCollection;
 
+// Used to control and maintain the game loop
 var GameOver = true;
 var CountdownTimer = 0;
 var FrameCounter = 0;
 var FramesPerSecond = 0;
-var ZoomLevel = 400;
 var GameSpeed = .66;
-var CapacitorMax = 25;
-var CapacitorInput = .16;
-var MissileVelocity = 5;
-var ExplosionSize = 20;
-var MissileFuel = 100;
-var tick = 0;
-var score = 0;
 
-var singlePlayer = false;
+// Used to help with the command timing. I'm not 100% sure how they work.
 var commandDelay = 1;
+var tick = 0;
 
+// Should really be its own object
+var ExplosionSize = 20;
+
+// These are used to create unique IDs to track the DOM elements. Once I implement
+// backbone MVC I should not need these anymore
 var playerObjectId = 0;
 var gameObjectId = 0;
 
+// Used to maintain the GUI
+var ZoomLevel = 400;
+var StartingDistanceFromCenter = 100;
 var availableWidth = window.innerWidth - 22;
 var availableHeight = window.innerHeight - 22;
 
@@ -38,10 +42,8 @@ AvailablePixels = availableWidth;
 }
 
 var CurrentScale = AvailablePixels / ZoomLevel;
-var StartingDistanceFromCenter = 100;
 
-var starCollection;
-
+// Global GUI objects
 var backgroundGroup;
 var scopeGroup;
 var portGroup;

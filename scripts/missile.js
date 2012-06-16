@@ -1,3 +1,8 @@
+
+// Should be attributes of missile
+var MissileVelocity = 5;
+var MissileFuel = 100;
+
 function CreateMissileObject(MissileSource)
 {
   var MissileLaunchOffset = 10;

@@ -57,12 +57,6 @@ function UpdateShipObject(ShipObject)
   }
 
   MoveObjectAlongVector(ShipObject);
-    
-  if (ShipObject.Capacitor < CapacitorMax)
-  {
-    ShipObject.Capacitor = ShipObject.Capacitor + CapacitorInput * GameSpeed;
-  }
-  
 }
 
 function CreateShipElement(ShipObject)
