@@ -21,11 +21,3 @@ function PlayerObject(id, shipId)
   this.id = id;
   this.shipId = shipId;
 }
-
-function CommandObject(player, command, target, tick)
-{
-  this.player = player;
-  this.command = command;
-  this.target = target;
-  this.tick = tick;
-}

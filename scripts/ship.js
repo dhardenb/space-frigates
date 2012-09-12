@@ -25,13 +25,13 @@ function CreateShipObject(ShipType)
 
 function UpdateShipObject(ShipObject)
 {
-  for (var i=0, j=CommandObjects.length; i<j; i++)
-  {
-    if (CommandObjects[i].target == ShipObject.Id && CommandObjects[i].tick == tick)
-    {
-      ProcessShipCommand(CommandObjects[i].command, ShipObject)
+	for(x = 0; x < commandCollection.length; x++)
+	{
+	    if (commandCollection.at(x).get("targetId") == ShipObject.Id && commandCollection.at(x).get("tick") == tick)
+	    {
+	    	ProcessShipCommand(commandCollection.at(x).get("command"), ShipObject);
+	    }
     }
-  }
   
   if (ShipObject.RotationVelocity > 0)
   {
