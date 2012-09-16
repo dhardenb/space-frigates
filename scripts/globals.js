@@ -4,7 +4,6 @@ var GameObjects = new Array();
 var DeadObjects = new Array();
 var PlayerObjects = new Array();
 var commandCollection;
-var starCollection;
 
 // Used to control and maintain the game loop
 var GameOver = true;
@@ -93,8 +92,6 @@ function Init()
   mapGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
   mapGroup.setAttribute('id', 'mapGroup');
   translateGroup.appendChild(mapGroup);
-  
-  starCollection = new StarCollection;
 				
   for (var x = 0; x < window.innerWidth - 22; x++)
   {
@@ -103,7 +100,6 @@ function Init()
 	  if (Math.floor((Math.random()*1000)+1) == 1)
 	    {
 		  var newStar = new StarModel({ xLocation: x, yLocation: y, alpha: Math.random(), brightning: Math.round(Math.random()), twinkleRate: Math.random()*0.1});
-		  starCollection.add(newStar);
 		  new StarView({model: newStar});
 		}
 	}
@@ -273,8 +269,6 @@ function UpdateGameElements()
         break;
     }
   }
-  
-  
 }
 
 function BoundryChecking()

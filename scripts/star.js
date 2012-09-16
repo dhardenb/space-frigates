@@ -41,11 +41,6 @@ var StarModel = Backbone.Model.extend(
 	}
 });
 	
-var StarCollection = Backbone.Collection.extend(
-{
-	model: StarModel
-});
-	
 var StarView = Backbone.View.extend(
 {
 	initialize: function()
