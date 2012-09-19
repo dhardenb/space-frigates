@@ -3,7 +3,7 @@
 var GameObjects = new Array();
 var DeadObjects = new Array();
 var PlayerObjects = new Array();
-var commandCollection;
+var commands = [];
 
 // Used to control and maintain the game loop
 var GameOver = true;
@@ -112,7 +112,7 @@ function NewGame()
 {
   ClearGameObjects()
   PlayerObjects.length = 0;
-  commandCollection = new CommandCollection();
+  commands = [];
     
   GameOver = false;
   CountdownTimer = 100;
@@ -195,30 +195,30 @@ function Think(PlayerObject)
   switch (Math.floor(Math.random()*11+1))
   {
     case 1:
-      var thrusterCommand = new CommandModel({playerId: PlayerObject.id, command: 2, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commandCollection.add(thrusterCommand);
+      var thrusterCommand = new Command({playerId: PlayerObject.id, command: 2, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      commands.push(thrusterCommand);
       break;
     case 3:
     case 4:
     case 11:
-      var fireCommand = new CommandModel({playerId: PlayerObject.id, command: 0, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commandCollection.add(fireCommand);
+      var fireCommand = new Command({playerId: PlayerObject.id, command: 0, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      commands.push(fireCommand);
       break;
     case 6:
     case 7:
-      var rotateCounterClockwiseCommand = new CommandModel({playerId: PlayerObject.id, command: 1, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commandCollection.add(rotateCounterClockwiseCommand);
+      var rotateCounterClockwiseCommand = new Command({playerId: PlayerObject.id, command: 1, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      commands.push(rotateCounterClockwiseCommand);
       break;
     case 8:
     case 9:
-      var rotateClockwiseCommand = new CommandModel({playerId: PlayerObject.id, command: 3, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commandCollection.add(rotateClockwiseCommand);
+      var rotateClockwiseCommand = new Command({playerId: PlayerObject.id, command: 3, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      commands.push(rotateClockwiseCommand);
       break;
     case 2:
     case 5:
     case 10:
-      var brakesCommand = new CommandModel({playerId: PlayerObject.id, command: 4, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commandCollection.add(brakesCommand);
+      var brakesCommand = new Command({playerId: PlayerObject.id, command: 4, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      commands.push(brakesCommand);
       break;
   }
 }

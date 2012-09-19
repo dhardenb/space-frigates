@@ -1,15 +1,9 @@
-var CommandModel = Backbone.Model.extend(
-{
-	defaults:
-	{
-		playerId: 0,
-		command: 0,
-		targetId: 0,
-		tick: 0
-	}		
-});
+// command.js
 
-var CommandCollection = Backbone.Collection.extend(
+function Command(command)
 {
-	model: CommandModel
-});
+	this.PlayerId = command.playerId;
+	this.command = command.command;
+	this.targetId = command.targetId;
+	this.tick = command.tick;
+}
