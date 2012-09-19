@@ -153,8 +153,7 @@ function ProcessShipCommand(Command, GameObject)
     case 0: // Fire
       if (GameObject.Capacitor > 2)
       {
-        CreateMissileObject(GameObject);
-        // GameObject.Capacitor = GameObject.Capacitor - 3;
+        GameObjects.push(new Missile(GameObject));
       }
       break;
     case 3: // Rotate Right

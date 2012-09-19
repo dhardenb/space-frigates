@@ -234,7 +234,7 @@ function UpdateGameObjects()
         UpdateShipObject(GameObjects[i])
         break;
       case 'Missile':
-        UpdateMissileObject(GameObjects[i]);
+        GameObjects[i].update();
         break;
       case 'Particle':
         GameObjects[i].update();
@@ -262,7 +262,7 @@ function UpdateGameElements()
         UpdateShipElement(GameObjects[i])
         break;
       case 'Missile':
-        UpdateMissileElement(GameObjects[i]);
+        GameObjects[i].updateView();
         break;
       case 'Particle':
         GameObjects[i].updateView();

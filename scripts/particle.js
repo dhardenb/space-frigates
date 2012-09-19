@@ -22,13 +22,7 @@ function Particle(sourceObject)
 	// Adjust the objects velocity.
 	FindNewVelocity(this, sourceObject.Heading, sourceObject.Velocity);
 	
-	this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
-	this.svgElement.setAttributeNS(null, 'cx', this.LocationX);	
-	this.svgElement.setAttributeNS(null, 'cy', this.LocationY);	
-	this.svgElement.setAttributeNS(null, 'r', this.Size / CurrentScale);		
-	this.svgElement.setAttributeNS(null, 'fill', 'red');
-	
-	mapGroup.appendChild(this.svgElement);
+	this.createView();
 }
 
 Particle.prototype.update = function()
@@ -43,6 +37,16 @@ Particle.prototype.update = function()
     {
     	MoveObjectAlongVector(this);
     }
+}
+
+Particle.prototype.createView = function()
+{
+	this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
+	this.svgElement.setAttributeNS(null, 'cx', this.LocationX);	
+	this.svgElement.setAttributeNS(null, 'cy', this.LocationY);	
+	this.svgElement.setAttributeNS(null, 'r', this.Size / CurrentScale);		
+	this.svgElement.setAttributeNS(null, 'fill', 'red');
+	mapGroup.appendChild(this.svgElement);
 }
 
 Particle.prototype.updateView = function()

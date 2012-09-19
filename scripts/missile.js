@@ -1,79 +1,93 @@
+// missile.js
 
-// Should be attributes of missile
-var MissileVelocity = 5;
-var MissileFuel = 100;
-
-function CreateMissileObject(MissileSource)
+function Missile(sourceObject)
 {
-  var MissileLaunchOffset = 10;
-
-  // Create new GameObject
-  MissileObject = new GameObject(gameObjectId, 'Missile', MissileSource.LocationX, MissileSource.LocationY, 0, MissileSource.Heading, MissileSource.Velocity, 'visible', 1, 0, 'None', MissileFuel, 0);
-  gameObjectId++;
+    this.Id = gameObjectId; // This is a global variable that gets incremented everytime a new game object gets created.
+	this.Type = "Missile";
+	this.LocationX = sourceObject.LocationX;
+	this.LocationY = sourceObject.LocationY;
+	this.Facing = 0;
+	this.Heading = sourceObject.Heading;
+	this.Velocity = sourceObject.Velocity;
+	this.ShieldStatus = "visable"; // The shield feature was never imlpemented.
+	this.Size = 1;
+	this.RotationDirection = "None"; // Does not rotate.
+	this.RotationVelocity = 0; // Does not rotate.
+	this.Fuel = 100; // Does not use fuel.
+	this.Capacitor = 0; // Does not use capacitor.
+	
+	this.MissileLaunchOffset = 10;
+	this.initialVelocity = 5;
+	
+	// Increment the global gameObjectId variable.
+	gameObjectId++;
+	
+	this.calclulateInitialPosition(sourceObject);
   
-  if (MissileSource.Facing == 0)
-  {
-    MissileObject.LocationY = MissileObject.LocationY - MissileSource.Size - MissileObject.Size - MissileLaunchOffset;
-  }
-  else if (MissileSource.Facing == 90)
-  {
-    MissileObject.LocationX = MissileObject.LocationX + MissileSource.Size + MissileObject.Size + MissileLaunchOffset;
-  }
-  else if (MissileSource.Facing == 180)
-  {
-    MissileObject.LocationY = MissileObject.LocationY + MissileSource.Size + MissileObject.Size + MissileLaunchOffset;
-  }
-  else if (MissileSource.Facing == 270)
-  {
-    MissileObject.LocationX = MissileObject.LocationX - MissileSource.Size - MissileObject.Size - MissileLaunchOffset;
-  }
-  else if (MissileSource.Facing < 90)
-  {
-    MissileObject.LocationX = MissileObject.LocationX + (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.sin(MissileSource.Facing * 0.0174532925));
-    MissileObject.LocationY = MissileObject.LocationY - (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.cos(MissileSource.Facing * 0.0174532925));
-  }
-  else if (MissileSource.Facing < 180)
-  {
-    MissileObject.LocationX = MissileObject.LocationX + (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.sin((180 - MissileSource.Facing) * 0.0174532925));
-    MissileObject.LocationY = MissileObject.LocationY + (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.cos((180 - MissileSource.Facing) * 0.0174532925));
-  }
-  else if (MissileSource.Facing < 270)
-  {
-    MissileObject.LocationX = MissileObject.LocationX - (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.sin((MissileSource.Facing - 180) * 0.0174532925));
-    MissileObject.LocationY = MissileObject.LocationY + (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.cos((MissileSource.Facing - 180) * 0.0174532925));
-  }
-  else
-  {
-    MissileObject.LocationX = MissileObject.LocationX - (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.sin((360 - MissileSource.Facing) * 0.0174532925));
-    MissileObject.LocationY = MissileObject.LocationY - (MissileSource.Size + MissileObject.Size + MissileLaunchOffset)*(Math.cos((360 - MissileSource.Facing) * 0.0174532925));
-  }
-
-  // The missile starts out with the same velocity as the ship but we then have to factor in it's own initial acceleration. Onces fired, the missile no longer accelerates.
-  FindNewVelocity(MissileObject, MissileSource.Facing, MissileVelocity);
-
-  GameObjects.push(MissileObject);
-
-  CreateMissileElement(MissileObject);
+	// The missile starts out with the same velocity as the ship but we then have to factor in it's own initial acceleration. Onces fired, the missile no longer accelerates.
+	FindNewVelocity(this, sourceObject.Facing, this.initialVelocity);
+	
+	this.createView();
 }
 
-function UpdateMissileObject(MissileObject)
+Missile.prototype.calclulateInitialPosition = function(sourceObject)
 {
-  MissileObject.Fuel--;
-  MoveObjectAlongVector(MissileObject);
+	if (sourceObject.Facing == 0)
+	{
+		this.LocationY = this.LocationY - sourceObject.Size - this.Size - this.MissileLaunchOffset;
+	}
+	else if (sourceObject.Facing == 90)
+	{
+    	this.LocationX = this.LocationX + sourceObject.Size + this.Size + this.MissileLaunchOffset;
+    }
+    else if (sourceObject.Facing == 180)
+    {
+    	this.LocationY = this.LocationY + sourceObject.Size + this.Size + this.MissileLaunchOffset;
+    }
+    else if (sourceObject.Facing == 270)
+    {
+    	this.LocationX = this.LocationX - sourceObject.Size - this.Size - this.MissileLaunchOffset;
+    }
+    else if (sourceObject.Facing < 90)
+    {
+    	this.LocationX = this.LocationX + (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.sin(sourceObject.Facing * 0.0174532925));
+    	this.LocationY = this.LocationY - (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.cos(sourceObject.Facing * 0.0174532925));
+    }
+    else if (sourceObject.Facing < 180)
+    {
+    	this.LocationX = this.LocationX + (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.sin((180 - sourceObject.Facing) * 0.0174532925));
+    	this.LocationY = this.LocationY + (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.cos((180 - sourceObject.Facing) * 0.0174532925));
+    }
+    else if (sourceObject.Facing < 270)
+    {
+    	this.LocationX = this.LocationX - (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.sin((sourceObject.Facing - 180) * 0.0174532925));
+    	this.LocationY = this.LocationY + (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.cos((sourceObject.Facing - 180) * 0.0174532925));
+    }
+    else
+    {
+    	this.LocationX = this.LocationX - (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.sin((360 - sourceObject.Facing) * 0.0174532925));
+    	this.LocationY = this.LocationY - (sourceObject.Size + this.Size + this.MissileLaunchOffset)*(Math.cos((360 - sourceObject.Facing) * 0.0174532925));
+    }
 }
 
-function CreateMissileElement(MissileObject)
+Missile.prototype.update = function()
 {
-  MissileObject.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
-  MissileObject.svgElement.setAttributeNS(null, 'cx', MissileObject.LocationX);
-  MissileObject.svgElement.setAttributeNS(null, 'cy', MissileObject.LocationY);
-  MissileObject.svgElement.setAttributeNS(null, 'r', MissileObject.Size);		
-  MissileObject.svgElement.setAttributeNS(null, 'fill', 'yellow');
-  mapGroup.appendChild(MissileObject.svgElement);
+	this.Fuel--;
+	MoveObjectAlongVector(this);
 }
 
-function UpdateMissileElement(MissileObject)
+Missile.prototype.createView = function()
 {
-  MissileObject.svgElement.setAttributeNS(null, 'cx', MissileObject.LocationX);
-  MissileObject.svgElement.setAttributeNS(null, 'cy', MissileObject.LocationY);
+	this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
+	this.svgElement.setAttributeNS(null, 'cx', this.LocationX);
+	this.svgElement.setAttributeNS(null, 'cy', this.LocationY);
+	this.svgElement.setAttributeNS(null, 'r', this.Size);		
+	this.svgElement.setAttributeNS(null, 'fill', 'yellow');
+	mapGroup.appendChild(this.svgElement);
+}
+
+Missile.prototype.updateView = function()
+{
+	this.svgElement.setAttributeNS(null, 'cx', this.LocationX);
+	this.svgElement.setAttributeNS(null, 'cy', this.LocationY);
 }
