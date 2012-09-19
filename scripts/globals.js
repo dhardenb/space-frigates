@@ -195,29 +195,29 @@ function Think(PlayerObject)
   switch (Math.floor(Math.random()*11+1))
   {
     case 1:
-      var thrusterCommand = new Command({playerId: PlayerObject.id, command: 2, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      var thrusterCommand = new Command({command: 2, targetId: PlayerObject.shipId, tick: tick+commandDelay});
       commands.push(thrusterCommand);
       break;
     case 3:
     case 4:
     case 11:
-      var fireCommand = new Command({playerId: PlayerObject.id, command: 0, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      var fireCommand = new Command({command: 0, targetId: PlayerObject.shipId, tick: tick+commandDelay});
       commands.push(fireCommand);
       break;
     case 6:
     case 7:
-      var rotateCounterClockwiseCommand = new Command({playerId: PlayerObject.id, command: 1, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      var rotateCounterClockwiseCommand = new Command({command: 1, targetId: PlayerObject.shipId, tick: tick+commandDelay});
       commands.push(rotateCounterClockwiseCommand);
       break;
     case 8:
     case 9:
-      var rotateClockwiseCommand = new Command({playerId: PlayerObject.id, command: 3, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      var rotateClockwiseCommand = new Command({command: 3, targetId: PlayerObject.shipId, tick: tick+commandDelay});
       commands.push(rotateClockwiseCommand);
       break;
     case 2:
     case 5:
     case 10:
-      var brakesCommand = new Command({playerId: PlayerObject.id, command: 4, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+      var brakesCommand = new Command({command: 4, targetId: PlayerObject.shipId, tick: tick+commandDelay});
       commands.push(brakesCommand);
       break;
   }
