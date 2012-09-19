@@ -32,11 +32,11 @@ var availableHeight = window.innerHeight - 22;
 
 if (availableHeight < availableWidth)
 {
-AvailablePixels = availableHeight;
+	AvailablePixels = availableHeight;
 }
 else
 {
-AvailablePixels = availableWidth;
+	AvailablePixels = availableWidth;
 }
 
 var CurrentScale = AvailablePixels / ZoomLevel;
@@ -236,8 +236,8 @@ function UpdateGameObjects()
       case 'Missile':
         UpdateMissileObject(GameObjects[i]);
         break;
-      case 'Partical':
-        UpdateParticalObject(GameObjects[i]);
+      case 'Particle':
+        GameObjects[i].update();
         break;
     }
   }
@@ -245,10 +245,10 @@ function UpdateGameObjects()
 
 function CreateExplosion(SourceGameObject)
 {
-  for (var i=0; i<ExplosionSize; i++)
-  {
-    CreateParticalObject(SourceGameObject);
-  }
+	for (var i = 0; i < ExplosionSize; i++)
+	{
+		GameObjects.push(new Particle(SourceGameObject)); 
+	}
 }
 
 function UpdateGameElements()
@@ -264,8 +264,8 @@ function UpdateGameElements()
       case 'Missile':
         UpdateMissileElement(GameObjects[i]);
         break;
-      case 'Partical':
-        UpdateParticalElement(GameObjects[i]);
+      case 'Particle':
+        GameObjects[i].updateView();
         break;
     }
   }
@@ -293,24 +293,24 @@ function CollisionDetection()
   for (var i = 0; i < GameObjects.length; i++)
   {
     // Ignore Particle objects when looking for collisions
-    if (GameObjects[i].Type != 'Partical')
+    if (GameObjects[i].Type != 'Particle')
     {
       // Find this distance between this and every other object in the game and check to see if it
       // is smaller than the combined radius of the two objects.
       for (var j = 0; j < GameObjects.length; j++)
       {
-        // Don't let objects colide with themselves or particals!
-        if (GameObjects[i] != GameObjects[j] && GameObjects[j].Type != 'Partical')
+        // Don't let objects colide with themselves or Particles!
+        if (GameObjects[i] != GameObjects[j] && GameObjects[j].Type != 'Particle')
         {
           if (Math.sqrt((GameObjects[i].LocationX - GameObjects[j].LocationX) * (GameObjects[i].LocationX - GameObjects[j].LocationX) + (GameObjects[i].LocationY - GameObjects[j].LocationY) * (GameObjects[i].LocationY - GameObjects[j].LocationY)) < (GameObjects[i].Size + GameObjects[j].Size))
           {
             // This object has collided with something so we get to blow it up!!!
-            CreateExplosion(GameObjects[i]);
+            CreateExplosion(GameObjects[j]);
 
             // I created this array of objects to remove because removing objects from
             // an array while you are still iterating over the same array is generaly
             // a bad thing!
-            DeadObjects.push(GameObjects[i]);
+            DeadObjects.push(GameObjects[j]);
             
             // No use blowing this up twice!
             break;
