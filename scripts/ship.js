@@ -37,11 +37,11 @@ function UpdateShipObject(ShipObject)
   {
     if (ShipObject.RotationDirection == 'CounterClockwise')
     {
-      ShipObject.Facing = ShipObject.Facing - ShipObject.RotationVelocity * 3 * GameSpeed; 
+      ShipObject.Facing = ShipObject.Facing - ShipObject.RotationVelocity * 1 * GameSpeed; 
     }
     else
     {
-      ShipObject.Facing = ShipObject.Facing + ShipObject.RotationVelocity * 3 * GameSpeed;
+      ShipObject.Facing = ShipObject.Facing + ShipObject.RotationVelocity * 1 * GameSpeed;
     }
   }
 
