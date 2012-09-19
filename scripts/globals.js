@@ -1,8 +1,8 @@
 
 // Various Object Arrays
-var GameObjects = new Array();
-var DeadObjects = new Array();
-var PlayerObjects = new Array();
+var GameObjects = [];
+var DeadObjects = [];
+var PlayerObjects = [];
 var commands = [];
 
 // Used to control and maintain the game loop
@@ -99,8 +99,7 @@ function Init()
 	{
 	  if (Math.floor((Math.random()*1000)+1) == 1)
 	    {
-		  var newStar = new StarModel({ xLocation: x, yLocation: y, alpha: Math.random(), brightning: Math.round(Math.random()), twinkleRate: Math.random()*0.1});
-		  new StarView({model: newStar});
+			new Star({xLocation: x, yLocation: y});
 		}
 	}
   }
@@ -111,7 +110,7 @@ function Init()
 function NewGame()
 {
   ClearGameObjects()
-  PlayerObjects.length = 0;
+  PlayerObjects= [];
   commands = [];
     
   GameOver = false;
@@ -119,7 +118,7 @@ function NewGame()
   playerObjectId = 0;
   gameObjectId = 0;
   
-  GameObjects.length = 0;
+  GameObjects = [];
   
   CreateShipObject('Human', 0);
 
