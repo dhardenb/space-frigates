@@ -1,3 +1,4 @@
+// globals.js
 
 // Various Object Arrays
 var GameObjects = [];
@@ -48,48 +49,46 @@ var portGroup;
 
 function Init()
 {
-	var map = new Map();
-	map.create();
-	map.createStars();
+	new Map();
 	NewGame();
 }
 
 function NewGame()
 {
-  ClearGameObjects()
-  PlayerObjects= [];
-  commands = [];
+    ClearGameObjects()
+    PlayerObjects= [];
+    commands = [];
     
-  GameOver = false;
-  CountdownTimer = 100;
-  playerObjectId = 0;
-  gameObjectId = 0;
+    GameOver = false;
+    CountdownTimer = 100;
+    playerObjectId = 0;
+    gameObjectId = 0;
   
-  GameObjects = [];
+    GameObjects = [];
   
-  CreateShipObject('Human', 0);
+    CreateShipObject('Human', 0);
 
-  FrameCounter = 0;
+    FrameCounter = 0;
 
-  FrameCounterInterval = setInterval("UpdateFramesPerSecond()", 1000);
-  EnemyShipCreationInterval = setInterval("EnemyShipCreationLoop()", 1000);
-  GameInterval = setInterval("GameLoop()", 40);
+    FrameCounterInterval = setInterval("UpdateFramesPerSecond()", 1000);
+    EnemyShipCreationInterval = setInterval("EnemyShipCreationLoop()", 1000);
+    GameInterval = setInterval("GameLoop()", 40);
 }
 
 function ClearGameObjects()
 {
-  for (var i=0, j=GameObjects.length; i<j; i++)
-  {
-    DeadObjects.push(GameObjects[i]);
-  }
+    for (var i=0, j=GameObjects.length; i<j; i++)
+    {
+        DeadObjects.push(GameObjects[i]);
+    }
   
-  RemoveDeadObjects();
+    RemoveDeadObjects();
 }
 
 function UpdateFramesPerSecond()
 {
-  FramesPerSecond = FrameCounter;
-  FrameCounter = 0;
+    FramesPerSecond = FrameCounter;
+    FrameCounter = 0;
 }
 
 function EnemyShipCreationLoop()
@@ -99,94 +98,94 @@ function EnemyShipCreationLoop()
     
 function GameLoop()
 {
-  FrameCounter++;
+    FrameCounter++;
   
-  if(CountdownTimer < 1)
-  {
-    window.clearInterval(FrameCounterInterval);
-    window.clearInterval(GameInterval);
-    window.clearInterval(EnemyShipCreationInterval);
-    NewGame();
-  }
-  else
-  {
-    if (GameOver == true)
+    if(CountdownTimer < 1)
     {
-      CountdownTimer = CountdownTimer - 1;
+        window.clearInterval(FrameCounterInterval);
+        window.clearInterval(GameInterval);
+        window.clearInterval(EnemyShipCreationInterval);
+        NewGame();
     }
+    else
+    {
+        if (GameOver == true)
+        {
+            CountdownTimer = CountdownTimer - 1;
+        }
     
-    issueAiCommands();
-    UpdateGameObjects();
-    CollisionDetection();
-    // BoundryChecking();
-    UpdateGameElements();
+        issueAiCommands();
+        UpdateGameObjects();
+        CollisionDetection();
+        // BoundryChecking();
+        UpdateGameElements();
     
-    tick++;
-  }
+        tick++;
+    }
 }
 
 function issueAiCommands()
 {
-  if (FrameCounter == 10)
-  {
-    for (var x=1; x<PlayerObjects.length; x++)
+    if (FrameCounter == 10)
     {
-      Think(PlayerObjects[x]);
+        for (var x=1; x<PlayerObjects.length; x++)
+        {
+            Think(PlayerObjects[x]);
+        }
     }
-  }
 }
 
 function Think(PlayerObject)
 {
-  switch (Math.floor(Math.random()*11+1))
-  {
-    case 1:
-      var thrusterCommand = new Command({command: 2, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commands.push(thrusterCommand);
-      break;
-    case 3:
-    case 4:
-    case 11:
-      var fireCommand = new Command({command: 0, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commands.push(fireCommand);
-      break;
-    case 6:
-    case 7:
-      var rotateCounterClockwiseCommand = new Command({command: 1, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commands.push(rotateCounterClockwiseCommand);
-      break;
-    case 8:
-    case 9:
-      var rotateClockwiseCommand = new Command({command: 3, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commands.push(rotateClockwiseCommand);
-      break;
-    case 2:
-    case 5:
-    case 10:
-      var brakesCommand = new Command({command: 4, targetId: PlayerObject.shipId, tick: tick+commandDelay});
-      commands.push(brakesCommand);
-      break;
-  }
+    switch (Math.floor(Math.random()*11+1))
+    {
+        case 1:
+            var thrusterCommand = new Command({command: 2, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            commands.push(thrusterCommand);
+            break;
+        case 3:
+        case 4:
+        case 11:
+            var fireCommand = new Command({command: 0, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            commands.push(fireCommand);
+            break;
+        case 6:
+        case 7:
+            var rotateCounterClockwiseCommand = new Command({command: 1, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            commands.push(rotateCounterClockwiseCommand);
+            break;
+        case 8:
+        case 9:
+            var rotateClockwiseCommand = new Command({command: 3, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            commands.push(rotateClockwiseCommand);
+            break;
+        case 2:
+        case 5:
+        case 10:
+            var brakesCommand = new Command({command: 4, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            commands.push(brakesCommand);
+            break;
+    }
 }
 
 function UpdateGameObjects()
 {
-  for (var i=0; i<GameObjects.length; i++)
-  {
-    switch (GameObjects[i].Type)
+    for (var i=0; i<GameObjects.length; i++)
     {
-      case 'HumanShip':
-      case 'ComputerShip':
-        UpdateShipObject(GameObjects[i])
-        break;
-      case 'Missile':
-        GameObjects[i].update();
-        break;
-      case 'Particle':
-        GameObjects[i].update();
-        break;
+        switch (GameObjects[i].Type)
+        {
+            case 'HumanShip':
+            case 'ComputerShip':
+                UpdateShipObject(GameObjects[i])
+                break;
+            case 'Missile':
+                GameObjects[i].update();
+                break;
+            case 'Particle':
+                GameObjects[i].update();
+                break;
+        }
     }
-  }
 }
 
 function CreateExplosion(SourceGameObject)
@@ -199,131 +198,133 @@ function CreateExplosion(SourceGameObject)
 
 function UpdateGameElements()
 {
-  for (var i=0, j=GameObjects.length; i<j; i++)
-  {
-    switch (GameObjects[i].Type)
+    for (var i=0, j=GameObjects.length; i<j; i++)
     {
-      case 'ComputerShip':
-      case 'HumanShip':
-        UpdateShipElement(GameObjects[i])
-        break;
-      case 'Missile':
-        GameObjects[i].updateView();
-        break;
-      case 'Particle':
-        GameObjects[i].updateView();
-        break;
+        switch (GameObjects[i].Type)
+        {
+            case 'ComputerShip':
+            case 'HumanShip':
+                UpdateShipElement(GameObjects[i])
+                break;
+                case 'Missile':
+                GameObjects[i].updateView();
+                break;
+            case 'Particle':
+                GameObjects[i].updateView();
+                break;
+        }
     }
-  }
 }
 
 function BoundryChecking()
 {
-  var MapRadius = AvailablePixels / 2 / CurrentScale;
-  for (var i = 0; i < GameObjects.length; i++)
-  {
-    // Check to see if GameObject has flown past the border. I do this by measuring the distance
-    // from the Game Object to the center of the screen and making sure the distance is smaller
-    // than the radius of the screen.
-    if (!(GameObjects[i].LocationX * GameObjects[i].LocationX + GameObjects[i].LocationY * GameObjects[i].LocationY < MapRadius * MapRadius))
+    var MapRadius = AvailablePixels / 2 / CurrentScale;
+    
+    for (var i = 0; i < GameObjects.length; i++)
     {
-      DeadObjects.push(GameObjects[i]);
+        // Check to see if GameObject has flown past the border. I do this by measuring the distance
+        // from the Game Object to the center of the screen and making sure the distance is smaller
+        // than the radius of the screen.
+        if (!(GameObjects[i].LocationX * GameObjects[i].LocationX + GameObjects[i].LocationY * GameObjects[i].LocationY < MapRadius * MapRadius))
+        {
+            DeadObjects.push(GameObjects[i]);
+        }
     }
-  }
-  RemoveDeadObjects()
+    
+    RemoveDeadObjects()
 }
      
 function CollisionDetection()
 {
-  // Run Colision Detection for each GameObject
-  for (var i = 0; i < GameObjects.length; i++)
-  {
-    // Ignore Particle objects when looking for collisions
-    if (GameObjects[i].Type != 'Particle')
+    // Run Colision Detection for each GameObject
+    for (var i = 0; i < GameObjects.length; i++)
     {
-      // Find this distance between this and every other object in the game and check to see if it
-      // is smaller than the combined radius of the two objects.
-      for (var j = 0; j < GameObjects.length; j++)
-      {
-        // Don't let objects colide with themselves or Particles!
-        if (GameObjects[i] != GameObjects[j] && GameObjects[j].Type != 'Particle')
+        // Ignore Particle objects when looking for collisions
+        if (GameObjects[i].Type != 'Particle')
         {
-          if (Math.sqrt((GameObjects[i].LocationX - GameObjects[j].LocationX) * (GameObjects[i].LocationX - GameObjects[j].LocationX) + (GameObjects[i].LocationY - GameObjects[j].LocationY) * (GameObjects[i].LocationY - GameObjects[j].LocationY)) < (GameObjects[i].Size + GameObjects[j].Size))
-          {
-            // This object has collided with something so we get to blow it up!!!
-            CreateExplosion(GameObjects[j]);
+            // Find this distance between this and every other object in the game and check to see if it
+            // is smaller than the combined radius of the two objects.
+            for (var j = 0; j < GameObjects.length; j++)
+            {
+                // Don't let objects colide with themselves or Particles!
+                if (GameObjects[i] != GameObjects[j] && GameObjects[j].Type != 'Particle')
+                {
+                    if (Math.sqrt((GameObjects[i].LocationX - GameObjects[j].LocationX) * (GameObjects[i].LocationX - GameObjects[j].LocationX) + (GameObjects[i].LocationY - GameObjects[j].LocationY) * (GameObjects[i].LocationY - GameObjects[j].LocationY)) < (GameObjects[i].Size + GameObjects[j].Size))
+                    {
+                        // This object has collided with something so we get to blow it up!!!
+                        CreateExplosion(GameObjects[j]);
 
-            // I created this array of objects to remove because removing objects from
-            // an array while you are still iterating over the same array is generaly
-            // a bad thing!
-            DeadObjects.push(GameObjects[j]);
+                        // I created this array of objects to remove because removing objects from
+                        // an array while you are still iterating over the same array is generaly
+                        // a bad thing!
+                        DeadObjects.push(GameObjects[j]);
             
-            // No use blowing this up twice!
-            break;
-          }
+                        // No use blowing this up twice!
+                        break;
+                    }
+                }
+            }
         }
-      }
     }
-  }
-  
-  for (var k = 0; k < GameObjects.length; k++)
-  {
-    if ((GameObjects[k].Type == "Missile") && (GameObjects[k].Fuel < 1))
+    
+    for (var k = 0; k < GameObjects.length; k++)
     {
-      DeadObjects.push(GameObjects[k]);
+        if ((GameObjects[k].Type == "Missile") && (GameObjects[k].Fuel < 1))
+        {
+            DeadObjects.push(GameObjects[k]);
+        }
     }
-  }
   
-  RemoveDeadObjects();
+    RemoveDeadObjects();
 }
 
 function RemoveDeadObjects()
 {
-  for (var i=0, j=DeadObjects.length; i<j; i++)
-  {
-    RemoveGameObject(DeadObjects[i]);
-  }
+    for (var i = 0, j = DeadObjects.length; i < j; i++)
+    {
+        RemoveGameObject(DeadObjects[i]);
+    }
   
-  DeadObjects.length = 0;
+    DeadObjects.length = 0;
 }
     
 function RemoveGameObject(GameObject)
 {
-  SvgElementToDelete = GameObject.svgElement;
-  SvgElementToDelete.parentNode.removeChild(SvgElementToDelete);
+    SvgElementToDelete = GameObject.svgElement;
+    SvgElementToDelete.parentNode.removeChild(SvgElementToDelete);
   
-  var i = 0;
+    var i = 0;
 
-  switch (GameObject.Type)
-  {
-    case 'HumanShip':
-      GameOver = true;
-      break;
-    case 'ComputerShip':
-      break;
-  }
+    switch (GameObject.Type)
+    {
+        case 'HumanShip':
+            GameOver = true;
+            break;
+        case 'ComputerShip':
+            break;
+    }
   
-  for (var j = 0; j < GameObjects.length; j++)
-  {
-    if (GameObjects[j] == GameObject)
+    for (var j = 0; j < GameObjects.length; j++)
     {
-      GameObjects.splice(i, 1);
+        if (GameObjects[j] == GameObject)
+        {
+            GameObjects.splice(i, 1);
+        }
+        else
+        {
+            i++;
+        }
     }
-    else
-    {
-      i++;
-    }
-  }
 }
 
 function removePlayerObject(GameObject)
 {
-  for (var x=0; x < PlayerObjects.length; x++)
-  {
-    if (PlayerObject[x].shipId == GameObject.id)
+    for (var x=0; x < PlayerObjects.length; x++)
     {
-      PlayerObjects.splice(x,1);
+        if (PlayerObject[x].shipId == GameObject.id)
+        {
+            PlayerObjects.splice(x,1);
+        }
     }
-  }
 }
 
