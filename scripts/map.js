@@ -2,6 +2,8 @@
 
 function Map()
 {
+	this.create();
+	this.createStars();
 }
 
 Map.prototype.create = function()
