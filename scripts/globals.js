@@ -42,17 +42,15 @@ else
 var CurrentScale = AvailablePixels / ZoomLevel;
 
 // Global GUI objects
-var map = new Map();
 var backgroundGroup;
 var scopeGroup;
 var portGroup;
-var translateGroup;
-var rotateGroup;
-var mapGroup;
 
 function Init()
 {
+	var map = new Map();
 	map.create();
+	map.createStars();
 	NewGame();
 }
 
