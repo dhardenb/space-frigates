@@ -5,7 +5,7 @@ function CreateShipObject(ShipType)
     var HumanShip = new GameObject(gameObjectId, 'HumanShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
     var HumanPlayer = new PlayerObject(-1, gameObjectId)
     gameObjects.push(HumanShip);
-    PlayerObjects.push(HumanPlayer);
+    playerObjects.push(HumanPlayer);
     CreateShipElement(HumanShip);
     UpdateShipElement(HumanShip);
   }
@@ -14,7 +14,7 @@ function CreateShipObject(ShipType)
     var ComputerShip = new GameObject(gameObjectId, 'ComputerShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
     var ComputerPlayer = new PlayerObject(playerObjectId, gameObjectId)
     gameObjects.push(ComputerShip);
-    PlayerObjects.push(ComputerPlayer);
+    playerObjects.push(ComputerPlayer);
     SetStartingPosition(ComputerShip);
     CreateShipElement(ComputerShip);
     UpdateShipElement(ComputerShip);
@@ -37,11 +37,11 @@ function UpdateShipObject(ShipObject)
   {
     if (ShipObject.RotationDirection == 'CounterClockwise')
     {
-      ShipObject.Facing = ShipObject.Facing - ShipObject.RotationVelocity * 1 * GameSpeed; 
+      ShipObject.Facing = ShipObject.Facing - ShipObject.RotationVelocity * 1 * gameSpeed; 
     }
     else
     {
-      ShipObject.Facing = ShipObject.Facing + ShipObject.RotationVelocity * 1 * GameSpeed;
+      ShipObject.Facing = ShipObject.Facing + ShipObject.RotationVelocity * 1 * gameSpeed;
     }
   }
 
@@ -74,7 +74,7 @@ function CreateShipElement(ShipObject)
   
   ShipObject.svgElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
   ShipObject.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
-  ShipObject.svgElement.setAttributeNS(null, 'stroke-width', 2 / CurrentScale);
+  ShipObject.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
   ShipObject.svgElement.setAttributeNS(null, 'fill', 'black');
   ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+')');
 
@@ -100,7 +100,7 @@ function SetStartingPosition(GameObject)
 {
   var angle = Math.floor(Math.random() * 360);
   
-  var distanceFromCenter = Math.floor(Math.random() * (AvailablePixels) / 2 / CurrentScale + 1);
+  var distanceFromCenter = Math.floor(Math.random() * (availablePixels) / 2 / currentScale + 1);
   
   if (angle == 0)
   {

@@ -24,7 +24,7 @@ Map.prototype.create = function()
 	var scope = document.createElementNS("http://www.w3.org/2000/svg","circle");
 	scope.setAttributeNS(null, "cx", 0);	
 	scope.setAttributeNS(null, "cy", 0);		
-	scope.setAttributeNS(null, "r", ((AvailablePixels - 22) / 2));
+	scope.setAttributeNS(null, "r", ((availablePixels - 22) / 2));
 	scope.setAttributeNS(null, "stroke", "gray");
 	scope.setAttributeNS(null, "stroke-width", "2px");
 	scope.setAttributeNS(null, "stroke-opacity", 0.5);
@@ -34,7 +34,7 @@ Map.prototype.create = function()
   
 	portGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
 	portGroup.setAttribute('id', 'portGroup');
-	portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + CurrentScale + ')');
+	portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
 	background.appendChild(portGroup);
   
 	rotateGroup = document.createElementNS("http://www.w3.org/2000/svg","g");

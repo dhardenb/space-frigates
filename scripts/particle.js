@@ -44,7 +44,7 @@ Particle.prototype.createView = function()
 	this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
 	this.svgElement.setAttributeNS(null, 'cx', this.LocationX);	
 	this.svgElement.setAttributeNS(null, 'cy', this.LocationY);	
-	this.svgElement.setAttributeNS(null, 'r', this.Size / CurrentScale);		
+	this.svgElement.setAttributeNS(null, 'r', this.Size / currentScale);		
 	this.svgElement.setAttributeNS(null, 'fill', 'red');
 	mapGroup.appendChild(this.svgElement);
 }
