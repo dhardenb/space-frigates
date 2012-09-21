@@ -9,8 +9,6 @@ var commands = [];
 // Used to control and maintain the game loop
 var gameOver = true;
 var countdownTimer = 0;
-var frameCounter = 0;
-var framesPerSecond = 0;
 var gameSpeed = .66;
 
 // Used to help with the command timing. I'm not 100% sure how they work.
@@ -67,10 +65,6 @@ function NewGame()
   
     CreateShipObject('Human', 0);
 
-    frameCounter = 0;
-
-    FrameCounterInterval = setInterval("UpdateFramesPerSecond()", 1000);
-    EnemyShipCreationInterval = setInterval("EnemyShipCreationLoop()", 1000);
     GameInterval = setInterval("GameLoop()", 40);
 }
 
@@ -84,26 +78,15 @@ function ClearGameObjects()
     RemoveDeadObjects();
 }
 
-function UpdateFramesPerSecond()
-{
-    framesPerSecond = frameCounter;
-    frameCounter = 0;
-}
-
-function EnemyShipCreationLoop()
-{
-    CreateShipObject('Computer');
-}
     
 function GameLoop()
-{
-    frameCounter++;
-  
+{ 
     if(countdownTimer < 1)
     {
         window.clearInterval(FrameCounterInterval);
         window.clearInterval(GameInterval);
         window.clearInterval(EnemyShipCreationInterval);
+        
         NewGame();
     }
     else
@@ -113,6 +96,11 @@ function GameLoop()
             countdownTimer = countdownTimer - 1;
         }
     
+        if (Math.floor((Math.random()*50)+1) == 1)
+        {
+            CreateShipObject('Computer');
+        }
+        
         issueAiCommands();
         UpdateGameObjects();
         CollisionDetection();
@@ -125,7 +113,7 @@ function GameLoop()
 
 function issueAiCommands()
 {
-    if (frameCounter == 10)
+    if (Math.floor((Math.random()*25)+1) == 1)
     {
         for (var x=1; x<playerObjects.length; x++)
         {
