@@ -79,9 +79,7 @@ function GameLoop()
 { 
     if(countdownTimer < 1)
     {
-        window.clearInterval(FrameCounterInterval);
         window.clearInterval(GameInterval);
-        window.clearInterval(EnemyShipCreationInterval);
         
         NewGame();
     }
