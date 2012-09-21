@@ -11,10 +11,6 @@ var gameOver = true;
 var countdownTimer = 0;
 var gameSpeed = .66;
 
-// Used to help with the command timing. I'm not 100% sure how they work.
-var commandDelay = 1;
-var tick = 0;
-
 // Should really be its own object
 var explosionSize = 20;
 
@@ -106,8 +102,6 @@ function GameLoop()
         CollisionDetection();
         // BoundryChecking();
         UpdateGameElements();
-    
-        tick++;
     }
 }
 
@@ -115,7 +109,7 @@ function issueAiCommands()
 {
     if (Math.floor((Math.random()*25)+1) == 1)
     {
-        for (var x=1; x<playerObjects.length; x++)
+        for (var x = 1; x < playerObjects.length; x++)
         {
             Think(playerObjects[x]);
         }
@@ -127,29 +121,29 @@ function Think(PlayerObject)
     switch (Math.floor(Math.random()*11+1))
     {
         case 1:
-            var thrusterCommand = new Command({command: 2, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            var thrusterCommand = new Command({command: 2, targetId: PlayerObject.shipId});
             commands.push(thrusterCommand);
             break;
         case 3:
         case 4:
         case 11:
-            var fireCommand = new Command({command: 0, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            var fireCommand = new Command({command: 0, targetId: PlayerObject.shipId});
             commands.push(fireCommand);
             break;
         case 6:
         case 7:
-            var rotateCounterClockwiseCommand = new Command({command: 1, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            var rotateCounterClockwiseCommand = new Command({command: 1, targetId: PlayerObject.shipId});
             commands.push(rotateCounterClockwiseCommand);
             break;
         case 8:
         case 9:
-            var rotateClockwiseCommand = new Command({command: 3, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            var rotateClockwiseCommand = new Command({command: 3, targetId: PlayerObject.shipId});
             commands.push(rotateClockwiseCommand);
             break;
         case 2:
         case 5:
         case 10:
-            var brakesCommand = new Command({command: 4, targetId: PlayerObject.shipId, tick: tick+commandDelay});
+            var brakesCommand = new Command({command: 4, targetId: PlayerObject.shipId});
             commands.push(brakesCommand);
             break;
     }
@@ -157,7 +151,7 @@ function Think(PlayerObject)
 
 function UpdateGameObjects()
 {
-    for (var i=0; i<gameObjects.length; i++)
+    for (var i = 0; i < gameObjects.length; i++)
     {
         switch (gameObjects[i].Type)
         {
@@ -173,6 +167,8 @@ function UpdateGameObjects()
                 break;
         }
     }
+    // All the commands have been prcessed.
+    commands = [];
 }
 
 function CreateExplosion(SourceGameObject)

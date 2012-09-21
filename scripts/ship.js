@@ -27,7 +27,7 @@ function UpdateShipObject(ShipObject)
 {
 	for(x = 0; x < commands.length; x++)
 	{
-	    if (commands[x].targetId == ShipObject.Id && commands[x].tick == tick)
+	    if (commands[x].targetId == ShipObject.Id)
 	    {
 	    	ProcessShipCommand(commands[x].command, ShipObject);
 	    }
