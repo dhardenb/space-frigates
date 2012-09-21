@@ -4,7 +4,7 @@ function CreateShipObject(ShipType)
   {
     var HumanShip = new GameObject(gameObjectId, 'HumanShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
     var HumanPlayer = new PlayerObject(-1, gameObjectId)
-    GameObjects.push(HumanShip);
+    gameObjects.push(HumanShip);
     PlayerObjects.push(HumanPlayer);
     CreateShipElement(HumanShip);
     UpdateShipElement(HumanShip);
@@ -13,7 +13,7 @@ function CreateShipObject(ShipType)
   {
     var ComputerShip = new GameObject(gameObjectId, 'ComputerShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
     var ComputerPlayer = new PlayerObject(playerObjectId, gameObjectId)
-    GameObjects.push(ComputerShip);
+    gameObjects.push(ComputerShip);
     PlayerObjects.push(ComputerPlayer);
     SetStartingPosition(ComputerShip);
     CreateShipElement(ComputerShip);
@@ -153,7 +153,7 @@ function ProcessShipCommand(Command, GameObject)
     case 0: // Fire
       if (GameObject.Capacitor > 2)
       {
-        GameObjects.push(new Missile(GameObject));
+        gameObjects.push(new Missile(GameObject));
       }
       break;
     case 3: // Rotate Right

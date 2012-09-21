@@ -1,7 +1,7 @@
 // globals.js
 
 // Various Object Arrays
-var GameObjects = [];
+var gameObjects = [];
 var DeadObjects = [];
 var PlayerObjects = [];
 var commands = [];
@@ -64,7 +64,7 @@ function NewGame()
     playerObjectId = 0;
     gameObjectId = 0;
   
-    GameObjects = [];
+    gameObjects = [];
   
     CreateShipObject('Human', 0);
 
@@ -77,9 +77,9 @@ function NewGame()
 
 function ClearGameObjects()
 {
-    for (var i=0, j=GameObjects.length; i<j; i++)
+    for (var i=0, j=gameObjects.length; i<j; i++)
     {
-        DeadObjects.push(GameObjects[i]);
+        DeadObjects.push(gameObjects[i]);
     }
   
     RemoveDeadObjects();
@@ -170,19 +170,19 @@ function Think(PlayerObject)
 
 function UpdateGameObjects()
 {
-    for (var i=0; i<GameObjects.length; i++)
+    for (var i=0; i<gameObjects.length; i++)
     {
-        switch (GameObjects[i].Type)
+        switch (gameObjects[i].Type)
         {
             case 'HumanShip':
             case 'ComputerShip':
-                UpdateShipObject(GameObjects[i])
+                UpdateShipObject(gameObjects[i])
                 break;
             case 'Missile':
-                GameObjects[i].update();
+                gameObjects[i].update();
                 break;
             case 'Particle':
-                GameObjects[i].update();
+                gameObjects[i].update();
                 break;
         }
     }
@@ -192,25 +192,25 @@ function CreateExplosion(SourceGameObject)
 {
 	for (var i = 0; i < ExplosionSize; i++)
 	{
-		GameObjects.push(new Particle(SourceGameObject)); 
+		gameObjects.push(new Particle(SourceGameObject)); 
 	}
 }
 
 function UpdateGameElements()
 {
-    for (var i=0, j=GameObjects.length; i<j; i++)
+    for (var i=0, j=gameObjects.length; i<j; i++)
     {
-        switch (GameObjects[i].Type)
+        switch (gameObjects[i].Type)
         {
             case 'ComputerShip':
             case 'HumanShip':
-                UpdateShipElement(GameObjects[i])
+                UpdateShipElement(gameObjects[i])
                 break;
                 case 'Missile':
-                GameObjects[i].updateView();
+                gameObjects[i].updateView();
                 break;
             case 'Particle':
-                GameObjects[i].updateView();
+                gameObjects[i].updateView();
                 break;
         }
     }
@@ -220,14 +220,14 @@ function BoundryChecking()
 {
     var MapRadius = AvailablePixels / 2 / CurrentScale;
     
-    for (var i = 0; i < GameObjects.length; i++)
+    for (var i = 0; i < gameObjects.length; i++)
     {
         // Check to see if GameObject has flown past the border. I do this by measuring the distance
         // from the Game Object to the center of the screen and making sure the distance is smaller
         // than the radius of the screen.
-        if (!(GameObjects[i].LocationX * GameObjects[i].LocationX + GameObjects[i].LocationY * GameObjects[i].LocationY < MapRadius * MapRadius))
+        if (!(gameObjects[i].LocationX * gameObjects[i].LocationX + gameObjects[i].LocationY * gameObjects[i].LocationY < MapRadius * MapRadius))
         {
-            DeadObjects.push(GameObjects[i]);
+            DeadObjects.push(gameObjects[i]);
         }
     }
     
@@ -237,27 +237,27 @@ function BoundryChecking()
 function CollisionDetection()
 {
     // Run Colision Detection for each GameObject
-    for (var i = 0; i < GameObjects.length; i++)
+    for (var i = 0; i < gameObjects.length; i++)
     {
         // Ignore Particle objects when looking for collisions
-        if (GameObjects[i].Type != 'Particle')
+        if (gameObjects[i].Type != 'Particle')
         {
             // Find this distance between this and every other object in the game and check to see if it
             // is smaller than the combined radius of the two objects.
-            for (var j = 0; j < GameObjects.length; j++)
+            for (var j = 0; j < gameObjects.length; j++)
             {
                 // Don't let objects colide with themselves or Particles!
-                if (GameObjects[i] != GameObjects[j] && GameObjects[j].Type != 'Particle')
+                if (gameObjects[i] != gameObjects[j] && gameObjects[j].Type != 'Particle')
                 {
-                    if (Math.sqrt((GameObjects[i].LocationX - GameObjects[j].LocationX) * (GameObjects[i].LocationX - GameObjects[j].LocationX) + (GameObjects[i].LocationY - GameObjects[j].LocationY) * (GameObjects[i].LocationY - GameObjects[j].LocationY)) < (GameObjects[i].Size + GameObjects[j].Size))
+                    if (Math.sqrt((gameObjects[i].LocationX - gameObjects[j].LocationX) * (gameObjects[i].LocationX - gameObjects[j].LocationX) + (gameObjects[i].LocationY - gameObjects[j].LocationY) * (gameObjects[i].LocationY - gameObjects[j].LocationY)) < (gameObjects[i].Size + gameObjects[j].Size))
                     {
                         // This object has collided with something so we get to blow it up!!!
-                        CreateExplosion(GameObjects[j]);
+                        CreateExplosion(gameObjects[j]);
 
                         // I created this array of objects to remove because removing objects from
                         // an array while you are still iterating over the same array is generaly
                         // a bad thing!
-                        DeadObjects.push(GameObjects[j]);
+                        DeadObjects.push(gameObjects[j]);
             
                         // No use blowing this up twice!
                         break;
@@ -267,11 +267,11 @@ function CollisionDetection()
         }
     }
     
-    for (var k = 0; k < GameObjects.length; k++)
+    for (var k = 0; k < gameObjects.length; k++)
     {
-        if ((GameObjects[k].Type == "Missile") && (GameObjects[k].Fuel < 1))
+        if ((gameObjects[k].Type == "Missile") && (gameObjects[k].Fuel < 1))
         {
-            DeadObjects.push(GameObjects[k]);
+            DeadObjects.push(gameObjects[k]);
         }
     }
   
@@ -304,11 +304,11 @@ function RemoveGameObject(GameObject)
             break;
     }
   
-    for (var j = 0; j < GameObjects.length; j++)
+    for (var j = 0; j < gameObjects.length; j++)
     {
-        if (GameObjects[j] == GameObject)
+        if (gameObjects[j] == GameObject)
         {
-            GameObjects.splice(i, 1);
+            gameObjects.splice(i, 1);
         }
         else
         {
