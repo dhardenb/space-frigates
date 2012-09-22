@@ -40,6 +40,8 @@ var backgroundGroup;
 var scopeGroup;
 var portGroup;
 
+var physics = new Physics();
+
 function Init()
 {
 	new Map();

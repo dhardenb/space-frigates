@@ -25,7 +25,7 @@ function Missile(sourceObject)
 	this.calclulateInitialPosition(sourceObject);
   
 	// The missile starts out with the same velocity as the ship but we then have to factor in it's own initial acceleration. Onces fired, the missile no longer accelerates.
-	FindNewVelocity(this, sourceObject.Facing, this.initialVelocity);
+	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
 	
 	this.createView();
 }
@@ -73,7 +73,7 @@ Missile.prototype.calclulateInitialPosition = function(sourceObject)
 Missile.prototype.update = function()
 {
 	this.Fuel--;
-	MoveObjectAlongVector(this);
+	physics.moveObjectAlongVector(this);
 }
 
 Missile.prototype.createView = function()

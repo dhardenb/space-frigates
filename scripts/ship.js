@@ -56,7 +56,7 @@ function UpdateShipObject(ShipObject)
     ShipObject.Facing = ShipObject.Facing - 360;
   }
 
-  MoveObjectAlongVector(ShipObject);
+  physics.moveObjectAlongVector(ShipObject);
 }
 
 function CreateShipElement(ShipObject)
@@ -191,7 +191,7 @@ function ProcessShipCommand(Command, GameObject)
     case 2: // Accelerate
       if (GameObject.Capacitor > 0)
       {
-        FindNewVelocity(GameObject, GameObject.Facing, 1)
+        physics.findNewVelocity(GameObject, GameObject.Facing, 1)
         // GameObject.Capacitor = GameObject.Capacitor - 1;
       }
       break;

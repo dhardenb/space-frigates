@@ -1,47 +1,53 @@
-function MoveObjectAlongVector(GameObject) 
+// physics.js
+
+function Physics()
 {
-  if (GameObject.Heading == 0)
-  {
-    GameObject.LocationY = GameObject.LocationY - GameObject.Velocity * gameSpeed;
-  }
-  else if (GameObject.Heading == 90)
-  {
-    GameObject.LocationX = GameObject.LocationX + GameObject.Velocity * gameSpeed;
-  }
-  else if (GameObject.Heading == 180)
-  {
-    GameObject.LocationY = GameObject.LocationY + GameObject.Velocity * gameSpeed;
-  }
-  else if (GameObject.Heading == 270)
-  {
-    GameObject.LocationX = GameObject.LocationX - GameObject.Velocity * gameSpeed;
-  }
-  else if (GameObject.Heading < 90)
-  {
-    GameObject.LocationX = GameObject.LocationX + GameObject.Velocity * gameSpeed * (Math.sin(GameObject.Heading * 0.0174532925));
-    GameObject.LocationY = GameObject.LocationY - GameObject.Velocity * gameSpeed * (Math.cos(GameObject.Heading * 0.0174532925));
-  }
-  else if (GameObject.Heading < 180)
-  {
-    GameObject.LocationX = GameObject.LocationX + GameObject.Velocity * gameSpeed * (Math.sin((180 - GameObject.Heading) * 0.0174532925));
-    GameObject.LocationY = GameObject.LocationY + GameObject.Velocity * gameSpeed * (Math.cos((180 - GameObject.Heading) * 0.0174532925));
-  }
-  else if (GameObject.Heading < 270)
-  {
-    GameObject.LocationX = GameObject.LocationX - GameObject.Velocity * gameSpeed * (Math.sin((GameObject.Heading - 180) * 0.0174532925));
-    GameObject.LocationY = GameObject.LocationY + GameObject.Velocity * gameSpeed * (Math.cos((GameObject.Heading - 180) * 0.0174532925));
-  }
-  else
-  {
-    GameObject.LocationX = GameObject.LocationX - GameObject.Velocity * gameSpeed * (Math.sin((360 - GameObject.Heading) * 0.0174532925));
-    GameObject.LocationY = GameObject.LocationY - GameObject.Velocity * gameSpeed * (Math.cos((360 - GameObject.Heading) * 0.0174532925));
-  }
 }
 
-function FindNewVelocity(GameObject, NewHeading, NewVelocity)
+Physics.prototype.moveObjectAlongVector = function(GameObject) 
 {
-  NewXaxisComponent = GetXaxisComponent(GameObject.Heading, GameObject.Velocity) + GetXaxisComponent(NewHeading, NewVelocity);
-  NewYaxisComponent = GetYaxisComponent(GameObject.Heading, GameObject.Velocity) + GetYaxisComponent(NewHeading, NewVelocity);
+    if (GameObject.Heading == 0)
+    {
+        GameObject.LocationY = GameObject.LocationY - GameObject.Velocity * gameSpeed;
+    }
+    else if (GameObject.Heading == 90)
+    {
+        GameObject.LocationX = GameObject.LocationX + GameObject.Velocity * gameSpeed;
+    }
+    else if (GameObject.Heading == 180)
+    {
+        GameObject.LocationY = GameObject.LocationY + GameObject.Velocity * gameSpeed;
+    }
+    else if (GameObject.Heading == 270)
+    {
+        GameObject.LocationX = GameObject.LocationX - GameObject.Velocity * gameSpeed;
+    }
+    else if (GameObject.Heading < 90)
+    {
+        GameObject.LocationX = GameObject.LocationX + GameObject.Velocity * gameSpeed * (Math.sin(GameObject.Heading * 0.0174532925));
+        GameObject.LocationY = GameObject.LocationY - GameObject.Velocity * gameSpeed * (Math.cos(GameObject.Heading * 0.0174532925));
+    }
+    else if (GameObject.Heading < 180)
+    {
+        GameObject.LocationX = GameObject.LocationX + GameObject.Velocity * gameSpeed * (Math.sin((180 - GameObject.Heading) * 0.0174532925));
+        GameObject.LocationY = GameObject.LocationY + GameObject.Velocity * gameSpeed * (Math.cos((180 - GameObject.Heading) * 0.0174532925));
+    }
+    else if (GameObject.Heading < 270)
+    {
+        GameObject.LocationX = GameObject.LocationX - GameObject.Velocity * gameSpeed * (Math.sin((GameObject.Heading - 180) * 0.0174532925));
+        GameObject.LocationY = GameObject.LocationY + GameObject.Velocity * gameSpeed * (Math.cos((GameObject.Heading - 180) * 0.0174532925));
+    }
+    else
+    {
+        GameObject.LocationX = GameObject.LocationX - GameObject.Velocity * gameSpeed * (Math.sin((360 - GameObject.Heading) * 0.0174532925));
+        GameObject.LocationY = GameObject.LocationY - GameObject.Velocity * gameSpeed * (Math.cos((360 - GameObject.Heading) * 0.0174532925));
+    }
+}
+
+Physics.prototype.findNewVelocity = function(GameObject, NewHeading, NewVelocity)
+{
+  NewXaxisComponent = this.getXaxisComponent(GameObject.Heading, GameObject.Velocity) + this.getXaxisComponent(NewHeading, NewVelocity);
+  NewYaxisComponent = this.getYaxisComponent(GameObject.Heading, GameObject.Velocity) + this.getYaxisComponent(NewHeading, NewVelocity);
 
   if (NewXaxisComponent == 0 && NewYaxisComponent == 0)
   {
@@ -90,7 +96,7 @@ function FindNewVelocity(GameObject, NewHeading, NewVelocity)
   }
 }
 
-function GetXaxisComponent(Direction, Magnitude)
+Physics.prototype.getXaxisComponent = function(Direction, Magnitude)
 {
   var XaxisComponent = 0;
 
@@ -130,7 +136,7 @@ function GetXaxisComponent(Direction, Magnitude)
   return XaxisComponent;
 }
 
-function GetYaxisComponent(Direction, Magnitude)
+Physics.prototype.getYaxisComponent = function(Direction, Magnitude)
 {
   var YaxisComponent = 0;
 

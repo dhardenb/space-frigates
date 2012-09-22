@@ -20,7 +20,7 @@ function Particle(sourceObject)
 	gameObjectId++;  
 	
 	// Adjust the objects velocity.
-	FindNewVelocity(this, sourceObject.Heading, sourceObject.Velocity);
+	physics.findNewVelocity(this, sourceObject.Heading, sourceObject.Velocity);
 	
 	this.createView();
 }
@@ -35,7 +35,7 @@ Particle.prototype.update = function()
     }
     else
     {
-    	MoveObjectAlongVector(this);
+    	physics.moveObjectAlongVector(this);
     }
 }
 
