@@ -96,21 +96,9 @@ function UpdateGameObjects()
 {
     for (var i = 0; i < gameObjects.length; i++)
     {
-        switch (gameObjects[i].Type)
-        {
-            case 'Human':
-            case 'Computer':
-                UpdateShipObject(gameObjects[i])
-                break;
-            case 'Missile':
-                gameObjects[i].update();
-                break;
-            case 'Particle':
-                gameObjects[i].update();
-                break;
-        }
+        gameObjects[i].update();
     }
-    // All the commands have been prcessed.
+
     commands = [];
 }
 
@@ -126,19 +114,7 @@ function UpdateGameElements()
 {
     for (var i=0, j=gameObjects.length; i<j; i++)
     {
-        switch (gameObjects[i].Type)
-        {
-            case 'Human':
-            case 'Computer':
-                UpdateShipElement(gameObjects[i])
-                break;
-                case 'Missile':
-                gameObjects[i].updateView();
-                break;
-            case 'Particle':
-                gameObjects[i].updateView();
-                break;
-        }
+        gameObjects[i].updateView();
     }
 }
 
