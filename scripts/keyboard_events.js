@@ -12,7 +12,7 @@ function KeyPress(evt)
     else if(evt.keyCode == 32)
     {
         evt.preventDefault();
-        var newCommand = new Command({command: 0, targetId: playerObjects[0].shipId});
+        var newCommand = new Command({command: 0, targetId: 0});
         commands.push(newCommand);
     }
   
@@ -20,7 +20,7 @@ function KeyPress(evt)
     else if(evt.keyCode == 37)
     {
         evt.preventDefault();
-        var newCommand = new Command({command: 1, targetId: playerObjects[0].shipId});
+        var newCommand = new Command({command: 1, targetId: 0});
         commands.push(newCommand);
     }
   
@@ -28,7 +28,7 @@ function KeyPress(evt)
     else if(evt.keyCode==38)
     {
         evt.preventDefault();
-        var newCommand = new Command({command: 2, targetId: playerObjects[0].shipId});
+        var newCommand = new Command({command: 2, targetId: 0});
         commands.push(newCommand);
     }
   
@@ -36,7 +36,7 @@ function KeyPress(evt)
     else if(evt.keyCode==39)
     {
         evt.preventDefault();
-        var newCommand = new Command({command: 3, targetId: playerObjects[0].shipId});
+        var newCommand = new Command({command: 3, targetId: 0});
         commands.push(newCommand);
     }
   
@@ -44,7 +44,7 @@ function KeyPress(evt)
     else if(evt.keyCode==40)
     {
         evt.preventDefault();
-        var newCommand = new Command({command: 4, targetId: playerObjects[0].shipId});
+        var newCommand = new Command({command: 4, targetId: 0});
         commands.push(newCommand);
     }
 }

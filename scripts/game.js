@@ -8,16 +8,14 @@ function Game()
 
 Game.prototype.reset = function()
 {
-    this.clearGameObjects();
-    playerObjects= [];
-    commands = [];
-    
     this.gameOver = false;
     this.countdownTimer = 40;
-    playerObjectId = 0;
-    gameObjectId = 0;
-  
+    
+    commands = [];
+    
+    this.clearGameObjects();
     gameObjects = [];
+    gameObjectId = 0;
   
     gameObjects.push(new Ship('Human'));
 

@@ -3,7 +3,6 @@
 // Various Object Arrays
 var gameObjects = [];
 var deadObjects = [];
-var playerObjects = [];
 var commands = [];
 
 // Used to control and maintain the game loop
@@ -13,9 +12,7 @@ var gameSpeed = .66;
 // Should really be its own object
 var explosionSize = 20;
 
-// These are used to create unique IDs to track the DOM elements. Once I implement
-// backbone MVC I should not need these anymore
-var playerObjectId = 0;
+
 var gameObjectId = 0;
 
 // Used to maintain the GUI
@@ -52,41 +49,44 @@ function issueAiCommands()
 {
     if (Math.floor((Math.random()*25)+1) == 1)
     {
-        for (var x = 1; x < playerObjects.length; x++)
+        for (var x = 1; x < gameObjects.length; x++)
         {
-            Think(playerObjects[x]);
+            if (gameObjects[x].Type == 'Computer')
+            {
+                Think(gameObjects[x]);
+            }
         }
     }
 }
 
-function Think(PlayerObject)
+function Think(gameObject)
 {
     switch (Math.floor(Math.random()*11+1))
     {
         case 1:
-            var thrusterCommand = new Command({command: 2, targetId: PlayerObject.shipId});
+            var thrusterCommand = new Command({command: 2, targetId: gameObject.Id});
             commands.push(thrusterCommand);
             break;
         case 3:
         case 4:
         case 11:
-            var fireCommand = new Command({command: 0, targetId: PlayerObject.shipId});
+            var fireCommand = new Command({command: 0, targetId: gameObject.Id});
             commands.push(fireCommand);
             break;
         case 6:
         case 7:
-            var rotateCounterClockwiseCommand = new Command({command: 1, targetId: PlayerObject.shipId});
+            var rotateCounterClockwiseCommand = new Command({command: 1, targetId: gameObject.Id});
             commands.push(rotateCounterClockwiseCommand);
             break;
         case 8:
         case 9:
-            var rotateClockwiseCommand = new Command({command: 3, targetId: PlayerObject.shipId});
+            var rotateClockwiseCommand = new Command({command: 3, targetId: gameObject.Id});
             commands.push(rotateClockwiseCommand);
             break;
         case 2:
         case 5:
         case 10:
-            var brakesCommand = new Command({command: 4, targetId: PlayerObject.shipId});
+            var brakesCommand = new Command({command: 4, targetId: gameObject.Id});
             commands.push(brakesCommand);
             break;
     }
@@ -202,16 +202,5 @@ function CollisionDetection()
     }
   
     game.removeDeadObjects();
-}
-
-function removePlayerObject(GameObject)
-{
-    for (var x=0; x < playerObjects.length; x++)
-    {
-        if (PlayerObject[x].shipId == GameObject.id)
-        {
-            playerObjects.splice(x,1);
-        }
-    }
 }
 

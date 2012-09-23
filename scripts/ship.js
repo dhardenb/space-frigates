@@ -16,22 +16,14 @@ function Ship(shipType)
 	this.Fuel = 1000;
 	this.Capacitor = 10;
 	
-	if (shipType == 'Human')
+	if (shipType == 'Computer')
 	{
-    	var HumanPlayer = new PlayerObject(-1, gameObjectId);
-    	playerObjects.push(HumanPlayer);
-	}
-	else
-	{
-    	var ComputerPlayer = new PlayerObject(playerObjectId, gameObjectId);
-    	playerObjects.push(ComputerPlayer);
-    	SetStartingPosition(this);
+	   SetStartingPosition(this);
 	}
 	
 	CreateShipElement(this);
     UpdateShipElement(this);
     
-	playerObjectId++;
 	gameObjectId++;
 }
 
