@@ -2,32 +2,27 @@
 
 function Missile(sourceObject)
 {
-    this.Id = gameObjectId; // This is a global variable that gets incremented everytime a new game object gets created.
+    this.Id = gameObjectId;
 	this.Type = "Missile";
 	this.LocationX = sourceObject.LocationX;
 	this.LocationY = sourceObject.LocationY;
 	this.Facing = 0;
 	this.Heading = sourceObject.Heading;
 	this.Velocity = sourceObject.Velocity;
-	this.ShieldStatus = "visable"; // The shield feature was never imlpemented.
 	this.Size = 1;
-	this.RotationDirection = "None"; // Does not rotate.
-	this.RotationVelocity = 0; // Does not rotate.
-	this.Fuel = 100; // Does not use fuel.
-	this.Capacitor = 0; // Does not use capacitor.
+	this.RotationDirection = "None";
+	this.RotationVelocity = 0;
+	this.Fuel = 100;
 	
 	this.MissileLaunchOffset = 10;
 	this.initialVelocity = 5;
 	
-	// Increment the global gameObjectId variable.
-	gameObjectId++;
-	
 	this.calclulateInitialPosition(sourceObject);
-  
-	// The missile starts out with the same velocity as the ship but we then have to factor in it's own initial acceleration. Onces fired, the missile no longer accelerates.
 	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
 	
 	this.createView();
+	
+	gameObjectId++;
 }
 
 Missile.prototype.calclulateInitialPosition = function(sourceObject)

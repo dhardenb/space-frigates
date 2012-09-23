@@ -195,7 +195,7 @@ function CollisionDetection()
     
     for (var k = 0; k < gameObjects.length; k++)
     {
-        if ((gameObjects[k].Type == "Missile") && (gameObjects[k].Fuel < 1))
+        if (gameObjects[k].Fuel < 1)
         {
             deadObjects.push(gameObjects[k]);
         }

@@ -9,12 +9,10 @@ function Ship(shipType)
 	this.Facing = 0;
 	this.Heading = 0;
 	this.Velocity = 0;
-	this.ShieldStatus = "hidden";
 	this.Size = 5;
 	this.RotationDirection = "None";
 	this.RotationVelocity = 0;
-	this.Fuel = 1000;
-	this.Capacitor = 10;
+	this.Fuel = 1; // Must be at least 1 or object gets removed during collision detection!
 	
 	if (shipType == 'Computer')
 	{
@@ -152,76 +150,64 @@ function SetStartingPosition(GameObject)
 
 function ProcessShipCommand(Command, GameObject)
 {
-  switch (Command)
-  {
-    case 0: // Fire
-      if (GameObject.Capacitor > 2)
-      {
-        gameObjects.push(new Missile(GameObject));
-      }
-      break;
-    case 3: // Rotate Right
-        if (GameObject.RotationDirection == 'None')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
-          GameObject.RotationDirection = 'Clockwise';
-        }
-        else if (GameObject.RotationDirection == 'CounterClockwise')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
-       
-          if (GameObject.RotationVelocity == 0)
-          {
-            GameObject.RotationDirection = 'None';
-          }
-        }
-      break;
-    case 1: // Rotate Left
-        if (GameObject.RotationDirection == 'None')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
-          GameObject.RotationDirection = 'CounterClockwise';
-        }
-        else if (GameObject.RotationDirection == 'Clockwise')
-        {
-          GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
+    switch (Command)
+    {
+        case 0: // Fire
+            gameObjects.push(new Missile(GameObject));
+            break;
+        case 3: // Rotate Right
+            if (GameObject.RotationDirection == 'None')
+            {
+                GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
+                GameObject.RotationDirection = 'Clockwise';
+            }
+            else if (GameObject.RotationDirection == 'CounterClockwise')
+            {
+                GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
+                
+                if (GameObject.RotationVelocity == 0)
+                {
+                    GameObject.RotationDirection = 'None';
+                }
+            }
+            break;
+        case 1: // Rotate Left
+            if (GameObject.RotationDirection == 'None')
+            {
+                GameObject.RotationVelocity = GameObject.RotationVelocity + 1;
+                GameObject.RotationDirection = 'CounterClockwise';
+            }
+            else if (GameObject.RotationDirection == 'Clockwise')
+            {
+                GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
           
-          if (GameObject.RotationVelocity == 0)
-          {
-            GameObject.RotationDirection = 'None';
-          }
-        }
-      break;
-    case 2: // Accelerate
-      if (GameObject.Capacitor > 0)
-      {
-        physics.findNewVelocity(GameObject, GameObject.Facing, 1)
-        // GameObject.Capacitor = GameObject.Capacitor - 1;
-      }
-      break;
-    case 4: // Brake
-      if (GameObject.Velocity > 0 && GameObject.Capacitor > 0)
-      {
-        GameObject.Velocity = GameObject.Velocity - 1;
-        // GameObject.Capacitor = GameObject.Capacitor - 1;
-      }
-      
-      if (GameObject.RotationVelocity > 0 && GameObject.Capacitor > 0)
-      {
-        GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
-          
-        if (GameObject.RotationVelocity == 0)
-        {
-          GameObject.RotationDirection = 'None';
-        }
-      }
-      break;
-  }
-
-  // This should really get checked by each indivifual command
-  // but I'm feeling lzy tonight...
-  if (GameObject.Velocity < 0)
-  {
-    GameObject.Velocity = 0;
-  }
+                if (GameObject.RotationVelocity == 0)
+                {
+                    GameObject.RotationDirection = 'None';
+                }
+            }
+            break;
+        case 2: // Accelerate
+                physics.findNewVelocity(GameObject, GameObject.Facing, 1)
+                break;
+        case 4: // Brake
+            if (GameObject.Velocity > 0)
+            {
+                GameObject.Velocity = GameObject.Velocity - 1;
+            }
+            if (GameObject.RotationVelocity > 0)
+            {
+                GameObject.RotationVelocity = GameObject.RotationVelocity - 1;
+                if (GameObject.RotationVelocity == 0)
+                {
+                    GameObject.RotationDirection = 'None';
+                }
+            }
+            break;
+    }
+        
+    if (GameObject.Velocity < 0)
+    {
+        GameObject.Velocity = 0;
+    }
 }
