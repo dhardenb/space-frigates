@@ -98,8 +98,8 @@ function UpdateGameObjects()
     {
         switch (gameObjects[i].Type)
         {
-            case 'HumanShip':
-            case 'ComputerShip':
+            case 'Human':
+            case 'Computer':
                 UpdateShipObject(gameObjects[i])
                 break;
             case 'Missile':
@@ -128,8 +128,8 @@ function UpdateGameElements()
     {
         switch (gameObjects[i].Type)
         {
-            case 'ComputerShip':
-            case 'HumanShip':
+            case 'Human':
+            case 'Computer':
                 UpdateShipElement(gameObjects[i])
                 break;
                 case 'Missile':

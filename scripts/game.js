@@ -19,7 +19,7 @@ Game.prototype.reset = function()
   
     gameObjects = [];
   
-    CreateShipObject('Human', 0);
+    gameObjects.push(new Ship('Human'));
 
     loopInterval = setInterval("game.loop()", 40);
 }
@@ -35,7 +35,7 @@ Game.prototype.loop = function()
     
         if (Math.floor((Math.random()*50)+1) == 1)
         {
-            CreateShipObject('Computer');
+            gameObjects.push(new Ship('Computer'));
         }
         
         issueAiCommands();
@@ -70,10 +70,10 @@ Game.prototype.removeGameObject = function(GameObject)
 
     switch (GameObject.Type)
     {
-        case 'HumanShip':
+        case 'Human':
             this.gameOver = true;
             break;
-        case 'ComputerShip':
+        case 'Computer':
             break;
     }
   

@@ -1,26 +1,38 @@
-function CreateShipObject(ShipType)
+// ship.js
+
+function Ship(shipType)
 {
-  if (ShipType == 'Human')
-  {
-    var HumanShip = new GameObject(gameObjectId, 'HumanShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
-    var HumanPlayer = new PlayerObject(-1, gameObjectId)
-    gameObjects.push(HumanShip);
-    playerObjects.push(HumanPlayer);
-    CreateShipElement(HumanShip);
-    UpdateShipElement(HumanShip);
-  }
-  else
-  {
-    var ComputerShip = new GameObject(gameObjectId, 'ComputerShip', 0, 0, 0, 0, 0, 'hidden', 5, 'None', 0, 1000, 10);
-    var ComputerPlayer = new PlayerObject(playerObjectId, gameObjectId)
-    gameObjects.push(ComputerShip);
-    playerObjects.push(ComputerPlayer);
-    SetStartingPosition(ComputerShip);
-    CreateShipElement(ComputerShip);
-    UpdateShipElement(ComputerShip);
-    playerObjectId++;
-  }
-  gameObjectId++;
+    this.Id = gameObjectId;
+    this.Type = shipType;
+	this.LocationX = 0;
+	this.LocationY = 0;
+	this.Facing = 0;
+	this.Heading = 0;
+	this.Velocity = 0;
+	this.ShieldStatus = "hidden";
+	this.Size = 5;
+	this.RotationDirection = "None";
+	this.RotationVelocity = 0;
+	this.Fuel = 1000;
+	this.Capacitor = 10;
+	
+	if (shipType == 'Human')
+	{
+    	var HumanPlayer = new PlayerObject(-1, gameObjectId);
+    	playerObjects.push(HumanPlayer);
+	}
+	else
+	{
+    	var ComputerPlayer = new PlayerObject(playerObjectId, gameObjectId);
+    	playerObjects.push(ComputerPlayer);
+    	SetStartingPosition(this);
+	}
+	
+	CreateShipElement(this);
+    UpdateShipElement(this);
+    
+	playerObjectId++;
+	gameObjectId++;
 }
 
 function UpdateShipObject(ShipObject)
@@ -63,7 +75,7 @@ function CreateShipElement(ShipObject)
 {
   ShipObject.svgElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 
-  if (ShipObject.Type == 'HumanShip')
+  if (ShipObject.Type == 'Human')
   {
     ShipObject.svgElement.setAttributeNS(null, 'stroke', 'green');
   }
@@ -85,7 +97,7 @@ function UpdateShipElement(ShipObject)
 {  
   ShipObject.svgElement.setAttribute('transform', 'translate('+ShipObject.LocationX+','+ShipObject.LocationY+') rotate('+ShipObject.Facing+')');
   
-  if (ShipObject.Type == 'HumanShip')
+  if (ShipObject.Type == 'Human')
   {
     var x = 0 - ShipObject.LocationX;
     var y = 0 - ShipObject.LocationY;
