@@ -41,14 +41,19 @@ var scopeGroup;
 var portGroup;
 
 var physics = new Physics();
+var game = new NewGame();
 
 function Init()
 {
 	new Map();
-	NewGame();
+	game.reset();
 }
 
 function NewGame()
+{
+}
+
+NewGame.prototype.reset = function()
 {
     ClearGameObjects()
     playerObjects= [];
@@ -83,7 +88,7 @@ function GameLoop()
     {
         window.clearInterval(GameInterval);
         
-        NewGame();
+        game.reset();
     }
     else
     {
