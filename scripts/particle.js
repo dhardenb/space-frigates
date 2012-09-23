@@ -31,7 +31,7 @@ Particle.prototype.update = function()
 
 	if (this.Capacitor < 1)
 	{
-    	RemoveGameObject(this);
+    	game.removeGameObject(this);
     }
     else
     {

@@ -7,8 +7,7 @@ var playerObjects = [];
 var commands = [];
 
 // Used to control and maintain the game loop
-var gameOver = true;
-var countdownTimer = 0;
+
 var gameSpeed = .66;
 
 // Should really be its own object
@@ -41,73 +40,12 @@ var scopeGroup;
 var portGroup;
 
 var physics = new Physics();
-var game = new NewGame();
+var game = new Game();
 
 function Init()
 {
-	new Map();
+    new Map();
 	game.reset();
-}
-
-function NewGame()
-{
-}
-
-NewGame.prototype.reset = function()
-{
-    ClearGameObjects()
-    playerObjects= [];
-    commands = [];
-    
-    gameOver = false;
-    countdownTimer = 100;
-    playerObjectId = 0;
-    gameObjectId = 0;
-  
-    gameObjects = [];
-  
-    CreateShipObject('Human', 0);
-
-    GameInterval = setInterval("GameLoop()", 40);
-}
-
-function ClearGameObjects()
-{
-    for (var i=0, j=gameObjects.length; i<j; i++)
-    {
-        deadObjects.push(gameObjects[i]);
-    }
-  
-    RemoveDeadObjects();
-}
-
-    
-function GameLoop()
-{ 
-    if(countdownTimer < 1)
-    {
-        window.clearInterval(GameInterval);
-        
-        game.reset();
-    }
-    else
-    {
-        if (gameOver == true)
-        {
-            countdownTimer = countdownTimer - 1;
-        }
-    
-        if (Math.floor((Math.random()*50)+1) == 1)
-        {
-            CreateShipObject('Computer');
-        }
-        
-        issueAiCommands();
-        UpdateGameObjects();
-        CollisionDetection();
-        // BoundryChecking();
-        UpdateGameElements();
-    }
 }
 
 function issueAiCommands()
@@ -219,7 +157,7 @@ function BoundryChecking()
         }
     }
     
-    RemoveDeadObjects()
+    game.emoveDeadObjects()
 }
      
 function CollisionDetection()
@@ -263,46 +201,7 @@ function CollisionDetection()
         }
     }
   
-    RemoveDeadObjects();
-}
-
-function RemoveDeadObjects()
-{
-    for (var i = 0, j = deadObjects.length; i < j; i++)
-    {
-        RemoveGameObject(deadObjects[i]);
-    }
-  
-    deadObjects.length = 0;
-}
-    
-function RemoveGameObject(GameObject)
-{
-    SvgElementToDelete = GameObject.svgElement;
-    SvgElementToDelete.parentNode.removeChild(SvgElementToDelete);
-  
-    var i = 0;
-
-    switch (GameObject.Type)
-    {
-        case 'HumanShip':
-            gameOver = true;
-            break;
-        case 'ComputerShip':
-            break;
-    }
-  
-    for (var j = 0; j < gameObjects.length; j++)
-    {
-        if (gameObjects[j] == GameObject)
-        {
-            gameObjects.splice(i, 1);
-        }
-        else
-        {
-            i++;
-        }
-    }
+    game.removeDeadObjects();
 }
 
 function removePlayerObject(GameObject)

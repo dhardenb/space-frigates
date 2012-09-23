@@ -3,10 +3,9 @@
 function KeyPress(evt)
 {
     // ENTER - Start
-    if(evt.keyCode==13 && gameOver == true && countdownTimer < 1)
+    if(evt.keyCode==13 && game.gameOver == true)
     {
         evt.preventDefault();
-        game.reset();
     }
   
     // SPACE_BAR - Fire
