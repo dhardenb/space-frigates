@@ -52,49 +52,41 @@ Game.prototype.loop = function()
 
 Game.prototype.clearGameObjects = function()
 {
-    for (var i=0, j=gameObjects.length; i<j; i++)
+    for (var x = 0, y = gameObjects.length; x < y; x++)
     {
-        deadObjects.push(gameObjects[i]);
+        deadObjects.push(gameObjects[x]);
     }
-  
+      
     this.removeDeadObjects();
-}
-
-Game.prototype.removeGameObject = function(GameObject)
-{
-    var SvgElementToDelete = GameObject.svgElement;
-    SvgElementToDelete.parentNode.removeChild(SvgElementToDelete);
-  
-    var i = 0;
-
-    switch (GameObject.Type)
-    {
-        case 'Human':
-            this.gameOver = true;
-            break;
-        case 'Computer':
-            break;
-    }
-  
-    for (var j = 0; j < gameObjects.length; j++)
-    {
-        if (gameObjects[j] == GameObject)
-        {
-            gameObjects.splice(i, 1);
-        }
-        else
-        {
-            i++;
-        }
-    }
 }
 
 Game.prototype.removeDeadObjects = function()
 {
-    for (var i = 0, j = deadObjects.length; i < j; i++)
+    for (var x = 0, y = deadObjects.length; x < y; x++)
     {
-        game.removeGameObject(deadObjects[i]);
+        // Delete the SVG element out of the DOM
+        deadObjects[x].svgElement.parentNode.removeChild(deadObjects[x].svgElement);
+
+        // If the dead object was the human ship, trip the game over flag
+        if (deadObjects[x].Type == "Human")
+        {
+            this.gameOver = true;
+        }
+        
+        var i = 0;
+  
+        for (var j = 0; j < gameObjects.length; j++)
+        {
+            if (gameObjects[j].Id == deadObjects[x].Id)
+            {
+                gameObjects.splice(i, 1);
+            }
+            else
+            {
+                i++;
+            }
+        }
     }
   
-    deadObjects.length = 0;
+    deadObjects = [];
 }

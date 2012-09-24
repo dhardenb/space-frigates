@@ -122,18 +122,18 @@ function BoundryChecking()
 {
     var MapRadius = availablePixels / 2 / currentScale;
     
-    for (var i = 0; i < gameObjects.length; i++)
+    for (var x = 0, y = gameObjects.length; x < y; x++)
     {
         // Check to see if GameObject has flown past the border. I do this by measuring the distance
         // from the Game Object to the center of the screen and making sure the distance is smaller
         // than the radius of the screen.
-        if (!(gameObjects[i].LocationX * gameObjects[i].LocationX + gameObjects[i].LocationY * gameObjects[i].LocationY < MapRadius * MapRadius))
+        if (!(gameObjects[x].LocationX * gameObjects[x].LocationX + gameObjects[x].LocationY * gameObjects[x].LocationY < MapRadius * MapRadius))
         {
-            deadObjects.push(gameObjects[i]);
+            deadObjects.push(gameObjects[x]);
         }
     }
     
-    game.emoveDeadObjects()
+    game.removeDeadObjects()
 }
      
 function CollisionDetection()
@@ -187,4 +187,6 @@ function fuelDetection()
             deadObjects.push(gameObjects[x]);
         }
     }
+    
+    game.removeDeadObjects();
 }
