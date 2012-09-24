@@ -47,49 +47,48 @@ function Init()
 
 function issueAiCommands()
 {
-    if (Math.floor((Math.random()*25)+1) == 1)
+    for (var x = 0, y = gameObjects.length; x < y; x++)
     {
-        for (var x = 1; x < gameObjects.length; x++)
+        if (gameObjects[x].Type == 'Computer')
         {
-            if (gameObjects[x].Type == 'Computer')
+            if (Math.floor((Math.random()*25)+1) == 1)
             {
-                Think(gameObjects[x]);
+                think(gameObjects[x]);
             }
         }
     }
 }
 
-function Think(gameObject)
+function think(gameObject)
 {
+    var commandType = 0;
+    
     switch (Math.floor(Math.random()*11+1))
     {
         case 1:
-            var thrusterCommand = new Command({command: 2, targetId: gameObject.Id});
-            commands.push(thrusterCommand);
+            commandType = 2;
             break;
         case 3:
         case 4:
         case 11:
-            var fireCommand = new Command({command: 0, targetId: gameObject.Id});
-            commands.push(fireCommand);
+            commandType = 0;
             break;
         case 6:
         case 7:
-            var rotateCounterClockwiseCommand = new Command({command: 1, targetId: gameObject.Id});
-            commands.push(rotateCounterClockwiseCommand);
+            commandType = 1;
             break;
         case 8:
         case 9:
-            var rotateClockwiseCommand = new Command({command: 3, targetId: gameObject.Id});
-            commands.push(rotateClockwiseCommand);
+            commandType = 3;
             break;
         case 2:
         case 5:
         case 10:
-            var brakesCommand = new Command({command: 4, targetId: gameObject.Id});
-            commands.push(brakesCommand);
+            commandType = 4;
             break;
     }
+    
+    commands.push(new Command({command: commandType, targetId: gameObject.Id}));
 }
 
 function UpdateGameObjects()
