@@ -39,6 +39,7 @@ Game.prototype.loop = function()
         issueAiCommands();
         UpdateGameObjects();
         CollisionDetection();
+        fuelDetection();
         // BoundryChecking();
         UpdateGameElements();
     }

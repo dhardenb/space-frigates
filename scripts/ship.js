@@ -27,11 +27,12 @@ function Ship(shipType)
 
 Ship.prototype.update = function()
 {
-	for(x = 0; x < commands.length; x++)
+	for(var x = 0, y = commands.length; x < y; x++)
 	{
 	    if (commands[x].targetId == this.Id)
 	    {
 	    	this.processShipCommand(commands[x].command);
+	    	break;
 	    }
     }
   
@@ -56,6 +57,11 @@ Ship.prototype.update = function()
     else if (this.Facing > 359)
     {
         this.Facing = this.Facing - 360;
+    }
+    
+    if (this.Velocity < 0)
+    {
+        this.Velocity = 0;
     }
 
     physics.moveObjectAlongVector(this);
@@ -204,10 +210,5 @@ Ship.prototype.processShipCommand = function(command)
                 }
             }
             break;
-    }
-        
-    if (this.Velocity < 0)
-    {
-        this.Velocity = 0;
     }
 }

@@ -93,6 +93,7 @@ function think(gameObject)
 
 function UpdateGameObjects()
 {
+    // Can't pre calculate the length of the array because some of the command create new objects
     for (var i = 0; i < gameObjects.length; i++)
     {
         gameObjects[i].update();
@@ -137,45 +138,53 @@ function BoundryChecking()
      
 function CollisionDetection()
 {
-    // Run Colision Detection for each GameObject
-    for (var i = 0; i < gameObjects.length; i++)
+    var solidObjects = [];
+    
+    for (var x = 0, y = gameObjects.length; x < y; x++)
     {
-        // Ignore Particle objects when looking for collisions
-        if (gameObjects[i].Type != 'Particle')
+        if (gameObjects[x].Type != 'Particle')
         {
-            // Find this distance between this and every other object in the game and check to see if it
-            // is smaller than the combined radius of the two objects.
-            for (var j = 0; j < gameObjects.length; j++)
-            {
-                // Don't let objects colide with themselves or Particles!
-                if (gameObjects[i] != gameObjects[j] && gameObjects[j].Type != 'Particle')
-                {
-                    if (Math.sqrt((gameObjects[i].LocationX - gameObjects[j].LocationX) * (gameObjects[i].LocationX - gameObjects[j].LocationX) + (gameObjects[i].LocationY - gameObjects[j].LocationY) * (gameObjects[i].LocationY - gameObjects[j].LocationY)) < (gameObjects[i].Size + gameObjects[j].Size))
-                    {
-                        // This object has collided with something so we get to blow it up!!!
-                        CreateExplosion(gameObjects[j]);
-
-                        // I created this array of objects to remove because removing objects from
-                        // an array while you are still iterating over the same array is generaly
-                        // a bad thing!
-                        deadObjects.push(gameObjects[j]);
-            
-                        // No use blowing this up twice!
-                        break;
-                    }
-                }
-            }
+            solidObjects.push(gameObjects[x])
         }
     }
     
-    for (var k = 0; k < gameObjects.length; k++)
+    // Run colision detection for each solidObject
+    for (var i = 0, j = solidObjects.length; i < j; i++)
     {
-        if (gameObjects[k].Fuel < 1)
+        // Find this distance between this and every other object in the game and check to see if it
+        // is smaller than the combined radius of the two objects.
+        for (var k = 0, l = solidObjects.length; k < l; k++)
         {
-            deadObjects.push(gameObjects[k]);
+            // Don't let objects colide with themselves!
+            if (i != k)
+            {
+                if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size + solidObjects[k].Size))
+                {
+                    // This object has collided with something so we get to blow it up!!!
+                    CreateExplosion(solidObjects[k]);
+
+                    // I created this array of objects to remove because removing objects from
+                    // an array while you are still iterating over the same array is generaly
+                    // a bad thing!
+                    deadObjects.push(solidObjects[k]);
+            
+                    // No use blowing this up twice!
+                    break;
+                }
+            }
         }
     }
   
     game.removeDeadObjects();
 }
 
+function fuelDetection()
+{
+    for (var x = 0, y = gameObjects.length; x < y; x++)
+    {
+        if (gameObjects[x].Fuel < 1)
+        {
+            deadObjects.push(gameObjects[x]);
+        }
+    }
+}
