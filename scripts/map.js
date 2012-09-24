@@ -8,7 +8,7 @@ function Map()
 
 Map.prototype.create = function()
 {
-	var background = document.getElementById("background");
+	background = document.getElementById("background");
 	background.setAttributeNS(null, "height", availableHeight);	
 	background.setAttributeNS(null, "width", availableWidth);
   
@@ -21,7 +21,7 @@ Map.prototype.create = function()
 	scopeGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+')');
 	background.appendChild(scopeGroup);
   
-	var scope = document.createElementNS("http://www.w3.org/2000/svg","circle");
+	scope = document.createElementNS("http://www.w3.org/2000/svg","circle");
 	scope.setAttributeNS(null, "cx", 0);	
 	scope.setAttributeNS(null, "cy", 0);		
 	scope.setAttributeNS(null, "r", ((availablePixels - 22) / 2));
@@ -58,7 +58,7 @@ Map.prototype.createStars = function()
 		{
 			if (Math.floor((Math.random()*1000)+1) == 1)
 			{
-				new Star({xLocation: x, yLocation: y});
+				new Star({xLocation: x - window.innerWidth/2, yLocation: y - window.innerHeight/2});
 			}
 		}
 	}
