@@ -40,11 +40,11 @@ Ship.prototype.update = function()
     {
         if (this.RotationDirection == 'CounterClockwise')
         {
-            this.Facing = this.Facing - this.RotationVelocity * 1 * gameSpeed; 
+            this.Facing = this.Facing - this.RotationVelocity * 3 * gameSpeed; 
         }
         else
         {
-            this.Facing = this.Facing + this.RotationVelocity * 1 * gameSpeed;
+            this.Facing = this.Facing + this.RotationVelocity * 3 * gameSpeed;
         }
     }
 

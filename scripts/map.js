@@ -1,7 +1,7 @@
 // map.js
 
 function Map()
-{
+{    
 	this.create();
 	this.createStars();
 }
@@ -33,6 +33,17 @@ Map.prototype.create = function()
 	mapGroup.setAttribute('id', 'mapGroup');
 	translateGroup.appendChild(mapGroup);
 	
+	mapBoundry = document.createElementNS("http://www.w3.org/2000/svg","circle");
+	mapBoundry.setAttributeNS(null, "cx", 0);	
+	mapBoundry.setAttributeNS(null, "cy", 0);		
+	mapBoundry.setAttributeNS(null, "r", mapRadius);
+	mapBoundry.setAttributeNS(null, "stroke", "yellow");
+	mapBoundry.setAttributeNS(null, "stroke-width", "5px");
+	mapBoundry.setAttributeNS(null, "stroke-opacity", 0.5);
+	mapBoundry.setAttributeNS(null, "fill", "yellow");
+	mapBoundry.setAttributeNS(null, "fill-opacity", 0.0);
+	mapGroup.appendChild(mapBoundry);
+	
 	scopeGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
 	scopeGroup.setAttribute('id', 'scopeGroup');
 	scopeGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+')');
@@ -57,7 +68,7 @@ Map.prototype.create = function()
 	scopeOuterRim.setAttributeNS(null, "fill-opacity", 0.0);
 	scopeGroup.appendChild(scopeOuterRim);
 	
-	scopeInnerRim = document.createElementNS("http://www.w3.org/2000/svg","circle");
+	/*scopeInnerRim = document.createElementNS("http://www.w3.org/2000/svg","circle");
 	scopeInnerRim.setAttributeNS(null, "cx", 0);	
 	scopeInnerRim.setAttributeNS(null, "cy", 0);		
 	scopeInnerRim.setAttributeNS(null, "r", ((availablePixels - 22) / 4));
@@ -73,18 +84,22 @@ Map.prototype.create = function()
     grid.setAttributeNS(null, 'd', 'M '+(availablePixels - 22)/2*-1+',0 L '+(availablePixels - 22)/2+',0 M 0,'+(availablePixels - 22)/2*-1+' L 0,'+(availablePixels - 22)/2+'');
     grid.setAttributeNS(null, 'stroke-width', '1px');
     grid.setAttributeNS(null, 'fill', 'black');
-    scopeGroup.appendChild(grid);
+    scopeGroup.appendChild(grid);*/
 }
 
 Map.prototype.createStars = function()
 {
-	for (var x = 0; x < window.innerWidth - 22; x++)
+    for (var x = mapRadius*-1; x < mapRadius; x++)
 	{
-		for (var y = 0; y < window.innerHeight - 22; y++)
+    	for (var y = mapRadius*-1; y < mapRadius; y++)
 		{
-			if (Math.floor((Math.random()*1000)+1) == 1)
+            if (Math.floor((Math.random()*1000)+1) == 1)
 			{
-				new Star({xLocation: x - window.innerWidth/2, yLocation: y - window.innerHeight/2});
+			    // Make sure the star is within the radius of the map size 
+                if (x * x + y * y < mapRadius * mapRadius)
+				{
+				    new Star({xLocation: x, yLocation: y});
+				}
 			}
 		}
 	}

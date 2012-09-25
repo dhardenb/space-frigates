@@ -40,7 +40,7 @@ Game.prototype.loop = function()
         UpdateGameObjects();
         CollisionDetection();
         fuelDetection();
-        // BoundryChecking();
+        BoundryChecking();
         UpdateGameElements();
     }
     else

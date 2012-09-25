@@ -31,10 +31,7 @@ else
 
 var currentScale = availablePixels / zoomLevel;
 
-// Global GUI objects
-var backgroundGroup;
-var scopeGroup;
-var portGroup;
+var mapRadius = 500;
 
 var physics = new Physics();
 var game = new Game();
@@ -118,22 +115,38 @@ function UpdateGameElements()
     }
 }
 
-function BoundryChecking()
+function findSolidObjects()
 {
-    var MapRadius = availablePixels / 2 / currentScale;
+    var solidObjects = [];
     
     for (var x = 0, y = gameObjects.length; x < y; x++)
+    {
+        if (gameObjects[x].Type != 'Particle')
+        {
+            solidObjects.push(gameObjects[x])
+        }
+    }
+    
+    return solidObjects;
+}
+
+function BoundryChecking()
+{
+    solidObjects = findSolidObjects();
+    
+    for (var x = 0, y = solidObjects.length; x < y; x++)
     {
         // Check to see if GameObject has flown past the border. I do this by measuring the distance
         // from the Game Object to the center of the screen and making sure the distance is smaller
         // than the radius of the screen.
-        if (!(gameObjects[x].LocationX * gameObjects[x].LocationX + gameObjects[x].LocationY * gameObjects[x].LocationY < MapRadius * MapRadius))
+        if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < mapRadius * mapRadius))
         {
-            deadObjects.push(gameObjects[x]);
+            CreateExplosion(solidObjects[x]);
+            deadObjects.push(solidObjects[x]);
         }
     }
     
-    game.removeDeadObjects()
+    game.removeDeadObjects();
 }
      
 function CollisionDetection()
