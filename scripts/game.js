@@ -37,11 +37,11 @@ Game.prototype.loop = function()
         }
         
         issueAiCommands();
-        UpdateGameObjects();
-        CollisionDetection();
+        updateGameObjects();
+        collisionDetection();
         fuelDetection();
-        BoundryChecking();
-        UpdateGameElements();
+        boundryChecking();
+        updateGameElements();
     }
     else
     {

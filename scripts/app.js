@@ -20,12 +20,12 @@ var zoomLevel = 400;
 var availableWidth = window.innerWidth - 22;
 var availableHeight = window.innerHeight - 22;
 
-if (availableHeight < availableWidth)
-{
+if (availableHeight < availableWidth) {
+
 	availablePixels = availableHeight;
 }
-else
-{
+else {
+
 	availablePixels = availableWidth;
 }
 
@@ -37,32 +37,31 @@ var physics = new Physics();
 var game = new Game();
 var postOffice = new PostOffice();
 
-function Init()
-{
+function init() {
+
     new Map();
 	game.reset();
 }
 
-function issueAiCommands()
-{
-    for (var x = 0, y = gameObjects.length; x < y; x++)
-    {
-        if (gameObjects[x].Type == 'Computer')
-        {
-            if (Math.floor((Math.random()*25)+1) == 1)
-            {
+function issueAiCommands() {
+
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+    
+        if (gameObjects[x].Type == 'Computer') {
+        
+            if (Math.floor((Math.random()*25)+1) == 1) {
+            
                 think(gameObjects[x]);
             }
         }
     }
 }
 
-function think(gameObject)
-{
+function think(gameObject) {
+
     var commandType = 0;
     
-    switch (Math.floor(Math.random()*11+1))
-    {
+    switch (Math.floor(Math.random()*11+1)) {
         case 1:
             commandType = 2;
             break;
@@ -89,47 +88,47 @@ function think(gameObject)
     commands.push(new Command({command: commandType, targetId: gameObject.Id}));
 }
 
-function UpdateGameObjects()
-{
+function updateGameObjects() {
+
     // Can't pre calculate the length of the array because some of the command create new objects
-    for (var i = 0; i < gameObjects.length; i++)
-    {
+    for (var i = 0; i < gameObjects.length; i++) {
+    
         gameObjects[i].update();
     }
 
     commands = [];
 }
 
-function CreateExplosion(SourceGameObject)
-{
-	for (var i = 0; i < explosionSize; i++)
-	{
-	    var newParticle = new Particle(SourceGameObject); 
+function createExplosion(sourceGameObject) {
+	
+	for (var i = 0; i < explosionSize; i++) {
+	    
+	    var newParticle = new Particle(sourceGameObject); 
 		gameObjects.push(newParticle);
 		var newParticleView = new ParticleView(newParticle);
 		postOffice.subscribe(newParticle.Id, newParticleView.update.bind(newParticleView));
 	}
 }
 
-function UpdateGameElements()
-{
-    for (var i=0, j=gameObjects.length; i<j; i++)
-    {
-        if (gameObjects[i].Type != 'Particle')
-        {
+function updateGameElements() {
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+    
+        if (gameObjects[i].Type != 'Particle') {
+        
             gameObjects[i].updateView();
         }
     }
 }
 
-function findSolidObjects()
-{
+function findSolidObjects() {
+
     var solidObjects = [];
     
-    for (var x = 0, y = gameObjects.length; x < y; x++)
-    {
-        if (gameObjects[x].Type != 'Particle')
-        {
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+    
+        if (gameObjects[x].Type != 'Particle') {
+        
             solidObjects.push(gameObjects[x])
         }
     }
@@ -137,18 +136,18 @@ function findSolidObjects()
     return solidObjects;
 }
 
-function BoundryChecking()
-{
+function boundryChecking() {
+    
     solidObjects = findSolidObjects();
     
-    for (var x = 0, y = solidObjects.length; x < y; x++)
-    {
+    for (var x = 0, y = solidObjects.length; x < y; x++) {
+        
         // Check to see if GameObject has flown past the border. I do this by measuring the distance
         // from the Game Object to the center of the screen and making sure the distance is smaller
         // than the radius of the screen.
-        if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < mapRadius * mapRadius))
-        {
-            CreateExplosion(solidObjects[x]);
+        if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < mapRadius * mapRadius)) {
+            
+            createExplosion(solidObjects[x]);
             deadObjects.push(solidObjects[x]);
         }
     }
@@ -156,32 +155,32 @@ function BoundryChecking()
     game.removeDeadObjects();
 }
      
-function CollisionDetection()
-{
+function collisionDetection() {
+    
     var solidObjects = [];
     
-    for (var x = 0, y = gameObjects.length; x < y; x++)
-    {
-        if (gameObjects[x].Type != 'Particle')
-        {
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+        
+        if (gameObjects[x].Type != 'Particle') {
+            
             solidObjects.push(gameObjects[x])
         }
     }
     
     // Run colision detection for each solidObject
-    for (var i = 0, j = solidObjects.length; i < j; i++)
-    {
+    for (var i = 0, j = solidObjects.length; i < j; i++) {
+        
         // Find this distance between this and every other object in the game and check to see if it
         // is smaller than the combined radius of the two objects.
-        for (var k = 0, l = solidObjects.length; k < l; k++)
-        {
+        for (var k = 0, l = solidObjects.length; k < l; k++) {
+            
             // Don't let objects colide with themselves!
-            if (i != k)
-            {
-                if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size + solidObjects[k].Size))
-                {
+            if (i != k) {
+                
+                if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size + solidObjects[k].Size)) {
+                    
                     // This object has collided with something so we get to blow it up!!!
-                    CreateExplosion(solidObjects[k]);
+                    createExplosion(solidObjects[k]);
 
                     // I created this array of objects to remove because removing objects from
                     // an array while you are still iterating over the same array is generaly
@@ -198,12 +197,12 @@ function CollisionDetection()
     game.removeDeadObjects();
 }
 
-function fuelDetection()
-{
-    for (var x = 0, y = gameObjects.length; x < y; x++)
-    {
-        if (gameObjects[x].Fuel < 1)
-        {
+function fuelDetection() {
+    
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+        
+        if (gameObjects[x].Fuel < 1) {
+            
             deadObjects.push(gameObjects[x]);
         }
     }
