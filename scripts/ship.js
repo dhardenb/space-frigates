@@ -20,7 +20,7 @@ function Ship(shipType)
 	}
 	
 	this.createView();
-    this.updateView()
+    this.updateView();
     
 	gameObjectId++;
 }

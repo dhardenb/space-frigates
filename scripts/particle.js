@@ -16,29 +16,12 @@ function Particle(sourceObject)
 	
 	physics.findNewVelocity(this, sourceObject.Heading, sourceObject.Velocity);
 	
-	this.createView();
-	
 	gameObjectId++; 
 }
 
 Particle.prototype.update = function()
 {
-	this.Fuel--;
+    this.Fuel--;
 	physics.moveObjectAlongVector(this);
-}
-
-Particle.prototype.createView = function()
-{
-	this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
-	this.svgElement.setAttributeNS(null, 'cx', this.LocationX);	
-	this.svgElement.setAttributeNS(null, 'cy', this.LocationY);	
-	this.svgElement.setAttributeNS(null, 'r', this.Size / currentScale);		
-	this.svgElement.setAttributeNS(null, 'fill', 'red');
-	mapGroup.appendChild(this.svgElement);
-}
-
-Particle.prototype.updateView = function()
-{
-	this.svgElement.setAttributeNS(null, 'cx', this.LocationX);	
-	this.svgElement.setAttributeNS(null, 'cy', this.LocationY);
+	postOffice.publish(this.Id, [this.LocationX, this.LocationY])
 }

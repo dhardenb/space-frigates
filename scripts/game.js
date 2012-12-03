@@ -64,8 +64,11 @@ Game.prototype.removeDeadObjects = function()
 {
     for (var x = 0, y = deadObjects.length; x < y; x++)
     {
-        // Delete the SVG element out of the DOM
-        deadObjects[x].svgElement.parentNode.removeChild(deadObjects[x].svgElement);
+        if (deadObjects[x].Type != 'Particle')
+        {
+            // Delete the SVG element out of the DOM
+            deadObjects[x].svgElement.parentNode.removeChild(deadObjects[x].svgElement);
+        }
 
         // If the dead object was the human ship, trip the game over flag
         if (deadObjects[x].Type == "Human")

@@ -35,6 +35,7 @@ var mapRadius = 500;
 
 var physics = new Physics();
 var game = new Game();
+var postOffice = new PostOffice();
 
 function Init()
 {
@@ -103,7 +104,10 @@ function CreateExplosion(SourceGameObject)
 {
 	for (var i = 0; i < explosionSize; i++)
 	{
-		gameObjects.push(new Particle(SourceGameObject)); 
+	    var newParticle = new Particle(SourceGameObject); 
+		gameObjects.push(newParticle);
+		var newParticleView = new ParticleView(newParticle);
+		postOffice.subscribe(newParticle.Id, newParticleView.update.bind(newParticleView));
 	}
 }
 
@@ -111,7 +115,10 @@ function UpdateGameElements()
 {
     for (var i=0, j=gameObjects.length; i<j; i++)
     {
-        gameObjects[i].updateView();
+        if (gameObjects[i].Type != 'Particle')
+        {
+            gameObjects[i].updateView();
+        }
     }
 }
 

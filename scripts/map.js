@@ -8,13 +8,9 @@ function Map()
 
 Map.prototype.create = function()
 {
-	background = document.getElementById("background");
-	background.setAttributeNS(null, "height", availableHeight);	
+    background = document.getElementById("background");
+	background.setAttributeNS(null, "height", availableHeight);
 	background.setAttributeNS(null, "width", availableWidth);
-  
-	backgroundGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
-	backgroundGroup.setAttribute('id', 'backgroundGroup');
-	background.appendChild(backgroundGroup);
   
 	portGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
 	portGroup.setAttribute('id', 'portGroup');
@@ -67,24 +63,6 @@ Map.prototype.create = function()
 	scopeOuterRim.setAttributeNS(null, "fill", "black");
 	scopeOuterRim.setAttributeNS(null, "fill-opacity", 0.0);
 	scopeGroup.appendChild(scopeOuterRim);
-	
-	/*scopeInnerRim = document.createElementNS("http://www.w3.org/2000/svg","circle");
-	scopeInnerRim.setAttributeNS(null, "cx", 0);	
-	scopeInnerRim.setAttributeNS(null, "cy", 0);		
-	scopeInnerRim.setAttributeNS(null, "r", ((availablePixels - 22) / 4));
-	scopeInnerRim.setAttributeNS(null, "stroke", "gray");
-	scopeInnerRim.setAttributeNS(null, "stroke-width", "2px");
-	scopeInnerRim.setAttributeNS(null, "stroke-opacity", 0.5);
-	scopeInnerRim.setAttributeNS(null, "fill", "black");
-	scopeInnerRim.setAttributeNS(null, "fill-opacity", 0.0);
-	scopeGroup.appendChild(scopeInnerRim);
-	
-	grid = document.createElementNS("http://www.w3.org/2000/svg","path");
-    grid.setAttributeNS(null, 'stroke', 'gray');  
-    grid.setAttributeNS(null, 'd', 'M '+(availablePixels - 22)/2*-1+',0 L '+(availablePixels - 22)/2+',0 M 0,'+(availablePixels - 22)/2*-1+' L 0,'+(availablePixels - 22)/2+'');
-    grid.setAttributeNS(null, 'stroke-width', '1px');
-    grid.setAttributeNS(null, 'fill', 'black');
-    scopeGroup.appendChild(grid);*/
 }
 
 Map.prototype.createStars = function()
@@ -98,7 +76,8 @@ Map.prototype.createStars = function()
 			    // Make sure the star is within the radius of the map size 
                 if (x * x + y * y < mapRadius * mapRadius)
 				{
-				    new Star({xLocation: x, yLocation: y});
+				    var newStar = new Star(x, y);
+				    new StarView(newStar);
 				}
 			}
 		}
