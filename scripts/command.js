@@ -1,7 +1,7 @@
 // command.js
 
-function Command(command)
-{
+function Command(command) {
+
 	this.command = command.command;
 	this.targetId = command.targetId;
 }

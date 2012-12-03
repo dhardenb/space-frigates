@@ -1,7 +1,7 @@
 // particle.js
 
-function Particle(sourceObject)
-{
+function Particle(sourceObject) {
+
 	this.Id = gameObjectId;
 	this.Type = "Particle";
 	this.LocationX = sourceObject.LocationX;
@@ -16,11 +16,11 @@ function Particle(sourceObject)
 	
 	physics.findNewVelocity(this, sourceObject.Heading, sourceObject.Velocity);
 	
-	gameObjectId++; 
+	gameObjectId++;
 }
 
-Particle.prototype.update = function()
-{
+Particle.prototype.update = function() {
+
     this.Fuel--;
 	physics.moveObjectAlongVector(this);
 	postOffice.publish(this.Id, [this.LocationX, this.LocationY])

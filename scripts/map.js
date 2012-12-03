@@ -1,13 +1,13 @@
 // map.js
 
-function Map()
-{    
+function Map() {
+    
 	this.create();
 	this.createStars();
 }
 
-Map.prototype.create = function()
-{
+Map.prototype.create = function() {
+
     background = document.getElementById("background");
 	background.setAttributeNS(null, "height", availableHeight);
 	background.setAttributeNS(null, "width", availableWidth);
@@ -65,17 +65,17 @@ Map.prototype.create = function()
 	scopeGroup.appendChild(scopeOuterRim);
 }
 
-Map.prototype.createStars = function()
-{
-    for (var x = mapRadius*-1; x < mapRadius; x++)
-	{
-    	for (var y = mapRadius*-1; y < mapRadius; y++)
-		{
-            if (Math.floor((Math.random()*1000)+1) == 1)
-			{
+Map.prototype.createStars = function() {
+
+    for (var x = mapRadius*-1; x < mapRadius; x++) {
+    
+    	for (var y = mapRadius*-1; y < mapRadius; y++) {
+    	
+            if (Math.floor((Math.random()*1000)+1) == 1) {
+            
 			    // Make sure the star is within the radius of the map size 
-                if (x * x + y * y < mapRadius * mapRadius)
-				{
+                if (x * x + y * y < mapRadius * mapRadius) {
+                
 				    var newStar = new Star(x, y);
 				    new StarView(newStar);
 				}
