@@ -1,7 +1,7 @@
 // ship.js
 
-function Ship(shipType)
-{
+function Ship(shipType) {
+
     this.Id = gameObjectId;
     this.Type = shipType;
 	this.LocationX = 0;
@@ -14,8 +14,8 @@ function Ship(shipType)
 	this.RotationVelocity = 0;
 	this.Fuel = 1; // Must be at least 1 or object gets removed during collision detection!
 	
-	if (shipType == 'Computer')
-	{
+	if (shipType == 'Computer') {
+	
 	   this.setStartingPosition();
 	}
 	
@@ -25,58 +25,58 @@ function Ship(shipType)
 	gameObjectId++;
 }
 
-Ship.prototype.update = function()
-{
-	for(var x = 0, y = commands.length; x < y; x++)
-	{
-	    if (commands[x].targetId == this.Id)
-	    {
+Ship.prototype.update = function() {
+
+	for(var x = 0, y = commands.length; x < y; x++) {
+	
+	    if (commands[x].targetId == this.Id) {
+	    
 	    	this.processShipCommand(commands[x].command);
 	    	break;
 	    }
     }
   
-    if (this.RotationVelocity > 0)
-    {
-        if (this.RotationDirection == 'CounterClockwise')
-        {
+    if (this.RotationVelocity > 0) {
+    
+        if (this.RotationDirection == 'CounterClockwise') {
+        
             this.Facing = this.Facing - this.RotationVelocity * 3 * gameSpeed; 
         }
-        else
-        {
+        else {
+        
             this.Facing = this.Facing + this.RotationVelocity * 3 * gameSpeed;
         }
     }
 
     // This code keeps the Facing Number from 0 to 359. It will break for
     // numbers smaller than -360 and larger than 719
-    if (this.Facing < 0)
-    {
+    if (this.Facing < 0) {
+    
         this.Facing = 360 - this.Facing * -1;
     }
-    else if (this.Facing > 359)
-    {
+    else if (this.Facing > 359) {
+    
         this.Facing = this.Facing - 360;
     }
     
-    if (this.Velocity < 0)
-    {
+    if (this.Velocity < 0) {
+    
         this.Velocity = 0;
     }
 
     physics.moveObjectAlongVector(this);
 }
 
-Ship.prototype.createView = function()
-{
+Ship.prototype.createView = function() {
+    
     this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 
-    if (this.Type == 'Human')
-    {
+    if (this.Type == 'Human') {
+        
         this.svgElement.setAttributeNS(null, 'stroke', 'green');
     }
-    else
-    {
+    else {
+    
         this.svgElement.setAttributeNS(null, 'stroke', 'red');
     }
   
@@ -89,12 +89,12 @@ Ship.prototype.createView = function()
     mapGroup.appendChild(this.svgElement);
 }
 
-Ship.prototype.updateView = function()
+Ship.prototype.updateView = function() 
 {  
     this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
   
-    if (this.Type == 'Human')
-    {
+    if (this.Type == 'Human') {
+    
         var x = 0 - this.LocationX;
         var y = 0 - this.LocationY;
         var z = 0 - this.Facing;
@@ -104,49 +104,48 @@ Ship.prototype.updateView = function()
   }
 }
 
-Ship.prototype.setStartingPosition = function()
-{
+Ship.prototype.setStartingPosition = function() {
+
   var angle = Math.floor(Math.random() * 360);
   
   var distanceFromCenter = Math.floor(Math.random() * (availablePixels) / 2 / currentScale + 1);
   
-  if (angle == 0)
-  {
+  if (angle == 0) {
+  
     this.LocationX = 0;
     this.LocationY = distanceFromCenter * -1;
   }
-  else if (angle == 90)
-  {
+  else if (angle == 90) {
+  
     this.LocationX = distanceFromCenter;
     this.LocationY = 0;
   }
-  else if (angle == 180)
-  {
+  else if (angle == 180) {
+  
     this.LocationX = 0;
     this.LocationY = distanceFromCenter;
   }
-  else if (angle == 270)
-  {
+  else if (angle == 270) {
+  
     this.LocationX = distanceFromCenter * -1;
     this.LocationY = 0;
   }
-  else if (angle < 90)
-  {
+  else if (angle < 90) {
+  
     this.LocationX = distanceFromCenter * Math.sin(angle * 0.0174532925);
     this.LocationY = distanceFromCenter * Math.cos(angle * 0.0174532925) * -1;
   }
-  else if (angle < 180)
-  {
+  else if (angle < 180) {
+  
     this.LocationX = distanceFromCenter * Math.sin((180 - angle) * 0.0174532925);
     this.LocationY = distanceFromCenter * Math.cos((180 - angle) * 0.0174532925);
   }
-  else if (angle < 270)
-  {
+  else if (angle < 270) {
+  
     this.LocationX = distanceFromCenter * Math.sin((angle - 180) * 0.0174532925) * -1;
     this.LocationY = distanceFromCenter * Math.cos((angle - 180) * 0.0174532925);
   }
-  else // 360
-  {
+  else { // 360
     this.LocationX = distanceFromCenter * Math.sin((360 - angle) * 0.0174532925) * -1;
     this.LocationY = distanceFromCenter * Math.cos((360 - angle) * 0.0174532925) * -1;
   }
@@ -154,41 +153,41 @@ Ship.prototype.setStartingPosition = function()
   this.Facing = Math.random()*360+1;
 }
 
-Ship.prototype.processShipCommand = function(command)
-{
-    switch (command)
-    {
+Ship.prototype.processShipCommand = function(command) {
+
+    switch (command) {
+    
         case 0: // Fire
             gameObjects.push(new Missile(this));
             break;
         case 3: // Rotate Right
-            if (this.RotationDirection == 'None')
-            {
+            if (this.RotationDirection == 'None') {
+            
                 this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'Clockwise';
             }
-            else if (this.RotationDirection == 'CounterClockwise')
-            {
+            else if (this.RotationDirection == 'CounterClockwise') {
+            
                 this.RotationVelocity = this.RotationVelocity - 1;
                 
-                if (this.RotationVelocity == 0)
-                {
+                if (this.RotationVelocity == 0) {
+                
                     this.RotationDirection = 'None';
                 }
             }
             break;
         case 1: // Rotate Left
-            if (this.RotationDirection == 'None')
-            {
+            if (this.RotationDirection == 'None') {
+            
                 this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'CounterClockwise';
             }
-            else if (this.RotationDirection == 'Clockwise')
-            {
+            else if (this.RotationDirection == 'Clockwise') {
+            
                 this.RotationVelocity = this.RotationVelocity - 1;
           
-                if (this.RotationVelocity == 0)
-                {
+                if (this.RotationVelocity == 0) {
+                
                     this.RotationDirection = 'None';
                 }
             }
@@ -197,15 +196,15 @@ Ship.prototype.processShipCommand = function(command)
                 physics.findNewVelocity(this, this.Facing, 1)
                 break;
         case 4: // Brake
-            if (this.Velocity > 0)
-            {
+            if (this.Velocity > 0) {
+            
                 this.Velocity--;
             }
-            if (this.RotationVelocity > 0)
-            {
+            if (this.RotationVelocity > 0) {
+            
                 this.RotationVelocity--;
-                if (this.RotationVelocity == 0)
-                {
+                if (this.RotationVelocity == 0) {
+                
                     this.RotationDirection = 'None';
                 }
             }
