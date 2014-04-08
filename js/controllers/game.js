@@ -64,6 +64,8 @@ Game.prototype.removeDeadObjects = function() {
 
     for (var x = 0, y = deadObjects.length; x < y; x++) {
     
+        // I had to filter out the particle objects because they do NOT 
+        // have an svgElement!!!
         if (deadObjects[x].Type != 'Particle') {
         
             // Delete the SVG element out of the DOM

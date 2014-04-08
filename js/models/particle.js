@@ -20,8 +20,7 @@ function Particle(sourceObject) {
 }
 
 Particle.prototype.update = function() {
-
     this.Fuel--;
 	physics.moveObjectAlongVector(this);
-	postOffice.publish(this.Id, [this.LocationX, this.LocationY])
+	postOffice.publish("ParticleMoved" + this.Id, [this.LocationX, this.LocationY])
 }

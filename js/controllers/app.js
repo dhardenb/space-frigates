@@ -103,10 +103,11 @@ function createExplosion(sourceGameObject) {
 	
 	for (var i = 0; i < explosionSize; i++) {
 	    
-	    var newParticle = new Particle(sourceGameObject); 
+	    var newParticle = new Particle(sourceGameObject);
 		gameObjects.push(newParticle);
 		var newParticleView = new ParticleView(newParticle);
-		postOffice.subscribe(newParticle.Id, newParticleView.update.bind(newParticleView));
+		postOffice.subscribe("ParticleMoved" + newParticle.Id, newParticleView.update.bind(newParticleView));
+        postOffice.subscribe('ParticleDestroyed' + newParticle.Id, newParticleView.destroy.bind(newParticleView));
 	}
 }
 
@@ -198,14 +199,13 @@ function collisionDetection() {
 }
 
 function fuelDetection() {
-    
     for (var x = 0, y = gameObjects.length; x < y; x++) {
-        
         if (gameObjects[x].Fuel < 1) {
-            
             deadObjects.push(gameObjects[x]);
+            if (gameObjects[x].Type == 'Particle') {
+                postOffice.publish("ParticleDestroyed" + gameObjects[x].Id, []);
+            }
         }
     }
-    
     game.removeDeadObjects();
 }

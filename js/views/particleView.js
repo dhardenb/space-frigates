@@ -15,3 +15,8 @@ ParticleView.prototype.update = function(args)
     this.svgElement.setAttributeNS(null, 'cx', args[0]);
 	this.svgElement.setAttributeNS(null, 'cy', args[1]);
 }
+
+ParticleView.prototype.destroy = function()
+{
+	mapGroup.removeChild(this.svgElement);
+}
