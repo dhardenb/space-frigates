@@ -1,6 +1,6 @@
 # Welcome to Space Battle!
 
-**To play the game, open the SVG file from your web browser. The key board controls are:**
+**TThe key board controls are:**
 
 * ENTER       Starts Game and continues to next level
 * SPACE_BAR   Fire Missle
