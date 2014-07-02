@@ -1,4 +1,4 @@
-# Welcome to Space Battle!
+# Welcome to Space Frigate!
 
 **The key board controls are:**
 
