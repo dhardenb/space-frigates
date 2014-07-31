@@ -103,10 +103,11 @@ function createExplosion(sourceGameObject) {
 	
 	for (var i = 0; i < explosionSize; i++) {
 	    
-	    var newParticle = new Particle(sourceGameObject); 
+	    var newParticle = new Particle(sourceGameObject);
 		gameObjects.push(newParticle);
 		var newParticleView = new ParticleView(newParticle);
-		postOffice.subscribe(newParticle.Id, newParticleView.update.bind(newParticleView));
+		postOffice.subscribe("ParticleMoved" + newParticle.Id, newParticleView.update.bind(newParticleView));
+        postOffice.subscribe('ParticleDestroyed' + newParticle.Id, newParticleView.destroy.bind(newParticleView));
 	}
 }
 
@@ -114,7 +115,7 @@ function updateGameElements() {
 
     for (var i=0, j=gameObjects.length; i<j; i++) {
     
-        if (gameObjects[i].Type != 'Particle') {
+        if (gameObjects[i].Type != 'Particle' && gameObjects[i].Type != 'Thruster') {
         
             gameObjects[i].updateView();
         }
@@ -127,7 +128,7 @@ function findSolidObjects() {
     
     for (var x = 0, y = gameObjects.length; x < y; x++) {
     
-        if (gameObjects[x].Type != 'Particle') {
+        if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster') {
         
             solidObjects.push(gameObjects[x])
         }
@@ -161,7 +162,7 @@ function collisionDetection() {
     
     for (var x = 0, y = gameObjects.length; x < y; x++) {
         
-        if (gameObjects[x].Type != 'Particle') {
+        if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster') {
             
             solidObjects.push(gameObjects[x])
         }
@@ -198,14 +199,16 @@ function collisionDetection() {
 }
 
 function fuelDetection() {
-    
     for (var x = 0, y = gameObjects.length; x < y; x++) {
-        
         if (gameObjects[x].Fuel < 1) {
-            
             deadObjects.push(gameObjects[x]);
+            if (gameObjects[x].Type == 'Particle') {
+                postOffice.publish("ParticleDestroyed" + gameObjects[x].Id, []);
+            }
+            if (gameObjects[x].Type == 'Thruster') {
+                postOffice.publish("ThrusterDestroyed" + gameObjects[x].Id, []);
+            }
         }
     }
-    
     game.removeDeadObjects();
 }

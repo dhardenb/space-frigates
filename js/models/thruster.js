@@ -1,9 +1,9 @@
-// particle.js
+// thruster.js
 
-function Particle(sourceObject) {
+function Thruster(sourceObject) {
 
 	this.Id = gameObjectId;
-	this.Type = "Particle";
+	this.Type = "Thruster";
 	this.LocationX = sourceObject.LocationX;
 	this.LocationY = sourceObject.LocationY;
 	this.Facing = 0;
@@ -12,15 +12,15 @@ function Particle(sourceObject) {
 	this.Size = 1;
 	this.RotationDirection = "None";
 	this.RotationVelocity = 0;
-	this.Fuel = Math.random() * 10;
+	this.Fuel = 5;
 	
 	physics.findNewVelocity(this, sourceObject.Heading, sourceObject.Velocity);
 	
 	gameObjectId++;
 }
 
-Particle.prototype.update = function() {
+Thruster.prototype.update = function() {
     this.Fuel--;
 	physics.moveObjectAlongVector(this);
-	postOffice.publish("ParticleMoved" + this.Id, [this.LocationX, this.LocationY])
+	postOffice.publish("ThrusterMoved" + this.Id, [this.LocationX, this.LocationY])
 }

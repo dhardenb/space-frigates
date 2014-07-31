@@ -194,6 +194,17 @@ Ship.prototype.processShipCommand = function(command) {
             break;
         case 2: // Accelerate
                 physics.findNewVelocity(this, this.Facing, 1)
+
+                // Create a new thruster and corresponding thrusterView as well as the
+                // publishing the proper events.
+                //
+                // NOTE: Creating these objects here does not see like a good idea.
+                var newThruster = new Thruster(this);
+                gameObjects.push(newThruster);
+                var newThrusterView = new ThrusterView(newThruster);
+                postOffice.subscribe("ThrusterMoved" + newThruster.Id, newThrusterView.update.bind(newThrusterView));
+                postOffice.subscribe('ThrusterDestroyed' + newThruster.Id, newThrusterView.destroy.bind(newThrusterView));
+                
                 break;
         case 4: // Brake
             if (this.Velocity > 0) {
