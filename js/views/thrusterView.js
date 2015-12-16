@@ -6,7 +6,7 @@ function ThrusterView(thruster)
 	this.svgElement.setAttributeNS(null, 'cx', thruster.LocationX);
 	this.svgElement.setAttributeNS(null, 'cy', thruster.LocationY);
 	this.svgElement.setAttributeNS(null, 'r', thruster.Size / currentScale);
-	this.svgElement.setAttributeNS(null, 'fill', 'blue');
+	this.svgElement.setAttributeNS(null, 'fill', 'red');
 	mapGroup.appendChild(this.svgElement);
 }
 
