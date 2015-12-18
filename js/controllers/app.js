@@ -1,46 +1,87 @@
-// globals.js
 
-// Various Object Arrays
-var gameObjects = [];
-var deadObjects = [];
-var commands = [];
+// Contains all the objects created during game play like: ships, missles,
+// particals, thrusters
+var gameObjects;
+
+// Contains all the obejcts that have been destroyed (either via collision or
+// running out of fuel) so that they can be removed from the DOM
+var deadObjects;
+
+// Contains all the command objects that have be created either from a human
+// player via periphreal input or the AI for emenemy ships
+var commands;
 
 // Used to control and maintain the game loop
+var gameSpeed;
 
-var gameSpeed = .66;
+// Defines the number of particles in an explosion
+var explosionSize;
 
-// Should really be its own object
-var explosionSize = 20;
+// This int gets incremented and used as the ID for each game object as it gets
+// created
+var gameObjectId;
 
+// Used to maintain the current zoom level
+var zoomLevel;
 
-var gameObjectId = 0;
+// Used to record the screen width
+var availableWidth;
 
-// Used to maintain the GUI
-var zoomLevel = 400;
-var availableWidth = window.innerWidth - 22;
-var availableHeight = window.innerHeight - 22;
+// Used to record the screen height
+var availableHeight;
 
-if (availableHeight < availableWidth) {
+// Used to determine the current scaling paramter
+var currentScale;
 
-	availablePixels = availableHeight;
-}
-else {
+// Used to determine the size of the map
+var mapRadius;
 
-	availablePixels = availableWidth;
-}
+// Stores the physics engine that is used througout the code
+var physics;
 
-var currentScale = availablePixels / zoomLevel;
+// Stores the main game object
+var game;
 
-var mapRadius = 500;
-
-var physics = new Physics();
-var game = new Game();
-var postOffice = new PostOffice();
+// Stores the object that is used for messaging through out the application
+var postOffice;
 
 function init() {
 
+    background = document.getElementById("background");
+    
+    while (background.firstChild) {
+        background.removeChild(background.firstChild);
+    }
+
+    gameObjects = [];
+    deadObjects = [];
+    commands = [];
+    gameSpeed = .66;
+    explosionSize = 20;
+    gameObjectId = 0;
+    zoomLevel = 400;
+    mapRadius = 500;
+    physics = new Physics();
+    game = new Game();
+    postOffice = new PostOffice();
+
+    availableWidth = window.innerWidth - 22;
+    availableHeight = window.innerHeight - 22;
+
+    if (availableHeight < availableWidth) {
+
+        availablePixels = availableHeight;
+    }
+    else {
+
+        availablePixels = availableWidth;
+    }
+
+    currentScale = availablePixels / zoomLevel;
+
     new Map();
-	game.reset();
+	
+    game.reset();
 }
 
 function issueAiCommands() {

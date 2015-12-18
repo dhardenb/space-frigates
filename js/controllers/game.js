@@ -46,7 +46,8 @@ Game.prototype.loop = function() {
     else {
     
         window.clearInterval(loopInterval);
-        this.reset();
+        // this.reset();
+        init();
     }
 }
 
