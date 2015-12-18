@@ -2,13 +2,6 @@
 
 function ThrusterView(thruster)
 {
-    /*this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
-	this.svgElement.setAttributeNS(null, 'cx', thruster.LocationX);
-	this.svgElement.setAttributeNS(null, 'cy', thruster.LocationY);
-	this.svgElement.setAttributeNS(null, 'r', thruster.Size / currentScale);
-	this.svgElement.setAttributeNS(null, 'fill', 'red');
-	mapGroup.appendChild(this.svgElement);*/
-
 	this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 	this.svgElement.setAttributeNS(null, 'stroke', 'red');
 	this.svgElement.setAttributeNS(null, 'd', 'M-2 0 L2 0 L0 6 Z');
