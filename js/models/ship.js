@@ -72,15 +72,14 @@ Ship.prototype.createView = function() {
     this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 
     if (this.Type == 'Human') {
-        
         this.svgElement.setAttributeNS(null, 'stroke', 'green');
+        this.svgElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
     }
     else {
-    
         this.svgElement.setAttributeNS(null, 'stroke', 'red');
+        this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
     }
   
-    this.svgElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
     this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
     this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
     this.svgElement.setAttributeNS(null, 'fill', 'black');
