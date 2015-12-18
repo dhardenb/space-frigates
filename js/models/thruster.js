@@ -6,7 +6,7 @@ function Thruster(sourceObject) {
 	this.Type = "Thruster";
 	this.LocationX = sourceObject.LocationX;
 	this.LocationY = sourceObject.LocationY;
-	this.Facing = 0;
+	this.Facing = sourceObject.Facing;
 	this.Heading = sourceObject.Heading;
 	this.Velocity = sourceObject.Velocity;
 	this.RotationDirection = "None";
@@ -16,7 +16,7 @@ function Thruster(sourceObject) {
 	this.RotationVelocity = 0;
 	this.Fuel = 5;
 	
-	this.ThrusterOffset = 5;
+	this.ThrusterOffset = 2;
 	this.initialVelocity = 0;
 
 	this.calclulateInitialPosition(sourceObject);
@@ -68,5 +68,5 @@ Thruster.prototype.calclulateInitialPosition = function(sourceObject) {
 Thruster.prototype.update = function() {
     this.Fuel--;
 	physics.moveObjectAlongVector(this);
-	postOffice.publish("ThrusterMoved" + this.Id, [this.LocationX, this.LocationY])
+	postOffice.publish("ThrusterMoved" + this.Id, [this.LocationX, this.LocationY, this.Facing])
 }
