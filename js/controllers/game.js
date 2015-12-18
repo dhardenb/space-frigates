@@ -9,13 +9,8 @@ function Game() {
 Game.prototype.reset = function() {
 
     this.gameOver = false;
+
     this.countdownTimer = 40;
-    
-    commands = [];
-    
-    this.clearGameObjects();
-    gameObjects = [];
-    gameObjectId = 0;
   
     gameObjects.push(new Ship('Human'));
 
@@ -46,19 +41,9 @@ Game.prototype.loop = function() {
     else {
     
         window.clearInterval(loopInterval);
-        // this.reset();
+
         init();
     }
-}
-
-Game.prototype.clearGameObjects = function() {
-
-    for (var x = 0, y = gameObjects.length; x < y; x++) {
-    
-        deadObjects.push(gameObjects[x]);
-    }
-      
-    this.removeDeadObjects();
 }
 
 Game.prototype.removeDeadObjects = function() {
