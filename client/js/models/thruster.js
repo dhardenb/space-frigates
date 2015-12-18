@@ -1,6 +1,6 @@
 // thruster.js
 
-function Thruster(sourceObject) {
+Thruster = function (sourceObject) {
 
 	this.Id = gameObjectId;
 	this.Type = "Thruster";

@@ -1,6 +1,6 @@
 // map.js
 
-function Map() {
+Map = function () {
     
 	this.create();
 	this.createStars();

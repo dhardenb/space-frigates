@@ -1,8 +1,4 @@
-// physics.js
-
-function Physics()
-{
-}
+Physics = function () {}
 
 Physics.prototype.moveObjectAlongVector = function(GameObject) 
 {

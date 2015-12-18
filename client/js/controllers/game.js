@@ -1,6 +1,6 @@
 // game.js
 
-function Game() {
+Game = function () {
 
     this.gameOver = true;
     this.countdownTimer = 0;

@@ -1,6 +1,6 @@
 // missile.js
 
-function Missile(sourceObject) {
+Missile = function (sourceObject) {
 
     this.Id = gameObjectId;
 	this.Type = "Missile";

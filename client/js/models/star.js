@@ -1,6 +1,6 @@
 // star.js
 
-function Star(xLocation, yLocation) {
+Star = function (xLocation, yLocation) {
 
 	this.xLocation = xLocation;
 	this.yLocation = yLocation;

@@ -1,6 +1,6 @@
 // starView.js
 
-function StarView(star)
+StarView = function (star)
 {
     this.svgElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 	this.svgElement.setAttributeNS(null, "cx", star.xLocation);	

@@ -1,55 +1,47 @@
-
 // Contains all the objects created during game play like: ships, missles,
 // particals, thrusters
-var gameObjects;
+gameObjects = [];
 
 // Contains all the obejcts that have been destroyed (either via collision or
 // running out of fuel) so that they can be removed from the DOM
-var deadObjects;
+deadObjects = [];
 
 // Contains all the command objects that have be created either from a human
 // player via periphreal input or the AI for emenemy ships
-var commands;
+commands = [];
 
 // Used to control and maintain the game loop
-var gameSpeed;
+gameSpeed = 0;
 
 // Defines the number of particles in an explosion
-var explosionSize;
+explosionSize = 0;
 
 // This int gets incremented and used as the ID for each game object as it gets
 // created
-var gameObjectId;
+gameObjectId = 0;
 
 // Used to maintain the current zoom level
-var zoomLevel;
+zoomLevel = 0;
 
 // Used to record the screen width
-var availableWidth;
+availableWidth = 0;
 
 // Used to record the screen height
-var availableHeight;
+availableHeight = 0;
 
 // Used to determine the current scaling paramter
-var currentScale;
+currentScale = 0;
 
 // Used to determine the size of the map
-var mapRadius;
+mapRadius = 0;
 
-// Stores the physics engine that is used througout the code
-var physics;
+Meteor.startup(function () {
+    init();
+});
 
-// Stores the main game object
-var game;
+init = function () {
 
-// Stores the object that is used for messaging through out the application
-var postOffice;
-
-// Keep a pointer to the human ship so we can look up current location as
-// needed
-var playerShip;
-
-function init() {
+    document.documentElement.addEventListener("keydown", KeyPress, false);
 
     background = document.getElementById("background");
     
@@ -88,7 +80,7 @@ function init() {
     game.reset();
 }
 
-function issueAiCommands() {
+issueAiCommands = function () {
 
     for (var x = 0, y = gameObjects.length; x < y; x++) {
     
@@ -102,7 +94,7 @@ function issueAiCommands() {
     }
 }
 
-function think(gameObject) {
+think = function (gameObject) {
 
     var commandType = 0;
 
@@ -161,7 +153,7 @@ function think(gameObject) {
     commands.push(new Command({command: commandType, targetId: gameObject.Id}));
 }
 
-function updateGameObjects() {
+updateGameObjects = function () {
 
     // Can't pre calculate the length of the array because some of the command create new objects
     for (var i = 0; i < gameObjects.length; i++) {
@@ -172,7 +164,7 @@ function updateGameObjects() {
     commands = [];
 }
 
-function createExplosion(sourceGameObject) {
+createExplosion = function (sourceGameObject) {
 	
 	for (var i = 0; i < explosionSize; i++) {
 	    
@@ -184,7 +176,7 @@ function createExplosion(sourceGameObject) {
 	}
 }
 
-function updateGameElements() {
+updateGameElements = function () {
 
     for (var i=0, j=gameObjects.length; i<j; i++) {
     
@@ -195,7 +187,7 @@ function updateGameElements() {
     }
 }
 
-function findSolidObjects() {
+findSolidObjects = function () {
 
     var solidObjects = [];
     
@@ -210,7 +202,7 @@ function findSolidObjects() {
     return solidObjects;
 }
 
-function boundryChecking() {
+boundryChecking = function () {
     
     solidObjects = findSolidObjects();
     
@@ -229,7 +221,7 @@ function boundryChecking() {
     game.removeDeadObjects();
 }
      
-function collisionDetection() {
+collisionDetection = function () {
     
     var solidObjects = [];
     
@@ -271,7 +263,7 @@ function collisionDetection() {
     game.removeDeadObjects();
 }
 
-function fuelDetection() {
+fuelDetection = function () {
     for (var x = 0, y = gameObjects.length; x < y; x++) {
         if (gameObjects[x].Fuel < 1) {
             deadObjects.push(gameObjects[x]);

@@ -1,6 +1,6 @@
 // ship.js
 
-function Ship(shipType) {
+Ship = function (shipType) {
 
     this.Id = gameObjectId;
     this.Type = shipType;
