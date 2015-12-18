@@ -11,8 +11,10 @@ Game.prototype.reset = function() {
     this.gameOver = false;
 
     this.countdownTimer = 40;
+
+    playerShip = new Ship('Human');
   
-    gameObjects.push(new Ship('Human'));
+    gameObjects.push(playerShip);
 
     loopInterval = setInterval("game.loop()", 40);
 }
@@ -35,7 +37,7 @@ Game.prototype.loop = function() {
         updateGameObjects();
         collisionDetection();
         fuelDetection();
-        boundryChecking();
+        // boundryChecking();
         updateGameElements();
     }
     else {
