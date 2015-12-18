@@ -45,6 +45,10 @@ var game;
 // Stores the object that is used for messaging through out the application
 var postOffice;
 
+// Keep a pointer to the human ship so we can look up current location as
+// needed
+var playerShip;
+
 function init() {
 
     background = document.getElementById("background");
