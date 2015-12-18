@@ -47,4 +47,32 @@ function KeyPress(evt) {
         var newCommand = new Command({command: 4, targetId: 0});
         commands.push(newCommand);
     }
+
+    // + Zoom In
+    else if(evt.keyCode==187) {
+    
+        evt.preventDefault();
+
+        if (zoomLevel > 100) {
+            zoomLevel = zoomLevel - 100;
+        }
+
+        currentScale = availablePixels / zoomLevel;
+        
+        portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
+    }
+
+    // - Zoom Out
+    else if(evt.keyCode==189) {
+    
+        evt.preventDefault();
+
+        if (zoomLevel < 1100) {
+            zoomLevel = zoomLevel + 100;
+        }
+
+        currentScale = availablePixels / zoomLevel;
+        
+        portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
+    }
 }
