@@ -27,10 +27,14 @@ Game.prototype.loop = function() {
         
             this.countdownTimer--;
         }
+
+        var nextShipType = Math.floor((Math.random()*100)+1)
     
-        if (Math.floor((Math.random()*50)+1) == 1) {
-        
-            gameObjects.push(new Ship('Computer'));
+        if (nextShipType == 1) {
+            gameObjects.push(new Ship('Alpha'));
+        }
+        else if (nextShipType == 2) {
+            gameObjects.push(new Ship('Bravo'));
         }
         
         issueAiCommands();

@@ -14,7 +14,7 @@ function Ship(shipType) {
 	this.RotationVelocity = 0;
 	this.Fuel = 1; // Must be at least 1 or object gets removed during collision detection!
 	
-	if (shipType == 'Computer') {
+	if (shipType != 'Human') {
 	
 	   this.setStartingPosition();
 	}
@@ -75,8 +75,12 @@ Ship.prototype.createView = function() {
         this.svgElement.setAttributeNS(null, 'stroke', 'green');
         this.svgElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
     }
-    else {
+    else if (this.Type == 'Alpha') {
         this.svgElement.setAttributeNS(null, 'stroke', 'red');
+        this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
+    }
+    else if (this.Type == 'Bravo') {
+        this.svgElement.setAttributeNS(null, 'stroke', 'grey');
         this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
     }
   
