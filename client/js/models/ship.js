@@ -88,7 +88,7 @@ Ship.prototype.createView = function() {
         this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
     }
     else if (this.Type == 'Bravo') {
-        this.svgElement.setAttributeNS(null, 'stroke', 'grey');
+        this.svgElement.setAttributeNS(null, 'stroke', 'gray');
         this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
         this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
         this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
@@ -187,9 +187,13 @@ Ship.prototype.processShipCommand = function(command) {
             break;
         case 3: // Rotate Right
             if (this.RotationDirection == 'None') {
-            
                 this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'Clockwise';
+            }
+            else if (this.RotationDirection == 'Clockwise') {
+                if (this.RotationVelocity < 4) {
+                    this.RotationVelocity = this.RotationVelocity + 1;
+                }
             }
             else if (this.RotationDirection == 'CounterClockwise') {
             
@@ -203,9 +207,13 @@ Ship.prototype.processShipCommand = function(command) {
             break;
         case 1: // Rotate Left
             if (this.RotationDirection == 'None') {
-            
                 this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'CounterClockwise';
+            }
+            else if (this.RotationDirection == 'CounterClockwise') {
+                if (this.RotationVelocity < 4) {
+                    this.RotationVelocity = this.RotationVelocity + 1;
+                }
             }
             else if (this.RotationDirection == 'Clockwise') {
             
