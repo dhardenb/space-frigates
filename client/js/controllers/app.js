@@ -124,7 +124,7 @@ think = function (gameObject) {
             break;
         }
     }
-    else if (gameObject.Type == 'Bravo') {
+    else {
         switch (Math.floor(Math.random()*11+1)) {
         case 1:
             commandType = 2;
