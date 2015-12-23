@@ -36,7 +36,7 @@ currentScale = 0;
 mapRadius = 0;
 
 Meteor.startup(function () {
-    init();
+    // init();
 });
 
 init = function () {
@@ -75,7 +75,7 @@ init = function () {
 
     currentScale = availablePixels / zoomLevel;
 
-    new Map();
+    // new Map();
 	
     game.reset();
 }

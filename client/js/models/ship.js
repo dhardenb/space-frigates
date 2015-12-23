@@ -112,6 +112,7 @@ Ship.prototype.createView = function() {
         this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
     }
 
+    // mapGroup = document.getElementById("mapGroup");
     mapGroup.appendChild(this.svgElement);
 }
 
@@ -125,6 +126,7 @@ Ship.prototype.updateView = function()
         var y = 0 - this.LocationY;
         var z = 0 - this.Facing;
     
+        // translateGroup = document.getElementById("translateGroup");
         translateGroup.setAttribute('transform', 'translate('+ x +','+ y +') rotate('+ 0 +')');
   }
 }
