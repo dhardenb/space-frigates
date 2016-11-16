@@ -102,7 +102,6 @@ Ship.prototype.updateView = function()
         var y = 0 - this.LocationY;
         var z = 0 - this.Facing;
 
-        rotateGroup.setAttribute('transform', 'translate('+ 0 +','+ 0 +') rotate('+ z +')');
         translateGroup.setAttribute('transform', 'translate('+ x +','+ y +') rotate('+ 0 +')');
   }
 }
