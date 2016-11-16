@@ -1,6 +1,6 @@
 // particle.js
 
-Particle = function (sourceObject) {
+function Particle(sourceObject) {
 
 	this.Id = gameObjectId;
 	this.Type = "Particle";

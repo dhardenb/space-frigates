@@ -1,6 +1,6 @@
 // particleView.js
 
-ParticleView = function (particle)
+function ParticleView(particle)
 {
     this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
 	this.svgElement.setAttributeNS(null, 'cx', particle.LocationX);

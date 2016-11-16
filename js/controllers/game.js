@@ -1,6 +1,6 @@
 // game.js
 
-Game = function () {
+function Game() {
 
     this.gameOver = true;
     this.countdownTimer = 0;
@@ -35,12 +35,6 @@ Game.prototype.loop = function() {
         }
         else if (nextShipType == 2) {
             gameObjects.push(new Ship('Bravo'));
-        }
-        else if (nextShipType == 3) {
-            gameObjects.push(new Ship('Viking'));
-        }
-        else if (nextShipType == 4) {
-            gameObjects.push(new Ship('Breaker'));
         }
         
         issueAiCommands();

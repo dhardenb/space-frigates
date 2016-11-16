@@ -1,7 +1,7 @@
 // postOffice.js
 
-PostOffice = function () {
-    
+function PostOffice()
+{
     this.topics = {};
     this.subUid = -1;
 }

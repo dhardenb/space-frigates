@@ -1,6 +1,6 @@
 // ship.js
 
-Ship = function (shipType) {
+function Ship(shipType) {
 
     this.Id = gameObjectId;
     this.Type = shipType;
@@ -74,45 +74,21 @@ Ship.prototype.createView = function() {
     if (this.Type == 'Human') {
         this.svgElement.setAttributeNS(null, 'stroke', 'green');
         this.svgElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
-        this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
-        this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
-        this.svgElement.setAttributeNS(null, 'fill', 'black');
-        this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
     }
     else if (this.Type == 'Alpha') {
         this.svgElement.setAttributeNS(null, 'stroke', 'red');
         this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
-        this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
-        this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
-        this.svgElement.setAttributeNS(null, 'fill', 'black');
-        this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
     }
     else if (this.Type == 'Bravo') {
-        this.svgElement.setAttributeNS(null, 'stroke', 'gray');
+        this.svgElement.setAttributeNS(null, 'stroke', 'grey');
         this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
-        this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
-        this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
-        this.svgElement.setAttributeNS(null, 'fill', 'black');
-        this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
     }
-    else if (this.Type == 'Viking') {
-        this.svgElement.setAttributeNS(null, 'stroke', 'purple');
-        this.svgElement.setAttributeNS(null, 'd', 'M -2 4 L -1 3 L 0 5 L 1 3 L 2 4 L 2 -4 L 0 -2 L -2 -4 Z');
-        this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
-        this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
-        this.svgElement.setAttributeNS(null, 'fill', 'black');
-        this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
-    }
-    else if (this.Type == 'Breaker') {
-        this.svgElement.setAttributeNS(null, 'stroke', 'blue');
-        this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 5 L -2 3 L 2 3 L 2 5 L 5 5 L 5 0 4 -1 L 3 0 L 2 -1 L 2 -3 L 0 -5 L -2 -3 L -2 -1 L -3 0 L -4 -1 L -5 -0 Z');
-        this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
-        this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
-        this.svgElement.setAttributeNS(null, 'fill', 'black');
-        this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
-    }
+  
+    this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
+    this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
+    this.svgElement.setAttributeNS(null, 'fill', 'black');
+    this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
 
-    // mapGroup = document.getElementById("mapGroup");
     mapGroup.appendChild(this.svgElement);
 }
 
@@ -126,7 +102,7 @@ Ship.prototype.updateView = function()
         var y = 0 - this.LocationY;
         var z = 0 - this.Facing;
     
-        // translateGroup = document.getElementById("translateGroup");
+        rotateGroup.setAttribute('transform', 'translate('+ 0 +','+ 0 +') rotate('+ z +')');
         translateGroup.setAttribute('transform', 'translate('+ x +','+ y +') rotate('+ 0 +')');
   }
 }
@@ -189,13 +165,9 @@ Ship.prototype.processShipCommand = function(command) {
             break;
         case 3: // Rotate Right
             if (this.RotationDirection == 'None') {
+            
                 this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'Clockwise';
-            }
-            else if (this.RotationDirection == 'Clockwise') {
-                if (this.RotationVelocity < 4) {
-                    this.RotationVelocity = this.RotationVelocity + 1;
-                }
             }
             else if (this.RotationDirection == 'CounterClockwise') {
             
@@ -209,13 +181,9 @@ Ship.prototype.processShipCommand = function(command) {
             break;
         case 1: // Rotate Left
             if (this.RotationDirection == 'None') {
+            
                 this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'CounterClockwise';
-            }
-            else if (this.RotationDirection == 'CounterClockwise') {
-                if (this.RotationVelocity < 4) {
-                    this.RotationVelocity = this.RotationVelocity + 1;
-                }
             }
             else if (this.RotationDirection == 'Clockwise') {
             

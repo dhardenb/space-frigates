@@ -1,47 +1,55 @@
+
 // Contains all the objects created during game play like: ships, missles,
 // particals, thrusters
-gameObjects = [];
+var gameObjects;
 
 // Contains all the obejcts that have been destroyed (either via collision or
 // running out of fuel) so that they can be removed from the DOM
-deadObjects = [];
+var deadObjects;
 
 // Contains all the command objects that have be created either from a human
 // player via periphreal input or the AI for emenemy ships
-commands = [];
+var commands;
 
 // Used to control and maintain the game loop
-gameSpeed = 0;
+var gameSpeed;
 
 // Defines the number of particles in an explosion
-explosionSize = 0;
+var explosionSize;
 
 // This int gets incremented and used as the ID for each game object as it gets
 // created
-gameObjectId = 0;
+var gameObjectId;
 
 // Used to maintain the current zoom level
-zoomLevel = 0;
+var zoomLevel;
 
 // Used to record the screen width
-availableWidth = 0;
+var availableWidth;
 
 // Used to record the screen height
-availableHeight = 0;
+var availableHeight;
 
 // Used to determine the current scaling paramter
-currentScale = 0;
+var currentScale;
 
 // Used to determine the size of the map
-mapRadius = 0;
+var mapRadius;
 
-Meteor.startup(function () {
-    // init();
-});
+// Stores the physics engine that is used througout the code
+var physics;
 
-init = function () {
+// Stores the main game object
+var game;
 
-    document.documentElement.addEventListener("keydown", KeyPress, false);
+// Stores the object that is used for messaging through out the application
+var postOffice;
+
+// Keep a pointer to the human ship so we can look up current location as
+// needed
+var playerShip;
+
+function init() {
 
     background = document.getElementById("background");
     
@@ -75,12 +83,12 @@ init = function () {
 
     currentScale = availablePixels / zoomLevel;
 
-    // new Map();
+    new Map();
 	
     game.reset();
 }
 
-issueAiCommands = function () {
+function issueAiCommands() {
 
     for (var x = 0, y = gameObjects.length; x < y; x++) {
     
@@ -94,7 +102,7 @@ issueAiCommands = function () {
     }
 }
 
-think = function (gameObject) {
+function think(gameObject) {
 
     var commandType = 0;
 
@@ -124,7 +132,7 @@ think = function (gameObject) {
             break;
         }
     }
-    else {
+    else if (gameObject.Type == 'Bravo') {
         switch (Math.floor(Math.random()*11+1)) {
         case 1:
             commandType = 2;
@@ -153,7 +161,7 @@ think = function (gameObject) {
     commands.push(new Command({command: commandType, targetId: gameObject.Id}));
 }
 
-updateGameObjects = function () {
+function updateGameObjects() {
 
     // Can't pre calculate the length of the array because some of the command create new objects
     for (var i = 0; i < gameObjects.length; i++) {
@@ -164,7 +172,7 @@ updateGameObjects = function () {
     commands = [];
 }
 
-createExplosion = function (sourceGameObject) {
+function createExplosion(sourceGameObject) {
 	
 	for (var i = 0; i < explosionSize; i++) {
 	    
@@ -176,7 +184,7 @@ createExplosion = function (sourceGameObject) {
 	}
 }
 
-updateGameElements = function () {
+function updateGameElements() {
 
     for (var i=0, j=gameObjects.length; i<j; i++) {
     
@@ -187,7 +195,7 @@ updateGameElements = function () {
     }
 }
 
-findSolidObjects = function () {
+function findSolidObjects() {
 
     var solidObjects = [];
     
@@ -202,7 +210,7 @@ findSolidObjects = function () {
     return solidObjects;
 }
 
-boundryChecking = function () {
+function boundryChecking() {
     
     solidObjects = findSolidObjects();
     
@@ -221,7 +229,7 @@ boundryChecking = function () {
     game.removeDeadObjects();
 }
      
-collisionDetection = function () {
+function collisionDetection() {
     
     var solidObjects = [];
     
@@ -263,7 +271,7 @@ collisionDetection = function () {
     game.removeDeadObjects();
 }
 
-fuelDetection = function () {
+function fuelDetection() {
     for (var x = 0, y = gameObjects.length; x < y; x++) {
         if (gameObjects[x].Fuel < 1) {
             deadObjects.push(gameObjects[x]);

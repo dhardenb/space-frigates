@@ -1,6 +1,6 @@
 // keyboard_events.js
 
-KeyPress = function (evt) {
+function KeyPress(evt) {
 
     // ENTER - Start
     if(evt.keyCode==13 && game.gameOver == true) {

@@ -1,6 +1,6 @@
 // thrusterView.js
 
-ThrusterView = function (thruster)
+function ThrusterView(thruster)
 {
 	this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 	this.svgElement.setAttributeNS(null, 'stroke', 'red');
