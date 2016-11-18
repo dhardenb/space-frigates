@@ -1,6 +1,6 @@
 # Welcome to Space Frigate!
 
-**Play right now at: https://spacefrigates.com**
+**Play right now at: https://www.spacefrigates.com**
 
 Space Frigates is a simple arcade game build using the Meteor JS application,
 SVG, and a home grown game engine.
