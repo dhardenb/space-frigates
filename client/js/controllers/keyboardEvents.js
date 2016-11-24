@@ -17,7 +17,7 @@ KeyPress = function KeyPress(evt) {
     }
 
     // LEFT_ARROW - Rotate CounterClockwise
-    else if(evt.keyCode == 37) {
+    else if(evt.keyCode == 37 || evt.keyCode == 65) {
 
         evt.preventDefault();
         var newCommand = new Command({command: 1, targetId: 0});
@@ -25,7 +25,7 @@ KeyPress = function KeyPress(evt) {
     }
 
     // UP_ARROW - Forward Thruster
-    else if(evt.keyCode==38) {
+    else if(evt.keyCode==38 || evt.keyCode == 87) {
 
         evt.preventDefault();
         var newCommand = new Command({command: 2, targetId: 0});
@@ -33,7 +33,7 @@ KeyPress = function KeyPress(evt) {
     }
 
     // RIGHT_ARROW - Rotate Clockwise
-    else if(evt.keyCode==39) {
+    else if(evt.keyCode==39 || evt.keyCode == 68) {
 
         evt.preventDefault();
         var newCommand = new Command({command: 3, targetId: 0});
@@ -41,7 +41,7 @@ KeyPress = function KeyPress(evt) {
     }
 
     // DOWN_ARROW - Stop
-    else if(evt.keyCode==40) {
+    else if(evt.keyCode==40 || evt.keyCode == 83) {
 
         evt.preventDefault();
         var newCommand = new Command({command: 4, targetId: 0});
