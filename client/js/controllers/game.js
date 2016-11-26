@@ -1,17 +1,10 @@
 Game = function Game() {
-  this.gameOver = true;
-  this.countdownTimer = 0;
+
 }
 
 Game.prototype.init = function() {
 
-  document.documentElement.addEventListener("keydown", KeyPress, false);
-
-  background = document.getElementById("background");
-
-  while (background.firstChild) {
-      background.removeChild(background.firstChild);
-  }
+  this.setupEventHandlers();
 
   gameObjects = [];
   deadObjects = [];
@@ -23,28 +16,19 @@ Game.prototype.init = function() {
   mapRadius = 500;
   physics = new Physics();
   postOffice = new PostOffice();
+  engine = new Engine();
 
-  availableWidth = window.innerWidth - 22;
-  availableHeight = window.innerHeight - 22;
-
-  if (availableHeight < availableWidth) {
-
-      availablePixels = availableHeight;
-  }
-  else {
-
-      availablePixels = availableWidth;
-  }
-
-  currentScale = availablePixels / zoomLevel;
-
-  new Map();
+  new Renderer();
 
   this.gameOver = false;
   this.countdownTimer = 40;
   playerShip = new Ship('Human');
   gameObjects.push(playerShip);
   loopInterval = setInterval("game.loop()", 40);
+}
+
+Game.prototype.setupEventHandlers = function() {
+  document.documentElement.addEventListener("keydown", KeyPress, false);
 }
 
 Game.prototype.loop = function() {
@@ -60,8 +44,7 @@ Game.prototype.loop = function() {
       gameObjects.push(new Ship('Bravo'));
     }
     this.issueAiCommands();
-    this.updateGameObjects();
-    this.collisionDetection();
+    engine.update();
     this.fuelDetection();
     // boundryChecking();
     this.updateGameElements();
@@ -165,14 +148,6 @@ Game.prototype.think = function (gameObject) {
   commands.push(new Command({command: commandType, targetId: gameObject.Id}));
 }
 
-Game.prototype.updateGameObjects = function () {
-  // Can't pre calculate the length of the array because some of the command create new objects
-  for (var i = 0; i < gameObjects.length; i++) {
-    gameObjects[i].update();
-  }
-  commands = [];
-}
-
 Game.prototype.createExplosion = function (sourceGameObject) {
   for (var i = 0; i < explosionSize; i++) {
     var newParticle = new Particle(sourceGameObject);
@@ -181,46 +156,6 @@ Game.prototype.createExplosion = function (sourceGameObject) {
     postOffice.subscribe("ParticleMoved" + newParticle.Id, newParticleView.update.bind(newParticleView));
     postOffice.subscribe('ParticleDestroyed' + newParticle.Id, newParticleView.destroy.bind(newParticleView));
   }
-}
-
-Game.prototype.collisionDetection = function () {
-  var solidObjects = [];
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-
-    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster') {
-
-        solidObjects.push(gameObjects[x])
-    }
-}
-
-// Run colision detection for each solidObject
-for (var i = 0, j = solidObjects.length; i < j; i++) {
-
-    // Find this distance between this and every other object in the game and check to see if it
-    // is smaller than the combined radius of the two objects.
-    for (var k = 0, l = solidObjects.length; k < l; k++) {
-
-        // Don't let objects colide with themselves!
-        if (i != k) {
-
-            if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size + solidObjects[k].Size)) {
-
-                // This object has collided with something so we get to blow it up!!!
-                this.createExplosion(solidObjects[k]);
-
-                // I created this array of objects to remove because removing objects from
-                // an array while you are still iterating over the same array is generaly
-                // a bad thing!
-                deadObjects.push(solidObjects[k]);
-
-                // No use blowing this up twice!
-                break;
-            }
-        }
-    }
-}
-
-game.removeDeadObjects();
 }
 
 Game.prototype.updateGameElements = function () {

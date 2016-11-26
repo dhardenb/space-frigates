@@ -1,14 +1,27 @@
-// map.js
+Renderer = function Renderer() {
+  this.clearBackground();
 
-Map = function Map() {
+  availableWidth = window.innerWidth - 22;
+  availableHeight = window.innerHeight - 22;
 
-	this.create();
-	this.createStars();
+  if (availableHeight < availableWidth) {
+
+      availablePixels = availableHeight;
+  }
+  else {
+
+      availablePixels = availableWidth;
+  }
+
+  currentScale = availablePixels / zoomLevel;
+
+  this.create();
+  this.createStars();
 }
 
-Map.prototype.create = function() {
+Renderer.prototype.create = function() {
 
-    background = document.getElementById("background");
+  background = document.getElementById("background");
 	background.setAttributeNS(null, "height", availableHeight);
 	background.setAttributeNS(null, "width", availableWidth);
 
@@ -31,7 +44,7 @@ Map.prototype.create = function() {
 
 }
 
-Map.prototype.createStars = function() {
+Renderer.prototype.createStars = function() {
 
     for (var x = mapRadius*-1; x < mapRadius; x++) {
 
@@ -48,4 +61,12 @@ Map.prototype.createStars = function() {
 			}
 		}
 	}
+}
+
+
+Renderer.prototype.clearBackground = function() {
+  background = document.getElementById("background");
+  while (background.firstChild) {
+      background.removeChild(background.firstChild);
+  }
 }
