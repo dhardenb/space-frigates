@@ -47,7 +47,7 @@ Engine.prototype.collisionDetection = function () {
       }
     }
   }
-  game.removeDeadObjects();
+  this.removeDeadObjects();
 }
 
 Engine.prototype.createExplosion = function (sourceGameObject) {
@@ -72,7 +72,7 @@ Engine.prototype.fuelDetection = function () {
       }
     }
   }
-  game.removeDeadObjects();
+  this.removeDeadObjects();
 }
 
 Engine.prototype.findSolidObjects = function () {
@@ -96,5 +96,30 @@ Engine.prototype.boundryChecking = function () {
       deadObjects.push(solidObjects[x]);
     }
   }
-  game.removeDeadObjects();
+  this.removeDeadObjects();
+}
+
+Engine.prototype.removeDeadObjects = function() {
+  for (var x = 0, y = deadObjects.length; x < y; x++) {
+    // I had to filter out the particle objects because they do NOT
+    // have an svgElement!!!
+    if (deadObjects[x].Type != 'Particle' && deadObjects[x].Type != 'Thruster') {
+      // Delete the SVG element out of the DOM
+      deadObjects[x].svgElement.parentNode.removeChild(deadObjects[x].svgElement);
+    }
+    // If the dead object was the human ship, trip the game over flag
+    if (deadObjects[x].Type == "Human") {
+      game.gameOver = true;
+    }
+    var i = 0;
+    for (var j = 0; j < gameObjects.length; j++) {
+      if (gameObjects[j].Id == deadObjects[x].Id) {
+          gameObjects.splice(i, 1);
+      }
+      else {
+        i++;
+      }
+    }
+  }
+  deadObjects = [];
 }
