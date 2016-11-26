@@ -14,13 +14,15 @@ Game.prototype.init = function() {
   gameObjectId = 0;
   zoomLevel = 400;
   mapRadius = 500;
+  gameOver = false;
+  countdownTimer = 40;
+
   physics = new Physics();
   postOffice = new PostOffice();
   engine = new Engine();
   renderer = new Renderer();
   ai = new Ai();
-  this.gameOver = false;
-  this.countdownTimer = 40;
+
   playerShip = new Ship('Human');
   gameObjects.push(playerShip);
 
@@ -32,14 +34,14 @@ Game.prototype.setupEventHandlers = function() {
 }
 
 Game.prototype.loop = function() {
-  if (this.countdownTimer > 0) {
-    if (this.gameOver == true) {
-      this.countdownTimer--;
+  if (countdownTimer > 0) {
+    if (gameOver == true) {
+      countdownTimer--;
     }
     this.createAiShip();
     ai.issueCommands();
     engine.update();
-    renderer.updateGameElements();
+    renderer.update();
   }
   else {
     window.clearInterval(loopInterval);

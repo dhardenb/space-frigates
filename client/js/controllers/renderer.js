@@ -71,7 +71,7 @@ Renderer.prototype.clearBackground = function() {
   }
 }
 
-Renderer.prototype.updateGameElements = function () {
+Renderer.prototype.update = function () {
   for (var i=0, j=gameObjects.length; i<j; i++) {
     if (gameObjects[i].Type != 'Particle' && gameObjects[i].Type != 'Thruster') {
       gameObjects[i].updateView();
