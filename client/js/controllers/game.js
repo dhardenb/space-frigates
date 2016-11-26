@@ -18,7 +18,6 @@ Game.prototype.init = function() {
   countdownTimer = 40;
 
   physics = new Physics();
-  postOffice = new PostOffice();
   engine = new Engine();
   renderer = new Renderer();
   ai = new Ai();

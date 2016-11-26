@@ -2,8 +2,8 @@
 
 Ship = function Ship(shipType) {
 
-    this.Id = gameObjectId;
-    this.Type = shipType;
+  this.Id = gameObjectId;
+  this.Type = shipType;
 	this.LocationX = 0;
 	this.LocationY = 0;
 	this.Facing = 0;
@@ -18,9 +18,6 @@ Ship = function Ship(shipType) {
 
 	   this.setStartingPosition();
 	}
-
-	this.createView();
-    this.updateView();
 
 	gameObjectId++;
 }
@@ -67,32 +64,7 @@ Ship.prototype.update = function() {
     physics.moveObjectAlongVector(this);
 }
 
-Ship.prototype.createView = function() {
-
-    this.svgElement = document.createElementNS("http://www.w3.org/2000/svg","path");
-
-    if (this.Type == 'Human') {
-        this.svgElement.setAttributeNS(null, 'stroke', 'green');
-        this.svgElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
-    }
-    else if (this.Type == 'Alpha') {
-        this.svgElement.setAttributeNS(null, 'stroke', 'red');
-        this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
-    }
-    else if (this.Type == 'Bravo') {
-        this.svgElement.setAttributeNS(null, 'stroke', 'grey');
-        this.svgElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
-    }
-
-    this.svgElement.setAttributeNS(null, 'stroke-linejoin', 'round');
-    this.svgElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
-    this.svgElement.setAttributeNS(null, 'fill', 'black');
-    this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
-
-    mapGroup.appendChild(this.svgElement);
-}
-
-Ship.prototype.updateView = function()
+/*Ship.prototype.updateView = function()
 {
     this.svgElement.setAttribute('transform', 'translate('+this.LocationX+','+this.LocationY+') rotate('+this.Facing+')');
 
@@ -104,7 +76,7 @@ Ship.prototype.updateView = function()
 
         translateGroup.setAttribute('transform', 'translate('+ x +','+ y +') rotate('+ 0 +')');
   }
-}
+}*/
 
 Ship.prototype.setStartingPosition = function() {
 
@@ -196,17 +168,7 @@ Ship.prototype.processShipCommand = function(command) {
             break;
         case 2: // Accelerate
                 physics.findNewVelocity(this, this.Facing, 1)
-
-                // Create a new thruster and corresponding thrusterView as well as the
-                // publishing the proper events.
-                //
-                // NOTE: Creating these objects here does not see like a good idea.
-                var newThruster = new Thruster(this);
-                gameObjects.push(newThruster);
-                var newThrusterView = new ThrusterView(newThruster);
-                postOffice.subscribe("ThrusterMoved" + newThruster.Id, newThrusterView.update.bind(newThrusterView));
-                postOffice.subscribe('ThrusterDestroyed' + newThruster.Id, newThrusterView.destroy.bind(newThrusterView));
-
+                gameObjects.push(new Thruster(this));
                 break;
         case 4: // Brake
             if (this.Velocity > 0) {

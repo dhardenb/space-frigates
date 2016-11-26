@@ -66,7 +66,6 @@ Thruster.prototype.calclulateInitialPosition = function(sourceObject) {
 }
 
 Thruster.prototype.update = function() {
-    this.Fuel--;
+  this.Fuel--;
 	physics.moveObjectAlongVector(this);
-	postOffice.publish("ThrusterMoved" + this.Id, [this.LocationX, this.LocationY, this.Facing])
 }

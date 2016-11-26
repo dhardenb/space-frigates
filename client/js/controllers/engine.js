@@ -54,9 +54,6 @@ Engine.prototype.createExplosion = function (sourceGameObject) {
   for (var i = 0; i < explosionSize; i++) {
     var newParticle = new Particle(sourceGameObject);
     gameObjects.push(newParticle);
-    var newParticleView = new ParticleView(newParticle);
-    postOffice.subscribe("ParticleMoved" + newParticle.Id, newParticleView.update.bind(newParticleView));
-    postOffice.subscribe('ParticleDestroyed' + newParticle.Id, newParticleView.destroy.bind(newParticleView));
   }
 }
 
@@ -64,12 +61,6 @@ Engine.prototype.fuelDetection = function () {
   for (var x = 0, y = gameObjects.length; x < y; x++) {
     if (gameObjects[x].Fuel < 1) {
       deadObjects.push(gameObjects[x]);
-      if (gameObjects[x].Type == 'Particle') {
-        postOffice.publish("ParticleDestroyed" + gameObjects[x].Id, []);
-      }
-      if (gameObjects[x].Type == 'Thruster') {
-        postOffice.publish("ThrusterDestroyed" + gameObjects[x].Id, []);
-      }
     }
   }
   this.removeDeadObjects();
@@ -101,12 +92,6 @@ Engine.prototype.boundryChecking = function () {
 
 Engine.prototype.removeDeadObjects = function() {
   for (var x = 0, y = deadObjects.length; x < y; x++) {
-    // I had to filter out the particle objects because they do NOT
-    // have an svgElement!!!
-    if (deadObjects[x].Type != 'Particle' && deadObjects[x].Type != 'Thruster') {
-      // Delete the SVG element out of the DOM
-      deadObjects[x].svgElement.parentNode.removeChild(deadObjects[x].svgElement);
-    }
     // If the dead object was the human ship, trip the game over flag
     if (deadObjects[x].Type == "Human") {
       gameOver = true;
