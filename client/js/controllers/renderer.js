@@ -70,3 +70,11 @@ Renderer.prototype.clearBackground = function() {
       background.removeChild(background.firstChild);
   }
 }
+
+Renderer.prototype.updateGameElements = function () {
+  for (var i=0, j=gameObjects.length; i<j; i++) {
+    if (gameObjects[i].Type != 'Particle' && gameObjects[i].Type != 'Thruster') {
+      gameObjects[i].updateView();
+    }
+  }
+}

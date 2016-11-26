@@ -17,7 +17,7 @@ Game.prototype.init = function() {
   physics = new Physics();
   postOffice = new PostOffice();
   engine = new Engine();
-  new Renderer();
+  renderer = new Renderer();
   this.gameOver = false;
   this.countdownTimer = 40;
   playerShip = new Ship('Human');
@@ -44,7 +44,7 @@ Game.prototype.loop = function() {
     }
     this.issueAiCommands();
     engine.update();
-    this.updateGameElements();
+    renderer.updateGameElements();
   }
   else {
     window.clearInterval(loopInterval);
@@ -118,12 +118,4 @@ Game.prototype.think = function (gameObject) {
   }
 
   commands.push(new Command({command: commandType, targetId: gameObject.Id}));
-}
-
-Game.prototype.updateGameElements = function () {
-  for (var i=0, j=gameObjects.length; i<j; i++) {
-    if (gameObjects[i].Type != 'Particle' && gameObjects[i].Type != 'Thruster') {
-      gameObjects[i].updateView();
-    }
-  }
 }
