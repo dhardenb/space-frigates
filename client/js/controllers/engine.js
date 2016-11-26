@@ -9,6 +9,7 @@ Engine.prototype.update = function () {
   }
   commands = [];
   this.collisionDetection();
+  this.fuelDetection();
 }
 
 Engine.prototype.collisionDetection = function () {
@@ -56,4 +57,19 @@ Engine.prototype.createExplosion = function (sourceGameObject) {
     postOffice.subscribe("ParticleMoved" + newParticle.Id, newParticleView.update.bind(newParticleView));
     postOffice.subscribe('ParticleDestroyed' + newParticle.Id, newParticleView.destroy.bind(newParticleView));
   }
+}
+
+Engine.prototype.fuelDetection = function () {
+  for (var x = 0, y = gameObjects.length; x < y; x++) {
+    if (gameObjects[x].Fuel < 1) {
+      deadObjects.push(gameObjects[x]);
+      if (gameObjects[x].Type == 'Particle') {
+        postOffice.publish("ParticleDestroyed" + gameObjects[x].Id, []);
+      }
+      if (gameObjects[x].Type == 'Thruster') {
+        postOffice.publish("ThrusterDestroyed" + gameObjects[x].Id, []);
+      }
+    }
+  }
+  game.removeDeadObjects();
 }
