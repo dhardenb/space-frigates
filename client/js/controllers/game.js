@@ -18,6 +18,7 @@ Game.prototype.init = function() {
   postOffice = new PostOffice();
   engine = new Engine();
   renderer = new Renderer();
+  ai = new Ai();
   this.gameOver = false;
   this.countdownTimer = 40;
   playerShip = new Ship('Human');
@@ -35,14 +36,8 @@ Game.prototype.loop = function() {
     if (this.gameOver == true) {
       this.countdownTimer--;
     }
-    var nextShipType = Math.floor((Math.random()*100)+1)
-    if (nextShipType == 1) {
-      gameObjects.push(new Ship('Alpha'));
-    }
-    else if (nextShipType == 2) {
-      gameObjects.push(new Ship('Bravo'));
-    }
-    this.issueAiCommands();
+    this.createAiShip();
+    ai.issueCommands();
     engine.update();
     renderer.updateGameElements();
   }
@@ -52,70 +47,12 @@ Game.prototype.loop = function() {
   }
 }
 
-Game.prototype.issueAiCommands = function () {
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Type != 'Human') {
-      if (Math.floor((Math.random()*25)+1) == 1) {
-        this.think(gameObjects[x]);
-      }
-    }
+Game.prototype.createAiShip = function() {
+  var nextShipType = Math.floor((Math.random()*100)+1)
+  if (nextShipType == 1) {
+    gameObjects.push(new Ship('Alpha'));
   }
-}
-
-Game.prototype.think = function (gameObject) {
-  var commandType = 0;
-
-  if (gameObject.Type == 'Alpha') {
-
-      switch (Math.floor(Math.random()*11+1)) {
-      case 1:
-          commandType = 2;
-          break;
-      case 3:
-      case 4:
-      case 11:
-      case 10:
-          commandType = 0;
-          break;
-      case 6:
-      case 7:
-          commandType = 1;
-          break;
-      case 8:
-      case 9:
-          commandType = 3;
-          break;
-      case 2:
-      case 5:
-          commandType = 4;
-          break;
-      }
+  else if (nextShipType == 2) {
+    gameObjects.push(new Ship('Bravo'));
   }
-  else if (gameObject.Type == 'Bravo') {
-      switch (Math.floor(Math.random()*11+1)) {
-      case 1:
-          commandType = 2;
-          break;
-      case 3:
-      case 4:
-      case 11:
-          commandType = 0;
-          break;
-      case 6:
-      case 7:
-          commandType = 1;
-          break;
-      case 8:
-      case 9:
-          commandType = 3;
-          break;
-      case 2:
-      case 5:
-      case 10:
-          commandType = 4;
-          break;
-      }
-  }
-
-  commands.push(new Command({command: commandType, targetId: gameObject.Id}));
 }
