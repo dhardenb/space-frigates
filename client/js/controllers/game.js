@@ -45,8 +45,6 @@ Game.prototype.loop = function() {
     }
     this.issueAiCommands();
     engine.update();
-    this.fuelDetection();
-    // boundryChecking();
     this.updateGameElements();
   }
   else {
@@ -148,59 +146,10 @@ Game.prototype.think = function (gameObject) {
   commands.push(new Command({command: commandType, targetId: gameObject.Id}));
 }
 
-Game.prototype.createExplosion = function (sourceGameObject) {
-  for (var i = 0; i < explosionSize; i++) {
-    var newParticle = new Particle(sourceGameObject);
-    gameObjects.push(newParticle);
-    var newParticleView = new ParticleView(newParticle);
-    postOffice.subscribe("ParticleMoved" + newParticle.Id, newParticleView.update.bind(newParticleView));
-    postOffice.subscribe('ParticleDestroyed' + newParticle.Id, newParticleView.destroy.bind(newParticleView));
-  }
-}
-
 Game.prototype.updateGameElements = function () {
   for (var i=0, j=gameObjects.length; i<j; i++) {
     if (gameObjects[i].Type != 'Particle' && gameObjects[i].Type != 'Thruster') {
       gameObjects[i].updateView();
     }
   }
-}
-
-Game.prototype.findSolidObjects = function () {
-  var solidObjects = [];
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster') {
-      solidObjects.push(gameObjects[x])
-    }
-  }
-  return solidObjects;
-}
-
-Game.prototype.boundryChecking = function () {
-  solidObjects = findSolidObjects();
-  for (var x = 0, y = solidObjects.length; x < y; x++) {
-    // Check to see if GameObject has flown past the border. I do this by measuring the distance
-    // from the Game Object to the center of the screen and making sure the distance is smaller
-    // than the radius of the screen.
-    if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < mapRadius * mapRadius)) {
-      Game.createExplosion(solidObjects[x]);
-      deadObjects.push(solidObjects[x]);
-    }
-  }
-  game.removeDeadObjects();
-}
-
-Game.prototype.fuelDetection = function () {
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Fuel < 1) {
-      deadObjects.push(gameObjects[x]);
-      if (gameObjects[x].Type == 'Particle') {
-        postOffice.publish("ParticleDestroyed" + gameObjects[x].Id, []);
-      }
-      if (gameObjects[x].Type == 'Thruster') {
-        postOffice.publish("ThrusterDestroyed" + gameObjects[x].Id, []);
-      }
-    }
-  }
-  game.removeDeadObjects();
 }

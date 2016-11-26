@@ -9,6 +9,7 @@ Engine.prototype.update = function () {
   }
   commands = [];
   this.collisionDetection();
+  // this.boundryChecking();
   this.fuelDetection();
 }
 
@@ -69,6 +70,30 @@ Engine.prototype.fuelDetection = function () {
       if (gameObjects[x].Type == 'Thruster') {
         postOffice.publish("ThrusterDestroyed" + gameObjects[x].Id, []);
       }
+    }
+  }
+  game.removeDeadObjects();
+}
+
+Engine.prototype.findSolidObjects = function () {
+  var solidObjects = [];
+  for (var x = 0, y = gameObjects.length; x < y; x++) {
+    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster') {
+      solidObjects.push(gameObjects[x])
+    }
+  }
+  return solidObjects;
+}
+
+Engine.prototype.boundryChecking = function () {
+  solidObjects = this.findSolidObjects();
+  for (var x = 0, y = solidObjects.length; x < y; x++) {
+    // Check to see if GameObject has flown past the border. I do this by measuring the distance
+    // from the Game Object to the center of the screen and making sure the distance is smaller
+    // than the radius of the screen.
+    if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < mapRadius * mapRadius)) {
+      this.createExplosion(solidObjects[x]);
+      deadObjects.push(solidObjects[x]);
     }
   }
   game.removeDeadObjects();
