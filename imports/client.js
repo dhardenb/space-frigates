@@ -1,3 +1,6 @@
+import './engine.js';
+import './renderer.js'
+
 Client = function Client() {
 
 }

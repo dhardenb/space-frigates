@@ -1,5 +1,7 @@
 import { Meteor } from 'meteor/meteor';
+import '../imports/server.js';
 
 Meteor.startup(() => {
-  // code to run on server at startup
+  server = new Server();
+  server.init();
 });
