@@ -1,4 +1,4 @@
 Meteor.startup(function () {
-  game = new Game();
-  game.init();
+  client = new Client();
+  client.init();
 });

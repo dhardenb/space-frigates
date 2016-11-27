@@ -1,8 +1,8 @@
-Game = function Game() {
+Client = function Client() {
 
 }
 
-Game.prototype.init = function() {
+Client.prototype.init = function() {
 
   this.setupEventHandlers();
 
@@ -25,14 +25,14 @@ Game.prototype.init = function() {
   playerShip = new Ship('Human');
   gameObjects.push(playerShip);
 
-  loopInterval = setInterval("game.loop()", 40);
+  loopInterval = setInterval("client.loop()", 40);
 }
 
-Game.prototype.setupEventHandlers = function() {
+Client.prototype.setupEventHandlers = function() {
   document.documentElement.addEventListener("keydown", KeyPress, false);
 }
 
-Game.prototype.loop = function() {
+Client.prototype.loop = function() {
   if (countdownTimer > 0) {
     if (gameOver == true) {
       countdownTimer--;
@@ -44,11 +44,11 @@ Game.prototype.loop = function() {
   }
   else {
     window.clearInterval(loopInterval);
-    game.init();
+    client.init();
   }
 }
 
-Game.prototype.createAiShip = function() {
+Client.prototype.createAiShip = function() {
   var nextShipType = Math.floor((Math.random()*100)+1)
   if (nextShipType == 1) {
     gameObjects.push(new Ship('Alpha'));
@@ -61,7 +61,7 @@ Game.prototype.createAiShip = function() {
 KeyPress = function KeyPress(evt) {
 
     // ENTER - Start
-    if(evt.keyCode==13 && game.gameOver == true) {
+    if(evt.keyCode==13 && gameOver == true) {
 
         evt.preventDefault();
     }
