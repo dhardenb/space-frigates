@@ -499,32 +499,34 @@ Ship.prototype.processShipCommand = function(command) {
             break;
         case 3: // Rotate Right
             if (this.RotationDirection == 'None') {
-
-                this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'Clockwise';
+                this.RotationVelocity = this.RotationVelocity + 1;
+            }
+            else if (this.RotationDirection == 'Clockwise') {
+                if (this.RotationVelocity < 3) {
+                    this.RotationVelocity = this.RotationVelocity + 1;
+                }
             }
             else if (this.RotationDirection == 'CounterClockwise') {
-
                 this.RotationVelocity = this.RotationVelocity - 1;
-
                 if (this.RotationVelocity == 0) {
-
                     this.RotationDirection = 'None';
                 }
             }
             break;
         case 1: // Rotate Left
             if (this.RotationDirection == 'None') {
-
-                this.RotationVelocity = this.RotationVelocity + 1;
                 this.RotationDirection = 'CounterClockwise';
+                this.RotationVelocity = this.RotationVelocity + 1;
+            }
+            else if (this.RotationDirection == 'CounterClockwise') {
+                if (this.RotationVelocity < 3) {
+                    this.RotationVelocity = this.RotationVelocity + 1;
+                }
             }
             else if (this.RotationDirection == 'Clockwise') {
-
                 this.RotationVelocity = this.RotationVelocity - 1;
-
                 if (this.RotationVelocity == 0) {
-
                     this.RotationDirection = 'None';
                 }
             }
