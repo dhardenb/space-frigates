@@ -45,6 +45,17 @@ Renderer.prototype.create = function() {
 	mapGroup.setAttribute('id', 'mapGroup');
 	translateGroup.appendChild(mapGroup);
 
+  mapBoundry = document.createElementNS("http://www.w3.org/2000/svg","circle");
+	mapBoundry.setAttributeNS(null, "cx", 0);
+	mapBoundry.setAttributeNS(null, "cy", 0);
+	mapBoundry.setAttributeNS(null, "r", mapRadius);
+	mapBoundry.setAttributeNS(null, "stroke", "yellow");
+	mapBoundry.setAttributeNS(null, "stroke-width", "5px");
+	mapBoundry.setAttributeNS(null, "stroke-opacity", 0.5);
+	mapBoundry.setAttributeNS(null, "fill", "yellow");
+	mapBoundry.setAttributeNS(null, "fill-opacity", 0.0);
+	starGroup.appendChild(mapBoundry);
+
   this.createStars();
 
 }

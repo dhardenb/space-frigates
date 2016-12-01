@@ -9,7 +9,7 @@ Engine.prototype.update = function () {
   }
   commands = [];
   this.collisionDetection();
-  // this.boundryChecking();
+  this.boundryChecking();
   this.fuelDetection();
 }
 
