@@ -109,7 +109,7 @@ KeyPress = function KeyPress(evt) {
         commands.push(newCommand);
     }
 
-    /*// + Zoom In
+    // + Zoom In
     else if(evt.keyCode==187) {
 
         evt.preventDefault();
@@ -135,7 +135,7 @@ KeyPress = function KeyPress(evt) {
         currentScale = availablePixels / zoomLevel;
 
         portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
-    }*/
+    }
 }
 
 Ai = function Ai() {
