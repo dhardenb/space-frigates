@@ -139,7 +139,14 @@ Renderer.prototype.renderShip = function (ship) {
   var shipElement = document.createElementNS("http://www.w3.org/2000/svg","path");
 
   if (ship.Type == 'Human') {
-      shipElement.setAttributeNS(null, 'stroke', 'green');
+
+      if (ship.Id == playerShipId) {
+        shipElement.setAttributeNS(null, 'stroke', 'green');
+      }
+      else {
+        shipElement.setAttributeNS(null, 'stroke', 'red');
+      }
+
       shipElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
 
       var x = 0 - ship.LocationX;
