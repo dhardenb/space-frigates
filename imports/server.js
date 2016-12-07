@@ -30,6 +30,7 @@ Server.prototype.init = function() {
 Meteor.methods({
   createNewPlayerShip: function () {
     playerShip = new Ship('Human');
+    playerShip.setStartingHumanPosition();
     gameObjects.push(playerShip);
     return playerShip.Id;
   },
