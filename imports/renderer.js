@@ -111,7 +111,9 @@ Renderer.prototype.renderParticle = function (particle) {
   particleElement.setAttributeNS(null, 'cx', particle.LocationX);
   particleElement.setAttributeNS(null, 'cy', particle.LocationY);
   particleElement.setAttributeNS(null, 'r', particle.Size / currentScale);
-  particleElement.setAttributeNS(null, 'fill', 'red');
+  particleElement.setAttributeNS(null, 'stroke', 'red');
+  particleElement.setAttributeNS(null, 'stroke-width', 1 / currentScale);
+  particleElement.setAttributeNS(null, 'fill', 'yellow');
   mapGroup.appendChild(particleElement);
 }
 
