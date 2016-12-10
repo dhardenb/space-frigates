@@ -141,7 +141,7 @@ Renderer.prototype.renderShip = function (ship) {
   if (ship.Type == 'Human') {
 
     if (ship.Id == playerShipId) {
-        shipElement.setAttributeNS(null, 'stroke', 'green');
+        shipElement.setAttributeNS(null, 'stroke', 'grey');
 
         // Update the view to center the the player's ship!
         var x = 0 - ship.LocationX;
@@ -153,14 +153,14 @@ Renderer.prototype.renderShip = function (ship) {
       shipElement.setAttributeNS(null, 'stroke', 'red');
     }
 
-      shipElement.setAttributeNS(null, 'd', 'M -1 -5 L 1 -5 L 2 -4 L 2 -3 L 1 -3 L 1 1 L 3 3 L 3 4 L 2 5 L -2 5 L -3 4 L -3 3 L -1 1 L -1 -3 L -2 -3 L -2 -4 Z');
+      shipElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
   }
   else if (ship.Type == 'Alpha') {
       shipElement.setAttributeNS(null, 'stroke', 'red');
       shipElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
   }
   else if (ship.Type == 'Bravo') {
-      shipElement.setAttributeNS(null, 'stroke', 'grey');
+      shipElement.setAttributeNS(null, 'stroke', 'red');
       shipElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
   }
 
