@@ -1,5 +1,6 @@
 import './engine/engine.js';
-import './renderer.js'
+import './renderer.js';
+import './command.js';
 
 Client = function Client() {
 
@@ -23,7 +24,6 @@ Client.prototype.init = function() {
   physics = new Physics();
   engine = new Engine();
   renderer = new Renderer();
-  ai = new Ai();
 
   // Ask server to create a new ship for this player. If sucessfull, the
   // client should recieve back all the game settings as well as their
@@ -59,9 +59,7 @@ Client.prototype.localLoop = function() {
     window.clearInterval(remoteInterval);
     client.init();
   }
-  else {
-    // this.createAiShip();
-    // ai.issueCommands();*/
+  else { */
     engine.update();
     renderer.update();
   //}
@@ -86,6 +84,12 @@ Client.prototype.convertObjects = function (remoteGameObjects) {
     if (remoteGameObjects[x].Type == 'Human') {
       convertedObjects.push(new Ship('Human', remoteGameObjects[x]));
     }
+    else if (remoteGameObjects[x].Type == 'Alpha') {
+      convertedObjects.push(new Ship('Alpha', remoteGameObjects[x]));
+    }
+    else if (remoteGameObjects[x].Type == 'Bravo') {
+      convertedObjects.push(new Ship('Bravo', remoteGameObjects[x]));
+    }
     else if (remoteGameObjects[x].Type == 'Thruster') {
       convertedObjects.push(new Thruster(null, remoteGameObjects[x]));
     }
@@ -97,16 +101,6 @@ Client.prototype.convertObjects = function (remoteGameObjects) {
     }
   }
   return convertedObjects;
-}
-
-Client.prototype.createAiShip = function() {
-  var nextShipType = Math.floor((Math.random()*100)+1)
-  if (nextShipType == 1) {
-    gameObjects.push(new Ship('Alpha'));
-  }
-  else if (nextShipType == 2) {
-    gameObjects.push(new Ship('Bravo'));
-  }
 }
 
 Client.prototype.commandHandler = function(newCommand) {
@@ -193,81 +187,4 @@ KeyPress = function KeyPress(evt) {
 
         portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
     }
-}
-
-Ai = function Ai() {
-
-}
-
-Ai.prototype.issueCommands = function () {
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Type != 'Human') {
-      if (Math.floor((Math.random()*25)+1) == 1) {
-        this.think(gameObjects[x]);
-      }
-    }
-  }
-}
-
-Ai.prototype.think = function (gameObject) {
-  var commandType = 0;
-
-  if (gameObject.Type == 'Alpha') {
-
-      switch (Math.floor(Math.random()*11+1)) {
-      case 1:
-          commandType = 2;
-          break;
-      case 3:
-      case 4:
-      case 11:
-      case 10:
-          commandType = 0;
-          break;
-      case 6:
-      case 7:
-          commandType = 1;
-          break;
-      case 8:
-      case 9:
-          commandType = 3;
-          break;
-      case 2:
-      case 5:
-          commandType = 4;
-          break;
-      }
-  }
-  else if (gameObject.Type == 'Bravo') {
-      switch (Math.floor(Math.random()*11+1)) {
-      case 1:
-          commandType = 2;
-          break;
-      case 3:
-      case 4:
-      case 11:
-          commandType = 0;
-          break;
-      case 6:
-      case 7:
-          commandType = 1;
-          break;
-      case 8:
-      case 9:
-          commandType = 3;
-          break;
-      case 2:
-      case 5:
-      case 10:
-          commandType = 4;
-          break;
-      }
-  }
-
-  commands.push(new Command({command: commandType, targetId: gameObject.Id}));
-}
-
-Command = function Command(command) {
-  this.command = command.command;
-  this.targetId = command.targetId;
 }

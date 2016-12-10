@@ -128,48 +128,51 @@ Ship.prototype.setStartingAiPosition = function() {
 
   var angle = Math.floor(Math.random() * 360);
 
-  var distanceFromPlayer = 20 * currentScale + Math.floor(Math.random() * 100 * currentScale + 1);
+  var distanceFromCenter = Math.floor(Math.random() * mapRadius);
 
   if (angle == 0) {
 
-    this.LocationX = playerShip.LocationX;
-    this.LocationY = playerShip.LocationY + distanceFromPlayer * -1;
+    this.LocationX = 0;
+    this.LocationY = distanceFromCenter * -1;
   }
   else if (angle == 90) {
 
-    this.LocationX = playerShip.LocationX + distanceFromPlayer;
-    this.LocationY = playerShip.LocationY;
+    this.LocationX = distanceFromCenter;
+    this.LocationY = 0;
   }
   else if (angle == 180) {
 
-    this.LocationX = playerShip.LocationX;
-    this.LocationY = playerShip.LocationY + distanceFromPlayer;
+    this.LocationX = 0;
+    this.LocationY = distanceFromCenter;
   }
   else if (angle == 270) {
 
-    this.LocationX = playerShip.LocationX + distanceFromPlayer * -1;
-    this.LocationY = playerShip.LocationY;
+    this.LocationX = distanceFromCenter * -1;
+    this.LocationY = 0;
   }
   else if (angle < 90) {
 
-    this.LocationX = playerShip.LocationX + distanceFromPlayer * Math.sin(angle * 0.0174532925);
-    this.LocationY = playerShip.LocationY + distanceFromPlayer * Math.cos(angle * 0.0174532925) * -1;
+    this.LocationX = distanceFromCenter * Math.sin(angle * 0.0174532925);
+    this.LocationY = distanceFromCenter * Math.cos(angle * 0.0174532925) * -1;
   }
   else if (angle < 180) {
 
-    this.LocationX = playerShip.LocationX + distanceFromPlayer * Math.sin((180 - angle) * 0.0174532925);
-    this.LocationY = playerShip.LocationY + distanceFromPlayer * Math.cos((180 - angle) * 0.0174532925);
+    this.LocationX = distanceFromCenter * Math.sin((180 - angle) * 0.0174532925);
+    this.LocationY = distanceFromCenter * Math.cos((180 - angle) * 0.0174532925);
   }
   else if (angle < 270) {
 
-    this.LocationX = playerShip.LocationX + distanceFromPlayer * Math.sin((angle - 180) * 0.0174532925) * -1;
-    this.LocationY = playerShip.LocationY + distanceFromPlayer * Math.cos((angle - 180) * 0.0174532925);
+    this.LocationX = distanceFromCenter * Math.sin((angle - 180) * 0.0174532925) * -1;
+    this.LocationY = distanceFromCenter * Math.cos((angle - 180) * 0.0174532925);
   }
   else { // 360
-    this.LocationX = playerShip.LocationX + distanceFromPlayer * Math.sin((360 - angle) * 0.0174532925) * -1;
-    this.LocationY = playerShip.LocationY + distanceFromPlayer * Math.cos((360 - angle) * 0.0174532925) * -1;
+    this.LocationX = distanceFromCenter * Math.sin((360 - angle) * 0.0174532925) * -1;
+    this.LocationY = distanceFromCenter * Math.cos((360 - angle) * 0.0174532925) * -1;
   }
 
+  // NOTE: I want to change this so that the starting facing of the ship is
+  // oppostie the angle of it's starting postion relative to the center of the
+  // map
   this.Facing = Math.random()*360+1;
 }
 

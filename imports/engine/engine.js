@@ -10,11 +10,14 @@ Engine = function Engine() {
 }
 
 Engine.prototype.update = function () {
+
   // Can't pre calculate the length of the array because some of the command create new objects
   for (var i = 0; i < gameObjects.length; i++) {
     gameObjects[i].update();
   }
+
   commands = [];
+
   this.collisionDetection();
   this.boundryChecking();
   this.fuelDetection();
