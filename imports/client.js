@@ -13,12 +13,16 @@ Client.prototype.init = function() {
   gameObjects = [];
   deadObjects = [];
   commands = [];
-  gameSpeed = .66;
+
+  lastLoop = new Date;
+  currentLoop = new Date;
+  framesPerSecond = 60;
+
   explosionSize = 20;
   gameObjectId = 0;
   playerShipId = 0;
   zoomLevel = 400;
-  mapRadius = 500;
+  mapRadius = 1000;
   countdownTimer = 40;
 
   physics = new Physics();
@@ -36,33 +40,37 @@ Client.prototype.init = function() {
     }
   });
 
-  localInterval = setInterval("client.localLoop()", 40);
-  remoteInterval = setInterval("client.remoteLoop()", 200);
+  /*
+  var playerShip = new Ship('Human');
+  playerShip.setStartingHumanPosition();
+  gameObjects.push(playerShip);
+  playerShipId = playerShip.Id;
+  */
+
+  setInterval("client.gameLoop()", 40);
+  setInterval("client.animationLoop()", 40);
+  //client.animationLoop();
+  setInterval("client.remoteLoop()", 200);
 }
 
-Client.prototype.setupEventHandlers = function() {
-  document.documentElement.addEventListener("keydown", KeyPress, false);
+Client.prototype.gameLoop = function() {
+
+  engine.update();
+
 }
 
-Client.prototype.localLoop = function() {
+Client.prototype.animationLoop = function() {
 
-  /*var gameOver = true;
+  //window.requestAnimationFrame(client.animationLoop);
 
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Id == playerShipId) {
-      gameOver = false;
-    }
-  }
+  currentLoop = new Date;
 
-  if (gameOver) {
-    window.clearInterval(localInterval);
-    window.clearInterval(remoteInterval);
-    client.init();
-  }
-  else { */
-    engine.update();
-    renderer.update();
-  //}
+  framesPerSecond = 1000 / (currentLoop - lastLoop);
+
+  lastLoop = currentLoop;
+
+  renderer.update();
+
 }
 
 Client.prototype.remoteLoop = function() {
@@ -110,6 +118,10 @@ Client.prototype.commandHandler = function(newCommand) {
       alert(err);
     }
   });
+}
+
+Client.prototype.setupEventHandlers = function() {
+  document.documentElement.addEventListener("keydown", KeyPress, false);
 }
 
 KeyPress = function KeyPress(evt) {

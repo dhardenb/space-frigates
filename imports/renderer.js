@@ -110,9 +110,9 @@ Renderer.prototype.renderParticle = function (particle) {
   var particleElement = document.createElementNS("http://www.w3.org/2000/svg","circle");
   particleElement.setAttributeNS(null, 'cx', particle.LocationX);
   particleElement.setAttributeNS(null, 'cy', particle.LocationY);
-  particleElement.setAttributeNS(null, 'r', particle.Size / currentScale);
+  particleElement.setAttributeNS(null, 'r', particle.Size);
   particleElement.setAttributeNS(null, 'stroke', 'red');
-  particleElement.setAttributeNS(null, 'stroke-width', 1 / currentScale);
+  particleElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
   particleElement.setAttributeNS(null, 'fill', 'yellow');
   mapGroup.appendChild(particleElement);
 }
@@ -133,6 +133,8 @@ Renderer.prototype.renderMissle = function (missile) {
 	missleElement.setAttributeNS(null, 'cx', missile.LocationX);
 	missleElement.setAttributeNS(null, 'cy', missile.LocationY);
 	missleElement.setAttributeNS(null, 'r', missile.Size);
+  missleElement.setAttributeNS(null, 'stroke', 'red');
+  missleElement.setAttributeNS(null, 'stroke-width', 1 / currentScale);
 	missleElement.setAttributeNS(null, 'fill', 'yellow');
 	mapGroup.appendChild(missleElement);
 }
@@ -152,17 +154,17 @@ Renderer.prototype.renderShip = function (ship) {
         translateGroup.setAttribute('transform', 'translate('+ x +','+ y +') rotate('+ 0 +')');
     }
     else {
-      shipElement.setAttributeNS(null, 'stroke', 'red');
+      shipElement.setAttributeNS(null, 'stroke', 'grey');
     }
 
       shipElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
   }
   else if (ship.Type == 'Alpha') {
-      shipElement.setAttributeNS(null, 'stroke', 'red');
+      shipElement.setAttributeNS(null, 'stroke', 'grey');
       shipElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
   }
   else if (ship.Type == 'Bravo') {
-      shipElement.setAttributeNS(null, 'stroke', 'red');
+      shipElement.setAttributeNS(null, 'stroke', 'grey');
       shipElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
   }
 

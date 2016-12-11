@@ -10,10 +10,10 @@ Missile = function Missile(sourceObject, jsonObject) {
   	this.Size = 1;
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
-  	this.Fuel = 100;
+  	this.Fuel = 3; // Missle should last for about 3 seconds
 
   	this.MissileLaunchOffset = 10;
-  	this.initialVelocity = 5;
+  	this.initialVelocity = 90;
 
   	this.calclulateInitialPosition(sourceObject);
   	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
@@ -66,6 +66,6 @@ Missile.prototype.calclulateInitialPosition = function(sourceObject) {
 }
 
 Missile.prototype.update = function() {
-	this.Fuel--;
+	this.Fuel = this.Fuel - 1 / framesPerSecond;
 	physics.moveObjectAlongVector(this);
 }

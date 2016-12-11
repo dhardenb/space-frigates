@@ -10,11 +10,15 @@ Server.prototype.init = function() {
   gameObjects = [];
   deadObjects = [];
   commands = [];
-  gameSpeed = .66;
+
+  lastLoop = new Date;
+  currentLoop = new Date;
+  framesPerSecond = 60;
+
   explosionSize = 20;
   gameObjectId = 0;
   zoomLevel = 400;
-  mapRadius = 500;
+  mapRadius = 1000;
   gameOver = false;
   countdownTimer = 40;
 
@@ -23,16 +27,25 @@ Server.prototype.init = function() {
   ai = new Ai();
 
   setInterval(function() {
-    console.log(gameObjects.length);
+
+    currentLoop = new Date;
+
+    framesPerSecond = 1000 / (currentLoop - lastLoop);
+
+    lastLoop = currentLoop;
+
     server.createAiShip();
+
     ai.issueCommands();
+
     engine.update();
+
   }, 40);
 
 }
 
 Server.prototype.createAiShip = function() {
-  var nextShipType = Math.floor((Math.random()*100)+1);
+  var nextShipType = Math.floor((Math.random()*200)+1);
   var newAiShip;
   if (nextShipType == 1) {
     newAiShip = new Ship('Alpha');

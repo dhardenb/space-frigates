@@ -10,7 +10,7 @@ Thruster = function Thruster(sourceObject, jsonObject) {
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
   	this.Size = 5;
-  	this.Fuel = 5;
+  	this.Fuel = 15;
 
   	this.ThrusterOffset = 2;
   	this.initialVelocity = 0;

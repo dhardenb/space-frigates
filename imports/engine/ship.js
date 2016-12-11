@@ -43,11 +43,11 @@ Ship.prototype.update = function() {
 
         if (this.RotationDirection == 'CounterClockwise') {
 
-            this.Facing = this.Facing - this.RotationVelocity * 3 * gameSpeed;
+            this.Facing = this.Facing - this.RotationVelocity * 90 / framesPerSecond;
         }
         else {
 
-            this.Facing = this.Facing + this.RotationVelocity * 3 * gameSpeed;
+            this.Facing = this.Facing + this.RotationVelocity * 90 / framesPerSecond;
         }
     }
 
@@ -218,13 +218,13 @@ Ship.prototype.processShipCommand = function(command) {
             }
             break;
         case 2: // Accelerate
-                physics.findNewVelocity(this, this.Facing, 1)
+                physics.findNewVelocity(this, this.Facing, 20)
                 gameObjects.push(new Thruster(this));
                 break;
         case 4: // Brake
             if (this.Velocity > 0) {
 
-                this.Velocity--;
+                this.Velocity = this.Velocity - 20;
             }
             if (this.RotationVelocity > 0) {
 
