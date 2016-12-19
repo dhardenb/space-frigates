@@ -21,6 +21,8 @@ Engine.prototype.update = function () {
   this.collisionDetection();
   this.boundryChecking();
   this.fuelDetection();
+
+  lastUpdateRunAt = new Date;
 }
 
 Engine.prototype.collisionDetection = function () {

@@ -15,6 +15,8 @@ Server.prototype.init = function() {
   currentLoop = new Date;
   framesPerSecond = 60;
 
+  lastUpdateRunAt = new Date;
+
   explosionSize = 20;
   gameObjectId = 0;
   zoomLevel = 400;
@@ -40,7 +42,7 @@ Server.prototype.init = function() {
 
     engine.update();
 
-  }, 40);
+  }, 45);
 
 }
 
@@ -67,7 +69,7 @@ Meteor.methods({
     return playerShip.Id;
   },
   getGameObjects: function () {
-    return gameObjects;
+    return {serverLastUpdatedAt: lastUpdateRunAt, gameState: gameObjects};
   },
   putCommands: function (command) {
     commands.push(command);

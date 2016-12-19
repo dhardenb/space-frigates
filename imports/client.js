@@ -13,10 +13,13 @@ Client.prototype.init = function() {
   gameObjects = [];
   deadObjects = [];
   commands = [];
+  cachedCommands = [];
 
   lastLoop = new Date;
   currentLoop = new Date;
   framesPerSecond = 60;
+
+  lastUpdateRunAt = new Date;
 
   explosionSize = 20;
   gameObjectId = 0;
@@ -47,10 +50,10 @@ Client.prototype.init = function() {
   playerShipId = playerShip.Id;
   */
 
-  setInterval("client.gameLoop()", 40);
-  setInterval("client.animationLoop()", 40);
-  //client.animationLoop();
-  setInterval("client.remoteLoop()", 200);
+  setInterval("client.gameLoop()", 15);
+  // setInterval("client.animationLoop()", 40);
+  client.animationLoop();
+  setInterval("client.remoteLoop()", 45);
 }
 
 Client.prototype.gameLoop = function() {
@@ -61,7 +64,7 @@ Client.prototype.gameLoop = function() {
 
 Client.prototype.animationLoop = function() {
 
-  //window.requestAnimationFrame(client.animationLoop);
+  window.requestAnimationFrame(client.animationLoop);
 
   currentLoop = new Date;
 
@@ -75,13 +78,41 @@ Client.prototype.animationLoop = function() {
 
 Client.prototype.remoteLoop = function() {
   // Get current object array from server
-  Meteor.call('getGameObjects', (err, remoteGameObjects) => {
+  Meteor.call('getGameObjects', (err, gameState) => {
     if (err) {
       alert(err);
     } else {
-      gameObjects = this.convertObjects(remoteGameObjects);
+      lastUpdateRunAt = gameState.serverLastUpdatedAt;
+      gameObjects = this.convertObjects(gameState.gameState);
+      this.manageCachedCommands();
     }
   });
+}
+
+// This method with delete client commands that the server already knows
+// about and reruns commands that the server does not know about. This is done
+// to smooth the client animation by not erasing a result the client has just
+// animated and then reanimating it once the server has processed it.
+Client.prototype.manageCachedCommands = function () {
+
+  var i = cachedCommands.length;
+
+  while (i--) {
+
+    if (cachedCommands[i].timeStamp > lastUpdateRunAt) {
+
+      commands.push(cachedCommands[i]);
+
+    }
+
+    else {
+
+      cachedCommands.splice(i, 1);
+
+    }
+
+  }
+
 }
 
 Client.prototype.convertObjects = function (remoteGameObjects) {
@@ -112,12 +143,20 @@ Client.prototype.convertObjects = function (remoteGameObjects) {
 }
 
 Client.prototype.commandHandler = function(newCommand) {
+
   commands.push(newCommand);
+  cachedCommands.push(newCommand);
+
   Meteor.call('putCommands', newCommand, (err, res) => {
+
     if (err) {
+
       alert(err);
+
     }
+
   });
+
 }
 
 Client.prototype.setupEventHandlers = function() {
