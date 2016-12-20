@@ -66,12 +66,6 @@ Client.prototype.init = function() {
 
 }
 
-Client.prototype.gameLoop = function() {
-
-
-
-}
-
 Client.prototype.animationLoop = function() {
 
   window.requestAnimationFrame(client.animationLoop);
