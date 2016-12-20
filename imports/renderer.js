@@ -141,11 +141,12 @@ Renderer.prototype.renderMissle = function (missile) {
 
 Renderer.prototype.renderShip = function (ship) {
   var shipElement = document.createElementNS("http://www.w3.org/2000/svg","path");
+  shipElement.setAttributeNS(null, 'fill', 'black');
 
   if (ship.Type == 'Human') {
 
     if (ship.Id == playerShipId) {
-        shipElement.setAttributeNS(null, 'stroke', 'grey');
+        shipElement.setAttributeNS(null, 'stroke', 'green');
 
         // Update the view to center the the player's ship!
         var x = 0 - ship.LocationX;
@@ -154,7 +155,7 @@ Renderer.prototype.renderShip = function (ship) {
         translateGroup.setAttribute('transform', 'translate('+ x +','+ y +') rotate('+ 0 +')');
     }
     else {
-      shipElement.setAttributeNS(null, 'stroke', 'grey');
+      shipElement.setAttributeNS(null, 'stroke', 'red');
     }
 
       shipElement.setAttributeNS(null, 'd', 'M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z');
@@ -170,7 +171,6 @@ Renderer.prototype.renderShip = function (ship) {
 
   shipElement.setAttributeNS(null, 'stroke-linejoin', 'round');
   shipElement.setAttributeNS(null, 'stroke-width', 2 / currentScale);
-  shipElement.setAttributeNS(null, 'fill', 'black');
   shipElement.setAttribute('transform', 'translate('+ship.LocationX+','+ship.LocationY+') rotate('+ship.Facing+')');
 
   mapGroup.appendChild(shipElement);
