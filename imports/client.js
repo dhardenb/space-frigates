@@ -1,6 +1,7 @@
 import './engine/engine.js';
 import './renderer.js';
 import './command.js';
+import './ai.js';
 
 Client = function Client() {
 
@@ -15,50 +16,59 @@ Client.prototype.init = function() {
   commands = [];
   cachedCommands = [];
 
-  lastLoop = new Date;
-  currentLoop = new Date;
   framesPerSecond = 60;
-
   lastUpdateRunAt = new Date;
 
   explosionSize = 20;
   gameObjectId = 0;
   playerShipId = 0;
   zoomLevel = 400;
-  mapRadius = 1000;
+  mapRadius = 500;
   countdownTimer = 40;
 
   physics = new Physics();
   engine = new Engine();
   renderer = new Renderer();
+  ai = new Ai();
 
-  // Ask server to create a new ship for this player. If sucessfull, the
-  // client should recieve back all the game settings as well as their
-  // personall ID
-  Meteor.call('createNewPlayerShip', (err, res) => {
-    if (err) {
-      alert(err);
-    } else {
-      playerShipId = res;
-    }
-  });
+  isOffline = false;
 
-  /*
-  var playerShip = new Ship('Human');
-  playerShip.setStartingHumanPosition();
-  gameObjects.push(playerShip);
-  playerShipId = playerShip.Id;
-  */
+  if (isOffline) {
 
-  setInterval("client.gameLoop()", 15);
-  // setInterval("client.animationLoop()", 40);
+    var playerShip = new Ship('Human');
+
+    playerShip.setStartingHumanPosition();
+
+    gameObjects.push(playerShip);
+
+    playerShipId = playerShip.Id;
+
+  }
+
+  else {
+
+    // Ask server to create a new ship for this player. If sucessfull, the
+    // client should recieve back all the game settings as well as their
+    // personall ID
+    Meteor.call('createNewPlayerShip', (err, res) => {
+      if (err) {
+        alert(err);
+      } else {
+        playerShipId = res;
+      }
+    });
+
+    setInterval("client.remoteLoop()", 45);
+
+  }
+
   client.animationLoop();
-  setInterval("client.remoteLoop()", 45);
+
 }
 
 Client.prototype.gameLoop = function() {
 
-  engine.update();
+
 
 }
 
@@ -66,11 +76,25 @@ Client.prototype.animationLoop = function() {
 
   window.requestAnimationFrame(client.animationLoop);
 
-  currentLoop = new Date;
+  if (isOffline) {
+    var nextShipType = Math.floor((Math.random()*200)+1);
+    var newAiShip;
+    if (nextShipType == 1) {
+      newAiShip = new Ship('Alpha');
+      newAiShip.setStartingAiPosition();
+      gameObjects.push(newAiShip);
+    }
+    else if (nextShipType == 2) {
+      newAiShip = new Ship('Bravo');
+      newAiShip.setStartingAiPosition();
+      gameObjects.push(newAiShip);
+    }
 
-  framesPerSecond = 1000 / (currentLoop - lastLoop);
+    ai.issueCommands();
 
-  lastLoop = currentLoop;
+  }
+
+  engine.update();
 
   renderer.update();
 
@@ -99,18 +123,17 @@ Client.prototype.manageCachedCommands = function () {
 
   while (i--) {
 
-    if (cachedCommands[i].timeStamp > lastUpdateRunAt) {
-
-      commands.push(cachedCommands[i]);
-
-    }
-
-    else {
+    if (cachedCommands[i].timeStamp < lastUpdateRunAt) {
 
       cachedCommands.splice(i, 1);
 
     }
 
+    for (var x = 0, y = cachedCommands.length; x < y; x++) {
+
+      commands.push(cachedCommands[i]);
+
+    }
   }
 
 }

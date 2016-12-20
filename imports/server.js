@@ -11,16 +11,13 @@ Server.prototype.init = function() {
   deadObjects = [];
   commands = [];
 
-  lastLoop = new Date;
-  currentLoop = new Date;
   framesPerSecond = 60;
-
   lastUpdateRunAt = new Date;
 
   explosionSize = 20;
   gameObjectId = 0;
   zoomLevel = 400;
-  mapRadius = 1000;
+  mapRadius = 500;
   gameOver = false;
   countdownTimer = 40;
 
@@ -30,19 +27,13 @@ Server.prototype.init = function() {
 
   setInterval(function() {
 
-    currentLoop = new Date;
-
-    framesPerSecond = 1000 / (currentLoop - lastLoop);
-
-    lastLoop = currentLoop;
-
     server.createAiShip();
 
     ai.issueCommands();
 
     engine.update();
 
-  }, 45);
+  }, 1000/60);
 
 }
 
