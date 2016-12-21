@@ -50,16 +50,31 @@ Server.prototype.createAiShip = function() {
 }
 
 Meteor.methods({
-  createNewPlayerShip: function () {
-    playerShip = new Ship('Human');
-    playerShip.setStartingHumanPosition();
-    gameObjects.push(playerShip);
-    return playerShip.Id;
-  },
-  getGameObjects: function () {
-    return {gameState: gameObjects};
-  },
-  putCommands: function (command) {
-    commands.push(command);
-  }
+
+    createNewPlayerShip: function () {
+
+        playerShip = new Ship('Human');
+
+        playerShip.setStartingHumanPosition();
+
+        gameObjects.push(playerShip);
+
+        console.log(this.connection);
+
+        return playerShip.Id;
+
+    },
+
+    getGameObjects: function () {
+
+        return {gameState: gameObjects};
+
+    },
+
+    putCommands: function (command) {
+
+        commands.push(command);
+
+    }
+
 });
