@@ -12,14 +12,11 @@ Server.prototype.init = function() {
   commands = [];
 
   framesPerSecond = 60;
-  lastUpdateRunAt = new Date;
 
   explosionSize = 20;
   gameObjectId = 0;
   zoomLevel = 400;
   mapRadius = 500;
-  gameOver = false;
-  countdownTimer = 40;
 
   physics = new Physics();
   engine = new Engine();
@@ -60,7 +57,7 @@ Meteor.methods({
     return playerShip.Id;
   },
   getGameObjects: function () {
-    return {serverLastUpdatedAt: lastUpdateRunAt, gameState: gameObjects};
+    return {gameState: gameObjects};
   },
   putCommands: function (command) {
     commands.push(command);

@@ -7,6 +7,8 @@ import './star.js';
 
 Engine = function Engine() {
 
+  physics = new Physics();
+
 }
 
 Engine.prototype.update = function () {
@@ -22,7 +24,6 @@ Engine.prototype.update = function () {
   this.boundryChecking();
   this.fuelDetection();
 
-  lastUpdateRunAt = new Date;
 }
 
 Engine.prototype.collisionDetection = function () {

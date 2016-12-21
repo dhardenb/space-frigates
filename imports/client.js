@@ -14,53 +14,27 @@ Client.prototype.init = function() {
   gameObjects = [];
   deadObjects = [];
   commands = [];
-  cachedCommands = [];
 
   framesPerSecond = 60;
-  lastUpdateRunAt = new Date;
 
   explosionSize = 20;
   gameObjectId = 0;
   playerShipId = 0;
   zoomLevel = 400;
   mapRadius = 500;
-  countdownTimer = 40;
 
-  physics = new Physics();
   engine = new Engine();
   renderer = new Renderer();
-  ai = new Ai();
 
-  isOffline = false;
+  Meteor.call('createNewPlayerShip', (err, res) => {
+    if (err) {
+      alert(err);
+    } else {
+      playerShipId = res;
+    }
+  });
 
-  if (isOffline) {
-
-    var playerShip = new Ship('Human');
-
-    playerShip.setStartingHumanPosition();
-
-    gameObjects.push(playerShip);
-
-    playerShipId = playerShip.Id;
-
-  }
-
-  else {
-
-    // Ask server to create a new ship for this player. If sucessfull, the
-    // client should recieve back all the game settings as well as their
-    // personall ID
-    Meteor.call('createNewPlayerShip', (err, res) => {
-      if (err) {
-        alert(err);
-      } else {
-        playerShipId = res;
-      }
-    });
-
-    setInterval("client.remoteLoop()", 45);
-
-  }
+  setInterval("client.remoteLoop()", 45);
 
   client.animationLoop();
 
@@ -68,67 +42,29 @@ Client.prototype.init = function() {
 
 Client.prototype.animationLoop = function() {
 
-  window.requestAnimationFrame(client.animationLoop);
+    window.requestAnimationFrame(client.animationLoop);
 
-  if (isOffline) {
-    var nextShipType = Math.floor((Math.random()*200)+1);
-    var newAiShip;
-    if (nextShipType == 1) {
-      newAiShip = new Ship('Alpha');
-      newAiShip.setStartingAiPosition();
-      gameObjects.push(newAiShip);
-    }
-    else if (nextShipType == 2) {
-      newAiShip = new Ship('Bravo');
-      newAiShip.setStartingAiPosition();
-      gameObjects.push(newAiShip);
-    }
+    engine.update();
 
-    ai.issueCommands();
-
-  }
-
-  engine.update();
-
-  renderer.update();
+    renderer.update();
 
 }
 
 Client.prototype.remoteLoop = function() {
-  // Get current object array from server
-  Meteor.call('getGameObjects', (err, gameState) => {
-    if (err) {
-      alert(err);
-    } else {
-      lastUpdateRunAt = gameState.serverLastUpdatedAt;
-      gameObjects = this.convertObjects(gameState.gameState);
-      this.manageCachedCommands();
-    }
-  });
-}
 
-// This method with delete client commands that the server already knows
-// about and reruns commands that the server does not know about. This is done
-// to smooth the client animation by not erasing a result the client has just
-// animated and then reanimating it once the server has processed it.
-Client.prototype.manageCachedCommands = function () {
+    Meteor.call('getGameObjects', (err, gameState) => {
 
-  var i = cachedCommands.length;
+        if (err) {
 
-  while (i--) {
+            alert(err);
 
-    if (cachedCommands[i].timeStamp < lastUpdateRunAt) {
+        } else {
 
-      cachedCommands.splice(i, 1);
+            gameObjects = this.convertObjects(gameState.gameState);
 
-    }
+        }
 
-    for (var x = 0, y = cachedCommands.length; x < y; x++) {
-
-      commands.push(cachedCommands[i]);
-
-    }
-  }
+    });
 
 }
 
@@ -161,18 +97,17 @@ Client.prototype.convertObjects = function (remoteGameObjects) {
 
 Client.prototype.commandHandler = function(newCommand) {
 
-  commands.push(newCommand);
-  cachedCommands.push(newCommand);
+    commands.push(newCommand);
 
-  Meteor.call('putCommands', newCommand, (err, res) => {
+    Meteor.call('putCommands', newCommand, (err, res) => {
 
-    if (err) {
+        if (err) {
 
-      alert(err);
+            alert(err);
 
-    }
+        }
 
-  });
+    });
 
 }
 

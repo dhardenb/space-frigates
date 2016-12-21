@@ -1,4 +1,5 @@
 Renderer = function Renderer() {
+
   this.clearBackground();
 
   availableWidth = window.innerWidth - 22;
