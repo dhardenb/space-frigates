@@ -11,6 +11,8 @@ Client.prototype.init = function() {
 
   this.setupEventHandlers();
 
+  playerHasShip = false;
+
   gameObjects = [];
   deadObjects = [];
   commands = [];
@@ -26,17 +28,28 @@ Client.prototype.init = function() {
   engine = new Engine();
   renderer = new Renderer();
 
-  Meteor.call('createNewPlayerShip', (err, res) => {
-    if (err) {
-      alert(err);
-    } else {
-      playerShipId = res;
-    }
-  });
-
   setInterval("client.remoteLoop()", 45);
 
   client.animationLoop();
+
+}
+
+Client.prototype.requestShip = function() {
+
+    Meteor.call('createNewPlayerShip', (err, res) => {
+
+        if (err) {
+
+            alert(err);
+
+        } else {
+
+            playerShipId = res;
+
+            playerHasShip = true;
+        }
+
+    });
 
 }
 
@@ -118,9 +131,12 @@ Client.prototype.setupEventHandlers = function() {
 KeyPress = function KeyPress(evt) {
 
     // ENTER - Start
-    if(evt.keyCode==13 && gameOver == true) {
+    if(evt.keyCode==13 && playerHasShip == false) {
 
         evt.preventDefault();
+
+        client.requestShip();
+
     }
 
     // SPACE_BAR - Fire

@@ -107,7 +107,7 @@ Engine.prototype.removeDeadObjects = function() {
   for (var x = 0, y = deadObjects.length; x < y; x++) {
     // If the dead object was the human ship, trip the game over flag
     if (deadObjects[x].Type == "Human") {
-      gameOver = true;
+      playerHasShip = false;
     }
     var i = 0;
     for (var j = 0; j < gameObjects.length; j++) {
