@@ -12,11 +12,14 @@ player's actions to the central server and then back out to all the players.
 
 **The key board controls are:**
 
-* SPACE_BAR   Fire Missle
-* UP_ARROW    Move Forward
-* LEFT_ARROW  Rotate Counter Clockwise
-* RIGHT_ARROW Rotate Clockwise
-* DOWN_ARROW  Stop Ship Movement
+* ENTER            Start New Ship
+* SPACE_BAR        Fire Missle
+* UP_ARROW, W      Move Forward
+* LEFT_ARROW, A    Rotate Counter Clockwise
+* RIGHT_ARROW, D   Rotate Clockwise
+* DOWN_ARROW, S    Stop Ship Movement
+*    -             Zoom Out
+*    +             Zoom In
 
 ## Current Roadmap
 
