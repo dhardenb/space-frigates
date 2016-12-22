@@ -3,13 +3,15 @@ import './renderer.js';
 import './command.js';
 import './ai.js';
 
+const inboundCommands = new Meteor.Streamer('inboundControls');
+
+const outboundState = new Meteor.Streamer('outboundState');
+
 Client = function Client() {
 
 }
 
 Client.prototype.init = function() {
-
-  this.setupEventHandlers();
 
   playerHasShip = false;
 
@@ -28,9 +30,21 @@ Client.prototype.init = function() {
   engine = new Engine();
   renderer = new Renderer();
 
-  setInterval("client.remoteLoop()", 45);
+  this.setupEventHandlers();
+
+  client.setupStreamListeners();
 
   client.animationLoop();
+
+}
+
+Client.prototype.setupStreamListeners = function() {
+
+    outboundState.on('outboundState', function(gameState) {
+
+        gameObjects = client.convertObjects(gameState.gameState);
+
+    });
 
 }
 
@@ -60,24 +74,6 @@ Client.prototype.animationLoop = function() {
     engine.update();
 
     renderer.update();
-
-}
-
-Client.prototype.remoteLoop = function() {
-
-    Meteor.call('getGameObjects', (err, gameState) => {
-
-        if (err) {
-
-            alert(err);
-
-        } else {
-
-            gameObjects = this.convertObjects(gameState.gameState);
-
-        }
-
-    });
 
 }
 
@@ -112,20 +108,14 @@ Client.prototype.commandHandler = function(newCommand) {
 
     commands.push(newCommand);
 
-    Meteor.call('putCommands', newCommand, (err, res) => {
-
-        if (err) {
-
-            alert(err);
-
-        }
-
-    });
+    inboundCommands.emit('inboundCommands', newCommand);
 
 }
 
 Client.prototype.setupEventHandlers = function() {
-  document.documentElement.addEventListener("keydown", KeyPress, false);
+
+    document.documentElement.addEventListener("keydown", KeyPress, false);
+
 }
 
 KeyPress = function KeyPress(evt) {

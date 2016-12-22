@@ -1,36 +1,65 @@
 import './engine/engine.js';
 import './ai.js';
 
+const inboundCommands = new Meteor.Streamer('inboundControls');
+
+const outboundState = new Meteor.Streamer('outboundState');
+
 Server = function Server() {
 
+    inboundCommands.allowRead('all');
+
+    inboundCommands.allowWrite('all');
+
+    outboundState.allowRead('all');
+
+    outboundState.allowWrite('all');
 }
 
 Server.prototype.init = function() {
 
-  gameObjects = [];
-  deadObjects = [];
-  commands = [];
+    gameObjects = [];
+    deadObjects = [];
+    commands = [];
 
-  framesPerSecond = 60;
+    framesPerSecond = 60;
 
-  explosionSize = 20;
-  gameObjectId = 0;
-  zoomLevel = 400;
-  mapRadius = 500;
+    explosionSize = 20;
+    gameObjectId = 0;
+    zoomLevel = 400;
+    mapRadius = 500;
 
-  physics = new Physics();
-  engine = new Engine();
-  ai = new Ai();
+    physics = new Physics();
+    engine = new Engine();
+    ai = new Ai();
 
-  setInterval(function() {
+    server.setupStreamListeners();
 
-    server.createAiShip();
+    setInterval(function() {
 
-    ai.issueCommands();
+        server.createAiShip();
 
-    engine.update();
+        ai.issueCommands();
 
-  }, 1000/60);
+        engine.update();
+
+    }, 15);
+
+    setInterval(function() {
+
+        outboundState.emit('outboundState', {gameState: gameObjects});
+
+    }, 45);
+
+}
+
+Server.prototype.setupStreamListeners = function() {
+
+    inboundCommands.on('inboundCommands', function(inboundCommand) {
+
+        commands.push(inboundCommand);
+
+    });
 
 }
 
@@ -62,18 +91,6 @@ Meteor.methods({
         console.log(this.connection);
 
         return playerShip.Id;
-
-    },
-
-    getGameObjects: function () {
-
-        return {gameState: gameObjects};
-
-    },
-
-    putCommands: function (command) {
-
-        commands.push(command);
 
     }
 
