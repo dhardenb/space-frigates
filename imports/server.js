@@ -1,11 +1,39 @@
 import './engine/engine.js';
 import './ai.js';
 
-const inboundCommands = new Meteor.Streamer('inboundControls');
-
-const outboundState = new Meteor.Streamer('outboundState');
-
 Server = function Server() {
+
+    engine = new Engine();
+
+    ai = new Ai();
+
+    gameObjects = [];
+
+    deadObjects = [];
+
+    commands = [];
+
+    gameObjectId = 0;
+
+    physicsLoopDurations = 15;
+
+    messageLoopDuration = 45;
+
+}
+
+Server.prototype.init = function() {
+
+    server.setupStreamerPermissions();
+
+    server.setupStreamerListeners();
+
+    server.startPhysicsLoop();
+
+    server.startMessageLoop();
+
+}
+
+Server.prototype.setupStreamerPermissions = function() {
 
     inboundCommands.allowRead('all');
 
@@ -14,46 +42,10 @@ Server = function Server() {
     outboundState.allowRead('all');
 
     outboundState.allowWrite('all');
-}
-
-Server.prototype.init = function() {
-
-    gameObjects = [];
-    deadObjects = [];
-    commands = [];
-
-    framesPerSecond = 60;
-
-    explosionSize = 20;
-    gameObjectId = 0;
-    zoomLevel = 400;
-    mapRadius = 500;
-
-    physics = new Physics();
-    engine = new Engine();
-    ai = new Ai();
-
-    server.setupStreamListeners();
-
-    setInterval(function() {
-
-        server.createAiShip();
-
-        ai.issueCommands();
-
-        engine.update();
-
-    }, 15);
-
-    setInterval(function() {
-
-        outboundState.emit('outboundState', {gameState: gameObjects});
-
-    }, 45);
 
 }
 
-Server.prototype.setupStreamListeners = function() {
+Server.prototype.setupStreamerListeners = function() {
 
     inboundCommands.on('inboundCommands', function(inboundCommand) {
 
@@ -63,35 +55,26 @@ Server.prototype.setupStreamListeners = function() {
 
 }
 
-Server.prototype.createAiShip = function() {
-  var nextShipType = Math.floor((Math.random()*200)+1);
-  var newAiShip;
-  if (nextShipType == 1) {
-    newAiShip = new Ship('Alpha');
-    newAiShip.setStartingAiPosition();
-    gameObjects.push(newAiShip);
-  }
-  else if (nextShipType == 2) {
-    newAiShip = new Ship('Bravo');
-    newAiShip.setStartingAiPosition();
-    gameObjects.push(newAiShip);
-  }
+Server.prototype.startPhysicsLoop = function() {
+
+    setInterval(function() {
+
+        ai.createNewShip();
+
+        ai.issueCommands();
+
+        engine.update();
+
+    }, physicsLoopDurations);
+
 }
 
-Meteor.methods({
+Server.prototype.startMessageLoop = function() {
 
-    createNewPlayerShip: function () {
+    setInterval(function() {
 
-        playerShip = new Ship('Human');
+        outboundState.emit('outboundState', {gameState: gameObjects});
 
-        playerShip.setStartingHumanPosition();
+    }, messageLoopDuration);
 
-        gameObjects.push(playerShip);
-
-        console.log(this.connection);
-
-        return playerShip.Id;
-
-    }
-
-});
+}

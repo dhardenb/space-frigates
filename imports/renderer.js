@@ -1,100 +1,192 @@
+
 Renderer = function Renderer() {
 
-  this.clearBackground();
+    zoomLevel = 400;
 
-  availableWidth = window.innerWidth - 22;
-  availableHeight = window.innerHeight - 22;
+    mapRadius = 500;
 
-  if (availableHeight < availableWidth) {
+    availableWidth = 0;
 
-      availablePixels = availableHeight;
-  }
-  else {
+    availableHeight = 0;
 
-      availablePixels = availableWidth;
-  }
+    currentScale = 0;
 
-  currentScale = availablePixels / zoomLevel;
+    background = null;
 
-  this.create();
+    this.determineGuiDimensions();
+
+    this.clearBackground();
+
+    this.createGui();
+
 }
 
-Renderer.prototype.create = function() {
+Renderer.prototype.determineGuiDimensions = function() {
 
-  background = document.getElementById("background");
-	background.setAttributeNS(null, "height", availableHeight);
-	background.setAttributeNS(null, "width", availableWidth);
+    var windowOffset = 22;
 
-	portGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
-	portGroup.setAttribute('id', 'portGroup');
-	portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
-	background.appendChild(portGroup);
+    availableWidth = window.innerWidth - windowOffset;
 
-	rotateGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
-	rotateGroup.setAttribute('id', 'rotateGroup');
-	portGroup.appendChild(rotateGroup);
+    availableHeight = window.innerHeight - windowOffset;
 
-	translateGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
-	translateGroup.setAttribute('id', 'translateGroup');
-	rotateGroup.appendChild(translateGroup);
+    if (availableHeight < availableWidth) {
 
-  starGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
-	starGroup.setAttribute('id', 'starGroup');
-	translateGroup.appendChild(starGroup);
+        availablePixels = availableHeight;
 
-	mapGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
-	mapGroup.setAttribute('id', 'mapGroup');
-	translateGroup.appendChild(mapGroup);
+    }
 
-  mapBoundry = document.createElementNS("http://www.w3.org/2000/svg","circle");
-	mapBoundry.setAttributeNS(null, "cx", 0);
-	mapBoundry.setAttributeNS(null, "cy", 0);
-	mapBoundry.setAttributeNS(null, "r", mapRadius);
-	mapBoundry.setAttributeNS(null, "stroke", "yellow");
-	mapBoundry.setAttributeNS(null, "stroke-width", "5px");
-	mapBoundry.setAttributeNS(null, "stroke-opacity", 0.5);
-	mapBoundry.setAttributeNS(null, "fill", "yellow");
-	mapBoundry.setAttributeNS(null, "fill-opacity", 0.0);
-	starGroup.appendChild(mapBoundry);
+    else {
 
-  this.createStars();
+        availablePixels = availableWidth;
+    }
+
+    currentScale = availablePixels / zoomLevel;
 
 }
 
 Renderer.prototype.clearBackground = function() {
-  background = document.getElementById("background");
-  while (background.firstChild) {
-      background.removeChild(background.firstChild);
-  }
+
+    background = document.getElementById("background");
+
+    while (background.firstChild) {
+
+        background.removeChild(background.firstChild);
+
+    }
+
 }
 
-Renderer.prototype.clearMap = function() {
-  map = document.getElementById("mapGroup");
-  while (map.firstChild) {
-      map.removeChild(map.firstChild);
-  }
+Renderer.prototype.createGui = function() {
+
+    background = document.getElementById("background");
+
+    background.setAttributeNS(null, "height", availableHeight);
+
+    background.setAttributeNS(null, "width", availableWidth);
+
+	portGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+    portGroup.setAttribute('id', 'portGroup');
+
+    portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
+
+    background.appendChild(portGroup);
+
+	rotateGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+    rotateGroup.setAttribute('id', 'rotateGroup');
+
+    portGroup.appendChild(rotateGroup);
+
+	translateGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+    translateGroup.setAttribute('id', 'translateGroup');
+
+    rotateGroup.appendChild(translateGroup);
+
+    starGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+    starGroup.setAttribute('id', 'starGroup');
+
+    translateGroup.appendChild(starGroup);
+
+	mapGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+    mapGroup.setAttribute('id', 'mapGroup');
+
+    translateGroup.appendChild(mapGroup);
+
+    mapBoundry = document.createElementNS("http://www.w3.org/2000/svg","circle");
+
+    mapBoundry.setAttributeNS(null, "cx", 0);
+
+    mapBoundry.setAttributeNS(null, "cy", 0);
+
+    mapBoundry.setAttributeNS(null, "r", mapRadius);
+
+    mapBoundry.setAttributeNS(null, "stroke", "yellow");
+
+    mapBoundry.setAttributeNS(null, "stroke-width", "5px");
+
+    mapBoundry.setAttributeNS(null, "stroke-opacity", 0.5);
+
+    mapBoundry.setAttributeNS(null, "fill", "yellow");
+
+    mapBoundry.setAttributeNS(null, "fill-opacity", 0.0);
+
+    starGroup.appendChild(mapBoundry);
+
+    this.createStars();
+
+}
+
+Renderer.prototype.createStars = function() {
+
+    for (var x = mapRadius*-1; x < mapRadius; x++) {
+
+        for (var y = mapRadius*-1; y < mapRadius; y++) {
+
+            if (Math.floor((Math.random()*1000)+1) == 1) {
+
+                // Make sure the star is within the radius of the map size
+                if (x * x + y * y < mapRadius * mapRadius) {
+
+                    this.renderStar(new Star(x, y));
+
+                }
+
+            }
+
+        }
+
+    }
+
 }
 
 Renderer.prototype.update = function () {
 
-  // Clear the map
-  this.clearMap();
+    this.clearMap();
 
-  // rendor the SVG element for each game object
-  for (var i=0, j=gameObjects.length; i<j; i++) {
-    if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
-      this.renderShip(gameObjects[i]);
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+
+            this.renderShip(gameObjects[i]);
+
+        }
+
+        else if (gameObjects[i].Type == 'Particle') {
+
+            this.renderParticle(gameObjects[i]);
+
+        }
+
+        else if (gameObjects[i].Type == 'Thruster') {
+
+            this.renderThruster(gameObjects[i]);
+
+        }
+
+        else if (gameObjects[i].Type == 'Missile') {
+
+            this.renderMissle(gameObjects[i]);
+
+        }
+
     }
-    else if (gameObjects[i].Type == 'Particle') {
-      this.renderParticle(gameObjects[i]);
+
+}
+
+Renderer.prototype.clearMap = function() {
+
+    var map = document.getElementById("mapGroup");
+
+    while (map.firstChild) {
+
+        map.removeChild(map.firstChild);
+
     }
-    else if (gameObjects[i].Type == 'Thruster') {
-      this.renderThruster(gameObjects[i]);
-    }
-    else if (gameObjects[i].Type == 'Missile') {
-      this.renderMissle(gameObjects[i]);
-    }
-  }
+
 }
 
 Renderer.prototype.renderStar = function (star) {
@@ -175,17 +267,4 @@ Renderer.prototype.renderShip = function (ship) {
   shipElement.setAttribute('transform', 'translate('+ship.LocationX+','+ship.LocationY+') rotate('+ship.Facing+')');
 
   mapGroup.appendChild(shipElement);
-}
-
-Renderer.prototype.createStars = function() {
-  for (var x = mapRadius*-1; x < mapRadius; x++) {
-    for (var y = mapRadius*-1; y < mapRadius; y++) {
-      if (Math.floor((Math.random()*1000)+1) == 1) {
-			  // Make sure the star is within the radius of the map size
-        if (x * x + y * y < mapRadius * mapRadius) {
-          this.renderStar(new Star(x, y));
-				}
-			}
-		}
-	}
 }

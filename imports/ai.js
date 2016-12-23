@@ -2,9 +2,39 @@ import './command.js';
 
 Ai = function Ai() {
 
+    mapRadius = 500;
+
 }
 
-Ai.prototype.issueCommands = function () {
+Ai.prototype.createNewShip = function() {
+
+    var nextShipType = Math.floor((Math.random()*200)+1);
+
+    var newAiShip;
+
+    if (nextShipType == 1) {
+
+        newAiShip = new Ship('Alpha');
+
+        newAiShip.setStartingAiPosition();
+
+        gameObjects.push(newAiShip);
+
+    }
+
+    else if (nextShipType == 2) {
+
+        newAiShip = new Ship('Bravo');
+
+        newAiShip.setStartingAiPosition();
+
+        gameObjects.push(newAiShip);
+
+    }
+
+}
+
+Ai.prototype.issueCommands = function() {
   for (var x = 0, y = gameObjects.length; x < y; x++) {
     if (gameObjects[x].Type != 'Human') {
       if (Math.floor((Math.random()*25)+1) == 1) {
@@ -14,7 +44,7 @@ Ai.prototype.issueCommands = function () {
   }
 }
 
-Ai.prototype.think = function (gameObject) {
+Ai.prototype.think = function(gameObject) {
   var commandType = 0;
 
   if (gameObject.Type == 'Alpha') {

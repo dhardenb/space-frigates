@@ -9,6 +9,8 @@ Engine = function Engine() {
 
   physics = new Physics();
 
+  explosionSize = 20;
+
 }
 
 Engine.prototype.update = function () {
