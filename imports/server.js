@@ -20,16 +20,6 @@ Server = function Server() {
 
     messageLoopDuration = 45;
 
-    // frame = 0;
-
-    // commandBuffer = [];
-
-    // executionOffset = 0;
-
-    // players = [];
-
-    // buffer = 60;
-
 }
 
 Server.prototype.init = function() {
@@ -60,22 +50,6 @@ Server.prototype.setupStreamerListeners = function() {
 
     inboundCommands.on('inboundCommands', function(inboundCommand) {
 
-        /*var execFrame = 0;
-
-        for (var x = 0, y = players.length; x < y; x++) {
-
-            if (this.connection.id == players[x].id) {
-
-                execFrame = frame + Math.ceil((buffer - players[x].latency) / physicsLoopDuration);
-
-            }
-
-        }
-
-        commandBuffer.push({command: inboundCommand, execFrame: execFrame});
-
-        */
-
         commands.push(inboundCommand);
 
     });
@@ -90,35 +64,9 @@ Server.prototype.startPhysicsLoop = function() {
 
         ai.issueCommands();
 
-        // server.cycleCommandBuffer();
-
         engine.update();
 
-        // frame++;
-
     }, physicsLoopDuration);
-
-}
-
-Server.prototype.cycleCommandBuffer = function() {
-
-    for (var x = 0, y = commandBuffer.length-1; x < y; y--) {
-
-        if (commandBuffer[y].execFrame == frame) {
-
-            commands.push(commandBuffer[y].command);
-
-            commandBuffer.splice(y, 1);
-
-        }
-
-        else if (commandBuffer[y].execFrame < frame) {
-
-            commandBuffer.splice(y, 1);
-
-        }
-
-    }
 
 }
 
