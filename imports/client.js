@@ -14,11 +14,29 @@ Client = function Client() {
 
     commands = [];
 
+    replayBuffer = [];
+
     gameObjectId = 0;
 
     playerShipId = 0;
 
     playerHasShip = false;
+
+    // averageLatency = 30;
+
+    // pingLoopDuration = 250;
+
+    // pingSamples = [];
+
+    // buffer = 0;
+
+    // offset = 0;
+
+    // loopTime = 15;
+
+    // frame = 0;
+
+    // gameStateBuffer = [];
 
 }
 
@@ -27,6 +45,8 @@ Client.prototype.init = function() {
     client.setupEventHandlers();
 
     client.setupStreamListeners();
+
+    // client.startPingLoop();
 
     client.animationLoop();
 
@@ -42,9 +62,61 @@ Client.prototype.setupStreamListeners = function() {
 
     outboundState.on('outboundState', function(gameState) {
 
+        /*var incomingGameObjects = client.convertObjects(gameState.gameState);
+
+        var execFrame = frame + Math.ceil((buffer - averageLatency) / loopTime); // I should really get game loop time from server
+
+        gameStateBuffer.push({gameState: incomingGameObjects, execFrame: execFrame});
+
+        */
+
         gameObjects = client.convertObjects(gameState.gameState);
 
     });
+
+}
+
+Client.prototype.startPingLoop = function () {
+
+    setInterval(function() {
+
+        Meteor.call('testLatency', new Date(), averageLatency, (err, res) => {
+
+            if (err) {
+
+                console.log(err);
+
+            } else {
+
+                var pingLatency = (new Date().getTime() - res.startPing.getTime()) / 2;
+
+                pingSamples.push(pingLatency);
+
+                if (pingSamples.length >= 30) {
+
+                    pingSamples.splice(0, 1);
+
+                }
+
+                var latencyTotal = 0;
+
+                for (var x = 0, y = pingSamples.length; x < y; x++) {
+
+                    latencyTotal += pingSamples[x];
+
+                }
+
+                averageLatency = Math.ceil(latencyTotal / pingSamples.length);
+
+                buffer = res.buffer;
+
+                offset = res.offsent;
+
+            }
+
+        });
+
+    }, this.pingLoopDuration);
 
 }
 
@@ -52,11 +124,60 @@ Client.prototype.animationLoop = function() {
 
     window.requestAnimationFrame(client.animationLoop);
 
+    // client.cycleGameStateBuffer();
+
     engine.update();
 
     renderer.update();
 
+    // frame++;
+
 }
+
+Client.prototype.cycleGameStateBuffer = function() {
+
+    for (var x = 0, y = gameStateBuffer.length-1; x < y; y--) {
+
+        if (gameStateBuffer[y].execFrame == frame) {
+
+            gameObjects = gameStateBuffer[y].gameState;
+
+            client.cycleReplayBuffer(gameStateBuffer[y].execFrame);
+
+            gameStateBuffer.splice(y, 1);
+
+        }
+
+        else if (gameStateBuffer[y].execFrame < frame) {
+
+            gameStateBuffer.splice(y, 1);
+
+        }
+
+    }
+
+}
+
+Client.prototype.cycleReplayBuffer = function(execFrame) {
+
+    for (var x = 0, y = replayBuffer.length-1; x < y; y--) {
+
+        if (replayBuffer[y].frame + 8 >= frame) {
+
+            commands.push(replayBuffer[y].command);
+
+        }
+
+        else {
+
+            replayBuffer.splice(y, 1);
+
+        }
+
+    }
+
+}
+
 
 Client.prototype.handleKeyPressEvents = function(evt) {
 
@@ -215,7 +336,7 @@ Client.prototype.requestShip = function() {
             playerShipId = res;
 
             playerHasShip = false;
-            
+
         }
 
     });
@@ -225,6 +346,8 @@ Client.prototype.requestShip = function() {
 Client.prototype.commandHandler = function(newCommand) {
 
     commands.push(newCommand);
+
+    // replayBuffer.push({command: newCommand, frame: frame});
 
     inboundCommands.emit('inboundCommands', newCommand);
 
