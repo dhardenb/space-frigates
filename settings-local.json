@@ -1,0 +1,18 @@
+{
+	"public":
+
+		{
+
+			"environment": "local",
+
+			"version": "0.0.0.0"
+
+		},
+
+	"private":
+
+		{
+
+		}
+
+}

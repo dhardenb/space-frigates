@@ -1,0 +1,27 @@
+{
+
+	"galaxy.meteor.com":
+
+		{ "env":
+
+			{ "ROOT_URL": "https://www.test.SpaceFrigates.com", "MONGO_URL": "mongodb://dhardenb:cypher69@candidate.57.mongolayer.com:10807/space-frigates-test" }
+
+		},
+
+	"public":
+
+		{
+
+            "environment": "test",
+
+			"version": "0.1.0.0"
+
+		},
+
+	"private":
+
+		{
+
+		}
+
+}
