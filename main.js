@@ -1,4 +1,4 @@
 
-inboundCommands = new Meteor.Streamer('inboundControls');
+inputStream = new Meteor.Streamer('input');
 
-outboundState = new Meteor.Streamer('outboundState');
+outputStream = new Meteor.Streamer('output');

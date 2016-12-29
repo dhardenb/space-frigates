@@ -1,4 +1,3 @@
-import './command.js';
 
 Ai = function Ai() {
 
@@ -99,5 +98,5 @@ Ai.prototype.think = function(gameObject) {
       }
   }
 
-  commands.push(new Command({command: commandType, targetId: gameObject.Id}));
+  commands.push({command: commandType, targetId: gameObject.Id});
 }

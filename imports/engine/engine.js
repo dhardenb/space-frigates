@@ -123,3 +123,51 @@ Engine.prototype.removeDeadObjects = function() {
   }
   deadObjects = [];
 }
+
+Engine.prototype.convertObjects = function (remoteGameObjects) {
+
+    var convertedObjects = [];
+
+    for (var x = 0, y = remoteGameObjects.length; x < y; x++) {
+
+        if (remoteGameObjects[x].Type == 'Human') {
+
+            convertedObjects.push(new Ship('Human', remoteGameObjects[x]));
+
+        }
+
+        else if (remoteGameObjects[x].Type == 'Alpha') {
+
+            convertedObjects.push(new Ship('Alpha', remoteGameObjects[x]));
+
+        }
+
+        else if (remoteGameObjects[x].Type == 'Bravo') {
+
+            convertedObjects.push(new Ship('Bravo', remoteGameObjects[x]));
+
+        }
+
+        else if (remoteGameObjects[x].Type == 'Thruster') {
+
+            convertedObjects.push(new Thruster(null, remoteGameObjects[x]));
+
+        }
+
+        else if (remoteGameObjects[x].Type == 'Missile') {
+
+            convertedObjects.push(new Missile(null, remoteGameObjects[x]));
+
+        }
+
+        else if (remoteGameObjects[x].Type == 'Particle') {
+
+            convertedObjects.push(new Particle(null, remoteGameObjects[x]));
+
+        }
+
+  }
+
+  return convertedObjects;
+
+}
