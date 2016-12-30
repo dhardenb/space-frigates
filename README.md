@@ -26,7 +26,7 @@ implement multiplayer action
 - [COMPLETE] Run a authoritative version of the game engine on the server side. This is neccisary to
 make the game more secure and to stay in sync
 
-- Rebuild the rendering code to use Canvas
+- [COMPLETE] Rebuild the rendering code to use Canvas
 
 - Add a proper landing page. Should include basic features like allowing user to indicate
 initials.
