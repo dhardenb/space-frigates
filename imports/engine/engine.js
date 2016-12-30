@@ -3,7 +3,6 @@ import './ship.js';
 import './particle.js';
 import './thruster.js';
 import './physics.js';
-import './star.js';
 
 Engine = function Engine() {
 

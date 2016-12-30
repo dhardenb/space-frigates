@@ -25,6 +25,8 @@ Client = function Client() {
 
     playerHasShip = false;
 
+    mapRadius = 500;
+
 }
 
 Client.prototype.init = function() {
@@ -67,7 +69,7 @@ Client.prototype.animationLoop = function() {
 
     engine.update();
 
-    renderer.update();
+    renderer.updateMap();
 
 }
 

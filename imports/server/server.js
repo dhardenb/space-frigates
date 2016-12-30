@@ -23,6 +23,8 @@ Server = function Server() {
 
     outputRate = 50.01;
 
+    mapRadius = 500;
+
 }
 
 Server.prototype.init = function() {

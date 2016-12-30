@@ -66,9 +66,6 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         }
 
-        currentScale = availablePixels / zoomLevel;
-
-        portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
     }
 
     // - Zoom Out
@@ -82,9 +79,6 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         }
 
-        currentScale = availablePixels / zoomLevel;
-
-        portGroup.setAttribute('transform', 'translate('+availableWidth / 2+','+availableHeight / 2+') scale(' + currentScale + ')');
     }
 
 }

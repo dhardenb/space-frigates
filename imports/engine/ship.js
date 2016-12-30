@@ -218,7 +218,7 @@ Ship.prototype.processShipCommand = function(command) {
             }
             break;
         case 2: // Accelerate
-                physics.findNewVelocity(this, this.Facing, 20)
+                physics.findNewVelocity(this, this.Facing, 20);
                 gameObjects.push(new Thruster(this));
                 break;
         case 4: // Brake
