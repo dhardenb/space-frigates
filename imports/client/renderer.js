@@ -90,6 +90,23 @@ Renderer.prototype.renderStars = function() {
 
 }
 
+Renderer.prototype.calculateOffset = function () {
+
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+
+        if (gameObjects[x].Id == playerShipId) {
+
+            focalX = -gameObjects[x].LocationX;
+
+            focalY = -gameObjects[x].LocationY;
+
+        }
+
+    }
+
+}
+
+
 Renderer.prototype.renderMap = function () {
 
     map.clearRect(0, 0, availableWidth, availableHeight);
@@ -99,6 +116,8 @@ Renderer.prototype.renderMap = function () {
     map.translate(availableWidth / 2, availableHeight / 2);
 
     map.scale(availablePixels / zoomLevel, availablePixels / zoomLevel);
+
+    this.calculateOffset();
 
     map.translate(focalX, focalY);
 
@@ -273,10 +292,6 @@ Renderer.prototype.renderShip = function (ship) {
         if (ship.Id == playerShipId) {
 
             map.strokeStyle = "rgba(0, 255, 0, 1)";
-
-            focalX = -ship.LocationX;
-
-            focalY = -ship.LocationY;
 
         }
 
