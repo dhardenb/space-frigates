@@ -69,7 +69,7 @@ Client.prototype.animationLoop = function() {
 
     engine.update();
 
-    renderer.updateMap();
+    renderer.renderMap();
 
 }
 

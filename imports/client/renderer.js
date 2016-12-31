@@ -90,7 +90,7 @@ Renderer.prototype.renderStars = function() {
 
 }
 
-Renderer.prototype.updateMap = function () {
+Renderer.prototype.renderMap = function () {
 
     map.clearRect(0, 0, availableWidth, availableHeight);
 
