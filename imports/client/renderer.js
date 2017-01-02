@@ -29,16 +29,7 @@ Renderer.prototype.getWindowInformation = function() {
 
     availableHeight = window.innerHeight - windowOffset;
 
-    if (availableHeight < availableWidth) {
-
-        availablePixels = availableHeight;
-
-    }
-
-    else {
-
-        availablePixels = availableWidth;
-    }
+    availablePixels = availableHeight < availableWidth ? availableHeight : availableWidth;
 
 }
 
