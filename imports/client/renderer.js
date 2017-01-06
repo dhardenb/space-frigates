@@ -13,6 +13,8 @@ Renderer = function Renderer() {
 
     thrusterPath = new Path2D("M -2 0 L 2 0 L 0 6 Z");
 
+    LazerPath = new Path2D("M 0 -3 L 0 3");
+
     this.getWindowInformation();
 
     this.setupBackgroundCanvas();
@@ -228,7 +230,7 @@ Renderer.prototype.renderThruster = function (thruster) {
 
     map.translate(thruster.LocationX, thruster.LocationY);
 
-    map.rotate(thruster.Facing * Math.PI / 180)
+    map.rotate(thruster.Facing * Math.PI / 180);
 
     map.strokeStyle = "rgba(255, 0, 0, 1)";
 
@@ -242,7 +244,7 @@ Renderer.prototype.renderThruster = function (thruster) {
 
     map.fill(thrusterPath);
 
-    map.restore(thrusterPath);
+    map.restore();
 
 }
 
@@ -252,19 +254,13 @@ Renderer.prototype.renderMissle = function (missile) {
 
     map.translate(missile.LocationX, missile.LocationY);
 
-    map.beginPath();
+    map.rotate(missile.Facing * Math.PI / 180);
 
-    map.arc(0, 0, missile.Size, 0, 2 * Math.PI);
+    map.strokeStyle = "rgba(0, 255, 255, 1)";
 
-    map.strokeStyle = "rgba(255, 0, 0, 1)";
+    map.lineWidth = 2;
 
-    map.lineWidth = 1;
-
-    map.stroke();
-
-    map.fillStyle = "rgba(255, 255, 0, 1)";
-
-    map.fill();
+    map.stroke(LazerPath);
 
     map.restore();
 
