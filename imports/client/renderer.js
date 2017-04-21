@@ -43,8 +43,6 @@ Renderer.prototype.setupBackgroundCanvas = function() {
 
     background.canvas.height = availableHeight;
 
-    background.canvas.style = "position: absolute; z-index: 0"
-
     this.renderStars();
 
 }
@@ -56,8 +54,6 @@ Renderer.prototype.setupMapCanvas = function() {
     map.canvas.width = availableWidth;
 
     map.canvas.height = availableHeight;
-
-    map.canvas.style = "position: absolute; z-index: 1"
 
     focalX = 0;
 

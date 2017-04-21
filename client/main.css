@@ -1,4 +1,27 @@
-body
-{
+body {
+
 	background-color: rgb(0,0,0);
+
+}
+
+/* For some reason, Safari would not accept the inline style attributes that
+I had below on my canvas elements. When I ran the Dev Console in Safari the
+attributes simply were not there, even though they were showing up fine
+for Chrome and Firefox. Not sure why. So the fix was what you see below,
+adding the attributes via a style sheet.*/
+
+#background {
+
+	position: absolute;
+
+	z-index: 0
+
+}
+
+#map {
+
+	position: absolute;
+
+	z-index: 1
+
 }
