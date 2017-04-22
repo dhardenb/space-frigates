@@ -6,7 +6,7 @@ Keyboard = function Keyboard() {
 Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
     // ENTER - Start
-    if(evt.keyCode==13 && playerHasShip == false) {
+    if(evt.keyCode==13) {
 
         evt.preventDefault();
 

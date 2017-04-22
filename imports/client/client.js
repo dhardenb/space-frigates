@@ -23,8 +23,6 @@ Client = function Client() {
 
     playerShipId = 0;
 
-    playerHasShip = false;
-
     mapRadius = 500;
 
 }
@@ -84,8 +82,6 @@ Client.prototype.requestShip = function() {
         } else {
 
             playerShipId = res;
-
-            playerHasShip = false;
 
         }
 
