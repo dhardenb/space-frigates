@@ -12,15 +12,21 @@
 
 		{
 
-            "environment": "test",
+			"mapRadius" : "500",
 
-			"version": "0.1.0.0"
+      		"environment": "prod",
+
+			"version": "0.1.1"
 
 		},
 
 	"private":
 
 		{
+
+			"frameRate" : "16.67",
+
+			"messageOutputRate" : "50.01"
 
 		}
 

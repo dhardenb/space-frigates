@@ -19,11 +19,11 @@ Server = function Server() {
 
     gameObjectId = 0;
 
-    frameRate = 16.67;
+    frameRate = Meteor.settings.private.frameRate;
 
-    outputRate = 50.01;
+    messageOutputRate = Meteor.settings.private.messageOutputRate;
 
-    mapRadius = 500;
+    mapRadius = Meteor.settings.public.mapRadius;
 
 }
 
@@ -81,7 +81,7 @@ Server.prototype.startMessageLoop = function() {
 
         outputStream.emit('output', {gameState: gameObjects});
 
-    }, outputRate);
+    }, messageOutputRate);
 
 }
 

@@ -2,6 +2,7 @@
 	"public":
 
 		{
+			"mapRadius" : "500",
 
 			"environment": "local",
 
@@ -12,6 +13,10 @@
 	"private":
 
 		{
+
+			"frameRate" : "16.67",
+
+			"messageOutputRate" : "50.01"
 
 		}
 
