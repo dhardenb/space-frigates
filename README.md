@@ -2,8 +2,8 @@
 
 **Play right now at: https://www.spacefrigates.com**
 
-Space Frigates is a muliplayer, browser based arcade game built using the Meteor JS application
-stack, SVG, and a home grown game engine.
+Space Frigates is a muliplayer, real-time, browser based arcade game built using the MeteorJS application
+stack, Canvas, and a home grown game engine.
 
 **Keyboard Controls**
 
