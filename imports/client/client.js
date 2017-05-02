@@ -53,14 +53,6 @@ Client.prototype.setupStreamListeners = function() {
 
 }
 
-Client.prototype.commandHandler = function(input) {
-
-    commands.push(input);
-
-    inputStream.emit('input', input);
-
-}
-
 Client.prototype.animationLoop = function() {
 
     window.requestAnimationFrame(client.animationLoop);
@@ -86,5 +78,13 @@ Client.prototype.requestShip = function() {
         }
 
     });
+
+}
+
+Client.prototype.commandHandler = function(input) {
+
+    commands.push(input);
+
+    inputStream.emit('input', input);
 
 }
