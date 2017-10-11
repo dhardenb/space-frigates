@@ -2,8 +2,8 @@
 
 **Play right now at: www.SpaceFrigates.com**
 
-Space Frigates is a muliplayer, real-time, browser based arcade game built using the MeteorJS application
-stack, Canvas, and a home grown game engine.
+Space Frigates is a multiplayer, real-time, browser based arcade game built using the MeteorJS application
+framework, Canvas, and a home grown game engine.
 
 **Keyboard Controls**
 
@@ -15,15 +15,15 @@ UP_ARROW OR W | Thrust Forward
 LEFT_ARROW OR A | Thrust Counter Clockwise
 RIGHT_ARROW OR D | Thrust Clockwise
 DOWN_ARROW OR S | Stop Ship Movement
-- | Zoom Out
-+ | Zoom In
+\- | Zoom Out
+\+ | Zoom In
 
 ## Current Roadmap
 
 - [COMPLETE] Upgrade the game to send all players commands to and from server in order to
 implement multiplayer action
 
-- [COMPLETE] Run a authoritative version of the game engine on the server side. This is neccisary to
+- [COMPLETE] Run a authoritative version of the game engine on the server side. This is necessary to
 make the game more secure and to stay in sync
 
 - [COMPLETE] Rebuild the rendering code to use Canvas
