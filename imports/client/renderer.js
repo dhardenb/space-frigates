@@ -15,6 +15,8 @@ Renderer = function Renderer() {
 
     LazerPath = new Path2D("M 0 -3 L 0 3");
 
+    version = Meteor.settings.public.version;
+
     this.getWindowInformation();
 
     this.setupBackgroundCanvas();
@@ -192,9 +194,9 @@ Renderer.prototype.renderVersion = function () {
 
     background.font = "20px Arial";
 
-    background.translate(availableWidth - background.measureText("v 1.0.0").width, availableHeight - 10);
+    background.translate(availableWidth - background.measureText("v" + version).width, availableHeight - 10);
 
-    background.fillText("v 1.0.0", 0, 0);
+    background.fillText("v" + version, 0, 0);
 
     background.restore();
 

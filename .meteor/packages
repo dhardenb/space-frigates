@@ -20,3 +20,4 @@ shell-server@0.2.4            # Server-side component of the `meteor shell` comm
 
 rocketchat:streamer
 dynamic-import
+mdg:meteor-apm-agent

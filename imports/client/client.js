@@ -25,8 +25,6 @@ Client = function Client() {
 
     mapRadius = Meteor.settings.public.mapRadius;
 
-    version = Meteor.settings.public.version;
-
 }
 
 Client.prototype.init = function() {
