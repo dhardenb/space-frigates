@@ -23,7 +23,9 @@ Client = function Client() {
 
     playerShipId = 0;
 
-    mapRadius = mapRadius = Meteor.settings.public.mapRadius;
+    mapRadius = Meteor.settings.public.mapRadius;
+
+    version = Meteor.settings.public.version;
 
 }
 

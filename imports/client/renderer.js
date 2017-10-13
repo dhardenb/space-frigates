@@ -45,6 +45,12 @@ Renderer.prototype.setupBackgroundCanvas = function() {
 
     this.renderStars();
 
+    this.renderTitle();
+
+    this.renderVersion();
+
+    this.renderInstructions();
+
 }
 
 Renderer.prototype.setupMapCanvas = function() {
@@ -164,17 +170,69 @@ Renderer.prototype.renderStar = function (x, y, alpha) {
 
 Renderer.prototype.renderTitle = function () {
 
-    map.save();
+    background.save();
 
-    map.translate(availableWidth / 2 - map.measureText("Space Frigates!").width / 2, availableHeight/2);
+    background.strokeStyle = "yellow";
 
-    map.strokeStyle = "yellow";
+    background.font = "60px Arial";
 
-    map.font = "60px Arial";
+    background.translate(availableWidth / 2 - background.measureText("Space Frigates").width / 2, 50);
 
-    map.strokeText("Space Frigates!", 0, 0);
+    background.strokeText("Space Frigates", 0, 0);
 
-    map.restore();
+    background.restore();
+
+}
+
+Renderer.prototype.renderVersion = function () {
+
+    background.save();
+
+    background.fillStyle = "yellow";
+
+    background.font = "20px Arial";
+
+    background.translate(availableWidth - background.measureText("v 1.0.0").width, availableHeight - 10);
+
+    background.fillText("v 1.0.0", 0, 0);
+
+    background.restore();
+
+}
+
+Renderer.prototype.renderInstructions = function () {
+
+    background.save();
+
+    background.fillStyle = "yellow";
+
+    background.font = "20px Arial";
+
+    background.translate(0, availableHeight - 135);
+
+    background.fillText("ENTER => New Ship", 0, 0);
+
+    background.translate(0, 25);
+
+    background.fillText("W or UP ARROW => Thrust", 0, 0);
+
+    background.translate(0, 25);
+
+    background.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
+
+    background.translate(0, 25);
+
+    background.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
+
+    background.translate(0, 25);
+
+    background.fillText("S or DOWN ARROW => Stop", 0, 0);
+
+    background.translate(0, 25);
+
+    background.fillText("SPACEBAR => Fire", 0, 0);
+
+    background.restore();
 
 }
 
