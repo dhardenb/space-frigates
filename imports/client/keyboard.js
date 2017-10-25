@@ -19,7 +19,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({command: 0, targetId: playerShipId});
+        client.commandHandler({seqNum: seqNum, command: 0, targetId: playerShipId});
 
     }
 
@@ -28,7 +28,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({command: 1, targetId: playerShipId});
+        client.commandHandler({seqNum: seqNum, command: 1, targetId: playerShipId});
     }
 
     // UP_ARROW - Forward Thruster
@@ -36,7 +36,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({command: 2, targetId: playerShipId});
+        client.commandHandler({seqNum: seqNum, command: 2, targetId: playerShipId});
     }
 
     // RIGHT_ARROW - Rotate Clockwise
@@ -44,7 +44,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({command: 3, targetId: playerShipId});
+        client.commandHandler({seqNum: seqNum, command: 3, targetId: playerShipId});
     }
 
     // DOWN_ARROW - Stop
@@ -52,7 +52,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({command: 4, targetId: playerShipId});
+        client.commandHandler({seqNum: seqNum, command: 4, targetId: playerShipId});
     }
 
     // + Zoom In

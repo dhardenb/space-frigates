@@ -5,6 +5,8 @@ import '../engine/engine.js';
 
 import './ai.js';
 
+import './player.js';
+
 Server = function Server() {
 
     engine = new Engine();
@@ -16,6 +18,8 @@ Server = function Server() {
     deadObjects = [];
 
     commands = [];
+
+    players = [];
 
     gameObjectId = 0;
 
@@ -55,6 +59,18 @@ Server.prototype.setupStreamListeners = function() {
 
     inputStream.on('input', function(input) {
 
+        for (var x = 0, y = players.length; x < y; x++) {
+
+            if (this.connection.id == players[x].id) {
+
+                players[x].lastSeqNum = input.seqNum;
+
+            }
+
+        }
+
+        // Not really sure I need to push the entire command anymore
+        // because the engine doesn't care about the seq number....
         commands.push(input);
 
     });
@@ -79,7 +95,7 @@ Server.prototype.startMessageLoop = function() {
 
     setInterval(function() {
 
-        outputStream.emit('output', {gameState: gameObjects});
+        outputStream.emit('output', {players: players, gameState: gameObjects});
 
     }, messageOutputRate);
 
@@ -96,6 +112,12 @@ Meteor.methods({
         gameObjects.push(playerShip);
 
         return playerShip.Id;
+
+    },
+
+    getPlayerId: function() {
+
+        return this.connection.id;
 
     }
 
