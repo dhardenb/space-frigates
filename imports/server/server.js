@@ -7,6 +7,8 @@ import './ai.js';
 
 import './player.js';
 
+import { packGameState } from '../utilities/utilities.js';
+
 Server = function Server() {
 
     engine = new Engine();
@@ -95,7 +97,7 @@ Server.prototype.startMessageLoop = function() {
 
     setInterval(function() {
 
-        outputStream.emit('output', {players: players, gameState: gameObjects});
+        outputStream.emit('output', packGameState({players: players, gameState: gameObjects}));
 
     }, messageOutputRate);
 

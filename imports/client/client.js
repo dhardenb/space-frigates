@@ -5,6 +5,8 @@ import './keyboard.js';
 
 import './renderer.js';
 
+import { unpackGameState } from '../utilities/utilities.js';
+
 Client = function Client() {
 
     engine = new Engine();
@@ -31,6 +33,14 @@ Client = function Client() {
 
     playerId = 0;
 
+    numberOfUpdates = 0;
+
+    totalSizeOfUpdates = 0;
+
+    smallestUpdate = 0;
+
+    largestUpdate = 0;
+
 }
 
 Client.prototype.init = function() {
@@ -55,6 +65,32 @@ Client.prototype.setupStreamListeners = function() {
 
     outputStream.on('output', function(serverUpdate) {
 
+        // console.log(serverUpdate);
+
+        // console.log(serverUpdate);
+
+        updateSize = JSON.stringify(serverUpdate).length;
+
+        numberOfUpdates++;
+
+        totalSizeOfUpdates = totalSizeOfUpdates + updateSize;
+
+        if (updateSize < smallestUpdate || smallestUpdate == 0) {
+
+            smallestUpdate = updateSize;
+
+        }
+
+        if (updateSize > largestUpdate) {
+
+            largestUpdate = updateSize;
+
+        }
+
+        console.log("Avergae Update Size: " + Math.round(totalSizeOfUpdates / numberOfUpdates) + " Smallest Update Size: " + smallestUpdate + " Largest Update Size: " + largestUpdate);
+
+        serverUpdate = unpackGameState(serverUpdate);
+
         gameObjects = engine.convertObjects(serverUpdate.gameState);
 
         var lastCommandServerProcessed;
@@ -72,8 +108,6 @@ Client.prototype.setupStreamListeners = function() {
         for (x = 0; x < sentCommands.length; x++) {
 
             if (sentCommands[x].seqNum > lastCommandServerProcessed) {
-
-                console.log("Last Command Server Processed: " + lastCommandServerProcessed + " Repushing Command: " + sentCommands[x].seqNum);
 
                 commands.push(sentCommands[x]);
 
