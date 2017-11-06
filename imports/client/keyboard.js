@@ -60,9 +60,9 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        if (zoomLevel > 100) {
+        if (pixelsPerMeter < 20) {
 
-            zoomLevel = zoomLevel - 100;
+            pixelsPerMeter++;
 
         }
 
@@ -73,9 +73,9 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        if (zoomLevel < 1100) {
+        if (pixelsPerMeter > 1) {
 
-            zoomLevel = zoomLevel + 100;
+            pixelsPerMeter--;
 
         }
 

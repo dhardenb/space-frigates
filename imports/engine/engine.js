@@ -45,7 +45,7 @@ Engine.prototype.collisionDetection = function () {
       // Don't let objects colide with themselves!
       if (i != k) {
 
-        if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size + solidObjects[k].Size)) {
+        if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size / 2 + solidObjects[k].Size / 2)) {
 
           // This object has collided with something so we get to blow it up!!!
           this.createExplosion(solidObjects[k]);

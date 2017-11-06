@@ -1,7 +1,7 @@
 
 Renderer = function Renderer() {
 
-    zoomLevel = 400;
+    pixelsPerMeter = 0;
 
     availableWidth = 0;
 
@@ -9,11 +9,11 @@ Renderer = function Renderer() {
 
     background = null;
 
-    shipPath = new Path2D("M -5 5 L -2 2 L -1 2 L 0 3 L 1 2 L 2 2 L 5 5 L 5 -1 L 1 -5 L -1 -5 L -5 -1 Z");
+    shipPath = new Path2D("M -0.1 -0.5 L 0.1 -0.5 L 0.1 -0.2 L 0.2 -0.1 L 0.2 0.1 L 0.4 0.3 L 0.4 0.4 L 0.2 0.4 L 0.2 0.5 L -0.2 0.5 L -0.2 0.4 L -0.4 0.4 L -0.4 0.3 L -0.2 0.1 L -0.2 -0.1 L -0.1 -0.2 Z");
 
-    thrusterPath = new Path2D("M -2 0 L 2 0 L 0 6 Z");
+    thrusterPath = new Path2D("M -0.2 -0.5 L 0.2 -0.5 L 0.0 0.5 Z");
 
-    LazerPath = new Path2D("M 0 -3 L 0 3");
+    laserPath = new Path2D("M -0.1 -0.5 L 0.1 -0.5 L 0.1 0.5 L -0.1 0.5 Z");
 
     version = Meteor.settings.public.version;
 
@@ -34,6 +34,10 @@ Renderer.prototype.getWindowInformation = function() {
     availableHeight = window.innerHeight - windowOffset;
 
     availablePixels = availableHeight < availableWidth ? availableHeight : availableWidth;
+
+    pixelsPerMeter = availablePixels / 200;
+
+    console.log(availablePixels);
 
 }
 
@@ -93,9 +97,9 @@ Renderer.prototype.calculateOffset = function () {
 
         if (gameObjects[x].Id == playerShipId) {
 
-            focalX = -gameObjects[x].LocationX;
+            focalX = -gameObjects[x].LocationX * pixelsPerMeter;
 
-            focalY = -gameObjects[x].LocationY;
+            focalY = -gameObjects[x].LocationY * pixelsPerMeter;
 
         }
 
@@ -110,13 +114,9 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(availablePixels / zoomLevel, availablePixels / zoomLevel);
-
     this.calculateOffset();
 
-    map.translate(focalX, focalY);
+    map.translate(availableWidth / 2 + focalX, availableHeight / 2 + focalY);
 
     this.renderBoundry();
 
@@ -244,7 +244,7 @@ Renderer.prototype.renderBoundry = function () {
 
     map.beginPath();
 
-    map.arc(0, 0, mapRadius, 0, 2 * Math.PI);
+    map.arc(0, 0, mapRadius * pixelsPerMeter, 0, 2 * Math.PI);
 
     map.strokeStyle = "rgba(255, 255, 0, 0.5)";
 
@@ -260,15 +260,15 @@ Renderer.prototype.renderParticle = function (particle) {
 
     map.save();
 
-    map.translate(particle.LocationX, particle.LocationY);
+    map.translate(particle.LocationX * pixelsPerMeter, particle.LocationY * pixelsPerMeter);
 
     map.beginPath();
 
-    map.arc(0, 0, particle.Size, 0, 2 * Math.PI);
+    map.arc(0, 0, particle.Size * 0.5 * pixelsPerMeter, 0, 2 * Math.PI);
 
     map.strokeStyle = "rgba(255, 0, 0, 1)";
 
-    map.lineWidth = 2;
+    map.lineWidth = 1.0;
 
     map.stroke();
 
@@ -284,13 +284,15 @@ Renderer.prototype.renderThruster = function (thruster) {
 
     map.save();
 
-    map.translate(thruster.LocationX, thruster.LocationY);
+    map.translate(thruster.LocationX * pixelsPerMeter, thruster.LocationY * pixelsPerMeter);
 
     map.rotate(thruster.Facing * Math.PI / 180);
 
+    map.scale(thruster.Size * pixelsPerMeter, thruster.Size * pixelsPerMeter);
+
     map.strokeStyle = "rgba(255, 0, 0, 1)";
 
-    map.lineWidth = 2;
+    map.lineWidth = 0.1;
 
     map.lineJoin = "round";
 
@@ -308,15 +310,21 @@ Renderer.prototype.renderMissle = function (missile) {
 
     map.save();
 
-    map.translate(missile.LocationX, missile.LocationY);
+    map.translate(missile.LocationX * pixelsPerMeter, missile.LocationY * pixelsPerMeter);
 
     map.rotate(missile.Facing * Math.PI / 180);
 
-    map.strokeStyle = "rgba(0, 255, 255, 1)";
+    map.scale(missile.Size * pixelsPerMeter, missile.Size * pixelsPerMeter);
 
-    map.lineWidth = 2;
+    map.strokeStyle = "rgba(255, 255, 255, 1)";
 
-    map.stroke(LazerPath);
+    map.lineWidth = 0.1;
+
+    map.stroke(laserPath);
+
+    map.fillStyle = "rgba(0, 255, 255, 1)";
+
+    map.fill(laserPath);
 
     map.restore();
 
@@ -326,9 +334,11 @@ Renderer.prototype.renderShip = function (ship) {
 
     map.save();
 
-    map.translate(ship.LocationX, ship.LocationY);
+    map.translate(ship.LocationX * pixelsPerMeter, ship.LocationY * pixelsPerMeter);
 
     map.rotate(ship.Facing * Math.PI / 180);
+
+    map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
 
     if (ship.Type == 'Human') {
 
@@ -352,7 +362,7 @@ Renderer.prototype.renderShip = function (ship) {
 
     }
 
-    map.lineWidth = 2;
+    map.lineWidth =  0.1;
 
     map.lineJoin = "round";
 

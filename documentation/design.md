@@ -1,12 +1,12 @@
 # Design Notes
 
-Below are a set of assocrted design notes that I wanted to keep. The goal is to understand why I did things the way I did and also understand what my thinking was for the future.
+Below are a set of assorted design notes that I wanted to keep. The goal is to understand why I did things the way I did and also understand what my thinking was for the future.
 
 ## Renderer
 
-### "ZoomLevel"
+### "pixelsPerMeter"
 
-I should start by saying that there is very important variable in the application called zoomlevel that helps determine the size that everything is drawn at.
+I should start by saying that there is very important variable in the application called pixelsPerMeter that helps determine the size that everything is drawn at.
 
 I've been trying to figure out the best way to render the objects that you see in the game. It turns out to be a bit a litte more involved than you would think.
 
@@ -16,7 +16,7 @@ There are two issues with the path definitions worth discussing:
 
 1. Coordinate System
 
-Theoretically, the best way to define the paths themselves is probably to assume that the top left corner of the canvase is (0,0) and that the bottom right corner of the canvase is (1,1). All the points inbetween would then become relative, floating point numbers.
+Theoretically, the best way to define the paths themselves is probably to assume that the top left corner of the canvase is (0,0) and that the bottom right corner of the canvas is (1,1). All the points inbetween would then become relative, floating point numbers.
 
 The reason for the coordinates going 0 to 1 is so that all paths are defined in a consistent way. Obviously, the rendered objects will normally be different sizes on the screen. This should be accomplished by scaling the objects as needed. But the original path should be unaware of this.
 
@@ -37,6 +37,16 @@ However, when I did that I started ti have problems. The main problem being that
 #### Conclusion
 
 So when I tried to fix all this other things started breaking and I decided to revert the code back for the time being because I had other things do do that seem to be more immediate needs, like having a proper landing page of the game.
+
+#### Update
+
+Today I went in and revamping the rendering engine. I changed all of the paths so that they are defined on a scale of -0.5 t0 0.5 in both the X and Y planes. I did this for two reasons: 1) it means that everything is consistenly defined at a scale of 1. 2) by going from -0.5 to 0.5 instead of 0 to 1, it makes the translation code much easier to calculate. When you start drawing from the top left corner of the object you have to do additional translations to make sure it lines up with its proper position. By having the image centered with (0,0) in the center, you can just draw it at the correct location.
+
+Of course, making this improvment broke a bunch of things. I had to fix the algorithms that determine the starting position of lasers and thrusters, I had to tweak the collision detection code, I had to change the translation and scaling for everything to scale up the object from 1 to X.
+
+There were a few other changes but I'm happy with the result. I feel like the rendering is a bit more predictible now and all measurements of distance are now based on the same base unit, 1 Meter. The raw path instructions all draw the objects to be 1 meter by 1 meter and then they are scaled up to the correct size.
+
+The way I was doing it sucked because every object was scaled differently and had to be transformed differently. Not very scalable!
 
 ### Viewing Layers
 

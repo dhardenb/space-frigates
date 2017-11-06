@@ -87,7 +87,7 @@ Client.prototype.setupStreamListeners = function() {
 
         }
 
-        console.log("Avergae Update Size: " + Math.round(totalSizeOfUpdates / numberOfUpdates) + " Smallest Update Size: " + smallestUpdate + " Largest Update Size: " + largestUpdate);
+        // console.log("Avergae Update Size: " + Math.round(totalSizeOfUpdates / numberOfUpdates) + " Smallest Update Size: " + smallestUpdate + " Largest Update Size: " + largestUpdate);
 
         serverUpdate = unpackGameState(serverUpdate);
 

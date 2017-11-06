@@ -9,7 +9,7 @@ Particle = function Particle(sourceObject, jsonObject) {
   	this.Facing = 0;
   	this.Heading = Math.random() * 360;
   	this.Velocity = Math.random() * 100;
-  	this.Size = 2;
+  	this.Size = 2.0;
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
 
