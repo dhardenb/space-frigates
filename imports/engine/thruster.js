@@ -10,7 +10,7 @@ Thruster = function Thruster(sourceObject, jsonObject) {
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
   	this.Size = 6.0;
-  	this.Fuel = 15;
+  	this.Fuel = 0.1;
 
   	this.ThrusterOffset = 2.0;
   	this.initialVelocity = 0;
@@ -66,6 +66,9 @@ Thruster.prototype.calclulateInitialPosition = function(sourceObject) {
 }
 
 Thruster.prototype.update = function() {
-  this.Fuel--;
+
+    this.Fuel = this.Fuel - 1 / framesPerSecond;
+
 	physics.moveObjectAlongVector(this);
+
 }

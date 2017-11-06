@@ -31,6 +31,9 @@ Particle = function Particle(sourceObject, jsonObject) {
 }
 
 Particle.prototype.update = function() {
-  this.Fuel = this.Fuel - 1 / framesPerSecond;
-	physics.moveObjectAlongVector(this);
+
+    this.Fuel = this.Fuel - 1 / framesPerSecond;
+
+    physics.moveObjectAlongVector(this);
+
 }

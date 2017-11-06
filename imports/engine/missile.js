@@ -67,6 +67,9 @@ Missile.prototype.calclulateInitialPosition = function(sourceObject) {
 }
 
 Missile.prototype.update = function() {
+
 	this.Fuel = this.Fuel - 1 / framesPerSecond;
+
 	physics.moveObjectAlongVector(this);
+
 }

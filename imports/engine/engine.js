@@ -73,7 +73,7 @@ Engine.prototype.createExplosion = function (sourceGameObject) {
 
 Engine.prototype.fuelDetection = function () {
   for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Fuel < 1) {
+    if (gameObjects[x].Fuel < 0) {
       deadObjects.push(gameObjects[x]);
     }
   }
