@@ -16,7 +16,7 @@ Particle = function Particle(sourceObject, jsonObject) {
     // Last on average about 1 seconds. I make it random because when the
     // particles have different life spans the effect is much more realistic
     // than if they all just burn out at the same rate.
-  	this.Fuel = Math.random() * 2;
+  	this.Fuel = Math.random() * 0.5;
 
     // I adjust the vector of the particle based on what is exploding. This
     // creates the cool affect of the explosion kind of moving with the
