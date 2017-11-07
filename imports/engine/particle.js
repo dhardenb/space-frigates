@@ -18,17 +18,6 @@ Particle.prototype.init = function(sourceObject) {
 
 }
 
-Particle.prototype.copy = function(jsonObject) {
-
-    this.Id = jsonObject.Id;
-    this.LocationX = jsonObject.LocationX;
-    this.LocationY = jsonObject.LocationY;
-    this.Heading = jsonObject.Heading;
-    this.Velocity = jsonObject.Velocity;
-    this.Fuel = jsonObject.Fuel;
-
-}
-
 Particle.prototype.update = function() {
 
     this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;

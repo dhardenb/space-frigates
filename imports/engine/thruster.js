@@ -23,18 +23,6 @@ Thruster.prototype.init = function(sourceObject) {
 
 }
 
-Thruster.prototype.copy = function(jsonObject) {
-
-    this.Id = jsonObject.Id;
-    this.LocationX = jsonObject.LocationX;
-    this.LocationY = jsonObject.LocationY;
-    this.Facing = jsonObject.Facing;
-    this.Heading = jsonObject.Heading;
-    this.Velocity = jsonObject.Velocity;
-    this.Fuel = jsonObject.Fuel;
-
-}
-
 Thruster.prototype.update = function() {
 
     this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
