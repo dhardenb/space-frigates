@@ -65,10 +65,6 @@ Client.prototype.setupStreamListeners = function() {
 
     outputStream.on('output', function(serverUpdate) {
 
-        // console.log(serverUpdate);
-
-        // console.log(serverUpdate);
-
         updateSize = JSON.stringify(serverUpdate).length;
 
         numberOfUpdates++;
@@ -87,11 +83,11 @@ Client.prototype.setupStreamListeners = function() {
 
         }
 
-        // console.log("Avergae Update Size: " + Math.round(totalSizeOfUpdates / numberOfUpdates) + " Smallest Update Size: " + smallestUpdate + " Largest Update Size: " + largestUpdate);
+        console.log("Avergae Update Size: " + Math.round(totalSizeOfUpdates / numberOfUpdates) + " Smallest Update Size: " + smallestUpdate + " Largest Update Size: " + largestUpdate);
 
         serverUpdate = unpackGameState(serverUpdate);
 
-        gameObjects = engine.convertObjects(serverUpdate.gameState);
+        gameObjects = engine.convertObjects(gameObjects, serverUpdate.gameState);
 
         var lastCommandServerProcessed;
 

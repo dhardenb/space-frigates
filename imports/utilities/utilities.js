@@ -22,6 +22,14 @@ function removeByAttr(arr, attr, value) {
 
 function packGameState(unpackedGameState) {
 
+    //////////////////////////////////////////////////////
+    // Remove objects that we don't need to keep insync //
+    //////////////////////////////////////////////////////
+
+    unpackedGameState.gameState = removeByAttr(unpackedGameState.gameState, "Type", "Particle");
+
+    unpackedGameState.gameState = removeByAttr(unpackedGameState.gameState, "Type", "Thruster");
+
     //////////
     // ROOT //
     //////////
@@ -50,7 +58,6 @@ function packGameState(unpackedGameState) {
 
     packedGameState.push([]);
 
-    // Create an array for each player
     for (i = 0; i < unpackedGameState.gameState.length; i++) {
 
         packedGameState[1].push([]);

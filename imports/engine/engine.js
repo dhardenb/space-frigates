@@ -3,6 +3,7 @@ import './ship.js';
 import './particle.js';
 import './thruster.js';
 import './physics.js';
+import { removeByAttr } from '../utilities/utilities.js';
 
 Engine = function Engine() {
 
@@ -136,7 +137,7 @@ Engine.prototype.removeDeadObjects = function() {
   deadObjects = [];
 }
 
-Engine.prototype.convertObjects = function (remoteGameObjects) {
+Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects) {
 
     var convertedObjects = [];
 
@@ -186,6 +187,20 @@ Engine.prototype.convertObjects = function (remoteGameObjects) {
 
   }
 
-  return convertedObjects;
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Human");
+
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Alpha");
+
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Bravo");
+
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Missile");
+
+  for (i = 0; i < convertedObjects.length; i++) {
+
+      localGameObjects.push(convertedObjects[i]);
+
+  }
+
+  return localGameObjects;
 
 }

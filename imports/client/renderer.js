@@ -37,8 +37,6 @@ Renderer.prototype.getWindowInformation = function() {
 
     pixelsPerMeter = availablePixels / 200;
 
-    console.log(availablePixels);
-
 }
 
 Renderer.prototype.setupBackgroundCanvas = function() {
