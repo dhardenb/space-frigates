@@ -12,8 +12,6 @@ Missile.prototype.init = function(sourceObject) {
   	this.Heading = sourceObject.Heading;
   	this.Velocity = 0;
   	this.Size = 3.0;
-  	this.RotationDirection = "None";
-  	this.RotationVelocity = 0;
   	this.Fuel = 3;
 
   	this.MissileLaunchOffset = 1.0;
@@ -34,8 +32,6 @@ Missile.prototype.copy = function(jsonObject) {
   	this.Heading = jsonObject.Heading;
   	this.Velocity = jsonObject.Velocity;
   	this.Size = jsonObject.Size;
-  	this.RotationDirection = jsonObject.RotationDirection;
-  	this.RotationVelocity = jsonObject.RotationVelocity;
   	this.Fuel = jsonObject.Fuel;
 
   	this.MissileLaunchOffset = jsonObject.MissileLaunchOffset;

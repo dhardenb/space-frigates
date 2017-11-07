@@ -12,8 +12,6 @@ Particle.prototype.init = function(sourceObject) {
   	this.Heading = Math.random() * 360;
   	this.Velocity = Math.random() * 100;
   	this.Size = 2.0;
-  	this.RotationDirection = "None";
-  	this.RotationVelocity = 0;
   	this.Fuel = Math.random() * 0.5;
 
 }
@@ -28,8 +26,6 @@ Particle.prototype.copy = function(jsonObject) {
     this.Heading = jsonObject.Heading;
     this.Velocity = jsonObject.Velocity;
     this.Size = jsonObject.Size;
-    this.RotationDirection = jsonObject.RotationDirection;
-    this.RotationVelocity = jsonObject.RotationVelocity;
     this.Fuel = jsonObject.Fuel;
 
 }

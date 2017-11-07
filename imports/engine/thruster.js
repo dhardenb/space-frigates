@@ -11,8 +11,6 @@ Thruster.prototype.init = function(sourceObject) {
     this.Facing = sourceObject.Facing;
     this.Heading = sourceObject.Heading;
     this.Velocity = sourceObject.Velocity;
-    this.RotationDirection = "None";
-    this.RotationVelocity = 0;
     this.Size = 6.0;
     this.Fuel = 0.1;
 
@@ -33,8 +31,6 @@ Thruster.prototype.copy = function(jsonObject) {
     this.Facing = jsonObject.Facing;
     this.Heading = jsonObject.Heading;
     this.Velocity = jsonObject.Velocity;
-    this.RotationDirection = jsonObject.RotationDirection;
-    this.RotationVelocity = jsonObject.RotationVelocity;
     this.Size = jsonObject.Size;
     this.Fuel = jsonObject.Fuel;
 

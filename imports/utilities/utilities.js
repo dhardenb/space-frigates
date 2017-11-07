@@ -73,9 +73,15 @@ function packGameState(unpackedGameState) {
 
         packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
 
-        packedGameState[1][i].push(unpackedGameState.gameState[i].RotationDirection);
+        if (unpackedGameState.gameState[i].Type == 'Human' ||
+            unpackedGameState.gameState[i].Type == 'Alpha' ||
+            unpackedGameState.gameState[i].Type == 'Bravo') {
 
-        packedGameState[1][i].push(unpackedGameState.gameState[i].RotationVelocity);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].RotationDirection);
+
+            packedGameState[1][i].push(unpackedGameState.gameState[i].RotationVelocity);
+
+        }
 
         if (unpackedGameState.gameState[i].Type == 'Missile') {
 
@@ -151,23 +157,31 @@ function unpackGameState(packedGameState) {
 
         unpackedGameState.gameState[i].Velocity = packedGameState[1][i][8];
 
-        unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][9];
+        if (packedGameState[1][i][1] == 'Human' ||
+            packedGameState[1][i][1] ==  'Alpha' ||
+            packedGameState[1][i][1] ==  'Bravo') {
 
-        unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][10];
+            unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][9];
+
+            unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][10];
+
+        }
+
+
 
         if (packedGameState[1][i][1] == 'Missle') {
 
-            unpackedGameState.gameState[i].MissleLaunchOffset = packedGameState[1][i][11];
+            unpackedGameState.gameState[i].MissleLaunchOffset = packedGameState[1][i][9];
 
-            unpackedGameState.gameState[i].intialVelocity = packedGameState[1][i][12];
+            unpackedGameState.gameState[i].intialVelocity = packedGameState[1][i][10];
 
         }
 
         if (packedGameState[1][i][1] == 'Thruster') {
 
-            unpackedGameState.gameState[i].ThrusterOffset = packedGameState[1][i][11];
+            unpackedGameState.gameState[i].ThrusterOffset = packedGameState[1][i][9];
 
-            unpackedGameState.gameState[i].intialVelocity = packedGameState[1][i][12];
+            unpackedGameState.gameState[i].intialVelocity = packedGameState[1][i][10];
 
         }
 
