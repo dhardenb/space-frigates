@@ -1,17 +1,19 @@
 Particle = function Particle() {
 
+    this.Type = "Particle";
+    this.Facing = 0;
+    this.Size = 2.0;
+    this.fuelConsumptionRate = 1;
+
 }
 
 Particle.prototype.init = function(sourceObject) {
 
     this.Id = engine.getNextGameObjectId();
-  	this.Type = "Particle";
   	this.LocationX = sourceObject.LocationX;
   	this.LocationY = sourceObject.LocationY;
-  	this.Facing = 0;
   	this.Heading = Math.random() * 360;
   	this.Velocity = Math.random() * 100;
-  	this.Size = 2.0;
   	this.Fuel = Math.random() * 0.5;
 
 }
@@ -19,20 +21,17 @@ Particle.prototype.init = function(sourceObject) {
 Particle.prototype.copy = function(jsonObject) {
 
     this.Id = jsonObject.Id;
-    this.Type = jsonObject.Type;
     this.LocationX = jsonObject.LocationX;
     this.LocationY = jsonObject.LocationY;
-    this.Facing = jsonObject.Facing;
     this.Heading = jsonObject.Heading;
     this.Velocity = jsonObject.Velocity;
-    this.Size = jsonObject.Size;
     this.Fuel = jsonObject.Fuel;
 
 }
 
 Particle.prototype.update = function() {
 
-    this.Fuel = this.Fuel - 1 / framesPerSecond;
+    this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
 
     physics.moveObjectAlongVector(this);
 

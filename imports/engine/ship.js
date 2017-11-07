@@ -1,5 +1,8 @@
 Ship = function Ship() {
 
+    this.Size = 8.0;
+    this.Fuel = 1;
+
 }
 
 Ship.prototype.init = function(shipType) {
@@ -11,10 +14,8 @@ Ship.prototype.init = function(shipType) {
   	this.Facing = 0;
   	this.Heading = 0;
   	this.Velocity = 0;
-  	this.Size = 8.0;
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
-  	this.Fuel = 1;
 
 }
 
@@ -27,10 +28,8 @@ Ship.prototype.copy = function(jsonObject) {
   	this.Facing = jsonObject.Facing;
   	this.Heading = jsonObject.Heading;
   	this.Velocity = jsonObject.Velocity;
-  	this.Size = jsonObject.Size;
   	this.RotationDirection = jsonObject.RotationDirection;
   	this.RotationVelocity = jsonObject.RotationVelocity;
-  	this.Fuel = jsonObject.Fuel;
 
 }
 
