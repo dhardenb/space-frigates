@@ -1,8 +1,10 @@
-Particle = function Particle(sourceObject, jsonObject) {
+Particle = function Particle() {
 
-  if (sourceObject) {
+}
 
-    this.Id = gameObjectId;
+Particle.prototype.init = function(sourceObject) {
+
+    this.Id = engine.getNextGameObjectId();
   	this.Type = "Particle";
   	this.LocationX = sourceObject.LocationX;
   	this.LocationY = sourceObject.LocationY;
@@ -12,22 +14,24 @@ Particle = function Particle(sourceObject, jsonObject) {
   	this.Size = 2.0;
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
-
-    // Last on average about 1 seconds. I make it random because when the
-    // particles have different life spans the effect is much more realistic
-    // than if they all just burn out at the same rate.
   	this.Fuel = Math.random() * 0.5;
 
-    // I adjust the vector of the particle based on what is exploding. This
-    // creates the cool affect of the explosion kind of moving with the
-    // enertia of the source object.
-  	// physics.findNewVelocity(this, sourceObject.Heading, sourceObject.Velocity);
-  }
-  else {
-    for (var prop in jsonObject) this[prop] = jsonObject[prop];
-  }
+}
 
-	gameObjectId++;
+Particle.prototype.copy = function(jsonObject) {
+
+    this.Id = jsonObject.Id;
+    this.Type = jsonObject.Type;
+    this.LocationX = jsonObject.LocationX;
+    this.LocationY = jsonObject.LocationY;
+    this.Facing = jsonObject.Facing;
+    this.Heading = jsonObject.Heading;
+    this.Velocity = jsonObject.Velocity;
+    this.Size = jsonObject.Size;
+    this.RotationDirection = jsonObject.RotationDirection;
+    this.RotationVelocity = jsonObject.RotationVelocity;
+    this.Fuel = jsonObject.Fuel;
+
 }
 
 Particle.prototype.update = function() {

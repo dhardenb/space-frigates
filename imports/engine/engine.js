@@ -12,6 +12,16 @@ Engine = function Engine() {
 
 }
 
+Engine.prototype.getNextGameObjectId = function() {
+
+    var nextGameObjectId = gameObjectId;
+
+    gameObjectId++;
+
+    return nextGameObjectId;
+
+}
+
 Engine.prototype.update = function () {
 
   // Can't pre calculate the length of the array because some of the command create new objects
@@ -65,10 +75,17 @@ Engine.prototype.collisionDetection = function () {
 }
 
 Engine.prototype.createExplosion = function (sourceGameObject) {
-  for (var i = 0; i < explosionSize; i++) {
-    var newParticle = new Particle(sourceGameObject);
-    gameObjects.push(newParticle);
-  }
+
+    for (var i = 0; i < explosionSize; i++) {
+
+        var newParticle = new Particle();
+
+        newParticle.init(sourceGameObject);
+
+        gameObjects.push(newParticle);
+
+    }
+
 }
 
 Engine.prototype.fuelDetection = function () {
@@ -125,39 +142,45 @@ Engine.prototype.convertObjects = function (remoteGameObjects) {
 
     for (var x = 0, y = remoteGameObjects.length; x < y; x++) {
 
-        if (remoteGameObjects[x].Type == 'Human') {
+        if (remoteGameObjects[x].Type == 'Human' ||
+            remoteGameObjects[x].Type == 'Alpha' ||
+            remoteGameObjects[x].Type == 'Bravo') {
 
-            convertedObjects.push(new Ship('Human', remoteGameObjects[x]));
+            var newShip = new Ship();
 
-        }
+            newShip.copy(remoteGameObjects[x]);
 
-        else if (remoteGameObjects[x].Type == 'Alpha') {
-
-            convertedObjects.push(new Ship('Alpha', remoteGameObjects[x]));
-
-        }
-
-        else if (remoteGameObjects[x].Type == 'Bravo') {
-
-            convertedObjects.push(new Ship('Bravo', remoteGameObjects[x]));
+            convertedObjects.push(newShip);
 
         }
 
         else if (remoteGameObjects[x].Type == 'Thruster') {
 
-            convertedObjects.push(new Thruster(null, remoteGameObjects[x]));
+            var newThruster = new Thruster();
+
+            newThruster.copy(remoteGameObjects[x]);
+
+            convertedObjects.push(newThruster);
 
         }
 
         else if (remoteGameObjects[x].Type == 'Missile') {
 
-            convertedObjects.push(new Missile(null, remoteGameObjects[x]));
+            var newMissle = new Missile();
+
+            newMissle.copy(remoteGameObjects[x]);
+
+            convertedObjects.push(newMissle);
 
         }
 
         else if (remoteGameObjects[x].Type == 'Particle') {
 
-            convertedObjects.push(new Particle(null, remoteGameObjects[x]));
+            var newParticle = new Particle();
+
+            newParticle.copy(remoteGameObjects[x]);
+
+            convertedObjects.push(newParticle);
 
         }
 

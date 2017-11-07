@@ -1,29 +1,56 @@
-Thruster = function Thruster(sourceObject, jsonObject) {
-  if (sourceObject) {
-  	this.Id = gameObjectId;
-  	this.Type = "Thruster";
-  	this.LocationX = sourceObject.LocationX;
-  	this.LocationY = sourceObject.LocationY;
-  	this.Facing = sourceObject.Facing;
-  	this.Heading = sourceObject.Heading;
-  	this.Velocity = sourceObject.Velocity;
-  	this.RotationDirection = "None";
-  	this.RotationVelocity = 0;
-  	this.Size = 6.0;
-  	this.Fuel = 0.1;
+Thruster = function Thruster() {
 
-  	this.ThrusterOffset = 2.0;
-  	this.initialVelocity = 0;
+}
+
+Thruster.prototype.init = function(sourceObject) {
+
+    this.Id = engine.getNextGameObjectId;
+    this.Type = "Thruster";
+    this.LocationX = sourceObject.LocationX;
+    this.LocationY = sourceObject.LocationY;
+    this.Facing = sourceObject.Facing;
+    this.Heading = sourceObject.Heading;
+    this.Velocity = sourceObject.Velocity;
+    this.RotationDirection = "None";
+    this.RotationVelocity = 0;
+    this.Size = 6.0;
+    this.Fuel = 0.1;
+
+    this.ThrusterOffset = 2.0;
+    this.initialVelocity = 0;
 
     this.calclulateInitialPosition(sourceObject);
-  	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
-  }
-  else {
-    for (var prop in jsonObject) this[prop] = jsonObject[prop];
-  }
+    physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
 
-	gameObjectId++;
 }
+
+Thruster.prototype.copy = function(jsonObject) {
+
+    this.Id = jsonObject.Id;
+    this.Type = jsonObject.Type;
+    this.LocationX = jsonObject.LocationX;
+    this.LocationY = jsonObject.LocationY;
+    this.Facing = jsonObject.Facing;
+    this.Heading = jsonObject.Heading;
+    this.Velocity = jsonObject.Velocity;
+    this.RotationDirection = jsonObject.RotationDirection;
+    this.RotationVelocity = jsonObject.RotationVelocity;
+    this.Size = jsonObject.Size;
+    this.Fuel = jsonObject.Fuel;
+
+    this.ThrusterOffset = jsonObject.ThrusterOffset;
+    this.initialVelocity = jsonObject.initialVelocity;
+
+}
+
+Thruster.prototype.update = function() {
+
+    this.Fuel = this.Fuel - 1 / framesPerSecond;
+
+	physics.moveObjectAlongVector(this);
+
+}
+
 
 Thruster.prototype.calclulateInitialPosition = function(sourceObject) {
 
@@ -63,12 +90,4 @@ Thruster.prototype.calclulateInitialPosition = function(sourceObject) {
     	this.LocationX = this.LocationX + (sourceObject.Size / 2 + this.Size / 2 + this.ThrusterOffset)*(Math.sin((360 - sourceObject.Facing) * 0.0174532925));
     	this.LocationY = this.LocationY + (sourceObject.Size / 2 + this.Size / 2 + this.ThrusterOffset)*(Math.cos((360 - sourceObject.Facing) * 0.0174532925));
     }
-}
-
-Thruster.prototype.update = function() {
-
-    this.Fuel = this.Fuel - 1 / framesPerSecond;
-
-	physics.moveObjectAlongVector(this);
-
 }

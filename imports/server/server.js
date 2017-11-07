@@ -107,7 +107,9 @@ Meteor.methods({
 
     createNewPlayerShip: function() {
 
-        var playerShip = new Ship('Human');
+        var playerShip = new Ship();
+
+        playerShip.init('Human');
 
         playerShip.setStartingHumanPosition();
 

@@ -1,31 +1,37 @@
-Ship = function Ship(shipType, obj) {
+Ship = function Ship() {
 
-  this.Id = gameObjectId;
-  this.Type = shipType;
-	this.LocationX = 0;
-	this.LocationY = 0;
-	this.Facing = 0;
-	this.Heading = 0;
-	this.Velocity = 0;
-	this.Size = 8.0;
-	this.RotationDirection = "None";
-	this.RotationVelocity = 0;
-	this.Fuel = 1; // Must be at least 1 or object gets removed during collision detection!
+}
 
-  // This line of code should read the raw object IF passed in and map the
-  // properties to the properties of this object.
-  //
-  // The reason I am doing this is because when I get objects back from the
-  // server they come as plain JSON objects and the client has no idea what
-  // prototype they should be. So, I can create the proper object on the client
-  // by create a new object and passing in the raw JSON object. Then, this line
-  // of code should map those generic properties to this object's properties.
-  //
-  // Existing code that calls this constructor and doesn't pass in an obj should
-  // continue to work just fine.
-  for (var prop in obj) this[prop] = obj[prop];
+Ship.prototype.init = function(shipType) {
 
-	gameObjectId++;
+    this.Id = engine.getNextGameObjectId();
+    this.Type = shipType;
+  	this.LocationX = 0;
+  	this.LocationY = 0;
+  	this.Facing = 0;
+  	this.Heading = 0;
+  	this.Velocity = 0;
+  	this.Size = 8.0;
+  	this.RotationDirection = "None";
+  	this.RotationVelocity = 0;
+  	this.Fuel = 1;
+
+}
+
+Ship.prototype.copy = function(jsonObject) {
+
+    this.Id = jsonObject.Id;
+    this.Type = jsonObject.Type;
+  	this.LocationX = jsonObject.LocationX;
+  	this.LocationY = jsonObject.LocationY;
+  	this.Facing = jsonObject.Facing;
+  	this.Heading = jsonObject.Heading;
+  	this.Velocity = jsonObject.Velocity;
+  	this.Size = jsonObject.Size;
+  	this.RotationDirection = jsonObject.RotationDirection;
+  	this.RotationVelocity = jsonObject.RotationVelocity;
+  	this.Fuel = jsonObject.Fuel;
+
 }
 
 Ship.prototype.update = function() {
@@ -181,7 +187,9 @@ Ship.prototype.processShipCommand = function(command) {
     switch (command) {
 
         case 0: // Fire
-            gameObjects.push(new Missile(this));
+            var newMissile = new Missile();
+            newMissile.init(this);
+            gameObjects.push(newMissile);
             break;
         case 3: // Rotate Right
             if (this.RotationDirection == 'None') {
@@ -223,7 +231,11 @@ Ship.prototype.processShipCommand = function(command) {
 
                 physics.findNewVelocity(this, this.Facing, 20);
 
-                gameObjects.push(new Thruster(this));
+                var newThruster = new Thruster();
+
+                newThruster.init(this);
+
+                gameObjects.push(newThruster);
 
             }
 

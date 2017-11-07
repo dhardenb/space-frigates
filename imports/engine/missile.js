@@ -1,6 +1,10 @@
-Missile = function Missile(sourceObject, jsonObject) {
-  if (sourceObject) {
-    this.Id = gameObjectId;
+Missile = function Missile() {
+
+}
+
+Missile.prototype.init = function(sourceObject) {
+
+    this.Id = engine.getNextGameObjectId();
   	this.Type = "Missile";
   	this.LocationX = sourceObject.LocationX;
   	this.LocationY = sourceObject.LocationY;
@@ -10,19 +14,41 @@ Missile = function Missile(sourceObject, jsonObject) {
   	this.Size = 3.0;
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
-  	this.Fuel = 3; // Missle should last for about 3 seconds
+  	this.Fuel = 3;
 
   	this.MissileLaunchOffset = 1.0;
   	this.initialVelocity = 100;
 
   	this.calclulateInitialPosition(sourceObject);
   	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
-  }
-  else {
-    for (var prop in jsonObject) this[prop] = jsonObject[prop];
-  }
 
-	gameObjectId++;
+}
+
+Missile.prototype.copy = function(jsonObject) {
+
+    this.Id = jsonObject.Id;
+  	this.Type = jsonObject.Type;
+  	this.LocationX = jsonObject.LocationX;
+  	this.LocationY = jsonObject.LocationY;
+  	this.Facing = jsonObject.Facing;
+  	this.Heading = jsonObject.Heading;
+  	this.Velocity = jsonObject.Velocity;
+  	this.Size = jsonObject.Size;
+  	this.RotationDirection = jsonObject.RotationDirection;
+  	this.RotationVelocity = jsonObject.RotationVelocity;
+  	this.Fuel = jsonObject.Fuel;
+
+  	this.MissileLaunchOffset = jsonObject.MissileLaunchOffset;
+  	this.initialVelocity = jsonObject.initialVelocity;
+
+}
+
+Missile.prototype.update = function() {
+
+	this.Fuel = this.Fuel - 1 / framesPerSecond;
+
+	physics.moveObjectAlongVector(this);
+
 }
 
 Missile.prototype.calclulateInitialPosition = function(sourceObject) {
@@ -64,12 +90,4 @@ Missile.prototype.calclulateInitialPosition = function(sourceObject) {
     	this.LocationX = this.LocationX - (sourceObject.Size / 2 + this.Size / 2 + this.MissileLaunchOffset)*(Math.sin((360 - sourceObject.Facing) * 0.0174532925));
     	this.LocationY = this.LocationY - (sourceObject.Size / 2 + this.Size / 2 + this.MissileLaunchOffset)*(Math.cos((360 - sourceObject.Facing) * 0.0174532925));
     }
-}
-
-Missile.prototype.update = function() {
-
-	this.Fuel = this.Fuel - 1 / framesPerSecond;
-
-	physics.moveObjectAlongVector(this);
-
 }
