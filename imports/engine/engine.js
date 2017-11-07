@@ -155,33 +155,13 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
 
         }
 
-        else if (remoteGameObjects[x].Type == 'Thruster') {
-
-            var newThruster = new Thruster();
-
-            newThruster.copy(remoteGameObjects[x]);
-
-            convertedObjects.push(newThruster);
-
-        }
-
         else if (remoteGameObjects[x].Type == 'Missile') {
 
-            var newMissle = new Missile();
+            var newMissile = new Missile();
 
-            newMissle.copy(remoteGameObjects[x]);
+            newMissile.copy(remoteGameObjects[x]);
 
-            convertedObjects.push(newMissle);
-
-        }
-
-        else if (remoteGameObjects[x].Type == 'Particle') {
-
-            var newParticle = new Particle();
-
-            newParticle.copy(remoteGameObjects[x]);
-
-            convertedObjects.push(newParticle);
+            convertedObjects.push(newMissile);
 
         }
 

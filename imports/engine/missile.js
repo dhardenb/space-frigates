@@ -6,7 +6,6 @@ Missile = function Missile() {
   	this.initialVelocity = 100;
     this.fuelConsumptionRate = 1;
     this.Velocity = 0;
-  	this.Fuel = 3;
 
 }
 
@@ -17,6 +16,7 @@ Missile.prototype.init = function(sourceObject) {
   	this.LocationY = sourceObject.LocationY;
   	this.Facing = sourceObject.Facing;
   	this.Heading = sourceObject.Heading;
+    this.Fuel = 3;
 
   	this.calclulateInitialPosition(sourceObject);
   	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
