@@ -1,8 +1,6 @@
 
 Ai = function Ai() {
 
-    mapRadius = 500;
-
 }
 
 Ai.prototype.createNewShip = function() {

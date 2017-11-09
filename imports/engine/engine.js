@@ -9,6 +9,8 @@ Engine = function Engine() {
 
   physics = new Physics();
 
+  mapRadius = Meteor.settings.public.mapRadius;
+
   explosionSize = 20;
 
 }
