@@ -7,7 +7,7 @@ Renderer = function Renderer() {
 
     availableHeight = 0;
 
-    background = null;
+    stars = [];
 
     shipPath = new Path2D("M -0.1 -0.5 L 0.1 -0.5 L 0.1 -0.2 L 0.2 -0.1 L 0.2 0.1 L 0.4 0.3 L 0.4 0.4 L 0.2 0.4 L 0.2 0.5 L -0.2 0.5 L -0.2 0.4 L -0.4 0.4 L -0.4 0.3 L -0.2 0.1 L -0.2 -0.1 L -0.1 -0.2 Z");
 
@@ -18,8 +18,6 @@ Renderer = function Renderer() {
     version = Meteor.settings.public.version;
 
     this.getWindowInformation();
-
-    this.setupBackgroundCanvas();
 
     this.setupMapCanvas();
 
@@ -39,18 +37,6 @@ Renderer.prototype.getWindowInformation = function() {
 
 }
 
-Renderer.prototype.setupBackgroundCanvas = function() {
-
-    background = document.getElementById("background").getContext('2d');
-
-    background.canvas.width  = availableWidth;
-
-    background.canvas.height = availableHeight;
-
-    this.renderStars();
-
-}
-
 Renderer.prototype.setupMapCanvas = function() {
 
     map = document.getElementById("map").getContext('2d');
@@ -63,35 +49,21 @@ Renderer.prototype.setupMapCanvas = function() {
 
     focalY = 0;
 
+    this.createStars();
+
 }
 
-Renderer.prototype.renderStars = function() {
+Renderer.prototype.createStars = function() {
 
-    for (var x = 0; x < availableWidth; x++) {
+    for (var x = 0-mapRadius*2; x < mapRadius*2; x++) {
 
-        for (var y = 0; y < availableHeight; y++) {
+        for (var y = 0-mapRadius*2; y < mapRadius*2; y++) {
 
             if (Math.floor((Math.random()*1000)+1) == 1) {
 
-                this.renderStar(x, y, Math.random());
+                stars.push(new Star(x, y, Math.random()));
 
             }
-
-        }
-
-    }
-
-}
-
-Renderer.prototype.calculateOffset = function () {
-
-    for (var x = 0, y = gameObjects.length; x < y; x++) {
-
-        if (gameObjects[x].Id == playerShipId) {
-
-            focalX = -gameObjects[x].LocationX * pixelsPerMeter;
-
-            focalY = -gameObjects[x].LocationY * pixelsPerMeter;
 
         }
 
@@ -108,6 +80,12 @@ Renderer.prototype.renderMap = function () {
     this.calculateOffset();
 
     map.translate(availableWidth / 2 + focalX, availableHeight / 2 + focalY);
+
+    for (let x=0, y=stars.length; x<y; x++) {
+
+        this.renderStar(stars[x]);
+
+    }
 
     this.renderBoundry();
 
@@ -153,87 +131,35 @@ Renderer.prototype.renderMap = function () {
 
 }
 
-Renderer.prototype.renderStar = function (x, y, alpha) {
+Renderer.prototype.calculateOffset = function () {
 
-    background.save();
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
 
-    background.translate(x, y);
+        if (gameObjects[x].Id == playerShipId) {
 
-    background.beginPath();
+            focalX = -gameObjects[x].LocationX * pixelsPerMeter;
 
-    background.arc(0, 0, 1, 0, 2 * Math.PI);
+            focalY = -gameObjects[x].LocationY * pixelsPerMeter;
 
-    background.fillStyle = "rgba(255, 255, 255," + alpha + ")";
+        }
 
-    background.fill();
-
-    background.restore();
+    }
 
 }
 
-Renderer.prototype.renderTitle = function () {
+Renderer.prototype.renderStar = function (star) {
 
     map.save();
 
-    map.strokeStyle = "yellow";
+    map.translate(star.x * pixelsPerMeter, star.y * pixelsPerMeter);
 
-    map.font = "60px Arial";
+    map.beginPath();
 
-    map.translate(availableWidth / 2 - map.measureText("Space Frigates").width / 2, 50);
+    map.arc(0, 0, 0.25 * pixelsPerMeter, 0, 2 * Math.PI);
 
-    map.strokeText("Space Frigates", 0, 0);
+    map.fillStyle = "rgba(255, 255, 255," + star.alpha + ")";
 
-    map.restore();
-
-}
-
-Renderer.prototype.renderVersion = function () {
-
-    map.save();
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(availableWidth - map.measureText("v" + version).width, availableHeight - 10);
-
-    map.fillText("v" + version, 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderInstructions = function () {
-
-    map.save();
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(0, availableHeight - 135);
-
-    map.fillText("ENTER => New Ship", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("W or UP ARROW => Thrust", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("S or DOWN ARROW => Stop", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("SPACEBAR => Fire", 0, 0);
+    map.fill();
 
     map.restore();
 
@@ -252,6 +178,52 @@ Renderer.prototype.renderBoundry = function () {
     map.lineWidth = 5;
 
     map.stroke();
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderShip = function (ship) {
+
+    map.save();
+
+    map.translate(ship.LocationX * pixelsPerMeter, ship.LocationY * pixelsPerMeter);
+
+    map.rotate(ship.Facing * Math.PI / 180);
+
+    map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
+
+    if (ship.Type == 'Human') {
+
+        if (ship.Id == playerShipId) {
+
+            map.strokeStyle = "rgba(0, 255, 0, 1)";
+
+        }
+
+        else {
+
+            map.strokeStyle = "rgba(255, 0, 0, 1)";
+
+        }
+
+    }
+
+    else {
+
+        map.strokeStyle = "rgba(200, 200, 200, 1)";
+
+    }
+
+    map.lineWidth =  0.1;
+
+    map.lineJoin = "round";
+
+    map.stroke(shipPath);
+
+    map.fillStyle = "rgba(0, 0, 0, 1)";
+
+    map.fill(shipPath);
 
     map.restore();
 
@@ -331,48 +303,78 @@ Renderer.prototype.renderMissle = function (missile) {
 
 }
 
-Renderer.prototype.renderShip = function (ship) {
+Renderer.prototype.renderTitle = function () {
 
     map.save();
 
-    map.translate(ship.LocationX * pixelsPerMeter, ship.LocationY * pixelsPerMeter);
+    map.strokeStyle = "yellow";
 
-    map.rotate(ship.Facing * Math.PI / 180);
+    map.font = "60px Arial";
 
-    map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
+    map.translate(availableWidth / 2 - map.measureText("Space Frigates").width / 2, 50);
 
-    if (ship.Type == 'Human') {
-
-        if (ship.Id == playerShipId) {
-
-            map.strokeStyle = "rgba(0, 255, 0, 1)";
-
-        }
-
-        else {
-
-            map.strokeStyle = "rgba(255, 0, 0, 1)";
-
-        }
-
-    }
-
-    else {
-
-        map.strokeStyle = "rgba(200, 200, 200, 1)";
-
-    }
-
-    map.lineWidth =  0.1;
-
-    map.lineJoin = "round";
-
-    map.stroke(shipPath);
-
-    map.fillStyle = "rgba(0, 0, 0, 1)";
-
-    map.fill(shipPath);
+    map.strokeText("Space Frigates", 0, 0);
 
     map.restore();
+
+}
+
+Renderer.prototype.renderVersion = function () {
+
+    map.save();
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(availableWidth - map.measureText("v" + version).width, availableHeight - 10);
+
+    map.fillText("v" + version, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderInstructions = function () {
+
+    map.save();
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(0, availableHeight - 135);
+
+    map.fillText("ENTER => New Ship", 0, 0);
+
+    map.translate(0, 25);
+
+    map.fillText("W or UP ARROW => Thrust", 0, 0);
+
+    map.translate(0, 25);
+
+    map.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
+
+    map.translate(0, 25);
+
+    map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
+
+    map.translate(0, 25);
+
+    map.fillText("S or DOWN ARROW => Stop", 0, 0);
+
+    map.translate(0, 25);
+
+    map.fillText("SPACEBAR => Fire", 0, 0);
+
+    map.restore();
+
+}
+
+Star = function Star(x, y, alpha) {
+
+  this.x = x;
+  this.y = y;
+  this.alpha = alpha;
 
 }
