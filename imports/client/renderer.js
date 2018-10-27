@@ -49,12 +49,6 @@ Renderer.prototype.setupBackgroundCanvas = function() {
 
     this.renderStars();
 
-    this.renderTitle();
-
-    this.renderVersion();
-
-    this.renderInstructions();
-
 }
 
 Renderer.prototype.setupMapCanvas = function() {
@@ -105,7 +99,6 @@ Renderer.prototype.calculateOffset = function () {
 
 }
 
-
 Renderer.prototype.renderMap = function () {
 
     map.clearRect(0, 0, availableWidth, availableHeight);
@@ -148,6 +141,16 @@ Renderer.prototype.renderMap = function () {
 
     map.restore();
 
+    map.save();
+
+    this.renderTitle();
+
+    this.renderVersion();
+
+    this.renderInstructions();
+
+    map.restore();
+
 }
 
 Renderer.prototype.renderStar = function (x, y, alpha) {
@@ -170,69 +173,69 @@ Renderer.prototype.renderStar = function (x, y, alpha) {
 
 Renderer.prototype.renderTitle = function () {
 
-    background.save();
+    map.save();
 
-    background.strokeStyle = "yellow";
+    map.strokeStyle = "yellow";
 
-    background.font = "60px Arial";
+    map.font = "60px Arial";
 
-    background.translate(availableWidth / 2 - background.measureText("Space Frigates").width / 2, 50);
+    map.translate(availableWidth / 2 - map.measureText("Space Frigates").width / 2, 50);
 
-    background.strokeText("Space Frigates", 0, 0);
+    map.strokeText("Space Frigates", 0, 0);
 
-    background.restore();
+    map.restore();
 
 }
 
 Renderer.prototype.renderVersion = function () {
 
-    background.save();
+    map.save();
 
-    background.fillStyle = "yellow";
+    map.fillStyle = "yellow";
 
-    background.font = "20px Arial";
+    map.font = "20px Arial";
 
-    background.translate(availableWidth - background.measureText("v" + version).width, availableHeight - 10);
+    map.translate(availableWidth - map.measureText("v" + version).width, availableHeight - 10);
 
-    background.fillText("v" + version, 0, 0);
+    map.fillText("v" + version, 0, 0);
 
-    background.restore();
+    map.restore();
 
 }
 
 Renderer.prototype.renderInstructions = function () {
 
-    background.save();
+    map.save();
 
-    background.fillStyle = "yellow";
+    map.fillStyle = "yellow";
 
-    background.font = "20px Arial";
+    map.font = "20px Arial";
 
-    background.translate(0, availableHeight - 135);
+    map.translate(0, availableHeight - 135);
 
-    background.fillText("ENTER => New Ship", 0, 0);
+    map.fillText("ENTER => New Ship", 0, 0);
 
-    background.translate(0, 25);
+    map.translate(0, 25);
 
-    background.fillText("W or UP ARROW => Thrust", 0, 0);
+    map.fillText("W or UP ARROW => Thrust", 0, 0);
 
-    background.translate(0, 25);
+    map.translate(0, 25);
 
-    background.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
+    map.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
 
-    background.translate(0, 25);
+    map.translate(0, 25);
 
-    background.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
+    map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
 
-    background.translate(0, 25);
+    map.translate(0, 25);
 
-    background.fillText("S or DOWN ARROW => Stop", 0, 0);
+    map.fillText("S or DOWN ARROW => Stop", 0, 0);
 
-    background.translate(0, 25);
+    map.translate(0, 25);
 
-    background.fillText("SPACEBAR => Fire", 0, 0);
+    map.fillText("SPACEBAR => Fire", 0, 0);
 
-    background.restore();
+    map.restore();
 
 }
 
