@@ -353,13 +353,27 @@ Renderer.prototype.renderShipStatus = function () {
 
     map.save();
 
-    map.fillStyle = "yellow";
+    var fuelDisplayValue = Math.floor(ship.Fuel);
+
+    if (fuelDisplayValue > 66) {
+
+        map.fillStyle = "green";
+
+    } else if (fuelDisplayValue > 33) {
+
+        map.fillStyle = "yellow";
+
+    } else {
+
+        map.fillStyle = "red";
+
+    }
 
     map.font = "20px Arial";
 
     map.translate(0, availableHeight - 200);
 
-    map.fillText("FUEL: " + ship.Fuel, 0, 0);
+    map.fillText("FUEL: " + fuelDisplayValue, 0, 0);
 
     map.restore();
 
