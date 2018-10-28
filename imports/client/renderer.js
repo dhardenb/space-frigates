@@ -121,7 +121,9 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
-    this.renderShipStatus();
+    this.renderFuelStatus();
+
+    this.renderShieldStatus();
 
     this.renderTitle();
 
@@ -337,7 +339,7 @@ Renderer.prototype.renderVersion = function () {
 
 }
 
-Renderer.prototype.renderShipStatus = function () {
+Renderer.prototype.renderFuelStatus = function () {
 
     var ship = {};
 
@@ -374,6 +376,48 @@ Renderer.prototype.renderShipStatus = function () {
     map.translate(0, availableHeight - 200);
 
     map.fillText("FUEL: " + fuelDisplayValue, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderShieldStatus = function () {
+
+    var ship = {};
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Id == playerShipId) {
+
+            ship = gameObjects[i];
+
+        }
+
+    }
+
+    map.save();
+
+    var shieldDisplayValue = Math.floor(ship.ShieldStatus);
+
+    if (shieldDisplayValue > 66) {
+
+        map.fillStyle = "green";
+
+    } else if (shieldDisplayValue > 33) {
+
+        map.fillStyle = "yellow";
+
+    } else {
+
+        map.fillStyle = "red";
+
+    }
+
+    map.font = "20px Arial";
+
+    map.translate(0, availableHeight - 180);
+
+    map.fillText("SHIELDS: " + shieldDisplayValue, 0, 0);
 
     map.restore();
 
