@@ -68,6 +68,7 @@ function packGameState(unpackedGameState) {
 
             packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
             packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
             packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
@@ -137,13 +138,14 @@ function unpackGameState(packedGameState) {
 
             unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
             unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][2];
-            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][3];
-            unpackedGameState.gameState[i].Facing = packedGameState[1][i][4];
-            unpackedGameState.gameState[i].Heading = packedGameState[1][i][5];
-            unpackedGameState.gameState[i].Velocity = packedGameState[1][i][6];
-            unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][7];
-            unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][8];
+            unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
+            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
+            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
+            unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
+            unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
+            unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
+            unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][8];
+            unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][9];
 
         }
 
