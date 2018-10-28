@@ -121,6 +121,8 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
+    this.renderShipStatus();
+
     this.renderTitle();
 
     this.renderVersion();
@@ -330,6 +332,34 @@ Renderer.prototype.renderVersion = function () {
     map.translate(availableWidth - map.measureText("v" + version).width, availableHeight - 10);
 
     map.fillText("v" + version, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderShipStatus = function () {
+
+    var ship = {};
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Id == playerShipId) {
+
+            ship = gameObjects[i];
+
+        }
+
+    }
+
+    map.save();
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(0, availableHeight - 200);
+
+    map.fillText("FUEL: " + ship.Fuel, 0, 0);
 
     map.restore();
 

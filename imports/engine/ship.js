@@ -1,7 +1,6 @@
 Ship = function Ship() {
 
     this.Size = 8.0;
-    this.Fuel = 1;
 
 }
 
@@ -9,6 +8,7 @@ Ship.prototype.init = function(shipType) {
 
     this.Id = engine.getNextGameObjectId();
     this.Type = shipType;
+    this.Fuel = 100;
   	this.LocationX = 0;
   	this.LocationY = 0;
   	this.Facing = 0;
@@ -23,6 +23,7 @@ Ship.prototype.copy = function(jsonObject) {
 
     this.Id = jsonObject.Id;
     this.Type = jsonObject.Type;
+    this.Fuel = jsonObject.Fuel;
   	this.LocationX = jsonObject.LocationX;
   	this.LocationY = jsonObject.LocationY;
   	this.Facing = jsonObject.Facing;
