@@ -201,6 +201,44 @@ Renderer.prototype.renderShip = function (ship) {
 
         if (ship.Id == playerShipId) {
 
+            map.strokeStyle = "rgba(0, 255, 0, 0.5)";
+
+        }
+
+        else {
+
+            map.strokeStyle = "rgba(255, 0, 0, 0.5)";
+
+        }
+
+    }
+
+    else {
+
+        map.strokeStyle = "rgba(200, 200, 200, 0.5)";
+
+    }
+
+    if (ship.ShieldOn) {
+
+        map.beginPath();
+
+        map.arc(0, 0, 1, 0, 2 * Math.PI);
+
+        map.lineWidth =  0.05;
+
+        map.stroke();
+
+        map.fillStyle = "rgba(0, 255, 0, 0.25)";
+
+        map.fill();
+
+    }
+
+    if (ship.Type == 'Human') {
+
+        if (ship.Id == playerShipId) {
+
             map.strokeStyle = "rgba(0, 255, 0, 1)";
 
         }
@@ -384,6 +422,7 @@ Renderer.prototype.renderFuelStatus = function () {
 Renderer.prototype.renderShieldStatus = function () {
 
     var ship = {};
+    var shieldDisplayValue;
 
     for (var i=0, j=gameObjects.length; i<j; i++) {
 
@@ -397,19 +436,28 @@ Renderer.prototype.renderShieldStatus = function () {
 
     map.save();
 
-    var shieldDisplayValue = Math.floor(ship.ShieldStatus);
+    if (ship.ShieldOn == 1 || ship.ShieldStatus > 0) {
 
-    if (shieldDisplayValue > 66) {
+        shieldDisplayValue = Math.floor(ship.ShieldStatus);
 
-        map.fillStyle = "green";
+        if (shieldDisplayValue > 66) {
 
-    } else if (shieldDisplayValue > 33) {
+            map.fillStyle = "green";
 
-        map.fillStyle = "yellow";
+        } else if (shieldDisplayValue > 33) {
+
+            map.fillStyle = "yellow";
+
+        } else {
+
+            map.fillStyle = "red";
+
+        }
 
     } else {
 
-        map.fillStyle = "red";
+        map.fillStyle = "gray";
+        shieldDisplayValue = "OFF";
 
     }
 
