@@ -84,14 +84,14 @@ Ship.prototype.update = function() {
 
     if (this.ShieldOn == 1) {
 
-        if (this.ShieldStatus <= 99.75 && this.Fuel >= 0.5) {
+        if (this.ShieldStatus <= 99.75 && this.Fuel >= 0.25) {
 
             this.ShieldStatus = this.ShieldStatus + 0.25;
-            this.Fuel = this.Fuel - 0.5;
-
-        } else if (this.ShieldStatus == 100 && this.Fuel >= 0.25) {
-
             this.Fuel = this.Fuel - 0.25;
+
+        } else if (this.ShieldStatus == 100 && this.Fuel >= 0.125) {
+
+            this.Fuel = this.Fuel - 0.125;
 
         }
 
@@ -225,8 +225,6 @@ Ship.prototype.processShipCommand = function(command) {
                 this.ShieldOn = 1;
 
             } else {
-
-                console.log("Turn On!");
 
                 this.ShieldOn = 0;
 

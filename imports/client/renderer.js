@@ -219,7 +219,7 @@ Renderer.prototype.renderShip = function (ship) {
 
     }
 
-    if (ship.ShieldOn) {
+    if (ship.ShieldStatus > 0) {
 
         map.beginPath();
 
@@ -229,7 +229,7 @@ Renderer.prototype.renderShip = function (ship) {
 
         map.stroke();
 
-        map.fillStyle = "rgba(0, 255, 0, 0.25)";
+        map.fillStyle = "rgba(0, 255, 0, " + ship.ShieldStatus/300 + ")";
 
         map.fill();
 
@@ -411,7 +411,7 @@ Renderer.prototype.renderFuelStatus = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 200);
+    map.translate(0, availableHeight - 275);
 
     map.fillText("FUEL: " + fuelDisplayValue, 0, 0);
 
@@ -434,11 +434,16 @@ Renderer.prototype.renderShieldStatus = function () {
 
     }
 
+    shieldDisplayValue = Math.floor(ship.ShieldStatus);
+
     map.save();
 
-    if (ship.ShieldOn == 1 || ship.ShieldStatus > 0) {
+    if (ship.ShieldOn == 0 && ship.ShieldStatus == 0) {
 
-        shieldDisplayValue = Math.floor(ship.ShieldStatus);
+        map.fillStyle = "gray";
+        shieldDisplayValue = "OFF";
+
+    } else {
 
         if (shieldDisplayValue > 66) {
 
@@ -454,16 +459,11 @@ Renderer.prototype.renderShieldStatus = function () {
 
         }
 
-    } else {
-
-        map.fillStyle = "gray";
-        shieldDisplayValue = "OFF";
-
     }
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 180);
+    map.translate(0, availableHeight - 250);
 
     map.fillText("SHIELDS: " + shieldDisplayValue, 0, 0);
 
@@ -479,7 +479,7 @@ Renderer.prototype.renderInstructions = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 135);
+    map.translate(0, availableHeight - 160);
 
     map.fillText("ENTER => New Ship", 0, 0);
 
@@ -498,6 +498,10 @@ Renderer.prototype.renderInstructions = function () {
     map.translate(0, 25);
 
     map.fillText("S or DOWN ARROW => Stop", 0, 0);
+
+    map.translate(0, 25);
+
+    map.fillText("COMMAND => Toggle Shields", 0, 0);
 
     map.translate(0, 25);
 
