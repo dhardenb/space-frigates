@@ -121,7 +121,9 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
-    this.renderShipStatus();
+    this.renderFuelStatus();
+
+    this.renderShieldStatus();
 
     this.renderTitle();
 
@@ -194,6 +196,44 @@ Renderer.prototype.renderShip = function (ship) {
     map.rotate(ship.Facing * Math.PI / 180);
 
     map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
+
+    if (ship.Type == 'Human') {
+
+        if (ship.Id == playerShipId) {
+
+            map.strokeStyle = "rgba(0, 255, 0, 0.5)";
+
+        }
+
+        else {
+
+            map.strokeStyle = "rgba(255, 0, 0, 0.5)";
+
+        }
+
+    }
+
+    else {
+
+        map.strokeStyle = "rgba(200, 200, 200, 0.5)";
+
+    }
+
+    if (ship.ShieldStatus > 0) {
+
+        map.beginPath();
+
+        map.arc(0, 0, 1, 0, 2 * Math.PI);
+
+        map.lineWidth =  0.05;
+
+        map.stroke();
+
+        map.fillStyle = "rgba(0, 255, 0, " + ship.ShieldStatus/300 + ")";
+
+        map.fill();
+
+    }
 
     if (ship.Type == 'Human') {
 
@@ -337,7 +377,7 @@ Renderer.prototype.renderVersion = function () {
 
 }
 
-Renderer.prototype.renderShipStatus = function () {
+Renderer.prototype.renderFuelStatus = function () {
 
     var ship = {};
 
@@ -371,9 +411,61 @@ Renderer.prototype.renderShipStatus = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 200);
+    map.translate(0, availableHeight - 275);
 
     map.fillText("FUEL: " + fuelDisplayValue, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderShieldStatus = function () {
+
+    var ship = {};
+    var shieldDisplayValue;
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Id == playerShipId) {
+
+            ship = gameObjects[i];
+
+        }
+
+    }
+
+    shieldDisplayValue = Math.floor(ship.ShieldStatus);
+
+    map.save();
+
+    if (ship.ShieldOn == 0 && ship.ShieldStatus == 0) {
+
+        map.fillStyle = "gray";
+        shieldDisplayValue = "OFF";
+
+    } else {
+
+        if (shieldDisplayValue > 66) {
+
+            map.fillStyle = "green";
+
+        } else if (shieldDisplayValue > 33) {
+
+            map.fillStyle = "yellow";
+
+        } else {
+
+            map.fillStyle = "red";
+
+        }
+
+    }
+
+    map.font = "20px Arial";
+
+    map.translate(0, availableHeight - 250);
+
+    map.fillText("SHIELDS: " + shieldDisplayValue, 0, 0);
 
     map.restore();
 
@@ -387,7 +479,7 @@ Renderer.prototype.renderInstructions = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 135);
+    map.translate(0, availableHeight - 160);
 
     map.fillText("ENTER => New Ship", 0, 0);
 
@@ -406,6 +498,10 @@ Renderer.prototype.renderInstructions = function () {
     map.translate(0, 25);
 
     map.fillText("S or DOWN ARROW => Stop", 0, 0);
+
+    map.translate(0, 25);
+
+    map.fillText("COMMAND => Toggle Shields", 0, 0);
 
     map.translate(0, 25);
 

@@ -16,6 +16,8 @@ Ship.prototype.init = function(shipType) {
   	this.Velocity = 0;
   	this.RotationDirection = "None";
   	this.RotationVelocity = 0;
+    this.ShieldOn = 0;
+    this.ShieldStatus = 0;
 
 }
 
@@ -31,6 +33,8 @@ Ship.prototype.copy = function(jsonObject) {
   	this.Velocity = jsonObject.Velocity;
   	this.RotationDirection = jsonObject.RotationDirection;
   	this.RotationVelocity = jsonObject.RotationVelocity;
+    this.ShieldOn = jsonObject.ShieldOn;
+    this.ShieldStatus = jsonObject.ShieldStatus;
 
 }
 
@@ -72,6 +76,39 @@ Ship.prototype.update = function() {
     if (this.Velocity < 0) {
 
         this.Velocity = 0;
+    }
+
+    ///////////////////
+    // Shields
+    ///////////////////
+
+    if (this.ShieldOn == 1) {
+
+        if (this.ShieldStatus <= 99.75 && this.Fuel >= 0.25) {
+
+            this.ShieldStatus = this.ShieldStatus + 0.25;
+            this.Fuel = this.Fuel - 0.25;
+
+        } else if (this.ShieldStatus == 100 && this.Fuel >= 0.125) {
+
+            this.Fuel = this.Fuel - 0.125;
+
+        }
+
+    }
+
+    if (this.ShieldOn == 0) {
+
+        if (this.ShieldStatus >= 0.25) {
+
+            this.ShieldStatus = this.ShieldStatus - 0.25;
+
+        } else {
+
+            this.ShieldStatus = 0;
+
+        }
+
     }
 
     ////////////
@@ -177,6 +214,20 @@ Ship.prototype.processShipCommand = function(command) {
                     }
                 }
                 this.Fuel = this.Fuel - 10;
+            }
+
+            break;
+
+        case 5: // Shields
+
+            if (this.ShieldOn == 0) {
+
+                this.ShieldOn = 1;
+
+            } else {
+
+                this.ShieldOn = 0;
+
             }
 
             break;

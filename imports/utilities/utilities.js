@@ -76,6 +76,8 @@ function packGameState(unpackedGameState) {
             packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
             packedGameState[1][i].push(unpackedGameState.gameState[i].RotationDirection);
             packedGameState[1][i].push(unpackedGameState.gameState[i].RotationVelocity);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].ShieldOn);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].ShieldStatus);
 
         }
 
@@ -146,6 +148,8 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
             unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][8];
             unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][9];
+            unpackedGameState.gameState[i].ShieldOn = packedGameState[1][i][10];
+            unpackedGameState.gameState[i].ShieldStatus = packedGameState[1][i][11];
 
         }
 

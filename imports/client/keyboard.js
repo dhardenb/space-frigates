@@ -55,6 +55,14 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
         client.commandHandler({seqNum: seqNum, command: 4, targetId: playerShipId});
     }
 
+    // COMMAND key - Toggle Shields
+    else if(evt.keyCode==91) {
+
+        evt.preventDefault();
+
+        client.commandHandler({seqNum: seqNum, command: 5, targetId: playerShipId});
+    }
+
     // + Zoom In
     else if(evt.keyCode==187) {
 
