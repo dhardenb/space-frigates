@@ -40,47 +40,195 @@ Ship.prototype.copy = function(jsonObject) {
 
 Ship.prototype.update = function() {
 
+    ///////////////////////////////////////////////////////
+    // Determine Current Command
+    ///////////////////////////////////////////////////////
+    var currentCommand = null;
+
 	for(var x = 0, y = commands.length; x < y; x++) {
 
 	    if (commands[x].targetId == this.Id) {
 
-	    	this.processShipCommand(commands[x].command);
+	    	currentCommand = commands[x].command;
 
 	    	break;
 	    }
     }
 
-    if (this.RotationVelocity > 0) {
+    ///////////////////////////////////////////////////////
+    // Fuel
+    ///////////////////////////////////////////////////////
+    if (this.Fuel < 100) {
+        this.Fuel = this.Fuel + 0.25;
+    }
 
-        if (this.RotationDirection == 'CounterClockwise') {
+    ///////////////////////////////////////////////////////
+    // Update Brakes
+    ///////////////////////////////////////////////////////
+    if (currentCommand == 4) {
 
-            this.Facing = this.Facing - this.RotationVelocity * 90 / framesPerSecond;
+        var activateBrakes;
+
+        if (this.Fuel >= 5) {
+            this.Fuel -= 5;
+            activateBrakes = true;
+        } else if (this.ShieldStatus >= 5) {
+            this.ShieldStatus -= 5;
+            activateBrakes = true;
+        } else {
+            activateBrakes = false;
         }
-        else {
 
-            this.Facing = this.Facing + this.RotationVelocity * 90 / framesPerSecond;
+        if (activateBrakes) {
+
+            if (this.Velocity > 0) {
+
+                this.Velocity = this.Velocity - 20;
+            }
+            if (this.RotationVelocity > 0) {
+
+                this.RotationVelocity--;
+                if (this.RotationVelocity == 0) {
+
+                    this.RotationDirection = 'None';
+                }
+            }
         }
     }
 
-    // This code keeps the Facing Number from 0 to 359. It will break for
-    // numbers smaller than -360 and larger than 719
-    if (this.Facing < 0) {
+    ///////////////////////////////////////////////////////
+    // Fire Missile
+    ///////////////////////////////////////////////////////
+    if (currentCommand == 0) {
 
-        this.Facing = 360 - this.Facing * -1;
+        var activateMissile;
+
+        if (this.Fuel >= 10) {
+            this.Fuel -= 10;
+            activateMissile = true;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10;
+            activateMissile = true;
+        } else {
+            activateMissile = false;
+        }
+
+        if (activateMissile) {
+            var newMissile = new Missile();
+            newMissile.init(this);
+            gameObjects.push(newMissile);
+        }
     }
-    else if (this.Facing > 359) {
 
-        this.Facing = this.Facing - 360;
+    ///////////////////////////////////////////////////////
+    // Main Thrusters
+    ///////////////////////////////////////////////////////
+    if (currentCommand == 2) {
+
+        var activateThruster;
+
+        if (this.Fuel >= 5) {
+            this.Fuel -=5;
+            activateThruster = true;
+        } else if (this.ShieldStatus >= 5) {
+            this.ShieldStatus -= 5;
+            activateThruster = true;
+        } else {
+            activateThruster = false;
+        }
+
+        if (activateThruster) {
+            if (this.Velocity < 100) {
+                physics.findNewVelocity(this, this.Facing, 20);
+                var newThruster = new Thruster();
+                newThruster.init(this);
+                gameObjects.push(newThruster);
+            }
+        }
     }
 
-    if (this.Velocity < 0) {
+    ///////////////////////////////////////////////////////
+    // Rotate Left
+    ///////////////////////////////////////////////////////
+    if (currentCommand == 3) {
 
-        this.Velocity = 0;
+        var activateRotateLeft;
+
+        if (this.Fuel >= 5) {
+            this.Fuel -= 5;
+            activateRotateLeft = true;
+        } else if (this.ShieldStatus >= 5) {
+            this.ShieldStatus -= 5;
+            activateRotateLeft = true;
+        } else {
+            activateRotateLeft = false;
+        }
+
+        if (activateRotateLeft) {
+            if (this.RotationDirection == 'None') {
+                this.RotationDirection = 'Clockwise';
+                this.RotationVelocity = this.RotationVelocity + 1;
+            }
+            else if (this.RotationDirection == 'Clockwise') {
+                if (this.RotationVelocity < 3) {
+                    this.RotationVelocity = this.RotationVelocity + 1;
+                }
+            }
+            else if (this.RotationDirection == 'CounterClockwise') {
+                this.RotationVelocity = this.RotationVelocity - 1;
+                if (this.RotationVelocity == 0) {
+                    this.RotationDirection = 'None';
+                }
+            }
+        }
+
+    }
+    ///////////////////////////////////////////////////////
+    // Rotate Right
+    ///////////////////////////////////////////////////////
+    if (currentCommand == 1) {
+
+        var activateRotateRight;
+
+        if (this.Fuel >= 5) {
+            this.Fuel -= 5;
+            activateRotateRight = true;
+        } else if (this.ShieldStatus >= 5) {
+            this.ShieldStatus -= 5;
+            activateRotateRight = true;
+        } else {
+            activateRotateRight = false;
+        }
+
+        if (activateRotateRight) {
+            if (this.RotationDirection == 'None') {
+                this.RotationDirection = 'CounterClockwise';
+                this.RotationVelocity = this.RotationVelocity + 1;
+            }
+            else if (this.RotationDirection == 'CounterClockwise') {
+                if (this.RotationVelocity < 3) {
+                    this.RotationVelocity = this.RotationVelocity + 1;
+                }
+            }
+            else if (this.RotationDirection == 'Clockwise') {
+                this.RotationVelocity = this.RotationVelocity - 1;
+                if (this.RotationVelocity == 0) {
+                    this.RotationDirection = 'None';
+                }
+            }
+        }
     }
 
-    ///////////////////
+    ///////////////////////////////////////////////////////
     // Shields
-    ///////////////////
+    ///////////////////////////////////////////////////////
+    if (currentCommand == 5) {
+        if (this.ShieldOn == 0) {
+            this.ShieldOn = 1;
+        } else {
+            this.ShieldOn = 0;
+        }
+    }
 
     if (this.ShieldOn == 1) {
 
@@ -111,127 +259,41 @@ Ship.prototype.update = function() {
 
     }
 
-    ////////////
-    // Fuel
-    ////////////
+    ///////////////////////////////////////////////////////
+    // Update Facing
+    ///////////////////////////////////////////////////////
+    if (this.RotationVelocity > 0) {
 
-    if (this.Fuel < 100) {
+        if (this.RotationDirection == 'CounterClockwise') {
 
-        this.Fuel = this.Fuel + 0.25;
+            this.Facing = this.Facing - this.RotationVelocity * 90 / framesPerSecond;
+        }
+        else {
 
+            this.Facing = this.Facing + this.RotationVelocity * 90 / framesPerSecond;
+        }
     }
 
+    if (this.Facing < 0) {
+
+        this.Facing = 360 - this.Facing * -1;
+    }
+    else if (this.Facing > 359) {
+
+        this.Facing = this.Facing - 360;
+    }
+
+    ///////////////////////////////////////////////////////
+    // Update Velocity
+    ///////////////////////////////////////////////////////
+    if (this.Velocity < 0) {
+        this.Velocity = 0;
+    }
+
+    ///////////////////////////////////////////////////////
+    // Update Location
+    ///////////////////////////////////////////////////////
     physics.moveObjectAlongVector(this);
-}
-
-Ship.prototype.processShipCommand = function(command) {
-
-    switch (command) {
-
-        case 0: // Fire
-            if (this.Fuel > 9) {
-                var newMissile = new Missile();
-                newMissile.init(this);
-                gameObjects.push(newMissile);
-                this.Fuel = this.Fuel - 10;
-            }
-            break;
-        case 3: // Rotate Right
-            if (this.Fuel > 4) {
-                if (this.RotationDirection == 'None') {
-                    this.RotationDirection = 'Clockwise';
-                    this.RotationVelocity = this.RotationVelocity + 1;
-                }
-                else if (this.RotationDirection == 'Clockwise') {
-                    if (this.RotationVelocity < 3) {
-                        this.RotationVelocity = this.RotationVelocity + 1;
-                    }
-                }
-                else if (this.RotationDirection == 'CounterClockwise') {
-                    this.RotationVelocity = this.RotationVelocity - 1;
-                    if (this.RotationVelocity == 0) {
-                        this.RotationDirection = 'None';
-                    }
-                }
-                this.Fuel = this.Fuel - 4;
-            }
-            break;
-        case 1: // Rotate Left
-            if (this.Fuel > 4) {
-                if (this.RotationDirection == 'None') {
-                    this.RotationDirection = 'CounterClockwise';
-                    this.RotationVelocity = this.RotationVelocity + 1;
-                }
-                else if (this.RotationDirection == 'CounterClockwise') {
-                    if (this.RotationVelocity < 3) {
-                        this.RotationVelocity = this.RotationVelocity + 1;
-                    }
-                }
-                else if (this.RotationDirection == 'Clockwise') {
-                    this.RotationVelocity = this.RotationVelocity - 1;
-                    if (this.RotationVelocity == 0) {
-                        this.RotationDirection = 'None';
-                    }
-                }
-                this.Fuel = this.Fuel - 4;
-            }
-            break;
-        case 2: // Accelerate
-
-            if (this.Fuel > 9) {
-
-                if (this.Velocity < 100) {
-
-                    physics.findNewVelocity(this, this.Facing, 20);
-
-                    var newThruster = new Thruster();
-
-                    newThruster.init(this);
-
-                    gameObjects.push(newThruster);
-
-                }
-
-                this.Fuel = this.Fuel - 10;
-
-            }
-
-            break;
-
-        case 4: // Brake
-            if (this.Fuel > 9) {
-
-                if (this.Velocity > 0) {
-
-                    this.Velocity = this.Velocity - 20;
-                }
-                if (this.RotationVelocity > 0) {
-
-                    this.RotationVelocity--;
-                    if (this.RotationVelocity == 0) {
-
-                        this.RotationDirection = 'None';
-                    }
-                }
-                this.Fuel = this.Fuel - 10;
-            }
-
-            break;
-
-        case 5: // Shields
-
-            if (this.ShieldOn == 0) {
-
-                this.ShieldOn = 1;
-
-            } else {
-
-                this.ShieldOn = 0;
-
-            }
-
-            break;
-    }
 }
 
 Ship.prototype.setStartingHumanPosition = function() {
