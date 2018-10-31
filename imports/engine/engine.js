@@ -66,7 +66,7 @@ Engine.prototype.collisionDetection = function () {
                 solidObjects[k].Type == "Bravo") &&
                 (solidObjects[i].Type == "Missile")) {
 
-                solidObjects[k].ShieldStatus -= 25;
+                solidObjects[k].ShieldStatus -= 50;
 
                 if (solidObjects[k].ShieldStatus <= 0) {
 
