@@ -60,16 +60,38 @@ Engine.prototype.collisionDetection = function () {
 
         if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size / 2 + solidObjects[k].Size / 2)) {
 
-          // This object has collided with something so we get to blow it up!!!
-          this.createExplosion(solidObjects[k]);
 
-          // I created this array of objects to remove because removing objects from
-          // an array while you are still iterating over the same array is generaly
-          // a bad thing!
-          deadObjects.push(solidObjects[k]);
+            if ((solidObjects[k].Type == "Human" ||
+                solidObjects[k].Type == "Alpha" ||
+                solidObjects[k].Type == "Bravo") &&
+                (solidObjects[i].Type == "Missile")) {
 
-          // No use blowing this up twice!
-          break;
+                solidObjects[k].ShieldStatus -= 50;
+
+                if (solidObjects[k].ShieldStatus <= 0) {
+
+                    this.createExplosion(solidObjects[k]);
+                    deadObjects.push(solidObjects[k]);
+                }
+
+                break;
+
+            } else {
+
+                // This object has collided with something so we get to blow it up!!!
+                this.createExplosion(solidObjects[k]);
+
+                // I created this array of objects to remove because removing objects from
+                // an array while you are still iterating over the same array is generaly
+                // a bad thing!
+                deadObjects.push(solidObjects[k]);
+
+                // No use blowing this up twice!
+                break;
+
+            }
+
+
         }
       }
     }
