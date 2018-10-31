@@ -72,8 +72,8 @@ Ship.prototype.update = function() {
         if (this.Fuel >= 5) {
             this.Fuel -= 5;
             activateBrakes = true;
-        } else if (this.ShieldStatus >= 5) {
-            this.ShieldStatus -= 5;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10;
             activateBrakes = true;
         } else {
             activateBrakes = false;
@@ -106,8 +106,8 @@ Ship.prototype.update = function() {
         if (this.Fuel >= 10) {
             this.Fuel -= 10;
             activateMissile = true;
-        } else if (this.ShieldStatus >= 10) {
-            this.ShieldStatus -= 10;
+        } else if (this.ShieldStatus >= 20) {
+            this.ShieldStatus -= 20;
             activateMissile = true;
         } else {
             activateMissile = false;
@@ -130,8 +130,8 @@ Ship.prototype.update = function() {
         if (this.Fuel >= 5) {
             this.Fuel -=5;
             activateThruster = true;
-        } else if (this.ShieldStatus >= 5) {
-            this.ShieldStatus -= 5;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10;
             activateThruster = true;
         } else {
             activateThruster = false;
@@ -157,8 +157,8 @@ Ship.prototype.update = function() {
         if (this.Fuel >= 5) {
             this.Fuel -= 5;
             activateRotateLeft = true;
-        } else if (this.ShieldStatus >= 5) {
-            this.ShieldStatus -= 5;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10;
             activateRotateLeft = true;
         } else {
             activateRotateLeft = false;
@@ -193,8 +193,8 @@ Ship.prototype.update = function() {
         if (this.Fuel >= 5) {
             this.Fuel -= 5;
             activateRotateRight = true;
-        } else if (this.ShieldStatus >= 5) {
-            this.ShieldStatus -= 5;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10;
             activateRotateRight = true;
         } else {
             activateRotateRight = false;
