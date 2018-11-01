@@ -121,6 +121,8 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
+    this.renderHullStrength();
+
     this.renderFuelStatus();
 
     this.renderShieldStatus();
@@ -372,6 +374,49 @@ Renderer.prototype.renderVersion = function () {
     map.translate(availableWidth - map.measureText("v" + version).width, availableHeight - 10);
 
     map.fillText("v" + version, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderHullStrength = function () {
+
+    var ship = {};
+    var hullStrengthDisplayValue;
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Id == playerShipId) {
+
+            ship = gameObjects[i];
+
+        }
+
+    }
+
+    hullStrengthDisplayValue = Math.floor(ship.HullStrength);
+
+    map.save();
+
+    if (hullStrengthDisplayValue > 66) {
+
+        map.fillStyle = "green";
+
+    } else if (hullStrengthDisplayValue > 33) {
+
+        map.fillStyle = "yellow";
+
+    } else {
+
+        map.fillStyle = "red";
+
+    }
+
+    map.font = "20px Arial";
+
+    map.translate(0, availableHeight - 300);
+
+    map.fillText("HULL STRENGTH: " + hullStrengthDisplayValue, 0, 0);
 
     map.restore();
 

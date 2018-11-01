@@ -18,6 +18,7 @@ Ship.prototype.init = function(shipType) {
   	this.RotationVelocity = 0;
     this.ShieldOn = 0;
     this.ShieldStatus = 0;
+    this.HullStrength = 100;
 
 }
 
@@ -35,6 +36,7 @@ Ship.prototype.copy = function(jsonObject) {
   	this.RotationVelocity = jsonObject.RotationVelocity;
     this.ShieldOn = jsonObject.ShieldOn;
     this.ShieldStatus = jsonObject.ShieldStatus;
+    this.HullStrength = jsonObject.HullStrength;
 
 }
 
