@@ -56,7 +56,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
     }
 
     // COMMAND key - Toggle Shields
-    else if(evt.keyCode==91) {
+    else if(evt.keyCode==18) {
 
         evt.preventDefault();
 
