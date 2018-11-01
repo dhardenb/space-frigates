@@ -66,9 +66,14 @@ Engine.prototype.collisionDetection = function () {
                 solidObjects[k].Type == "Bravo") &&
                 (solidObjects[i].Type == "Missile")) {
 
-                solidObjects[k].ShieldStatus -= 50;
+                if (solidObjects[k].ShieldStatus < 50) {
+                    solidObjects[k].ShieldStatus = 0;
+                    solidObjects[k].HullStrength -= 50 - solidObjects[k].ShieldStatus;
+                } else {
+                    solidObjects[k].ShieldStatus -= 50;
+                }
 
-                if (solidObjects[k].ShieldStatus <= 0) {
+                if (solidObjects[k].HullStrength <= 0) {
 
                     this.createExplosion(solidObjects[k]);
                     deadObjects.push(solidObjects[k]);
