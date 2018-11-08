@@ -546,7 +546,7 @@ Renderer.prototype.renderInstructions = function () {
 
     map.translate(0, 25);
 
-    map.fillText("COMMAND => Toggle Shields", 0, 0);
+    map.fillText("ALT => Toggle Shields", 0, 0);
 
     map.translate(0, 25);
 

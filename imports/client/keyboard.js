@@ -55,7 +55,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
         client.commandHandler({seqNum: seqNum, command: 4, targetId: playerShipId});
     }
 
-    // COMMAND key - Toggle Shields
+    // ALT key - Toggle Shields
     else if(evt.keyCode==18) {
 
         evt.preventDefault();
