@@ -8,7 +8,7 @@ Ship.prototype.init = function(shipType) {
 
     this.Id = engine.getNextGameObjectId();
     this.Type = shipType;
-    this.Fuel = 100;
+    this.Fuel = 1000;
   	this.LocationX = 0;
   	this.LocationY = 0;
   	this.Facing = 0;
@@ -19,6 +19,7 @@ Ship.prototype.init = function(shipType) {
     this.ShieldOn = 0;
     this.ShieldStatus = 0;
     this.HullStrength = 100;
+    this.Capacitor = 100;
 
 }
 
@@ -37,6 +38,7 @@ Ship.prototype.copy = function(jsonObject) {
     this.ShieldOn = jsonObject.ShieldOn;
     this.ShieldStatus = jsonObject.ShieldStatus;
     this.HullStrength = jsonObject.HullStrength;
+    this.Capacitor = jsonObject.Capacitor;
 
 }
 
@@ -58,10 +60,13 @@ Ship.prototype.update = function() {
     }
 
     ///////////////////////////////////////////////////////
-    // Fuel
+    // Power Plant
     ///////////////////////////////////////////////////////
-    if (this.Fuel < 100) {
-        this.Fuel = this.Fuel + 0.25;
+    if (this.Fuel >= 0.25) {
+        if (this.Capacitor < 100) {
+            this.Capacitor += 0.25;
+            this.Fuel -= 0.25;
+        }
     }
 
     ///////////////////////////////////////////////////////
@@ -71,8 +76,8 @@ Ship.prototype.update = function() {
 
         var activateBrakes;
 
-        if (this.Fuel >= 5) {
-            this.Fuel -= 5;
+        if (this.Capacitor >= 5) {
+            this.Capacitor -= 5;
             activateBrakes = true;
         } else if (this.ShieldStatus >= 10) {
             this.ShieldStatus -= 10;
@@ -105,8 +110,8 @@ Ship.prototype.update = function() {
 
         var activateMissile;
 
-        if (this.Fuel >= 10) {
-            this.Fuel -= 10;
+        if (this.Capacitor >= 10) {
+            this.Capacitor -= 10;
             activateMissile = true;
         } else if (this.ShieldStatus >= 20) {
             this.ShieldStatus -= 20;
@@ -129,8 +134,8 @@ Ship.prototype.update = function() {
 
         var activateThruster;
 
-        if (this.Fuel >= 5) {
-            this.Fuel -=5;
+        if (this.Capacitor >= 5) {
+            this.Capacitor -=5;
             activateThruster = true;
         } else if (this.ShieldStatus >= 10) {
             this.ShieldStatus -= 10;
@@ -156,8 +161,8 @@ Ship.prototype.update = function() {
 
         var activateRotateLeft;
 
-        if (this.Fuel >= 5) {
-            this.Fuel -= 5;
+        if (this.Capacitor >= 5) {
+            this.Capacitor -= 5;
             activateRotateLeft = true;
         } else if (this.ShieldStatus >= 10) {
             this.ShieldStatus -= 10;
@@ -192,8 +197,8 @@ Ship.prototype.update = function() {
 
         var activateRotateRight;
 
-        if (this.Fuel >= 5) {
-            this.Fuel -= 5;
+        if (this.Capacitor >= 5) {
+            this.Capacitor -= 5;
             activateRotateRight = true;
         } else if (this.ShieldStatus >= 10) {
             this.ShieldStatus -= 10;
@@ -234,14 +239,14 @@ Ship.prototype.update = function() {
 
     if (this.ShieldOn == 1) {
 
-        if (this.ShieldStatus <= 99.75 && this.Fuel >= 0.25) {
+        if (this.ShieldStatus <= 99.75 && this.Capacitor >= 0.25) {
 
             this.ShieldStatus = this.ShieldStatus + 0.25;
-            this.Fuel = this.Fuel - 0.25;
+            this.Capacitor = this.Capacitor - 0.25;
 
-        } else if (this.ShieldStatus == 100 && this.Fuel >= 0.125) {
+        } else if (this.ShieldStatus == 100 && this.Capacitor >= 0.125) {
 
-            this.Fuel = this.Fuel - 0.125;
+            this.Capacitor = this.Capacitor - 0.125;
 
         }
 

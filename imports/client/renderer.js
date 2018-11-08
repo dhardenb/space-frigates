@@ -125,6 +125,8 @@ Renderer.prototype.renderMap = function () {
 
     this.renderFuelStatus();
 
+    this.renderCapacitorStatus();
+
     this.renderShieldStatus();
 
     this.renderTitle();
@@ -414,9 +416,9 @@ Renderer.prototype.renderHullStrength = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 300);
+    map.translate(0, availableHeight - 325);
 
-    map.fillText("HULL STRENGTH: " + hullStrengthDisplayValue, 0, 0);
+    map.fillText("HULL: " + hullStrengthDisplayValue, 0, 0);
 
     map.restore();
 
@@ -456,9 +458,51 @@ Renderer.prototype.renderFuelStatus = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 275);
+    map.translate(0, availableHeight - 300);
 
     map.fillText("FUEL: " + fuelDisplayValue, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderCapacitorStatus = function () {
+
+    var ship = {};
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Id == playerShipId) {
+
+            ship = gameObjects[i];
+
+        }
+
+    }
+
+    map.save();
+
+    var capacitorDisplayValue = Math.floor(ship.Capacitor);
+
+    if (capacitorDisplayValue > 66) {
+
+        map.fillStyle = "green";
+
+    } else if (capacitorDisplayValue > 33) {
+
+        map.fillStyle = "yellow";
+
+    } else {
+
+        map.fillStyle = "red";
+
+    }
+
+    map.font = "20px Arial";
+
+    map.translate(0, availableHeight - 275);
+
+    map.fillText("CAPACITOR: " + capacitorDisplayValue, 0, 0);
 
     map.restore();
 
