@@ -83,9 +83,9 @@ Server.prototype.startPhysicsLoop = function() {
 
     setInterval(function() {
 
-        // ai.createNewShip();
+        ai.createNewShip();
 
-        // ai.issueCommands();
+        ai.issueCommands();
 
         engine.update();
 

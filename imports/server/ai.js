@@ -5,7 +5,22 @@ Ai = function Ai() {
 
 Ai.prototype.createNewShip = function() {
 
-    var nextShipType = Math.floor((Math.random()*400)+1);
+    var numberOfPlayers = players.length;
+    var nextShipType = 0;
+
+    console.log(players.length);
+
+    if (numberOfPlayers == 0) {
+        nextShipType = 0;
+    } else if (numberOfPlayers == 1) {
+        nextShipType = Math.floor((Math.random()*400)+1);
+    } else if (numberOfPlayers == 2) {
+        nextShipType = Math.floor((Math.random()*1600)+1);
+    } else if (numberOfPlayers == 3) {
+        nextShipType = Math.floor((Math.random()*3200)+1);
+    } else {
+        nextShipType = Math.floor((Math.random()*6400)+1);
+    }
 
     var newAiShip;
 
