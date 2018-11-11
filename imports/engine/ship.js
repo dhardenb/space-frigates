@@ -258,6 +258,12 @@ Ship.prototype.update = function() {
 
             this.ShieldStatus = this.ShieldStatus - 0.25;
 
+            // As the shields disapate, energy is returned to the capacitor
+            // at half the rate.
+            if (this.Capacitor <= 99.88) {
+                this.Capacitor += 0.12;
+            }
+
         } else {
 
             this.ShieldStatus = 0;
