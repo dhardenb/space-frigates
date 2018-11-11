@@ -5,7 +5,7 @@ Ai = function Ai() {
 
 Ai.prototype.createNewShip = function() {
 
-    var nextShipType = Math.floor((Math.random()*200)+1);
+    var nextShipType = Math.floor((Math.random()*400)+1);
 
     var newAiShip;
 
