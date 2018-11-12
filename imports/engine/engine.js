@@ -194,6 +194,16 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
 
         }
 
+        else if (remoteGameObjects[x].Type == 'Debris') {
+
+            var newDebris = new Debris();
+
+            newDebris.copy(remoteGameObjects[x]);
+
+            convertedObjects.push(newDebris);
+
+        }
+
   }
 
   localGameObjects = removeByAttr(localGameObjects, "Type", "Human");
@@ -203,6 +213,8 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
   localGameObjects = removeByAttr(localGameObjects, "Type", "Bravo");
 
   localGameObjects = removeByAttr(localGameObjects, "Type", "Missile");
+
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Debris");
 
   for (i = 0; i < convertedObjects.length; i++) {
 
