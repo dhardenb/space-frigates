@@ -8,8 +8,6 @@ Ai.prototype.createNewShip = function() {
     var numberOfPlayers = players.length;
     var nextShipType = 0;
 
-    console.log(players.length);
-
     if (numberOfPlayers == 0) {
         nextShipType = 0;
     } else if (numberOfPlayers == 1) {
