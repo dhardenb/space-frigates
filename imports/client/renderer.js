@@ -361,21 +361,17 @@ Renderer.prototype.renderDebris = function (debris) {
 
     map.translate(debris.LocationX * pixelsPerMeter, debris.LocationY * pixelsPerMeter);
 
-    map.rotate(debris.Facing * Math.PI / 180);
-
-    map.scale(debris.Size * pixelsPerMeter, debris.Size * pixelsPerMeter);
-
     map.beginPath();
 
     map.arc(0, 0, debris.Size * 0.5 * pixelsPerMeter, 0, 2 * Math.PI);
 
-    map.strokeStyle = "rgba(100, 100, 100, 1)";
+    map.strokeStyle = "rgba(255, 0, 0, 1)";
 
     map.lineWidth = 0.1;
 
     map.stroke();
 
-    map.fillStyle = "rgba(0, 0, 0, 1)";
+    map.fillStyle = "rgba(255, 0, 0, 1)";
 
     map.fill();
 
