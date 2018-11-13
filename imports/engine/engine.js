@@ -3,6 +3,7 @@ import './ship.js';
 import './particle.js';
 import './thruster.js';
 import './physics.js';
+import './debris.js';
 import { removeByAttr } from '../utilities/utilities.js';
 
 Engine = function Engine() {
@@ -75,10 +76,23 @@ Engine.prototype.collisionDetection = function () {
 
                 if (solidObjects[k].HullStrength <= 0) {
 
+                    this.createDebris(solidObjects[k]);
                     this.createExplosion(solidObjects[k]);
                     deadObjects.push(solidObjects[k]);
                 }
 
+                break;
+
+            } else if ((solidObjects[k].Type == "Human" ||
+                solidObjects[k].Type == "Alpha" ||
+                solidObjects[k].Type == "Bravo") &&
+                (solidObjects[i].Type == "Debris")) {
+
+                // If a ship colides with deris, it should "pick up" the energy
+                // from the deris and the debris should be removed from the
+                // game.
+                solidObjects[k].Fuel += solidObjects[i].Fuel;
+                deadObjects.push(solidObjects[i]);
                 break;
 
             } else {
@@ -102,6 +116,15 @@ Engine.prototype.collisionDetection = function () {
     }
   }
   this.removeDeadObjects();
+}
+
+Engine.prototype.createDebris = function (sourceGameObject) {
+
+    var newDebris = new Debris();
+
+    newDebris.init(sourceGameObject);
+
+    gameObjects.push(newDebris);
 }
 
 Engine.prototype.createExplosion = function (sourceGameObject) {
