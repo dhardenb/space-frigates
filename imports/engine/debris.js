@@ -36,7 +36,7 @@ Debris.prototype.update = function() {
 	physics.moveObjectAlongVector(this);
 }
 
-Debris.prototype.initRotation() {
+Debris.prototype.initRotation = function() {
 
     var rotatationDirection = getRandomInt(0,1);
 
