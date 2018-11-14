@@ -4,7 +4,6 @@ Missile = function Missile() {
     this.Size = 3.0;
     this.MissileLaunchOffset = 1.0;
   	this.initialVelocity = 100;
-    this.fuelConsumptionRate = 1;
     this.Velocity = 0;
 
 }
@@ -16,7 +15,7 @@ Missile.prototype.init = function(sourceObject) {
   	this.LocationY = sourceObject.LocationY;
   	this.Facing = sourceObject.Facing;
   	this.Heading = sourceObject.Heading;
-    this.Fuel = 3;
+    this.Fuel = 60;
 
   	this.calclulateInitialPosition(sourceObject);
   	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
@@ -37,7 +36,7 @@ Missile.prototype.copy = function(jsonObject) {
 
 Missile.prototype.update = function() {
 
-	this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
+	this.Fuel -= 1;
 
 	physics.moveObjectAlongVector(this);
 
