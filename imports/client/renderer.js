@@ -15,6 +15,8 @@ Renderer = function Renderer() {
 
     laserPath = new Path2D("M -0.1 -0.5 L 0.1 -0.5 L 0.1 0.5 L -0.1 0.5 Z");
 
+    debrisPath = new Path2D("M -0.8, 0.0 L -0.4 0.6 L -0.2 0.2 L 0.2 0.8 L 0.6 0.2 L 0.2 0.2 L 0.0 -0.4 -0.4 0.0 L -0.8 0.0 M 0.4 0.0 L 0.8 -0.4 L 0.6 -0.8 0.4 -0.6 L 0.2 -0.8 L 0.2 -0.6 L 0.4 0.0 M -0.8 -0.2 L -0.4 -0.2 L 0.0 -0.6 L -0.4 -0.8 L -0.6 -0.4 L -0.8 -0.6 Z");
+
     version = Meteor.settings.public.version;
 
     this.getWindowInformation();
@@ -361,19 +363,21 @@ Renderer.prototype.renderDebris = function (debris) {
 
     map.translate(debris.LocationX * pixelsPerMeter, debris.LocationY * pixelsPerMeter);
 
-    map.beginPath();
+    map.rotate(debris.Facing * Math.PI / 180);
 
-    map.arc(0, 0, debris.Size * 0.5 * pixelsPerMeter, 0, 2 * Math.PI);
+    map.scale(debris.Size * pixelsPerMeter, debris.Size * pixelsPerMeter);
 
-    map.strokeStyle = "rgba(255, 0, 0, 1)";
+    map.strokeStyle = "rgba(200, 200, 200, 1)";
 
     map.lineWidth = 0.1;
 
-    map.stroke();
+    map.lineJoin = "round";
 
-    map.fillStyle = "rgba(255, 0, 0, 1)";
+    map.stroke(debrisPath);
 
-    map.fill();
+    map.fillStyle = "rgba(0, 0, 0, 1)";
+
+    map.fill(debrisPath);
 
     map.restore();
 
