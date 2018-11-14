@@ -62,16 +62,19 @@ Engine.prototype.collisionDetection = function () {
         if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size / 2 + solidObjects[k].Size / 2)) {
 
 
+            // ship hit by missile
             if ((solidObjects[k].Type == "Human" ||
                 solidObjects[k].Type == "Alpha" ||
                 solidObjects[k].Type == "Bravo") &&
                 (solidObjects[i].Type == "Missile")) {
 
-                if (solidObjects[k].ShieldStatus < 50) {
+                var damage = solidObjects[i].Fuel;
+
+                if (solidObjects[k].ShieldStatus < damage) {
                     solidObjects[k].ShieldStatus = 0;
-                    solidObjects[k].HullStrength -= 50 - solidObjects[k].ShieldStatus;
+                    solidObjects[k].HullStrength -= damage - solidObjects[k].ShieldStatus;
                 } else {
-                    solidObjects[k].ShieldStatus -= 50;
+                    solidObjects[k].ShieldStatus -= damage;
                 }
 
                 if (solidObjects[k].HullStrength <= 0) {
@@ -83,6 +86,7 @@ Engine.prototype.collisionDetection = function () {
 
                 break;
 
+            // Ship hit by debris
             } else if ((solidObjects[k].Type == "Human" ||
                 solidObjects[k].Type == "Alpha" ||
                 solidObjects[k].Type == "Bravo") &&
@@ -92,13 +96,24 @@ Engine.prototype.collisionDetection = function () {
                 // from the deris and the debris should be removed from the
                 // game.
                 solidObjects[k].Fuel += solidObjects[i].Fuel;
-                deadObjects.push(solidObjects[i]);
                 break;
 
+            // debris hit by ship
+            } else if ((solidObjects[k].Type == "Debris") &&
+                (solidObjects[k].Type == "Human" ||
+                solidObjects[k].Type == "Alpha" ||
+                solidObjects[i].Type == "Bravo")) {
+
+                deadObjects.push(solidObjects[k]);
+                break;
+
+            // anything else hit by anything
             } else {
 
                 // This object has collided with something so we get to blow it up!!!
-                this.createExplosion(solidObjects[k]);
+                if (solidObjects[k].Type != "Debris") {
+                    this.createExplosion(solidObjects[k]);
+                }
 
                 // I created this array of objects to remove because removing objects from
                 // an array while you are still iterating over the same array is generaly
