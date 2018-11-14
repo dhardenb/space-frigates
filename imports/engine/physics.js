@@ -175,3 +175,27 @@ Physics.prototype.getYaxisComponent = function(Direction, Magnitude)
 
   return YaxisComponent;
 }
+
+Physics.prototype.findNewFacing = function(GameObject) {
+
+    if (GameObject.RotationVelocity > 0) {
+
+        if (GameObject.RotationDirection == 'CounterClockwise') {
+
+            GameObject.Facing = GameObject.Facing - GameObject.RotationVelocity * 90 / framesPerSecond;
+        }
+        else {
+
+            GameObject.Facing = GameObject.Facing + GameObject.RotationVelocity * 90 / framesPerSecond;
+        }
+    }
+
+    if (GameObject.Facing < 0) {
+
+        GameObject.Facing = 360 - GameObject.Facing * -1;
+    }
+    else if (GameObject.Facing > 359) {
+
+        GameObject.Facing = GameObject.Facing - 360;
+    }
+}

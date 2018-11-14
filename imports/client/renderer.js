@@ -15,6 +15,8 @@ Renderer = function Renderer() {
 
     laserPath = new Path2D("M -0.1 -0.5 L 0.1 -0.5 L 0.1 0.5 L -0.1 0.5 Z");
 
+    debrisPath = new Path2D("M -0.8, 0.0 L -0.4 0.6 L -0.2 0.2 L 0.2 0.8 L 0.6 0.2 L 0.2 0.2 L 0.0 -0.4 -0.4 0.0 L -0.8 0.0 M 0.4 0.0 L 0.8 -0.4 L 0.6 -0.8 0.4 -0.6 L 0.2 -0.8 L 0.2 -0.6 L 0.4 0.0 M -0.8 -0.2 L -0.4 -0.2 L 0.0 -0.6 L -0.4 -0.8 L -0.6 -0.4 L -0.8 -0.6 Z");
+
     version = Meteor.settings.public.version;
 
     this.getWindowInformation();
@@ -112,6 +114,12 @@ Renderer.prototype.renderMap = function () {
         else if (gameObjects[i].Type == 'Missile') {
 
             this.renderMissle(gameObjects[i]);
+
+        }
+
+        else if (gameObjects[i].Type == 'Debris') {
+
+            this.renderDebris(gameObjects[i]);
 
         }
 
@@ -344,6 +352,32 @@ Renderer.prototype.renderMissle = function (missile) {
     map.fillStyle = "rgba(0, 255, 255, 1)";
 
     map.fill(laserPath);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderDebris = function (debris) {
+
+    map.save();
+
+    map.translate(debris.LocationX * pixelsPerMeter, debris.LocationY * pixelsPerMeter);
+
+    map.rotate(debris.Facing * Math.PI / 180);
+
+    map.scale(debris.Size * pixelsPerMeter, debris.Size * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(200, 200, 200, 1)";
+
+    map.lineWidth = 0.1;
+
+    map.lineJoin = "round";
+
+    map.stroke(debrisPath);
+
+    map.fillStyle = "rgba(0, 0, 0, 1)";
+
+    map.fill(debrisPath);
 
     map.restore();
 

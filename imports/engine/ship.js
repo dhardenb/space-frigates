@@ -273,35 +273,23 @@ Ship.prototype.update = function() {
     }
 
     ///////////////////////////////////////////////////////
-    // Update Facing
-    ///////////////////////////////////////////////////////
-    if (this.RotationVelocity > 0) {
-
-        if (this.RotationDirection == 'CounterClockwise') {
-
-            this.Facing = this.Facing - this.RotationVelocity * 90 / framesPerSecond;
-        }
-        else {
-
-            this.Facing = this.Facing + this.RotationVelocity * 90 / framesPerSecond;
-        }
-    }
-
-    if (this.Facing < 0) {
-
-        this.Facing = 360 - this.Facing * -1;
-    }
-    else if (this.Facing > 359) {
-
-        this.Facing = this.Facing - 360;
-    }
-
-    ///////////////////////////////////////////////////////
     // Update Velocity
     ///////////////////////////////////////////////////////
     if (this.Velocity < 0) {
         this.Velocity = 0;
     }
+
+    ///////////////////////////////////////////////////////
+    // Fuel Tank
+    ///////////////////////////////////////////////////////
+    if (this.Fuel > 1000) {
+        this.Fuel = 1000;
+    }
+
+    ///////////////////////////////////////////////////////
+    // Update Facing
+    ///////////////////////////////////////////////////////
+    physics.findNewFacing(this);
 
     ///////////////////////////////////////////////////////
     // Update Location
