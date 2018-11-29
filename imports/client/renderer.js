@@ -129,19 +129,25 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
-    this.renderHullStrength();
+    if (gameMode == 'START_MODE') {
 
-    this.renderFuelStatus();
+        this.renderTitle();
 
-    this.renderCapacitorStatus();
+        this.renderVersion();
 
-    this.renderShieldStatus();
+        this.renderInstructions();
 
-    this.renderTitle();
+    } else if (gameMode == 'PLAY_MODE') {
 
-    this.renderVersion();
+        this.renderHullStrength();
 
-    this.renderInstructions();
+        this.renderFuelStatus();
+    
+        this.renderCapacitorStatus();
+    
+        this.renderShieldStatus();
+
+    }
 
     map.restore();
 
