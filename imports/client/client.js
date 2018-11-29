@@ -41,6 +41,8 @@ Client = function Client() {
 
     largestUpdate = 0;
 
+    gameMode = 'START_MODE';
+
 }
 
 Client.prototype.init = function() {
@@ -117,6 +119,30 @@ Client.prototype.setupStreamListeners = function() {
 
         }
 
+        // Check to see if player's ship is destroyed. If it is, switch the game to 'END_MODE'
+
+        var playerIsAlive = false;        
+
+        for (x = 0; x < gameObjects.length; x++) {
+
+            if (gameObjects[x].Id == playerShipId) {
+
+                playerIsAlive = true;
+
+            }
+
+        }
+
+        if (playerIsAlive) {
+
+            gameMode = 'PLAY_MODE';
+
+        } else {
+
+            gameMode = 'START_MODE';
+
+        }
+
     });
 
 }
@@ -158,6 +184,8 @@ Client.prototype.requestShip = function() {
             alert(err);
 
         } else {
+
+            gameMode = 'PLAY_MODE';
 
             playerShipId = res;
 
