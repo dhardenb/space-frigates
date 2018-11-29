@@ -10,7 +10,11 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.requestShip();
+        if (gameMode == 'START_MODE') {
+        
+            client.requestShip();
+                
+        }
 
     }
 
