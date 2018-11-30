@@ -43,6 +43,8 @@ Client = function Client() {
 
     gameMode = 'START_MODE';
 
+    playerName = "";
+
 }
 
 Client.prototype.init = function() {
