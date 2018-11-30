@@ -5,8 +5,37 @@ Keyboard = function Keyboard() {
 
 Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
+    // User typing in name
+    if (evt.keyCode >= 65 && evt.keyCode <=90) {
+
+        if (gameMode == 'START_MODE') {
+
+            evt.preventDefault();
+
+            if (playerName.length < 8) {
+        
+                playerName = playerName + String.fromCharCode(evt.which);
+
+            }
+                
+        }
+
+    }
+
+    else if (evt.keyCode == 8) {
+
+        if (gameMode == 'START_MODE') {
+
+            evt.preventDefault();
+        
+            playerName = playerName.slice(0, -1);
+                
+        }
+
+    }
+
     // ENTER - Start
-    if(evt.keyCode==13) {
+    else if(evt.keyCode==13) {
 
         evt.preventDefault();
 
