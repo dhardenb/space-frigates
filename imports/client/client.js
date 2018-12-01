@@ -179,7 +179,7 @@ Client.prototype.getPlayerId = function() {
 
 Client.prototype.requestShip = function() {
 
-    Meteor.call('createNewPlayerShip', (err, res) => {
+    Meteor.call('createNewPlayerShip', playerName, (err, res) => {
 
         if (err) {
 

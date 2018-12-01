@@ -275,13 +275,13 @@ Renderer.prototype.renderShip = function (ship) {
 
     } else {
 
-        if (playerName == "") {
+        if (ship.Name == "") {
 
             nameToDraw = "GUEST";
 
         } else {
 
-            nameToDraw = playerName;
+            nameToDraw = ship.Name;
 
         }
 

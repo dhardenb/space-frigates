@@ -86,6 +86,7 @@ function packGameState(unpackedGameState) {
             packedGameState[1][i].push(unpackedGameState.gameState[i].ShieldStatus);
             packedGameState[1][i].push(unpackedGameState.gameState[i].HullStrength);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Capacitor);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Name);
 
         }
 
@@ -175,6 +176,7 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].ShieldStatus = packedGameState[1][i][11];
             unpackedGameState.gameState[i].HullStrength = packedGameState[1][i][12];
             unpackedGameState.gameState[i].Capacitor = packedGameState[1][i][13];
+            unpackedGameState.gameState[i].Name = packedGameState[1][i][14];
 
         }
 

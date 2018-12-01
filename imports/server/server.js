@@ -105,11 +105,13 @@ Server.prototype.startMessageLoop = function() {
 
 Meteor.methods({
 
-    createNewPlayerShip: function() {
+    createNewPlayerShip: function(playerName) {
 
         var playerShip = new Ship();
 
         playerShip.init('Human');
+
+        playerShip.Name = playerName;
 
         playerShip.setStartingHumanPosition();
 
