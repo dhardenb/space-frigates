@@ -271,7 +271,7 @@ Renderer.prototype.renderShip = function (ship) {
 
     if (ship.Type != 'Human') {
 
-        nameToDraw = "BOT";
+        nameToDraw = "";
 
     } else {
 
@@ -287,13 +287,13 @@ Renderer.prototype.renderShip = function (ship) {
 
     }
 
-    map.strokeStyle = "yellow";
+    map.fillStyle = "gray";
 
-    map.font = "16px Arial";
+    map.font = "12px Arial";
 
     map.translate(ship.LocationX * pixelsPerMeter - map.measureText(nameToDraw).width / 2, ship.LocationY * pixelsPerMeter + ship.Size * pixelsPerMeter * 1.5);
 
-    map.strokeText(nameToDraw, 0, 0);
+    map.fillText(nameToDraw, 0, 0);
 
     map.restore();
 
@@ -453,7 +453,7 @@ Renderer.prototype.renderName = function () {
 
     if (playerName == "") {
 
-        textToRender = "GUEST";
+        textToRender = "Enter Name";
 
         map.fillStyle = "gray";
 
