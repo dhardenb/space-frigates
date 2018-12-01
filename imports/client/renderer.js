@@ -9,8 +9,10 @@ Renderer = function Renderer() {
 
     stars = [];
 
-    shipPath = new Path2D("M -0.1 -0.5 L 0.1 -0.5 L 0.1 -0.2 L 0.2 -0.1 L 0.2 0.1 L 0.4 0.3 L 0.4 0.4 L 0.2 0.4 L 0.2 0.5 L -0.2 0.5 L -0.2 0.4 L -0.4 0.4 L -0.4 0.3 L -0.2 0.1 L -0.2 -0.1 L -0.1 -0.2 Z");
+    shipPath = new Path2D("M -0.05 -0.5 L 0.05 -0.5 L 0.1 -0.2 L 0.2 -0.1 L 0.2 0.1 L 0.4 0.3 L 0.4 0.4 L 0.2 0.4 L 0.2 0.5 L -0.2 0.5 L -0.2 0.4 L -0.4 0.4 L -0.4 0.3 L -0.2 0.1 L -0.2 -0.1 L -0.1 -0.2 Z");
 
+    cockpitPath = new Path2D("M 0.0, -0.1 L -0.1, 0.3, L 0.1, 0.3 Z");
+    
     thrusterPath = new Path2D("M -0.2 -0.5 L 0.2 -0.5 L 0.0 0.5 Z");
 
     laserPath = new Path2D("M -0.1 -0.5 L 0.1 -0.5 L 0.1 0.5 L -0.1 0.5 Z");
@@ -247,7 +249,7 @@ Renderer.prototype.renderShip = function (ship) {
 
     }
 
-    map.strokeStyle = "rgba(200, 200, 200, 0.5)";
+    map.strokeStyle = "rgba(50, 50, 50)";
 
     map.lineWidth =  0.1;
 
@@ -255,9 +257,35 @@ Renderer.prototype.renderShip = function (ship) {
 
     map.stroke(shipPath);
 
-    map.fillStyle = "rgba(0, 0, 0, 1)";
+    map.fillStyle = "rgba(100, 100, 100)";
 
     map.fill(shipPath);
+
+    //////////////////
+    // Draw Cockpit //
+    //////////////////
+
+    if (ship.HullStrength >= 66) {
+
+        map.fillStyle = "green";
+
+    } else if (ship.HullStrength >= 33) {
+
+        map.fillStyle = "yellow";
+
+    } else {
+
+        // map.strokeStyle = "rgb(250, 0, 0)";
+
+        map.fillStyle = "red";
+
+    }
+
+    map.lineWidth =  0.05;
+
+    map.stroke(cockpitPath);
+
+    map.fill(cockpitPath);
 
     map.restore();
 
