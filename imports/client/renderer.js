@@ -387,13 +387,13 @@ Renderer.prototype.renderMissle = function (missile) {
 
     map.scale(missile.Size * pixelsPerMeter, missile.Size * pixelsPerMeter);
 
-    map.strokeStyle = "rgba(255, 255, 255, 1)";
+    map.strokeStyle = "rgba(255, 255, 255, " + missile.Fuel / 60 + ")";
 
     map.lineWidth = 0.1;
 
     map.stroke(laserPath);
 
-    map.fillStyle = "rgba(0, 255, 255, 1)";
+    map.fillStyle = "rgba(0, 255, 255, " + missile.Fuel / 60 + ")";
 
     map.fill(laserPath);
 
