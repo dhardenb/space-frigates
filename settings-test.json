@@ -4,7 +4,7 @@
 
 		{ "env":
 
-			{ "ROOT_URL": "https://www.test.SpaceFrigates.com", "MONGO_URL": "mongodb://dhardenb:cypher69@candidate.57.mongolayer.com:10807/space-frigates-test" }
+			{ "ROOT_URL": "https://www.test.SpaceFrigates.com" }
 
 		},
 
@@ -12,11 +12,11 @@
 
 		{
 
-			"mapRadius" : "250",
+			"mapRadius" : "300",
 
       		"environment": "test",
 
-			"version": "1.0.1.1"
+			"version": "1.3.1.1"
 
 		},
 
