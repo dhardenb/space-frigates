@@ -5,12 +5,45 @@ Keyboard = function Keyboard() {
 
 Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
+    // User typing in name
+    if (evt.keyCode >= 65 && evt.keyCode <=90) {
+
+        if (gameMode == 'START_MODE') {
+
+            evt.preventDefault();
+
+            if (playerName.length < 8) {
+        
+                playerName = playerName + String.fromCharCode(evt.which);
+
+            }
+                
+        }
+
+    }
+
+    else if (evt.keyCode == 8) {
+
+        if (gameMode == 'START_MODE') {
+
+            evt.preventDefault();
+        
+            playerName = playerName.slice(0, -1);
+                
+        }
+
+    }
+
     // ENTER - Start
-    if(evt.keyCode==13) {
+    else if(evt.keyCode==13) {
 
         evt.preventDefault();
 
-        client.requestShip();
+        if (gameMode == 'START_MODE') {
+        
+            client.requestShip();
+                
+        }
 
     }
 
@@ -19,7 +52,11 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({seqNum: seqNum, command: 0, targetId: playerShipId});
+        if (gameMode == 'PLAY_MODE') {
+
+            client.commandHandler({seqNum: seqNum, command: 0, targetId: playerShipId});
+
+        }
 
     }
 
@@ -28,7 +65,11 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({seqNum: seqNum, command: 1, targetId: playerShipId});
+        if (gameMode == 'PLAY_MODE') {
+
+            client.commandHandler({seqNum: seqNum, command: 1, targetId: playerShipId});
+
+        }
     }
 
     // UP_ARROW - Forward Thruster
@@ -36,7 +77,11 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({seqNum: seqNum, command: 2, targetId: playerShipId});
+        if (gameMode == 'PLAY_MODE') {
+
+            client.commandHandler({seqNum: seqNum, command: 2, targetId: playerShipId});
+
+        }
     }
 
     // RIGHT_ARROW - Rotate Clockwise
@@ -44,7 +89,11 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({seqNum: seqNum, command: 3, targetId: playerShipId});
+        if (gameMode == 'PLAY_MODE') {
+
+            client.commandHandler({seqNum: seqNum, command: 3, targetId: playerShipId});
+
+        }
     }
 
     // DOWN_ARROW - Stop
@@ -52,7 +101,11 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({seqNum: seqNum, command: 4, targetId: playerShipId});
+        if (gameMode == 'PLAY_MODE') {
+
+            client.commandHandler({seqNum: seqNum, command: 4, targetId: playerShipId});
+
+        }
     }
 
     // ALT key - Toggle Shields
@@ -60,7 +113,11 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        client.commandHandler({seqNum: seqNum, command: 5, targetId: playerShipId});
+        if (gameMode == 'PLAY_MODE') {
+
+            client.commandHandler({seqNum: seqNum, command: 5, targetId: playerShipId});
+
+        }
     }
 
     // + Zoom In
@@ -68,9 +125,13 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        if (pixelsPerMeter < 20) {
+        if (gameMode == 'PLAY_MODE') {
 
-            pixelsPerMeter++;
+            if (pixelsPerMeter < 20) {
+
+                pixelsPerMeter++;
+
+            }
 
         }
 
@@ -81,9 +142,13 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         evt.preventDefault();
 
-        if (pixelsPerMeter > 1) {
+        if (gameMode == 'PLAY_MODE') {
 
-            pixelsPerMeter--;
+            if (pixelsPerMeter > 1) {
+
+                pixelsPerMeter--;
+
+            }
 
         }
 

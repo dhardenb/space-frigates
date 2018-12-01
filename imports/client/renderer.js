@@ -79,6 +79,16 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
+    if (gameMode == "START_MODE") {
+
+        // map.filter = 'blur(4px)';
+
+    } else {
+
+       // map.filter = 'blur(0px)';
+
+    }
+
     this.calculateOffset();
 
     map.translate(availableWidth / 2 + focalX, availableHeight / 2 + focalY);
@@ -129,19 +139,29 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
-    this.renderHullStrength();
+    if (gameMode == 'START_MODE') {
 
-    this.renderFuelStatus();
+        this.renderTitle();
 
-    this.renderCapacitorStatus();
+        this.renderVersion();
 
-    this.renderShieldStatus();
+        this.renderInstructions();
 
-    this.renderTitle();
+        this.renderNameInputBox();
 
-    this.renderVersion();
+        this.renderName();
 
-    this.renderInstructions();
+    } else if (gameMode == 'PLAY_MODE') {
+
+        this.renderHullStrength();
+
+        this.renderFuelStatus();
+    
+        this.renderCapacitorStatus();
+    
+        this.renderShieldStatus();
+
+    }
 
     map.restore();
 
@@ -209,28 +229,6 @@ Renderer.prototype.renderShip = function (ship) {
 
     map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
 
-    if (ship.Type == 'Human') {
-
-        if (ship.Id == playerShipId) {
-
-            map.strokeStyle = "rgba(0, 255, 0, 0.5)";
-
-        }
-
-        else {
-
-            map.strokeStyle = "rgba(255, 0, 0, 0.5)";
-
-        }
-
-    }
-
-    else {
-
-        map.strokeStyle = "rgba(200, 200, 200, 0.5)";
-
-    }
-
     if (ship.ShieldStatus > 0) {
 
         map.beginPath();
@@ -239,35 +237,17 @@ Renderer.prototype.renderShip = function (ship) {
 
         map.lineWidth =  0.05;
 
+        map.strokeStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/150 + ")";
+
         map.stroke();
 
-        map.fillStyle = "rgba(0, 255, 0, " + ship.ShieldStatus/300 + ")";
+        map.fillStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/300 + ")";
 
         map.fill();
 
     }
 
-    if (ship.Type == 'Human') {
-
-        if (ship.Id == playerShipId) {
-
-            map.strokeStyle = "rgba(0, 255, 0, 1)";
-
-        }
-
-        else {
-
-            map.strokeStyle = "rgba(255, 0, 0, 1)";
-
-        }
-
-    }
-
-    else {
-
-        map.strokeStyle = "rgba(200, 200, 200, 1)";
-
-    }
+    map.strokeStyle = "rgba(200, 200, 200, 0.5)";
 
     map.lineWidth =  0.1;
 
@@ -278,6 +258,42 @@ Renderer.prototype.renderShip = function (ship) {
     map.fillStyle = "rgba(0, 0, 0, 1)";
 
     map.fill(shipPath);
+
+    map.restore();
+
+    ////////////////////////
+    // Draw the ship name //
+    ////////////////////////
+
+    map.save();
+
+    var nameToDraw = "";
+
+    if (ship.Type != 'Human') {
+
+        nameToDraw = "";
+
+    } else {
+
+        if (ship.Name == "") {
+
+            nameToDraw = "GUEST";
+
+        } else {
+
+            nameToDraw = ship.Name;
+
+        }
+
+    }
+
+    map.fillStyle = "gray";
+
+    map.font = "12px Arial";
+
+    map.translate(ship.LocationX * pixelsPerMeter - map.measureText(nameToDraw).width / 2, ship.LocationY * pixelsPerMeter + ship.Size * pixelsPerMeter * 1.5);
+
+    map.fillText(nameToDraw, 0, 0);
 
     map.restore();
 
@@ -410,6 +426,52 @@ Renderer.prototype.renderVersion = function () {
     map.translate(availableWidth - map.measureText("v" + version).width, availableHeight - 10);
 
     map.fillText("v" + version, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderNameInputBox = function () {
+
+    map.save();
+
+    map.translate(availableWidth / 2 - 100, availableHeight / 2);
+
+    map.strokeStyle = "yellow";
+
+    map.strokeRect(0, 0, 200, 50);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderName = function () {
+
+    map.save();
+
+    var textToRender = "";
+
+    if (playerName == "") {
+
+        textToRender = "Enter Name";
+
+        map.fillStyle = "gray";
+
+        map.font = "italic 20px Arial";
+
+    } else {
+
+        textToRender = playerName;
+
+        map.fillStyle = "yellow";
+
+        map.font = "20px Arial";
+
+    }
+
+    map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 35);
+
+    map.fillText(textToRender, 0, 0);
 
     map.restore();
 
