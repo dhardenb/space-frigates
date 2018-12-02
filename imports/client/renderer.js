@@ -566,11 +566,11 @@ Renderer.prototype.renderFuelStatus = function () {
 
     var fuelDisplayValue = Math.floor(ship.Fuel);
 
-    if (fuelDisplayValue > 66) {
+    if (fuelDisplayValue >= 666) {
 
         map.fillStyle = "green";
 
-    } else if (fuelDisplayValue > 33) {
+    } else if (fuelDisplayValue >= 333) {
 
         map.fillStyle = "yellow";
 
