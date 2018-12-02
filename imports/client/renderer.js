@@ -411,7 +411,7 @@ Renderer.prototype.renderDebris = function (debris) {
 
     map.scale(debris.Size * pixelsPerMeter, debris.Size * pixelsPerMeter);
 
-    map.strokeStyle = "rgba(200, 200, 200, 1)";
+    map.strokeStyle = "rgba(50, 50, 50, 1)";
 
     map.lineWidth = 0.1;
 
@@ -419,7 +419,7 @@ Renderer.prototype.renderDebris = function (debris) {
 
     map.stroke(debrisPath);
 
-    map.fillStyle = "rgba(0, 0, 0, 1)";
+    map.fillStyle = "rgba(100, 100, 100, 1)";
 
     map.fill(debrisPath);
 
