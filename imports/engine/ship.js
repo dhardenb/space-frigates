@@ -250,6 +250,10 @@ Ship.prototype.update = function() {
 
             this.Capacitor = this.Capacitor - 0.125;
 
+        } else if (this.ShieldStatus >= 0.25 && this.Capacitor < 0.25) {
+
+            this.ShieldStatus -= 0.25;
+
         }
 
     }
@@ -272,6 +276,15 @@ Ship.prototype.update = function() {
 
         }
 
+    }
+
+    if (this.ShieldStatus > 100) {
+
+        this.ShieldStatus = 100;
+
+    } else if (this.ShieldStatus < 0)  {
+
+        this.ShieldStatus = 0
     }
 
     ///////////////////////////////////////////////////////
