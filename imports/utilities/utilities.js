@@ -115,6 +115,7 @@ function packGameState(unpackedGameState) {
             packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Owner);
 
         }
 
@@ -205,6 +206,7 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
             unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
             unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
+            unpackedGameState.gameState[i].Owner = packedGameState[1][i][8];
 
         }
 
