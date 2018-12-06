@@ -1,4 +1,6 @@
 
+var _ = require('lodash');
+
 Renderer = function Renderer() {
 
     pixelsPerMeter = 0;
@@ -154,6 +156,8 @@ Renderer.prototype.renderMap = function () {
         this.renderName();
 
     } else if (gameMode == 'PLAY_MODE') {
+
+        this.renderLeaderboard();
 
         this.renderHullStrength();
 
@@ -454,6 +458,50 @@ Renderer.prototype.renderVersion = function () {
     map.translate(availableWidth - map.measureText("v" + version).width, availableHeight - 10);
 
     map.fillText("v" + version, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderLeaderboard = function () {
+
+    map.save();
+
+    map.translate(10, 0);
+
+    map.font = "16px Arial";
+
+    var playerShips = [];
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Type == 'Human') {
+
+            playerShips.push(gameObjects[i]);
+
+        }
+
+    }
+
+    playerShips = _.orderBy(playerShips, 'Score', 'desc');
+
+    for (var i=0, j=playerShips.length; i<j; i++) {
+
+        map.translate(0, 25);
+
+        if (playerShips[i].Id == playerShipId) {
+
+            map.fillStyle = "yellow";
+
+        } else {
+
+            map.fillStyle = "gray";
+
+        }
+
+        map.fillText(playerShips[i].Name + ": " + playerShips[i].Score, 0, 0);
+
+    }
 
     map.restore();
 
