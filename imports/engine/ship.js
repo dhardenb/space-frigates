@@ -21,6 +21,7 @@ Ship.prototype.init = function(shipType) {
     this.HullStrength = 100;
     this.Capacitor = 100;
     this.Name = "";
+    this.Score = 0;
 
 }
 
@@ -41,6 +42,7 @@ Ship.prototype.copy = function(jsonObject) {
     this.HullStrength = jsonObject.HullStrength;
     this.Capacitor = jsonObject.Capacitor;
     this.Name = jsonObject.Name;
+    this.Score = jsonObject.Score;
 
 }
 

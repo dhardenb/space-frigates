@@ -15,7 +15,8 @@ Missile.prototype.init = function(sourceObject) {
   	this.LocationY = sourceObject.LocationY;
   	this.Facing = sourceObject.Facing;
   	this.Heading = sourceObject.Heading;
-    this.Fuel = 60;
+	this.Fuel = 60;
+	this.Owner = sourceObject.Id;
 
   	this.calclulateInitialPosition(sourceObject);
   	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
@@ -30,7 +31,8 @@ Missile.prototype.copy = function(jsonObject) {
   	this.Facing = jsonObject.Facing;
   	this.Heading = jsonObject.Heading;
   	this.Velocity = jsonObject.Velocity;
-  	this.Fuel = jsonObject.Fuel;
+	this.Fuel = jsonObject.Fuel;
+	this.Owner = jsonObject.Owner;
 
 }
 

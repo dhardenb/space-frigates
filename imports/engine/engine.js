@@ -82,6 +82,7 @@ Engine.prototype.collisionDetection = function () {
                     this.createDebris(solidObjects[k]);
                     this.createExplosion(solidObjects[k]);
                     deadObjects.push(solidObjects[k]);
+                    this.scoreKill(solidObjects[i].Owner);
                 }
 
                 break;
@@ -261,5 +262,19 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
   }
 
   return localGameObjects;
+
+}
+
+Engine.prototype.scoreKill = function (shipId) {
+
+  for (var x = 0, y = gameObjects.length; x < y; x++) {
+
+    if (gameObjects[x].Id == shipId) {
+
+      gameObjects[x].Score += 1;
+
+    }
+
+  }
 
 }

@@ -87,6 +87,7 @@ function packGameState(unpackedGameState) {
             packedGameState[1][i].push(unpackedGameState.gameState[i].HullStrength);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Capacitor);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Name);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Score);
 
         }
 
@@ -115,6 +116,7 @@ function packGameState(unpackedGameState) {
             packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Owner);
 
         }
 
@@ -177,6 +179,7 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].HullStrength = packedGameState[1][i][12];
             unpackedGameState.gameState[i].Capacitor = packedGameState[1][i][13];
             unpackedGameState.gameState[i].Name = packedGameState[1][i][14];
+            unpackedGameState.gameState[i].Score = packedGameState[1][i][15];
 
         }
 
@@ -205,6 +208,7 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
             unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
             unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
+            unpackedGameState.gameState[i].Owner = packedGameState[1][i][8];
 
         }
 

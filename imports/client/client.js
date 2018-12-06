@@ -179,6 +179,12 @@ Client.prototype.getPlayerId = function() {
 
 Client.prototype.requestShip = function() {
 
+    if (playerName == "") {
+
+        playerName = "GUEST";
+
+    }
+
     Meteor.call('createNewPlayerShip', playerName, (err, res) => {
 
         if (err) {
