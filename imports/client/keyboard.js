@@ -1,3 +1,6 @@
+import {Howl} from 'howler';
+
+Howler.volume(0.5);
 
 Keyboard = function Keyboard() {
 
@@ -49,6 +52,12 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
         evt.preventDefault();
 
         if (gameMode == 'PLAY_MODE') {
+
+            var sound = new Howl({
+                src: ['/lazer.mp3']
+              });
+              
+              sound.play();
 
             client.commandHandler({seqNum: seqNum, command: 0, targetId: playerShipId});
 
