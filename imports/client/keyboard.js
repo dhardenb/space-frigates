@@ -1,7 +1,5 @@
 import {Howl} from 'howler';
 
-Howler.volume(0.5);
-
 Keyboard = function Keyboard() {
 
 }
@@ -54,10 +52,14 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
         if (gameMode == 'PLAY_MODE') {
 
             var sound = new Howl({
-                src: ['/lazer.mp3']
-              });
+            
+                src: ['/lazer.mp3'],
+
+                volume: 0.25
+            
+            });
               
-              sound.play();
+            sound.play();
 
             client.commandHandler({seqNum: seqNum, command: 0, targetId: playerShipId});
 
