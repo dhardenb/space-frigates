@@ -253,7 +253,7 @@ Renderer.prototype.renderShip = function (ship) {
 
     }
 
-    map.strokeStyle = "rgba(50, 50, 50)";
+    map.strokeStyle = "rgba(50, 50, 50, 1.0)";
 
     map.lineWidth =  0.1;
 
@@ -261,7 +261,7 @@ Renderer.prototype.renderShip = function (ship) {
 
     map.stroke(shipPath);
 
-    map.fillStyle = "rgba(100, 100, 100)";
+    map.fillStyle = "rgba(100, 100, 100, 1.0)";
 
     map.fill(shipPath);
 
