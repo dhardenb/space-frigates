@@ -35,6 +35,8 @@ Server = function Server() {
 
 Server.prototype.init = function() {
 
+    server.setupRouter();
+
     server.setupStreamPermissions();
 
     server.setupStreamListeners();
@@ -43,6 +45,14 @@ Server.prototype.init = function() {
 
     server.startMessageLoop();
 
+}
+
+Server.prototype.setupRouter = function () {
+    Picker.route( '/metrics', function( params, request, response, next ) {
+        response.setHeader( 'Content-Type', 'application/json' );
+        response.statusCode = 200;
+        response.end( "Metrics!" );
+    });
 }
 
 Server.prototype.setupStreamPermissions = function() {

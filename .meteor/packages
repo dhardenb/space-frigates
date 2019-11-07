@@ -20,3 +20,4 @@ shell-server@0.4.0            # Server-side component of the `meteor shell` comm
 rocketchat:streamer
 dynamic-import@0.5.1
 underscore@1.0.10
+meteorhacks:picker
