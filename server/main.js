@@ -19,9 +19,13 @@ Meteor.onConnection(function(connection) {
 
     connection.onClose(function() {
 
+        clientConnectionsGauge.dec();
+
         removeByAttr(players, 'id', connection.id);
 
     });
+
+    clientConnectionsGauge.inc();
 
     players.push(new Player(connection));
 

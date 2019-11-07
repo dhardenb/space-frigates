@@ -52,12 +52,17 @@ Server.prototype.init = function() {
 }
 
 Server.prototype.setupMetrics = function () {
+    
     collectDefaultMetrics = Prometheus.collectDefaultMetrics;
     collectDefaultMetrics({ timeout: 5000 });
+    
+    clientConnectionsGauge = new Prometheus.Gauge({
+        name: 'sf_client_connections',
+        help: 'Number of current connections'
+      });
 }
 
 Server.prototype.setupRouter = function () {
-
     Picker.route('/metrics', function( params, request, response, next ) {
         response.setHeader( 'Content-Type', Prometheus.register.contentType);
         response.end(Prometheus.register.metrics());
