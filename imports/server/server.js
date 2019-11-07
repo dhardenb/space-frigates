@@ -11,6 +11,8 @@ import { packGameState } from '../utilities/utilities.js';
 
 Server = function Server() {
 
+    Prometheus = require('prom-client');
+
     engine = new Engine();
 
     ai = new Ai();
@@ -35,6 +37,8 @@ Server = function Server() {
 
 Server.prototype.init = function() {
 
+    server.setupMetrics();
+
     server.setupRouter();
 
     server.setupStreamPermissions();
@@ -47,11 +51,16 @@ Server.prototype.init = function() {
 
 }
 
+Server.prototype.setupMetrics = function () {
+    collectDefaultMetrics = Prometheus.collectDefaultMetrics;
+    collectDefaultMetrics({ timeout: 5000 });
+}
+
 Server.prototype.setupRouter = function () {
-    Picker.route( '/metrics', function( params, request, response, next ) {
-        response.setHeader( 'Content-Type', 'application/json' );
-        response.statusCode = 200;
-        response.end( "Metrics!" );
+
+    Picker.route('/metrics', function( params, request, response, next ) {
+        response.setHeader( 'Content-Type', Prometheus.register.contentType);
+        response.end(Prometheus.register.metrics());
     });
 }
 

@@ -9,6 +9,7 @@
     "babel-runtime": "6.18.0",
     "howler": "^2.1.2",
     "lodash": "^4.17.15",
-    "meteor-node-stubs": "~0.2.0"
+    "meteor-node-stubs": "~0.2.0",
+    "prom-client": "^11.5.3"
   }
 }
