@@ -10,6 +10,12 @@ I should start by saying that there is very important variable in the applicatio
 
 I've been trying to figure out the best way to render the objects that you see in the game. It turns out to be a bit a litte more involved than you would think.
 
+I think the primary basis for the sizing should be a circle that represents a human being. This circle should be considered to be 1 meter in diameter.
+
+From there, I should be able to simply set the current "zoom" level in pixels per meter.
+
+The Viper based ship chassis that I am currently using is approximitly 9 meters in length.
+
 #### Canvas Path Defintions
 
 There are two issues with the path definitions worth discussing:
@@ -63,3 +69,22 @@ There is also one other kind of sudo layer that I call the background and has th
 * HUD
 
 I need to build another layer that is NOT a part of the "map" layer and is constantly fixed to the size of the current viewport. The HUD will contain things like the ships current status: energy, hull, speed, direction, mini map, etc...
+
+## Sound Effects
+
+* Main Thruster
+* Rotational thrusters
+* Laser Firing
+* Laser striking
+* Ship exploding
+* Shield lowering (might be difficult)
+* Shield raising (might be difficult)
+
+### Proximity
+
+Would be really nice to increase the decrese the volume of sound effects based on distance from player's ship.
+
+### Volume Controls
+
+Woud be really nice to provide volume and mute controls to the GUI
+
