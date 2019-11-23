@@ -101,11 +101,11 @@ Client.prototype.setupStreamListeners = function() {
 
         serverUpdate = unpackGameState(serverUpdate);
 
-        lastUpdateId = serverUpdate.updateId;
+        ////////////////////
+        // update logging //
+        ////////////////////
 
         var updateDelta = serverUpdate.updateId - lastUpdateId;
-
-        // Added some logging here to detect if updates are being missed
 
         if (updateDelta == 1) {
 
@@ -194,14 +194,16 @@ Client.prototype.setupStreamListeners = function() {
 
         }
 
+        lastUpdateId = serverUpdate.updateId;
+
     });
 
 }
 
 Client.prototype.animationLoop = function() {
-    window.requestAnimationFrame(client.animationLoop);
     engine.update(60); // This needs to be updated to match current fps!!!
     renderer.renderMap();
+    window.requestAnimationFrame(client.animationLoop);
 }
 
 Client.prototype.getPlayerId = function() {
