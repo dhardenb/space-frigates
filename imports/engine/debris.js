@@ -33,7 +33,7 @@ Debris.prototype.copy = function(jsonObject) {
 
 Debris.prototype.update = function() {
     physics.findNewFacing(this);
-	physics.moveObjectAlongVector(this);
+	  physics.moveObjectAlongVector(this);
 }
 
 Debris.prototype.initRotation = function() {

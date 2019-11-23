@@ -3,7 +3,7 @@ Particle = function Particle() {
     this.Type = "Particle";
     this.Facing = 0;
     this.Size = 2.0;
-    this.fuelConsumptionRate = 1;
+    this.fuelConsumptionRate = 1; // 1 per second!
 
 }
 

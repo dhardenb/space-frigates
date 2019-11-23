@@ -1,15 +1,12 @@
 Thruster = function Thruster() {
-
     this.Type = "Thruster";
     this.Size = 6.0;
     this.ThrusterOffset = 2.0;
     this.initialVelocity = 0;
     this.fuelConsumptionRate = 1;
-
 }
 
 Thruster.prototype.init = function(sourceObject) {
-
     this.Id = engine.getNextGameObjectId;
     this.LocationX = sourceObject.LocationX;
     this.LocationY = sourceObject.LocationY;
@@ -20,17 +17,12 @@ Thruster.prototype.init = function(sourceObject) {
 
     this.calclulateInitialPosition(sourceObject);
     physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
-
 }
 
 Thruster.prototype.update = function() {
-
     this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
-
 	physics.moveObjectAlongVector(this);
-
 }
-
 
 Thruster.prototype.calclulateInitialPosition = function(sourceObject) {
 
