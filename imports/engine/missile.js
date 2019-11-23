@@ -4,7 +4,8 @@ Missile = function Missile() {
     this.Size = 3.0;
     this.MissileLaunchOffset = 1.0;
   	this.initialVelocity = 100;
-    this.Velocity = 0;
+	this.Velocity = 0;
+	this.fuelConsumptionRate = 60; // 60 per second!
 
 }
 
@@ -38,7 +39,7 @@ Missile.prototype.copy = function(jsonObject) {
 
 Missile.prototype.update = function() {
 
-	this.Fuel -= 1;
+	this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
 
 	physics.moveObjectAlongVector(this);
 
