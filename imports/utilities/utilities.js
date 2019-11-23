@@ -42,6 +42,12 @@ function packGameState(unpackedGameState) {
 
     var packedGameState = [];
 
+    /////////////////////
+    // Update Metadata //
+    /////////////////////
+
+    packedGameState.push(updateId);
+
     /////////////
     // Players //
     /////////////
@@ -50,11 +56,11 @@ function packGameState(unpackedGameState) {
 
     for (i = 0; i < unpackedGameState.players.length; i++) {
 
-        packedGameState[0].push([]);
+        packedGameState[1].push([]);
 
-        packedGameState[0][i].push(unpackedGameState.players[i].id);
+        packedGameState[1][i].push(unpackedGameState.players[i].id);
 
-        packedGameState[0][i].push(unpackedGameState.players[i].lastSeqNum);
+        packedGameState[1][i].push(unpackedGameState.players[i].lastSeqNum);
 
     }
 
@@ -66,57 +72,57 @@ function packGameState(unpackedGameState) {
 
     for (i = 0; i < unpackedGameState.gameState.length; i++) {
 
-        packedGameState[1].push([]);
+        packedGameState[2].push([]);
 
         if (unpackedGameState.gameState[i].Type == 'Human' ||
             unpackedGameState.gameState[i].Type == 'Alpha' ||
             unpackedGameState.gameState[i].Type == 'Bravo') {
 
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].RotationDirection);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].RotationVelocity);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].ShieldOn);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].ShieldStatus);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].HullStrength);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Capacitor);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Name);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Score);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Id);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Type);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Fuel);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].LocationX);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].LocationY);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Facing);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Heading);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Velocity);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].RotationDirection);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].RotationVelocity);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].ShieldOn);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].ShieldStatus);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].HullStrength);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Capacitor);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Name);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Score);
 
         }
 
         if (unpackedGameState.gameState[i].Type == 'Debris') {
 
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].RotationDirection);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].RotationVelocity);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Id);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Type);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Fuel);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].LocationX);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].LocationY);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Facing);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Heading);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Velocity);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].RotationDirection);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].RotationVelocity);
 
         }
 
         if (unpackedGameState.gameState[i].Type == 'Missile') {
 
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Owner);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Id);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Type);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Fuel);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].LocationX);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].LocationY);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Facing);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Heading);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Velocity);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Owner);
 
         }
 
@@ -134,19 +140,25 @@ function unpackGameState(packedGameState) {
 
     var unpackedGameState = {};
 
+    /////////////////////
+    // Update Metadata //
+    /////////////////////
+
+    unpackedGameState.updateId = packedGameState[0];
+
     /////////////
     // Players //
     /////////////
 
     unpackedGameState.players = [];
 
-    for (i = 0; i < packedGameState[0].length; i++) {
+    for (i = 0; i < packedGameState[1].length; i++) {
 
         unpackedGameState.players.push({});
 
-        unpackedGameState.players[i].id = packedGameState[0][i][0];
+        unpackedGameState.players[i].id = packedGameState[1][i][0];
 
-        unpackedGameState.players[i].lastSeqNum = packedGameState[0][i][1];
+        unpackedGameState.players[i].lastSeqNum = packedGameState[1][i][1];
 
     }
 
@@ -156,59 +168,59 @@ function unpackGameState(packedGameState) {
 
     unpackedGameState.gameState = [];
 
-    for (i = 0; i < packedGameState[1].length; i++) {
+    for (i = 0; i < packedGameState[2].length; i++) {
 
         unpackedGameState.gameState.push({});
 
-        if (packedGameState[1][i][1] == 'Human' ||
-            packedGameState[1][i][1] ==  'Alpha' ||
-            packedGameState[1][i][1] ==  'Bravo') {
+        if (packedGameState[2][i][1] == 'Human' ||
+            packedGameState[2][i][1] ==  'Alpha' ||
+            packedGameState[2][i][1] ==  'Bravo') {
 
-            unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-            unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-            unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
-            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
-            unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
-            unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
-            unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
-            unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][8];
-            unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][9];
-            unpackedGameState.gameState[i].ShieldOn = packedGameState[1][i][10];
-            unpackedGameState.gameState[i].ShieldStatus = packedGameState[1][i][11];
-            unpackedGameState.gameState[i].HullStrength = packedGameState[1][i][12];
-            unpackedGameState.gameState[i].Capacitor = packedGameState[1][i][13];
-            unpackedGameState.gameState[i].Name = packedGameState[1][i][14];
-            unpackedGameState.gameState[i].Score = packedGameState[1][i][15];
-
-        }
-
-        if (packedGameState[1][i][1] == 'Debris') {
-
-            unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-            unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-            unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
-            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
-            unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
-            unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
-            unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
-            unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][8];
-            unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][9];
+            unpackedGameState.gameState[i].Id = packedGameState[2][i][0];
+            unpackedGameState.gameState[i].Type = packedGameState[2][i][1];
+            unpackedGameState.gameState[i].Fuel = packedGameState[2][i][2];
+            unpackedGameState.gameState[i].LocationX = packedGameState[2][i][3];
+            unpackedGameState.gameState[i].LocationY = packedGameState[2][i][4];
+            unpackedGameState.gameState[i].Facing = packedGameState[2][i][5];
+            unpackedGameState.gameState[i].Heading = packedGameState[2][i][6];
+            unpackedGameState.gameState[i].Velocity = packedGameState[2][i][7];
+            unpackedGameState.gameState[i].RotationDirection = packedGameState[2][i][8];
+            unpackedGameState.gameState[i].RotationVelocity = packedGameState[2][i][9];
+            unpackedGameState.gameState[i].ShieldOn = packedGameState[2][i][10];
+            unpackedGameState.gameState[i].ShieldStatus = packedGameState[2][i][11];
+            unpackedGameState.gameState[i].HullStrength = packedGameState[2][i][12];
+            unpackedGameState.gameState[i].Capacitor = packedGameState[2][i][13];
+            unpackedGameState.gameState[i].Name = packedGameState[2][i][14];
+            unpackedGameState.gameState[i].Score = packedGameState[2][i][15];
 
         }
 
-        if (packedGameState[1][i][1] == 'Missile') {
+        if (packedGameState[2][i][1] == 'Debris') {
 
-            unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-            unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-            unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
-            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
-            unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
-            unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
-            unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
-            unpackedGameState.gameState[i].Owner = packedGameState[1][i][8];
+            unpackedGameState.gameState[i].Id = packedGameState[2][i][0];
+            unpackedGameState.gameState[i].Type = packedGameState[2][i][1];
+            unpackedGameState.gameState[i].Fuel = packedGameState[2][i][2];
+            unpackedGameState.gameState[i].LocationX = packedGameState[2][i][3];
+            unpackedGameState.gameState[i].LocationY = packedGameState[2][i][4];
+            unpackedGameState.gameState[i].Facing = packedGameState[2][i][5];
+            unpackedGameState.gameState[i].Heading = packedGameState[2][i][6];
+            unpackedGameState.gameState[i].Velocity = packedGameState[2][i][7];
+            unpackedGameState.gameState[i].RotationDirection = packedGameState[2][i][8];
+            unpackedGameState.gameState[i].RotationVelocity = packedGameState[2][i][9];
+
+        }
+
+        if (packedGameState[2][i][1] == 'Missile') {
+
+            unpackedGameState.gameState[i].Id = packedGameState[2][i][0];
+            unpackedGameState.gameState[i].Type = packedGameState[2][i][1];
+            unpackedGameState.gameState[i].Fuel = packedGameState[2][i][2];
+            unpackedGameState.gameState[i].LocationX = packedGameState[2][i][3];
+            unpackedGameState.gameState[i].LocationY = packedGameState[2][i][4];
+            unpackedGameState.gameState[i].Facing = packedGameState[2][i][5];
+            unpackedGameState.gameState[i].Heading = packedGameState[2][i][6];
+            unpackedGameState.gameState[i].Velocity = packedGameState[2][i][7];
+            unpackedGameState.gameState[i].Owner = packedGameState[2][i][8];
 
         }
 

@@ -26,7 +26,9 @@ Engine.prototype.getNextGameObjectId = function() {
 
 }
 
-Engine.prototype.update = function () {
+Engine.prototype.update = function (currentFramesPerSecond) {
+
+  framesPerSecond = currentFramesPerSecond;
 
   // Can't pre calculate the length of the array because some of the command create new objects
   for (var i = 0; i < gameObjects.length; i++) {

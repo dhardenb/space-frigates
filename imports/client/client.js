@@ -9,7 +9,11 @@ import { unpackGameState } from '../utilities/utilities.js';
 
 Client = function Client() {
 
+    localMode = false;
+
     engine = new Engine();
+
+    lastUpdateId = 0;
 
     keyboard = new Keyboard();
 
@@ -67,31 +71,75 @@ Client.prototype.setupEventHandlers = function() {
 
 Client.prototype.setupStreamListeners = function() {
 
+    // There are lots of opportunites to add metrics here.
+    // 1) How many time a second is this event being fired
+    // 2) What is the latency between the time the event is sent from the 
+    //    server and the time that it is recieved by the client
+    // 3) What is the size of the update
+    // 4) How many local commands have to be reissued
     outputStream.on('output', function(serverUpdate) {
 
-        updateSize = JSON.stringify(serverUpdate).length;
+        // updateSize = JSON.stringify(serverUpdate).length;
 
-        numberOfUpdates++;
+        // numberOfUpdates++;
 
-        totalSizeOfUpdates = totalSizeOfUpdates + updateSize;
+        // totalSizeOfUpdates = totalSizeOfUpdates + updateSize;
 
-        if (updateSize < smallestUpdate || smallestUpdate == 0) {
+        // if (updateSize < smallestUpdate || smallestUpdate == 0) {
 
-            smallestUpdate = updateSize;
+        //     smallestUpdate = updateSize;
 
-        }
+        // }
 
-        if (updateSize > largestUpdate) {
+        // if (updateSize > largestUpdate) {
 
-            largestUpdate = updateSize;
+        //    largestUpdate = updateSize;
 
-        }
+        // }
 
         // console.log("Avergae Update Size: " + Math.round(totalSizeOfUpdates / numberOfUpdates) + " Smallest Update Size: " + smallestUpdate + " Largest Update Size: " + largestUpdate);
 
         serverUpdate = unpackGameState(serverUpdate);
 
-        gameObjects = engine.convertObjects(gameObjects, serverUpdate.gameState);
+        lastUpdateId = serverUpdate.updateId;
+
+        var updateDelta = serverUpdate.updateId - lastUpdateId;
+
+        // Added some logging here to detect if updates are being missed
+
+        if (updateDelta == 1) {
+
+            // This is ideal state!
+
+        } else if (updateDelta == 0) { 
+
+            // This means we got the sme update twice!
+            console.log("DUPLICATE: lastUpdateId: " + lastUpdateId + " serverUpdate.updateId: " + serverUpdate.updateId);
+
+        } else if (updateDelta < 0) {
+
+            // This means we got an old update!
+            console.log("OLD UPDATE: lastUpdateId: " + lastUpdateId + " serverUpdate.updateId: " + serverUpdate.updateId);
+
+        } else if (updateDelta > 1) {
+
+            // This means we missed an update!
+            console.log("MISSED UPDATE: lastUpdateId: " + lastUpdateId + " serverUpdate.updateId: " + serverUpdate.updateId);
+
+        }
+
+        if (!localMode) {
+            gameObjects = engine.convertObjects(gameObjects, serverUpdate.gameState);
+        }   
+
+        /////////////////////////////////////////////////////////////////
+        // This next session is intended to reissue commands locally
+        // that have not been processed on the server yet. This has
+        // to be done because when the update is sent down the local
+        // game state in overwritten. So any commands that were issued
+        // locally are lost. I'm really not 1005 sure if this works as
+        // intended.
+        /////////////////////////////////////////////////////////////////
 
         var lastCommandServerProcessed;
 
@@ -121,8 +169,9 @@ Client.prototype.setupStreamListeners = function() {
 
         }
 
+        ///////////////////
         // Check to see if player's ship is destroyed. If it is, switch the game to 'END_MODE'
-
+        //////
         var playerIsAlive = false;        
 
         for (x = 0; x < gameObjects.length; x++) {
@@ -150,13 +199,9 @@ Client.prototype.setupStreamListeners = function() {
 }
 
 Client.prototype.animationLoop = function() {
-
     window.requestAnimationFrame(client.animationLoop);
-
-    engine.update();
-
+    engine.update(60); // This needs to be updated to match current fps!!!
     renderer.renderMap();
-
 }
 
 Client.prototype.getPlayerId = function() {
@@ -185,22 +230,23 @@ Client.prototype.requestShip = function() {
 
     }
 
-    Meteor.call('createNewPlayerShip', playerName, (err, res) => {
-
-        if (err) {
-
-            alert(err);
-
-        } else {
-
-            gameMode = 'PLAY_MODE';
-
-            playerShipId = res;
-
-        }
-
-    });
-
+    if (!localMode) {
+        Meteor.call('createNewPlayerShip', playerName, (err, res) => {
+            if (err) {
+                alert(err);
+            } else {
+                gameMode = 'PLAY_MODE';
+                playerShipId = res;
+            }
+        });
+    } else {
+        var playerShip = new Ship();
+        playerShip.init('Human');
+        playerShip.Name = playerName;
+        playerShip.setStartingHumanPosition();
+        gameObjects.push(playerShip);
+        playerShipId = playerShip.Id;
+    }
 }
 
 // NOTE: I should really insert the sequence number here at not

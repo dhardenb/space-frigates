@@ -15,6 +15,8 @@ Server = function Server() {
 
     engine = new Engine();
 
+    updateId = 0;
+
     ai = new Ai();
 
     gameObjects = [];
@@ -111,7 +113,7 @@ Server.prototype.startPhysicsLoop = function() {
 
         ai.issueCommands();
 
-        engine.update();
+        engine.update(60);
 
     }, frameRate);
 
@@ -121,7 +123,9 @@ Server.prototype.startMessageLoop = function() {
 
     setInterval(function() {
 
-        outputStream.emit('output', packGameState({players: players, gameState: gameObjects}));
+        outputStream.emit('output', packGameState({updateId: updateId, players: players, gameState: gameObjects}));
+
+        updateId++;
 
     }, messageOutputRate);
 
