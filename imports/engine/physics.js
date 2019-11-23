@@ -1,8 +1,4 @@
-Physics = function Physics() {
-
-    framesPerSecond = 60;
-
-}
+Physics = function Physics() {}
 
 Physics.prototype.moveObjectAlongVector = function(GameObject)
 {
