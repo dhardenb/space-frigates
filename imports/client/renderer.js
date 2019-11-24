@@ -499,7 +499,7 @@ Renderer.prototype.renderLeaderboard = function () {
 
         }
 
-        map.fillText(playerShips[i].Name + ": " + playerShips[i].Score, 0, 0);
+        map.fillText(playerShips[i].Name + " Kills: " + playerShips[i].Kills + " Deaths: " + playerShips[i].Deaths, 0, 0);
 
     }
 

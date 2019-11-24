@@ -84,6 +84,7 @@ Engine.prototype.collisionDetection = function () {
                     this.createDebris(solidObjects[k]);
                     this.createExplosion(solidObjects[k]);
                     deadObjects.push(solidObjects[k]);
+                    this.scoreDeath(solidObjects[k]);
                     this.scoreKill(solidObjects[i].Owner);
                 }
 
@@ -116,6 +117,8 @@ Engine.prototype.collisionDetection = function () {
                 // This object has collided with something so we get to blow it up!!!
                 if (solidObjects[k].Type != "Debris") {
                     this.createExplosion(solidObjects[k]);
+                    this.scoreDeath(solidObjects[k]);
+
                 }
 
                 // I created this array of objects to remove because removing objects from
@@ -186,6 +189,7 @@ Engine.prototype.boundryChecking = function () {
     // than the radius of the screen.
     if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < mapRadius * mapRadius)) {
       this.createExplosion(solidObjects[x]);
+      this.scoreDeath(solidObjects[x]);
       deadObjects.push(solidObjects[x]);
     }
   }
@@ -268,15 +272,19 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
 }
 
 Engine.prototype.scoreKill = function (shipId) {
-
   for (var x = 0, y = gameObjects.length; x < y; x++) {
-
     if (gameObjects[x].Id == shipId) {
-
-      gameObjects[x].Score += 1;
-
+      gameObjects[x].Kills += 1;
     }
-
   }
-
 }
+
+Engine.prototype.scoreDeath = function (shipId) {
+  for (var x = 0, y = gameObjects.length; x < y; x++) {
+    if (gameObjects[x].Id == shipId) {
+      gameObjects[x].Deaths += 1;
+    }
+  }
+}
+
+

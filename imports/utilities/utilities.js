@@ -97,7 +97,8 @@ function packGameState(unpackedGameState) {
             packedGameState[2][i].push(unpackedGameState.gameState[i].HullStrength);
             packedGameState[2][i].push(unpackedGameState.gameState[i].Capacitor);
             packedGameState[2][i].push(unpackedGameState.gameState[i].Name);
-            packedGameState[2][i].push(unpackedGameState.gameState[i].Score);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Kills);
+            packedGameState[2][i].push(unpackedGameState.gameState[i].Deaths);
 
         }
 
@@ -201,7 +202,8 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].HullStrength = packedGameState[2][i][12];
             unpackedGameState.gameState[i].Capacitor = packedGameState[2][i][13];
             unpackedGameState.gameState[i].Name = packedGameState[2][i][14];
-            unpackedGameState.gameState[i].Score = packedGameState[2][i][15];
+            unpackedGameState.gameState[i].Kills = packedGameState[2][i][15];
+            unpackedGameState.gameState[i].Deaths = packedGameState[2][i][16];
 
         }
 
