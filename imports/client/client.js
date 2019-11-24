@@ -51,7 +51,7 @@ Client.prototype.setupStreamListeners = function() {
 
         var downloadTime = Date.now() - serverUpdate.update.createdAt;
         
-        if (downloadTime <  50) {
+        //if (downloadTime <  50) {
 
             if (!localMode) {
                 gameObjects = engine.convertObjects(gameObjects, serverUpdate.gameState);
@@ -143,7 +143,7 @@ Client.prototype.setupStreamListeners = function() {
             }
             lastUpdateId = serverUpdate.updateId;
 
-        }
+        //}
     });
 }
 
