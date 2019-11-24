@@ -46,7 +46,11 @@ function packGameState(unpackedGameState) {
     // Update Metadata //
     /////////////////////
 
-    packedGameState.push(updateId);
+    packedGameState.push([]);
+
+    packedGameState[0].push(updateId);
+
+    packedGameState[0].push(Date.now());
 
     /////////////
     // Players //
@@ -144,7 +148,13 @@ function unpackGameState(packedGameState) {
     // Update Metadata //
     /////////////////////
 
-    unpackedGameState.updateId = packedGameState[0];
+    unpackedGameState.update = [];
+
+    unpackedGameState.update.push({});
+
+    unpackedGameState.update.id = packedGameState[0][0];
+
+    unpackedGameState.update.createdAt = packedGameState[0][1];
 
     /////////////
     // Players //
