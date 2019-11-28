@@ -139,12 +139,10 @@ Ship.prototype.update = function() {
         }
 
         if (activateThruster) {
-            if (this.Velocity < 100) {
-                physics.findNewVelocity(this, this.Facing, 20);
-                var newThruster = new Thruster();
-                newThruster.init(this);
-                gameObjects.push(newThruster);
-            }
+            physics.findNewVelocity(this, this.Facing, 20);
+            var newThruster = new Thruster();
+            newThruster.init(this);
+            gameObjects.push(newThruster);
         }
     }
 
