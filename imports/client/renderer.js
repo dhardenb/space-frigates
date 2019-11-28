@@ -145,6 +145,8 @@ Renderer.prototype.renderMap = function () {
 
     if (gameMode == 'START_MODE') {
 
+        this.renderLeaderboard();
+
         this.renderTitle();
 
         this.renderVersion();
