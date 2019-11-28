@@ -143,6 +143,8 @@ Renderer.prototype.renderMap = function () {
 
     map.save();
 
+    this.renderMiniMap();
+
     if (gameMode == 'START_MODE') {
 
         this.renderLeaderboard();
@@ -189,6 +191,69 @@ Renderer.prototype.calculateOffset = function () {
 
     }
 
+}
+
+Renderer.prototype.renderMiniMap = function () {
+    map.save();
+
+    map.translate(availableWidth - availablePixels / 8 - 20, availablePixels / 8 + 20);
+
+    /////////////////////////////////
+    // Render Background and Bezel //
+    /////////////////////////////////
+
+    map.save();
+
+    map.beginPath();
+
+    map.arc(0, 0, availablePixels / 8, 0, 2 * Math.PI);
+
+    map.strokeStyle = "rgba(50, 50, 50, 1.0)";
+
+    map.fillStyle = "rgba(0, 0, 0, 1.0)"
+
+    map.lineWidth = 5;
+
+    map.fill();
+
+    map.stroke();
+
+    map.clip()
+
+    //////////////////////////////
+    // Render ships and boundry //
+    //////////////////////////////
+
+    map.scale(0.1,0.1);
+
+    map.translate(focalX, focalY);
+
+    this.renderBoundry();
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+        if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+            this.renderShip(gameObjects[i]);
+        }
+    }
+
+    map.restore();
+
+    map.restore();
+}
+
+Renderer.prototype.calculateOffset = function () {
+
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+
+        if (gameObjects[x].Id == playerShipId) {
+
+            focalX = -gameObjects[x].LocationX * pixelsPerMeter;
+
+            focalY = -gameObjects[x].LocationY * pixelsPerMeter;
+
+        }
+
+    }
 }
 
 Renderer.prototype.renderStar = function (star) {
