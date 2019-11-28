@@ -63,6 +63,16 @@ Ship.prototype.update = function() {
         }
     }
 
+    //////////////////
+    // Solar Panels //
+    //////////////////
+    if (this.Capacitor < 100) {
+        this.Capacitor += 0.05;
+    }
+    if (this.Capacitor > 100) {
+        this.Capacitor = 100;
+    }
+
     ///////////////////////////////////////////////////////
     // Update Brakes
     ///////////////////////////////////////////////////////
