@@ -199,19 +199,12 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
     // User typing in name
     else if (evt.keyCode >= 65 && evt.keyCode <=90) {
-
         if (gameMode == 'START_MODE') {
-
             evt.preventDefault();
-
             if (playerName.length < 8) {
-        
                 playerName = playerName + String.fromCharCode(evt.which);
-
-            }
-                
+            }  
         }
-
     }
 
     // + Zoom In

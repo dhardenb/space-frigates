@@ -300,6 +300,21 @@ Renderer.prototype.renderShip = function (ship) {
     map.save();
 
     var nameToDraw = "";
+    var playerName = "";
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+
+        if (gameObjects[i].Type == 'Player') {
+
+            if (gameObjects[i].ShipId == ship.Id) {
+                
+                playerName = gameObjects[i].Name;
+
+            }
+
+        }
+
+    }
 
     if (ship.Type != 'Human') {
 
@@ -307,13 +322,13 @@ Renderer.prototype.renderShip = function (ship) {
 
     } else {
 
-        if (ship.Name == "") {
+        if (playerName == "") {
 
             nameToDraw = "GUEST";
 
         } else {
 
-            nameToDraw = ship.Name;
+            nameToDraw = playerName;
 
         }
 
@@ -471,25 +486,25 @@ Renderer.prototype.renderLeaderboard = function () {
 
     map.font = "16px Arial";
 
-    var playerShips = [];
+    var players = [];
 
     for (var i=0, j=gameObjects.length; i<j; i++) {
 
-        if (gameObjects[i].Type == 'Human') {
+        if (gameObjects[i].Type == 'Player') {
 
-            playerShips.push(gameObjects[i]);
+            players.push(gameObjects[i]);
 
         }
 
     }
 
-    playerShips = _.orderBy(playerShips, 'Score', 'desc');
+    players = _.orderBy(players, 'Kills', 'desc');
 
-    for (var i=0, j=playerShips.length; i<j; i++) {
+    for (var i=0, j=players.length; i<j; i++) {
 
         map.translate(0, 25);
 
-        if (playerShips[i].Id == playerShipId) {
+        if (players[i].Id == playerId) {
 
             map.fillStyle = "yellow";
 
@@ -499,7 +514,7 @@ Renderer.prototype.renderLeaderboard = function () {
 
         }
 
-        map.fillText(playerShips[i].Name + " Kills: " + playerShips[i].Kills + " Deaths: " + playerShips[i].Deaths, 0, 0);
+        map.fillText(players[i].Name + " Kills: " + players[i].Kills + " Deaths: " + players[i].Deaths, 0, 0);
 
     }
 

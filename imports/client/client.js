@@ -49,7 +49,7 @@ Client.prototype.setupStreamListeners = function() {
     outputStream.on('output', function(serverUpdate) {
         serverUpdate = unpackGameState(serverUpdate);
 
-        var downloadTime = Date.now() - serverUpdate.update.createdAt;
+        // var downloadTime = Date.now() - serverUpdate.update.createdAt;
         
         //if (downloadTime <  50) {
 
@@ -71,10 +71,10 @@ Client.prototype.setupStreamListeners = function() {
             //    console.log(processDelta);
             //}
 
-            console.log(serverUpdate.update.createdAt - lastUpdateCreatedAt + " " + downloadTime);
+            // console.log(serverUpdate.update.createdAt - lastUpdateCreatedAt + " " + downloadTime);
 
-            lastUpdateCreatedAt = serverUpdate.update.createdAt;
-            lastTimeStamp = Date.now();
+            // lastUpdateCreatedAt = serverUpdate.update.createdAt;
+            // lastTimeStamp = Date.now();
 
             // updateSize = JSON.stringify(serverUpdate).length;
             // numberOfUpdates++;
@@ -111,21 +111,21 @@ Client.prototype.setupStreamListeners = function() {
             // intended.
             /////////////////////////////////////////////////////////////////
 
-            var lastCommandServerProcessed;
+            // var lastCommandServerProcessed;
 
-            for (x = 0; x < serverUpdate.players.length; x++) {
-                if (serverUpdate.players[x].id == client.playerId) {
-                    lastCommandServerProcessed = serverUpdate.players[x].lastSeqNum;
-                }
-            }
+            // for (x = 0; x < serverUpdate.players.length; x++) {
+            //     if (serverUpdate.players[x].id == client.playerId) {
+            //        lastCommandServerProcessed = serverUpdate.players[x].lastSeqNum;
+            //    }
+            // }
 
-            for (x = 0; x < sentCommands.length; x++) {
-                if (sentCommands[x].seqNum > lastCommandServerProcessed) {
-                    commands.push(sentCommands[x]);
-                } else {
-                    // Purge the command since the server has already run it!
-                }
-            }
+            // for (x = 0; x < sentCommands.length; x++) {
+            //    if (sentCommands[x].seqNum > lastCommandServerProcessed) {
+            //        commands.push(sentCommands[x]);
+            //    } else {
+            //        // Purge the command since the server has already run it!
+            //    }
+            // }
 
             // Check to see if player's ship is destroyed. If it is, switch the game to 'END_MODE'
             var playerIsAlive = false;        
@@ -158,8 +158,9 @@ Client.prototype.getPlayerId = function() {
         if (err) {
             alert(err);
         } else {
-            this.playerId = res;
+            playerId = res;
         }
+        console.log("Just got back: " + res);
     });
 }
 
@@ -169,12 +170,17 @@ Client.prototype.requestShip = function() {
     }
 
     if (!localMode) {
-        Meteor.call('createNewPlayerShip', playerName, (err, res) => {
+        Meteor.call('createNewPlayerShip', (err, res) => {
             if (err) {
                 alert(err);
             } else {
                 gameMode = 'PLAY_MODE';
                 playerShipId = res;
+            }
+        });
+        Meteor.call('updatePlayerName', playerName, (err, res) => {
+            if (err) {
+                alert(err);
             }
         });
     } else {

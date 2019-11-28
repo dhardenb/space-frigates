@@ -5,6 +5,14 @@ Ai = function Ai() {
 
 Ai.prototype.createNewShip = function() {
 
+    var players = [];
+
+    for (var i=0, j=gameObjects.length; i<j; i++) {
+        if (gameObjects[i].Type == 'Player') {
+            players.push(gameObjects[i]);
+        }
+    }
+
     var numberOfPlayers = players.length;
     var nextShipType = 0;
 

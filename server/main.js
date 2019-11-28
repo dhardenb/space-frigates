@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 
 import '../imports/server/server.js';
 
-import '../imports/server/player.js';
+import '../imports/engine/player.js';
 
 import { removeByAttr } from '../imports/utilities/utilities.js';
 
@@ -21,12 +21,15 @@ Meteor.onConnection(function(connection) {
 
         clientConnectionsGauge.dec();
 
-        removeByAttr(players, 'id', connection.id);
+        gameObjects = removeByAttr(gameObjects, "Id", connection.id);
+
+        // Remove the ship? Turn it into a zombie ship?
 
     });
 
     clientConnectionsGauge.inc();
 
-    players.push(new Player(connection));
-
+    var newPlayer = new Player();
+    newPlayer.init(connection.id);
+    gameObjects.push(newPlayer);
 });

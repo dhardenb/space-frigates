@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import '../engine/engine.js';
 import './ai.js';
-import './player.js';
 import { packGameState } from '../utilities/utilities.js';
 
 Server = function Server() {
@@ -76,22 +75,41 @@ Server.prototype.startPhysicsLoop = function() {
 
 Server.prototype.startMessageLoop = function() {
     setInterval(function() {
-        outputStream.emit('output', packGameState({updateId: updateId, players: players, gameState: gameObjects}));
+        outputStream.emit('output', packGameState({updateId: updateId, gameState: gameObjects}));
         updateId++;
     }, messageOutputRate);
 }
 
 Meteor.methods({
-    createNewPlayerShip: function(playerName) {
+    createNewPlayerShip: function() {
+        
         var playerShip = new Ship();
         playerShip.init('Human');
-        playerShip.Name = playerName;
         playerShip.setStartingHumanPosition();
         gameObjects.push(playerShip);
+
+        for (var i=0, j=gameObjects.length; i<j; i++) {
+            if (gameObjects[i].Type == 'Player') {
+                if (gameObjects[i].Id == this.connection.id) {
+                    gameObjects[i].ShipId = playerShip.Id;
+                }
+            }
+        }
+
         return playerShip.Id;
     },
 
     getPlayerId: function() {
         return this.connection.id;
+    },
+
+    updatePlayerName: function(name) {
+        for (var i=0, j=gameObjects.length; i<j; i++) {
+            if (gameObjects[i].Type == 'Player') {
+                if (gameObjects[i].Id == this.connection.id) {
+                    gameObjects[i].Name = name;
+                }
+            }
+        }
     }
 });

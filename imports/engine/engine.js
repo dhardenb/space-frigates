@@ -1,3 +1,4 @@
+import './player.js';
 import './missile.js';
 import './ship.js';
 import './particle.js';
@@ -44,12 +45,7 @@ Engine.prototype.update = function (currentFramesPerSecond) {
 }
 
 Engine.prototype.collisionDetection = function () {
-  var solidObjects = [];
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster') {
-      solidObjects.push(gameObjects[x])
-    }
-  }
+  var solidObjects = this.findSolidObjects();
 
   // Run colision detection for each solidObject
   for (var i = 0, j = solidObjects.length; i < j; i++) {
@@ -84,7 +80,7 @@ Engine.prototype.collisionDetection = function () {
                     this.createDebris(solidObjects[k]);
                     this.createExplosion(solidObjects[k]);
                     deadObjects.push(solidObjects[k]);
-                    this.scoreDeath(solidObjects[k]);
+                    this.scoreDeath(solidObjects[k].Id);
                     this.scoreKill(solidObjects[i].Owner);
                 }
 
@@ -117,7 +113,7 @@ Engine.prototype.collisionDetection = function () {
                 // This object has collided with something so we get to blow it up!!!
                 if (solidObjects[k].Type != "Debris") {
                     this.createExplosion(solidObjects[k]);
-                    this.scoreDeath(solidObjects[k]);
+                    this.scoreDeath(solidObjects[k].Id);
 
                 }
 
@@ -174,7 +170,7 @@ Engine.prototype.fuelDetection = function () {
 Engine.prototype.findSolidObjects = function () {
   var solidObjects = [];
   for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster') {
+    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster' && gameObjects[x].Type != 'Player') {
       solidObjects.push(gameObjects[x])
     }
   }
@@ -189,7 +185,7 @@ Engine.prototype.boundryChecking = function () {
     // than the radius of the screen.
     if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < mapRadius * mapRadius)) {
       this.createExplosion(solidObjects[x]);
-      this.scoreDeath(solidObjects[x]);
+      this.scoreDeath(solidObjects[x].Id);
       deadObjects.push(solidObjects[x]);
     }
   }
@@ -217,40 +213,52 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
 
     for (var x = 0, y = remoteGameObjects.length; x < y; x++) {
 
-        if (remoteGameObjects[x].Type == 'Human' ||
-            remoteGameObjects[x].Type == 'Alpha' ||
-            remoteGameObjects[x].Type == 'Bravo') {
+        if (remoteGameObjects[x].Type == 'Player') {
 
-            var newShip = new Ship();
+          var newPlayer = new Player();
 
-            newShip.copy(remoteGameObjects[x]);
+          newPlayer.copy(remoteGameObjects[x]);
 
-            convertedObjects.push(newShip);
+          convertedObjects.push(newPlayer);
+
+        }
+
+        else if (remoteGameObjects[x].Type == 'Human' ||
+          remoteGameObjects[x].Type == 'Alpha' ||
+          remoteGameObjects[x].Type == 'Bravo') {
+
+          var newShip = new Ship();
+
+          newShip.copy(remoteGameObjects[x]);
+
+          convertedObjects.push(newShip);
 
         }
 
         else if (remoteGameObjects[x].Type == 'Missile') {
 
-            var newMissile = new Missile();
+          var newMissile = new Missile();
 
-            newMissile.copy(remoteGameObjects[x]);
+          newMissile.copy(remoteGameObjects[x]);
 
-            convertedObjects.push(newMissile);
+          convertedObjects.push(newMissile);
 
         }
 
         else if (remoteGameObjects[x].Type == 'Debris') {
 
-            var newDebris = new Debris();
+          var newDebris = new Debris();
 
-            newDebris.copy(remoteGameObjects[x]);
+          newDebris.copy(remoteGameObjects[x]);
 
-            convertedObjects.push(newDebris);
+          convertedObjects.push(newDebris);
 
         }
 
   }
 
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Player");
+  
   localGameObjects = removeByAttr(localGameObjects, "Type", "Human");
 
   localGameObjects = removeByAttr(localGameObjects, "Type", "Alpha");
@@ -272,19 +280,23 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
 }
 
 Engine.prototype.scoreKill = function (shipId) {
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Id == shipId) {
-      gameObjects[x].Kills += 1;
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+        if (gameObjects[x].Type == 'Player') {
+            if (gameObjects[x].ShipId == shipId) {
+                gameObjects[x].Kills += 1;
+            }
+        }
     }
-  }
 }
 
 Engine.prototype.scoreDeath = function (shipId) {
-  for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Id == shipId) {
-      gameObjects[x].Deaths += 1;
+    for (var x = 0, y = gameObjects.length; x < y; x++) {
+        if (gameObjects[x].Type == 'Player') {
+            if (gameObjects[x].ShipId == shipId) {
+                gameObjects[x].Deaths += 1;
+            }
+        }
     }
-  }
 }
 
 

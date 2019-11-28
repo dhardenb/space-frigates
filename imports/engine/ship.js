@@ -17,9 +17,6 @@ Ship.prototype.init = function(shipType) {
     this.ShieldStatus = 0;
     this.HullStrength = 100;
     this.Capacitor = 100;
-    this.Name = "";
-    this.Kills = 0;
-    this.Deaths = 0;
 }
 
 Ship.prototype.copy = function(jsonObject) {
@@ -37,9 +34,6 @@ Ship.prototype.copy = function(jsonObject) {
     this.ShieldStatus = jsonObject.ShieldStatus;
     this.HullStrength = jsonObject.HullStrength;
     this.Capacitor = jsonObject.Capacitor;
-    this.Name = jsonObject.Name;
-    this.Kills = jsonObject.Kills;
-    this.Deaths = jsonObject.Deaths;
 }
 
 Ship.prototype.update = function() {
