@@ -670,9 +670,21 @@ Renderer.prototype.renderHullStrength = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 325);
+    map.translate(0, availableHeight - 125);
 
-    map.fillText("HULL: " + hullStrengthDisplayValue, 0, 0);
+    map.fillText("HULL: ", 0, 0);
+
+    map.restore();
+
+    map.save();
+
+    map.translate(125, availableHeight - 144);
+
+    if (hullStrengthDisplayValue == "OFF") {
+        this.renderMeter(-1);
+    } else {
+        this.renderMeter(hullStrengthDisplayValue);
+    }
 
     map.restore();
 
@@ -712,9 +724,21 @@ Renderer.prototype.renderFuelStatus = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 300);
+    map.translate(0, availableHeight - 90);
 
-    map.fillText("FUEL: " + fuelDisplayValue, 0, 0);
+    map.fillText("FUEL: ", 0, 0);
+
+    map.restore();
+
+    map.save();
+
+    map.translate(125, availableHeight - 108);
+
+    if (fuelDisplayValue == "OFF") {
+        this.renderMeter(-1);
+    } else {
+        this.renderMeter(fuelDisplayValue / 1000 * 100);
+    }
 
     map.restore();
 
@@ -754,9 +778,21 @@ Renderer.prototype.renderCapacitorStatus = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 275);
+    map.translate(0, availableHeight - 55);
 
-    map.fillText("CAPACITOR: " + capacitorDisplayValue, 0, 0);
+    map.fillText("CAPACITOR: ", 0, 0);
+
+    map.restore();
+
+    map.save();
+
+    map.translate(125, availableHeight - 72);
+
+    if (capacitorDisplayValue == "OFF") {
+        this.renderMeter(-1);
+    } else {
+        this.renderMeter(capacitorDisplayValue);
+    }
 
     map.restore();
 
@@ -806,9 +842,21 @@ Renderer.prototype.renderShieldStatus = function () {
 
     map.font = "20px Arial";
 
-    map.translate(0, availableHeight - 250);
+    map.translate(0, availableHeight - 20);
 
-    map.fillText("SHIELDS: " + shieldDisplayValue, 0, 0);
+    map.fillText("SHIELDS: ", 0, 0);
+
+    map.restore();
+
+    map.save();
+
+    map.translate(125, availableHeight - 37);
+
+    if (shieldDisplayValue == "OFF") {
+        this.renderMeter(-1);
+    } else {
+        this.renderMeter(shieldDisplayValue);
+    }
 
     map.restore();
 
@@ -852,6 +900,108 @@ Renderer.prototype.renderInstructions = function () {
 
     map.restore();
 
+}
+
+Renderer.prototype.renderMeter = function (percentage) {
+    
+    map.save();
+
+    var color = "";
+
+    if (percentage == -1) {
+        color = "gray";
+    } else if (percentage <= 33) {
+        color = "red";
+    } else if (percentage <= 66) {
+        color = "yellow";
+    } else {
+        color = "green";
+    }
+    
+    if (percentage <= 0) {
+        this.renderMeterBar(0, 0, false, color);
+    } else {
+        this.renderMeterBar(0, 0, true, color);
+    }
+
+    if (percentage < 11) {
+        this.renderMeterBar(20, 0, false, color);
+    } else {
+        this.renderMeterBar(20, 0, true, color);
+    }
+
+    if (percentage < 21) {
+        this.renderMeterBar(40, 0, false, color);
+    } else {
+        this.renderMeterBar(40, 0, true, color);
+    }
+
+    if (percentage < 31) {
+        this.renderMeterBar(60, 0, false, color);
+    } else {
+        this.renderMeterBar(60, 0, true, color);
+    }
+
+    if (percentage < 41) {
+        this.renderMeterBar(80, 0, false, color);
+    } else {
+        this.renderMeterBar(80, 0, true, color);
+    }
+
+    if (percentage < 51) {
+        this.renderMeterBar(100, 0, false, color);
+    } else {
+        this.renderMeterBar(100, 0, true, color);
+    }
+
+    if (percentage < 61) {
+        this.renderMeterBar(120, 0, false, color);
+    } else {
+        this.renderMeterBar(120, 0, true, color);
+    }
+
+    if (percentage < 71) {
+        this.renderMeterBar(140, 0, false, color);
+    } else {
+        this.renderMeterBar(140, 0, true, color);
+    }
+
+    if (percentage < 81) {
+        this.renderMeterBar(160, 0, false, color);
+    } else {
+        this.renderMeterBar(160, 0, true, color);
+    }
+
+    if (percentage < 91) {
+        this.renderMeterBar(180, 0, false, color);
+    } else {
+        this.renderMeterBar(180, 0, true, color);
+    }
+
+    map.restore();
+}
+
+Renderer.prototype.renderMeterBar = function (x, y, filled, color) {
+    
+    map.save();
+
+    if (filled) {
+        map.fillStyle = color;
+    } else {
+        map.fillStyle = "black";
+    }
+
+    map.strokeStyle = color;
+    
+    map.beginPath();
+    
+    map.rect(x, y, 10, 20);
+    
+    map.fill();
+
+    map.stroke();
+
+    map.restore();
 }
 
 Star = function Star(x, y, alpha) {
