@@ -573,11 +573,11 @@ Renderer.prototype.renderLeaderboard = function () {
 
         if (players[i].Id == playerId) {
 
-            map.fillStyle = "yellow";
+            map.fillStyle = "rgba(255, 255, 0, 0.75)";
 
         } else {
 
-            map.fillStyle = "gray";
+            map.fillStyle = "rgba(128, 128, 128, 0.75)";
 
         }
 
@@ -656,15 +656,15 @@ Renderer.prototype.renderHullStrength = function () {
 
     if (hullStrengthDisplayValue > 66) {
 
-        map.fillStyle = "green";
+        map.fillStyle = "rgba(0,128,0,0.5)";
 
     } else if (hullStrengthDisplayValue > 33) {
 
-        map.fillStyle = "yellow";
+        map.fillStyle = "rgba(255,255,0,0.5)";
 
     } else {
 
-        map.fillStyle = "red";
+        map.fillStyle = "rgba(255,0,0,0.5)";
 
     }
 
@@ -710,15 +710,15 @@ Renderer.prototype.renderFuelStatus = function () {
 
     if (fuelDisplayValue >= 666) {
 
-        map.fillStyle = "green";
+        map.fillStyle = "rgba(0,128,0,0.5)";
 
     } else if (fuelDisplayValue >= 333) {
 
-        map.fillStyle = "yellow";
+        map.fillStyle = "rgba(255,255,0,0.5)";
 
     } else {
 
-        map.fillStyle = "red";
+        map.fillStyle = "rgba(255,0,0,0.5)";
 
     }
 
@@ -764,15 +764,15 @@ Renderer.prototype.renderCapacitorStatus = function () {
 
     if (capacitorDisplayValue > 66) {
 
-        map.fillStyle = "green";
+        map.fillStyle = "rgba(0,128,0,0.5)";
 
     } else if (capacitorDisplayValue > 33) {
 
-        map.fillStyle = "yellow";
+        map.fillStyle = "rgba(255,255,0,0.5)";
 
     } else {
 
-        map.fillStyle = "red";
+        map.fillStyle = "rgba(255,0,0,0.5)";
 
     }
 
@@ -819,22 +819,22 @@ Renderer.prototype.renderShieldStatus = function () {
 
     if (ship.ShieldOn == 0 && ship.ShieldStatus == 0) {
 
-        map.fillStyle = "gray";
+        map.fillStyle = "rgba(128,128,128,0.5)";
         shieldDisplayValue = "OFF";
 
     } else {
 
         if (shieldDisplayValue > 66) {
 
-            map.fillStyle = "green";
+            map.fillStyle = "rgba(0,128,0,0.5)";
 
         } else if (shieldDisplayValue > 33) {
 
-            map.fillStyle = "yellow";
+            map.fillStyle = "rgba(255,255,0,0.5)";
 
         } else {
 
-            map.fillStyle = "red";
+            map.fillStyle = "rgba(255,0,0,0.5)";
 
         }
 
@@ -985,13 +985,24 @@ Renderer.prototype.renderMeterBar = function (x, y, filled, color) {
     
     map.save();
 
+    var strokeColor = color;
+    var fillColor = "";
+
     if (filled) {
-        map.fillStyle = color;
+        if (color == "green") {
+            fillColor = "rgba(0, 128, 0, 0.25)";
+        } else if (color == "yellow") {
+            fillColor = "rgba(255, 255, 0, 0.25)";
+        } else if (color == "red") {
+            fillColor = "rgba(255, 0, 0, 0.25)";
+        }
     } else {
-        map.fillStyle = "black";
+        fillColor = "rgba(0,0,0,0.5)";
     }
 
-    map.strokeStyle = color;
+    map.fillStyle = fillColor;
+
+    map.strokeStyle = strokeColor;
     
     map.beginPath();
     
