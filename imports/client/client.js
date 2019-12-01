@@ -160,7 +160,6 @@ Client.prototype.getPlayerId = function() {
         } else {
             playerId = res;
         }
-        console.log("Just got back: " + res);
     });
 }
 
