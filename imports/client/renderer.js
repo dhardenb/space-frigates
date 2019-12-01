@@ -551,7 +551,7 @@ Renderer.prototype.renderLeaderboard = function () {
 
     map.translate(10, 0);
 
-    map.font = "16px Arial";
+    map.font = "20px Arial";
 
     var players = [];
 
