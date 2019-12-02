@@ -5,7 +5,7 @@ Renderer = function Renderer() {
 
     pixelsPerMeter = 0;
 
-    miniMapZoomLevel = 0.1;
+    miniMapZoomLevel = 0.125;
 
     availableWidth = 0;
 
