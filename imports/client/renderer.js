@@ -654,23 +654,11 @@ Renderer.prototype.renderHullStrength = function () {
 
     map.save();
 
-    if (hullStrengthDisplayValue > 66) {
+    map.translate(0, availableHeight - 125);
 
-        map.fillStyle = "rgba(0,128,0,0.5)";
-
-    } else if (hullStrengthDisplayValue > 33) {
-
-        map.fillStyle = "rgba(255,255,0,0.5)";
-
-    } else {
-
-        map.fillStyle = "rgba(255,0,0,0.5)";
-
-    }
+    map.fillStyle = "rgba(128, 128, 128, 0.5)";
 
     map.font = "20px Arial";
-
-    map.translate(0, availableHeight - 125);
 
     map.fillText("HULL: ", 0, 0);
 
@@ -680,11 +668,7 @@ Renderer.prototype.renderHullStrength = function () {
 
     map.translate(125, availableHeight - 144);
 
-    if (hullStrengthDisplayValue == "OFF") {
-        this.renderMeter(-1);
-    } else {
-        this.renderMeter(hullStrengthDisplayValue);
-    }
+    this.renderMeter(hullStrengthDisplayValue);
 
     map.restore();
 
@@ -704,27 +688,15 @@ Renderer.prototype.renderFuelStatus = function () {
 
     }
 
-    map.save();
-
     var fuelDisplayValue = Math.floor(ship.Fuel);
 
-    if (fuelDisplayValue >= 666) {
-
-        map.fillStyle = "rgba(0,128,0,0.5)";
-
-    } else if (fuelDisplayValue >= 333) {
-
-        map.fillStyle = "rgba(255,255,0,0.5)";
-
-    } else {
-
-        map.fillStyle = "rgba(255,0,0,0.5)";
-
-    }
-
-    map.font = "20px Arial";
+    map.save();
 
     map.translate(0, availableHeight - 90);
+
+    map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+    map.font = "20px Arial";
 
     map.fillText("FUEL: ", 0, 0);
 
@@ -734,11 +706,7 @@ Renderer.prototype.renderFuelStatus = function () {
 
     map.translate(125, availableHeight - 108);
 
-    if (fuelDisplayValue == "OFF") {
-        this.renderMeter(-1);
-    } else {
-        this.renderMeter(fuelDisplayValue / 1000 * 100);
-    }
+    this.renderMeter(fuelDisplayValue / 1000 * 100);
 
     map.restore();
 
@@ -758,27 +726,15 @@ Renderer.prototype.renderCapacitorStatus = function () {
 
     }
 
-    map.save();
-
     var capacitorDisplayValue = Math.floor(ship.Capacitor);
 
-    if (capacitorDisplayValue > 66) {
-
-        map.fillStyle = "rgba(0,128,0,0.5)";
-
-    } else if (capacitorDisplayValue > 33) {
-
-        map.fillStyle = "rgba(255,255,0,0.5)";
-
-    } else {
-
-        map.fillStyle = "rgba(255,0,0,0.5)";
-
-    }
-
-    map.font = "20px Arial";
+    map.save();
 
     map.translate(0, availableHeight - 55);
+
+    map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+    map.font = "20px Arial";
 
     map.fillText("CAPACITOR: ", 0, 0);
 
@@ -788,11 +744,7 @@ Renderer.prototype.renderCapacitorStatus = function () {
 
     map.translate(125, availableHeight - 72);
 
-    if (capacitorDisplayValue == "OFF") {
-        this.renderMeter(-1);
-    } else {
-        this.renderMeter(capacitorDisplayValue);
-    }
+    this.renderMeter(capacitorDisplayValue);
 
     map.restore();
 
@@ -817,32 +769,11 @@ Renderer.prototype.renderShieldStatus = function () {
 
     map.save();
 
-    if (ship.ShieldOn == 0 && ship.ShieldStatus == 0) {
+    map.translate(0, availableHeight - 20);
 
-        map.fillStyle = "rgba(128,128,128,0.5)";
-        shieldDisplayValue = "OFF";
-
-    } else {
-
-        if (shieldDisplayValue > 66) {
-
-            map.fillStyle = "rgba(0,128,0,0.5)";
-
-        } else if (shieldDisplayValue > 33) {
-
-            map.fillStyle = "rgba(255,255,0,0.5)";
-
-        } else {
-
-            map.fillStyle = "rgba(255,0,0,0.5)";
-
-        }
-
-    }
+    map.fillStyle = "rgba(128, 128, 128, 0.5)";
 
     map.font = "20px Arial";
-
-    map.translate(0, availableHeight - 20);
 
     map.fillText("SHIELDS: ", 0, 0);
 
@@ -852,11 +783,13 @@ Renderer.prototype.renderShieldStatus = function () {
 
     map.translate(125, availableHeight - 37);
 
-    if (shieldDisplayValue == "OFF") {
-        this.renderMeter(-1);
-    } else {
-        this.renderMeter(shieldDisplayValue);
+    if (ship.ShieldOn == 0 && shieldDisplayValue == 0) {
+
+        shieldDisplayValue = -1;
+
     }
+
+    this.renderMeter(shieldDisplayValue);
 
     map.restore();
 
@@ -985,11 +918,13 @@ Renderer.prototype.renderMeterBar = function (x, y, filled, color) {
     
     map.save();
 
-    var strokeColor = color;
     var fillColor = "";
-
+    var strokeColor = color;
+    
     if (filled) {
-        if (color == "green") {
+        if (color == "gray") {
+            fillColor = "rgba(128, 128, 128, 0.25)";
+        } else if (color == "green") {
             fillColor = "rgba(0, 128, 0, 0.25)";
         } else if (color == "yellow") {
             fillColor = "rgba(255, 255, 0, 0.25)";
