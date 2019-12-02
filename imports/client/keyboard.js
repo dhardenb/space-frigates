@@ -214,7 +214,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         if (gameMode == 'PLAY_MODE') {
 
-            if (miniMapZoomLevel < 0.5) {
+            if (miniMapZoomLevel < 0.0626) {
 
                 miniMapZoomLevel = miniMapZoomLevel * 2
 
@@ -231,7 +231,7 @@ Keyboard.prototype.handleKeyPressEvents = function(evt) {
 
         if (gameMode == 'PLAY_MODE') {
 
-            if (miniMapZoomLevel > 0.03125) {
+            if (miniMapZoomLevel > 0.015625) {
 
                 miniMapZoomLevel = miniMapZoomLevel / 2
 
