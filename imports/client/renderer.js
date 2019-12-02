@@ -235,13 +235,43 @@ Renderer.prototype.renderMiniMap = function () {
 
     for (var i=0, j=gameObjects.length; i<j; i++) {
         if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
-            this.renderShip(gameObjects[i]);
+            this.renderMiniShip(gameObjects[i]);
         }
     }
 
     map.restore();
 
     map.restore();
+}
+
+Renderer.prototype.renderMiniShip = function (ship) {
+    
+    map.save();
+
+    map.translate(ship.LocationX * pixelsPerMeter, ship.LocationY * pixelsPerMeter);
+
+    map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
+
+    map.beginPath();
+
+    map.arc(0, 0, 1.0, 0, 2 * Math.PI);
+
+    var fillStyle = "";
+
+    if (ship.Id == playerShipId) {
+        fillStyle = "rgba(0, 128, 0, 1.0)";
+    } else if (ship.Type == "Human") {
+        fillStyle = "rgba(255, 0, 0, 1.0)";
+    } else {
+        fillStyle = "rgba(128, 128, 128, 1.0)";
+    }
+
+    map.fillStyle = fillStyle;
+
+    map.fill();
+
+    map.restore();
+
 }
 
 Renderer.prototype.renderStar = function (star) {
