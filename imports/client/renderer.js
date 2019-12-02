@@ -5,6 +5,8 @@ Renderer = function Renderer() {
 
     pixelsPerMeter = 0;
 
+    miniMapZoomLevel = 0.1;
+
     availableWidth = 0;
 
     availableHeight = 0;
@@ -194,6 +196,7 @@ Renderer.prototype.calculateOffset = function () {
 }
 
 Renderer.prototype.renderMiniMap = function () {
+    
     map.save();
 
     map.translate(availableWidth - availablePixels / 8 - 20, availablePixels / 8 + 20);
@@ -224,7 +227,7 @@ Renderer.prototype.renderMiniMap = function () {
     // Render ships and boundry //
     //////////////////////////////
 
-    map.scale(0.1,0.1);
+    map.scale(miniMapZoomLevel, miniMapZoomLevel);
 
     map.translate(focalX, focalY);
 
@@ -239,21 +242,6 @@ Renderer.prototype.renderMiniMap = function () {
     map.restore();
 
     map.restore();
-}
-
-Renderer.prototype.calculateOffset = function () {
-
-    for (var x = 0, y = gameObjects.length; x < y; x++) {
-
-        if (gameObjects[x].Id == playerShipId) {
-
-            focalX = -gameObjects[x].LocationX * pixelsPerMeter;
-
-            focalY = -gameObjects[x].LocationY * pixelsPerMeter;
-
-        }
-
-    }
 }
 
 Renderer.prototype.renderStar = function (star) {
