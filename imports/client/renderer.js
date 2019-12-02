@@ -660,7 +660,7 @@ Renderer.prototype.renderHullStrength = function () {
 
     map.font = "20px Arial";
 
-    map.fillText("HULL: ", 0, 0);
+    map.fillText("HULL ", 0, 0);
 
     map.restore();
 
@@ -698,7 +698,7 @@ Renderer.prototype.renderFuelStatus = function () {
 
     map.font = "20px Arial";
 
-    map.fillText("FUEL: ", 0, 0);
+    map.fillText("FUEL ", 0, 0);
 
     map.restore();
 
@@ -736,7 +736,7 @@ Renderer.prototype.renderCapacitorStatus = function () {
 
     map.font = "20px Arial";
 
-    map.fillText("CAPACITOR: ", 0, 0);
+    map.fillText("CAPACITOR ", 0, 0);
 
     map.restore();
 
@@ -775,7 +775,7 @@ Renderer.prototype.renderShieldStatus = function () {
 
     map.font = "20px Arial";
 
-    map.fillText("SHIELDS: ", 0, 0);
+    map.fillText("SHIELDS ", 0, 0);
 
     map.restore();
 
