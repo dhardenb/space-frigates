@@ -5,6 +5,7 @@ import './particle.js';
 import './thruster.js';
 import './physics.js';
 import './debris.js';
+import './sound.js';
 import { removeByAttr } from '../utilities/utilities.js';
 
 Engine = function Engine() {
@@ -170,7 +171,7 @@ Engine.prototype.fuelDetection = function () {
 Engine.prototype.findSolidObjects = function () {
   var solidObjects = [];
   for (var x = 0, y = gameObjects.length; x < y; x++) {
-    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster' && gameObjects[x].Type != 'Player') {
+    if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster' && gameObjects[x].Type != 'Player' && gameObjects[x].Type != 'Sound') {
       solidObjects.push(gameObjects[x])
     }
   }
@@ -255,6 +256,16 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
 
         }
 
+        else if (remoteGameObjects[x].Type == 'Sound') {
+
+          var newSound = new mySound();
+
+          newSound.copy(remoteGameObjects[x]);
+
+          convertedObjects.push(newSound);
+
+        }
+
   }
 
   localGameObjects = removeByAttr(localGameObjects, "Type", "Player");
@@ -268,6 +279,8 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
   localGameObjects = removeByAttr(localGameObjects, "Type", "Missile");
 
   localGameObjects = removeByAttr(localGameObjects, "Type", "Debris");
+
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Sound");
 
   for (i = 0; i < convertedObjects.length; i++) {
 

@@ -1,4 +1,5 @@
 
+import {Howl} from 'howler';
 var _ = require('lodash');
 
 Renderer = function Renderer() {
@@ -136,6 +137,12 @@ Renderer.prototype.renderMap = function () {
         else if (gameObjects[i].Type == 'Debris') {
 
             this.renderDebris(gameObjects[i]);
+
+        }
+
+        else if (gameObjects[i].Type == 'Sound') {
+
+            this.renderSound(gameObjects[i]);
 
         }
 
@@ -528,6 +535,27 @@ Renderer.prototype.renderDebris = function (debris) {
     map.fill(debrisPath);
 
     map.restore();
+
+}
+
+Renderer.prototype.renderSound = function (sound) {
+
+    var src = '';
+
+    if (sound.SoundType == "MissileFired") {
+        srcFile = '/lazer.mp3';
+    }
+
+    var howl = new Howl({
+            
+        src: [srcFile],
+
+        volume: 0.25
+    
+    });
+    
+    console.log("About the play a howl!");
+    howl.play();
 
 }
 
