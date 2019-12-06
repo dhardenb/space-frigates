@@ -554,7 +554,6 @@ Renderer.prototype.renderSound = function (sound) {
     
     });
     
-    console.log("About the play a howl!");
     howl.play();
 
 }
