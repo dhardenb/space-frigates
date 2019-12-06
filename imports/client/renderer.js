@@ -4,6 +4,10 @@ var _ = require('lodash');
 
 Renderer = function Renderer() {
 
+    visualRange = 100;
+
+    audioRange = 50;
+
     pixelsPerMeter = 0;
 
     miniMapZoomLevel = 0.0625;
@@ -26,6 +30,8 @@ Renderer = function Renderer() {
 
     version = Meteor.settings.public.version;
 
+    gameVolume = Meteor.settings.public.gameVolume;
+
     this.getWindowInformation();
 
     this.setupMapCanvas();
@@ -42,7 +48,7 @@ Renderer.prototype.getWindowInformation = function() {
 
     availablePixels = availableHeight < availableWidth ? availableHeight : availableWidth;
 
-    pixelsPerMeter = availablePixels / 200;
+    pixelsPerMeter = availablePixels / 2 / visualRange;
 
 }
 
@@ -540,21 +546,59 @@ Renderer.prototype.renderDebris = function (debris) {
 
 Renderer.prototype.renderSound = function (sound) {
 
-    var src = '';
+    if (gameMode == 'PLAY_MODE') {
 
-    if (sound.SoundType == "MissileFired") {
-        srcFile = '/lazer.mp3';
-    }
+        var playersShip = null;
 
-    var howl = new Howl({
+        var distanceFromPlayersShip = 0;
+
+        var soundVolume = 1.0;
+
+        for (var x = 0, y = gameObjects.length; x < y; x++) {
+
+            if (gameObjects[x].Id == playerShipId) {
+
+                playersShip = gameObjects[x];
+
+            }
+
+        }
+
+        if (playersShip != null) {
             
-        src: [srcFile],
+            distanceFromPlayersShip = Math.sqrt((playersShip.LocationX - sound.LocationX) * (playersShip.LocationX - sound.LocationX) + (playersShip.LocationY - sound.LocationY) * (playersShip.LocationY - sound.LocationY)) / pixelsPerMeter;
 
-        volume: 0.25
-    
-    });
-    
-    howl.play();
+        }
+
+        soundVolume = (audioRange - distanceFromPlayersShip) / audioRange * gameVolume;
+
+        if (soundVolume < 0) {
+
+            soundVolume = 0;
+
+        }
+
+        var src = '';
+
+        if (sound.SoundType == "MissileFired") {
+            
+            soundVolume = soundVolume * 1.0;
+            
+            srcFile = '/lazer.mp3';
+
+        }
+
+        var howl = new Howl({
+                
+            src: [srcFile],
+
+            volume: soundVolume
+        
+        });
+        
+        howl.play();
+
+    }
 
 }
 
