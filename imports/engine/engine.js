@@ -208,6 +208,12 @@ Engine.prototype.removeDeadObjects = function() {
   deadObjects = [];
 }
 
+Engine.prototype.removeSoundObjects = function() {
+
+    gameObjects = removeByAttr(gameObjects, "Type", "Sound");
+
+}
+
 Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects) {
 
     var convertedObjects = [];
