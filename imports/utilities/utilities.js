@@ -122,12 +122,10 @@ function packGameState(unpackedGameState) {
 
         if (unpackedGameState.gameState[i].Type == 'Sound') {
 
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
             packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
             packedGameState[1][i].push(unpackedGameState.gameState[i].SoundType);
-            packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-            //packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-            //packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
 
         }
 
@@ -226,14 +224,12 @@ function unpackGameState(packedGameState) {
 
         }
 
-        if (packedGameState[1][i][1] == 'Sound') {
+        if (packedGameState[1][i][0] == 'Sound') {
 
-            unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-            unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-            unpackedGameState.gameState[i].SoundType = packedGameState[1][i][2];
-            unpackedGameState.gameState[i].Fuel = packedGameState[1][i][3];
-            //unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-            //unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
+            unpackedGameState.gameState[i].Type = packedGameState[1][i][0];
+            unpackedGameState.gameState[i].SoundType = packedGameState[1][i][1];
+            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][2];
+            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][3];
 
         }
 

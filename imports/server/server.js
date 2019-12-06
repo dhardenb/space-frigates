@@ -24,7 +24,6 @@ Server.prototype.init = function() {
     server.setupStreamPermissions();
     server.setupStreamListeners();
     server.startPhysicsLoop();
-    server.startMessageLoop();
 }
 
 Server.prototype.setupMetrics = function () {
@@ -70,14 +69,10 @@ Server.prototype.startPhysicsLoop = function() {
         ai.createNewShip();
         ai.issueCommands();
         engine.update(60);
-    }, frameRate);
-}
-
-Server.prototype.startMessageLoop = function() {
-    setInterval(function() {
         outputStream.emit('output', packGameState({updateId: updateId, gameState: gameObjects}));
+        engine.removeSoundObjects();
         updateId++;
-    }, messageOutputRate);
+    }, frameRate);
 }
 
 Meteor.methods({
