@@ -120,6 +120,15 @@ function packGameState(unpackedGameState) {
 
         }
 
+        if (unpackedGameState.gameState[i].Type == 'Sound') {
+
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].SoundType);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
+
+        }
+
     }
 
     return packedGameState;
@@ -212,6 +221,15 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
             unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
             unpackedGameState.gameState[i].Owner = packedGameState[1][i][8];
+
+        }
+
+        if (packedGameState[1][i][0] == 'Sound') {
+
+            unpackedGameState.gameState[i].Type = packedGameState[1][i][0];
+            unpackedGameState.gameState[i].SoundType = packedGameState[1][i][1];
+            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][2];
+            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][3];
 
         }
 

@@ -1,7 +1,12 @@
 
+import {Howl} from 'howler';
 var _ = require('lodash');
 
 Renderer = function Renderer() {
+
+    visualRange = 100;
+
+    audioRange = 50;
 
     pixelsPerMeter = 0;
 
@@ -25,6 +30,8 @@ Renderer = function Renderer() {
 
     version = Meteor.settings.public.version;
 
+    gameVolume = Meteor.settings.public.gameVolume;
+
     this.getWindowInformation();
 
     this.setupMapCanvas();
@@ -41,7 +48,7 @@ Renderer.prototype.getWindowInformation = function() {
 
     availablePixels = availableHeight < availableWidth ? availableHeight : availableWidth;
 
-    pixelsPerMeter = availablePixels / 200;
+    pixelsPerMeter = availablePixels / 2 / visualRange;
 
 }
 
@@ -136,6 +143,12 @@ Renderer.prototype.renderMap = function () {
         else if (gameObjects[i].Type == 'Debris') {
 
             this.renderDebris(gameObjects[i]);
+
+        }
+
+        else if (gameObjects[i].Type == 'Sound') {
+
+            this.renderSound(gameObjects[i]);
 
         }
 
@@ -531,6 +544,64 @@ Renderer.prototype.renderDebris = function (debris) {
 
 }
 
+Renderer.prototype.renderSound = function (sound) {
+
+    if (gameMode == 'PLAY_MODE') {
+
+        var playersShip = null;
+
+        var distanceFromPlayersShip = 0;
+
+        var soundVolume = 1.0;
+
+        for (var x = 0, y = gameObjects.length; x < y; x++) {
+
+            if (gameObjects[x].Id == playerShipId) {
+
+                playersShip = gameObjects[x];
+
+            }
+
+        }
+
+        if (playersShip != null) {
+            
+            distanceFromPlayersShip = Math.sqrt((playersShip.LocationX - sound.LocationX) * (playersShip.LocationX - sound.LocationX) + (playersShip.LocationY - sound.LocationY) * (playersShip.LocationY - sound.LocationY)) / pixelsPerMeter;
+
+        }
+
+        soundVolume = (audioRange - distanceFromPlayersShip) / audioRange * gameVolume;
+
+        if (soundVolume < 0) {
+
+            soundVolume = 0;
+
+        }
+
+        var src = '';
+
+        if (sound.SoundType == "MissileFired") {
+            
+            soundVolume = soundVolume * 1.0;
+            
+            srcFile = '/lazer.mp3';
+
+        }
+
+        var howl = new Howl({
+                
+            src: [srcFile],
+
+            volume: soundVolume
+        
+        });
+        
+        howl.play();
+
+    }
+
+}
+
 Renderer.prototype.renderTitle = function () {
 
     map.save();
@@ -567,9 +638,25 @@ Renderer.prototype.renderLeaderboard = function () {
 
     map.save();
 
-    map.translate(10, 0);
+    map.translate(10, 25);
 
     map.font = "20px Arial";
+
+    map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+    map.fillText("PILOT", 0, 0);
+
+    map.save();
+
+    map.translate(155, 0);
+
+    map.fillText("K", 0, 0);
+
+    map.translate(40, 0);
+
+    map.fillText("D", 0, 0);
+
+    map.restore();
 
     var players = [];
 
@@ -591,15 +678,27 @@ Renderer.prototype.renderLeaderboard = function () {
 
         if (players[i].Id == playerId) {
 
-            map.fillStyle = "rgba(255, 255, 0, 0.75)";
+            map.fillStyle = "rgba(255, 255, 0, 0.5)";
 
         } else {
 
-            map.fillStyle = "rgba(128, 128, 128, 0.75)";
+            map.fillStyle = "rgba(128, 128, 128, 0.5)";
 
         }
 
-        map.fillText(players[i].Name + " Kills: " + players[i].Kills + " Deaths: " + players[i].Deaths, 0, 0);
+        map.fillText(players[i].Name, 0, 0);
+
+        map.save();
+
+        map.translate(155, 0);
+
+        map.fillText(players[i].Kills, 0, 0);
+
+        map.translate(40, 0);
+
+        map.fillText(players[i].Deaths, 0, 0);
+
+        map.restore();
 
     }
 

@@ -128,6 +128,10 @@ Ship.prototype.update = function() {
             var newMissile = new Missile();
             newMissile.init(this);
             gameObjects.push(newMissile);
+            
+            var newSound = new mySound();
+            newSound.init("MissileFired", this);
+            gameObjects.push(newSound);
         }
     }
 
