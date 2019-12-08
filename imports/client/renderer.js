@@ -86,6 +86,532 @@ Renderer.prototype.createStars = function() {
 
 }
 
+Renderer.prototype.renderEditor = function () {
+
+    ////////////////////
+    // Setup the view //
+    ////////////////////
+
+    visualRange = 4;
+
+    totalLengthOfObject = 8;
+
+    pixelsPerMeter = availablePixels / 2 / visualRange;
+
+    map.clearRect(0, 0, availableWidth, availableHeight);
+
+    //////////
+    // Ship //
+    //////////
+
+    //////////
+    // Hull //
+    //////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.stroke(shipPath);
+
+    map.fillStyle = "rgba(0, 50, 0, 1.0)";
+
+    map.restore();
+
+    ///////////////////
+    // Plasma Cannon //
+    ///////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.beginPath();
+
+    map.moveTo(-0.025, -0.48);
+
+    map.lineTo(0.025, -0.48);
+
+    map.lineTo(0.065, -0.22);
+
+    map.lineTo(-0.065, -0.22);
+
+    map.closePath();
+
+    map.stroke();
+
+    // map.fill();
+
+    map.restore();
+
+    map.restore();
+
+    /////////////
+    // Cockpit //
+    /////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.beginPath();
+
+    map.moveTo(-0.05, -0.08);
+
+    map.lineTo(0.05, -0.08);
+
+    map.lineTo(0.08, -0.02);
+
+    map.lineTo(0.08, 0.18);
+
+    map.lineTo(-0.08, 0.18);
+
+    map.lineTo(-0.08, -0.02);
+
+    map.closePath();
+
+    map.stroke();
+
+    // map.fill();
+
+    map.restore();
+
+    map.restore();
+
+    ///////////////////
+    // Main Thruster //
+    ///////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.beginPath();
+
+    map.moveTo(-0.08, 0.32);
+
+    map.lineTo(0.08, 0.32);
+
+    map.lineTo(0.08, 0.45);
+
+    map.lineTo(0.05, 0.48);
+
+    map.lineTo(-0.05, 0.48);
+
+    map.lineTo(-0.08, 0.45);
+
+    map.closePath();
+
+    map.stroke();
+
+    // map.fill();
+
+    map.restore();
+
+    map.restore();
+
+    /////////////////////
+    // Right Capacitor //
+    /////////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.beginPath();
+
+    map.moveTo(0.22, 0.16);
+
+    map.lineTo(0.38, 0.32);
+
+    map.lineTo(0.38, 0.38);
+
+    map.lineTo(0.22, 0.38);
+
+    map.closePath();
+
+    map.stroke();
+
+    map.restore();
+
+    map.restore();
+
+    /////////////////////
+    // Left Capacitor ///
+    /////////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.beginPath();
+
+    map.moveTo(-0.22, 0.16);
+
+    map.lineTo(-0.38, 0.32);
+
+    map.lineTo(-0.38, 0.38);
+
+    map.lineTo(-0.22, 0.38);
+
+    map.closePath();
+
+    map.stroke();
+
+    map.restore();
+
+    map.restore();
+
+    ////////////////////
+    // Ship Computer ///
+    ////////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.beginPath();
+
+    map.moveTo(-0.06, -0.02);
+
+    map.lineTo(-0.04, -0.06);
+
+    map.lineTo(0.04, -0.06);
+
+    map.lineTo(0.06, -0.02);
+
+    map.closePath();
+
+    map.stroke();
+
+    map.restore();
+
+    map.restore();
+
+    //////////////////////////
+    // Life Support System ///
+    //////////////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.lineJoin = "round";
+
+    map.beginPath();
+
+    map.moveTo(-0.06, 0.12);
+
+    map.lineTo(0.06, 0.12);
+
+    map.lineTo(0.06, 0.16);
+
+    map.lineTo(-0.06, 0.16);
+
+    map.closePath();
+
+    map.stroke();
+
+    map.restore();
+
+    map.restore();
+
+    ////////////
+    // Pilot ///
+    ////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.beginPath();
+
+    map.arc(0, 0.05, 0.05, 0, 2 * Math.PI);
+
+    map.stroke();
+
+    map.restore();
+
+    map.restore();
+
+    /////////////
+    // Reactor //
+    /////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.beginPath();
+
+    map.moveTo(-0.05, 0.22);
+
+    map.lineTo(0.05, 0.22);
+
+    map.bezierCurveTo(0.1, 0.22, 0.1, 0.28, 0.05, 0.28);
+
+    map.lineTo(-0.05, 0.28);
+
+    map.bezierCurveTo(-0.1, 0.28, -0.1, 0.22, -0.05, 0.22);
+
+    map.stroke();
+
+    map.restore();
+
+    //////////////////////
+    // Shield Generator //
+    //////////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
+
+    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+    map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+    map.lineWidth =  0.01;
+
+    map.beginPath();
+
+    map.arc(0, -0.15, 0.04, 0, 2 * Math.PI);
+
+    map.stroke();
+
+    map.restore();
+
+    /////////////////////////////
+    // Draw the reference grid //
+    /////////////////////////////
+
+    map.save();
+
+    map.translate(availableWidth / 2, availableHeight / 2);
+
+    map.scale(totalLengthOfObject / 2 * pixelsPerMeter, totalLengthOfObject / 2 * pixelsPerMeter);
+
+    map.lineWidth =  0.01;
+
+    map.beginPath();
+
+    map.moveTo(-1, -1);
+
+    map.lineTo(1, -1);
+
+    map.moveTo(-1, -0.8);
+
+    map.lineTo(1, -0.8);
+
+    map.moveTo(-1, -0.6);
+
+    map.lineTo(1, -0.6);
+
+    map.moveTo(-1, -0.4);
+
+    map.lineTo(1, -0.4);
+
+    map.moveTo(-1, -0.2);
+
+    map.lineTo(1, -0.2);
+
+    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
+
+    map.stroke();
+
+    map.beginPath();
+
+    map.moveTo(-1, 0);
+
+    map.lineTo(1, 0);
+
+    map.strokeStyle = "rgba(255, 0, 0, 0.25)";
+
+    map.stroke();
+
+    map.beginPath();
+
+    map.moveTo(-1, 0.2);
+
+    map.lineTo(1, 0.2);
+
+    map.moveTo(-1, 0.4);
+
+    map.lineTo(1, 0.4);
+
+    map.moveTo(-1, 0.6);
+
+    map.lineTo(1, 0.6);
+
+    map.moveTo(-1, 0.8);
+
+    map.lineTo(1, 0.8);
+
+    map.moveTo(-1, 1);
+
+    map.lineTo(1, 1);
+
+    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
+
+    map.stroke();
+
+    map.beginPath();
+
+    map.moveTo(-1, -1);
+
+    map.lineTo(-1, 1);
+
+    map.moveTo(-0.8, -1);
+
+    map.lineTo(-0.8, 1);
+
+    map.moveTo(-0.6, -1);
+
+    map.lineTo(-0.6, 1);
+
+    map.moveTo(-0.4, -1);
+
+    map.lineTo(-0.4, 1);
+
+    map.moveTo(-0.2, -1);
+
+    map.lineTo(-0.2, 1);
+
+    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
+
+    map.stroke();
+
+    map.beginPath();
+
+    map.moveTo(0, -1);
+
+    map.lineTo(0, 1);
+
+    map.strokeStyle = "rgba(255, 0, 0, 0.25)";
+
+    map.stroke();
+
+    map.beginPath();
+
+    map.moveTo(0.2, -1);
+
+    map.lineTo(0.2, 1);
+
+    map.moveTo(0.4, -1);
+
+    map.lineTo(0.4, 1);
+
+    map.moveTo(0.6, -1);
+
+    map.lineTo(0.6, 1);
+
+    map.moveTo(0.8, -1);
+
+    map.lineTo(0.8, 1);
+
+    map.moveTo(1, -1);
+
+    map.lineTo(1, 1);
+
+    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
+
+    map.stroke();
+
+    map.restore();
+
+}
+
 Renderer.prototype.renderMap = function () {
 
     map.clearRect(0, 0, availableWidth, availableHeight);
