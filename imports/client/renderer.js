@@ -700,6 +700,8 @@ Renderer.prototype.renderMap = function () {
 
         this.renderName();
 
+        this.renderStartInstructions();
+
     } else if (gameMode == 'PLAY_MODE') {
 
         this.renderLeaderboard();
@@ -1254,7 +1256,7 @@ Renderer.prototype.renderName = function () {
 
     if (playerName == "") {
 
-        textToRender = "Enter Name";
+        textToRender = "GUEST";
 
         map.fillStyle = "gray";
 
@@ -1271,6 +1273,24 @@ Renderer.prototype.renderName = function () {
     }
 
     map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 35);
+
+    map.fillText(textToRender, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderStartInstructions = function () {
+
+    map.save();
+
+    var textToRender = "PRESS ENTER TO START";
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 95);
 
     map.fillText(textToRender, 0, 0);
 
