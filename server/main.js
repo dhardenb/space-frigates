@@ -36,11 +36,14 @@ Meteor.onConnection(function(connection) {
     newPlayer.init(connection.id);
     gameObjects.push(newPlayer);
 
-    twilioClient.messages
-        .create({
-            body: 'Somebody just logged into Space Frigates!',
-            from: '+17014011205',
-            to: '+12625011707'
-        })
-        .then(message => console.log(message.sid));
+    if (Meteor.settings.public.environment == 'prod') {
+
+        twilioClient.messages
+            .create({
+                body: 'Somebody just logged into Space Frigates!',
+                from: '+17014011205',
+                to: '+12625011707'
+            })
+            .then(message => console.log(message.sid));
+    }
 });
