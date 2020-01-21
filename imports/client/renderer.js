@@ -98,8 +98,6 @@ Renderer.prototype.renderMap = function () {
 
     this.renderBoundry();
 
-    console.log("Length: " + gameObjects.length);
-
     for (var i = 0; i < gameObjects.length; i++) {
 
         if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
