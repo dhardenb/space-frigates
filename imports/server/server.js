@@ -3,6 +3,10 @@ import '../engine/engine.js';
 import './ai.js';
 import { packGameState } from '../utilities/utilities.js';
 
+const accountSid = Meteor.settings.private.twillioAccountSid;
+const authToken = Meteor.settings.private.authToken;
+const twilioClient = require('twilio')(accountSid, authToken);
+
 Server = function Server() {
     prometheus = require('prom-client');
     engine = new Engine();
@@ -89,6 +93,17 @@ Meteor.methods({
                     gameObjects[i].ShipId = playerShip.Id;
                 }
             }
+        }
+
+        if (Meteor.settings.public.environment == 'prod') {
+
+            twilioClient.messages
+                .create({
+                    body: 'Somebody just started a game!',
+                    from: '+17014011205',
+                    to: '+12625011707'
+                })
+                .then(message => console.log(message.sid));
         }
 
         return playerShip.Id;

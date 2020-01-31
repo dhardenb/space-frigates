@@ -7,10 +7,6 @@ import '../imports/engine/player.js';
 
 import { removeByAttr } from '../imports/utilities/utilities.js';
 
-const accountSid = Meteor.settings.private.twillioAccountSid;
-const authToken = Meteor.settings.private.authToken;
-const twilioClient = require('twilio')(accountSid, authToken);
-
 Meteor.startup(() => {
 
     server = new Server();
@@ -35,15 +31,5 @@ Meteor.onConnection(function(connection) {
     var newPlayer = new Player();
     newPlayer.init(connection.id);
     gameObjects.push(newPlayer);
-
-    if (Meteor.settings.public.environment == 'prod') {
-
-        twilioClient.messages
-            .create({
-                body: 'Somebody just logged into Space Frigates!',
-                from: '+17014011205',
-                to: '+12625011707'
-            })
-            .then(message => console.log(message.sid));
-    }
+    
 });
