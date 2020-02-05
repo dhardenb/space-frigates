@@ -152,6 +152,12 @@ Renderer.prototype.renderMap = function () {
 
         this.renderVersion();
 
+        this.renderTwitter();
+
+        this.renderBlog();
+
+        this.renderEmail();
+
         this.renderInstructions();
 
         this.renderNameInputBox();
@@ -159,6 +165,8 @@ Renderer.prototype.renderMap = function () {
         this.renderName();
 
         this.renderStartInstructions();
+
+        this.renderEnergyInstructions();
 
     } else if (gameMode == 'PLAY_MODE') {
 
@@ -740,6 +748,54 @@ Renderer.prototype.renderVersion = function () {
 
 }
 
+Renderer.prototype.renderTwitter = function () {
+
+    map.save();
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(availableWidth / 2 - map.measureText("TWITTER: @spacefrigates").width / 2, 130);
+
+    map.fillText("TWITTER: @spacefrigates", 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderBlog = function () {
+
+    map.save();
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(availableWidth / 2 - map.measureText("BLOG: blog.spacefrigates.com").width / 2, 170);
+
+    map.fillText("BLOG: blog.spacefrigates.com", 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderEmail = function () {
+
+    map.save();
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(availableWidth / 2 - map.measureText("EMAIL: davehardenbrook@yahoo.com").width / 2, 210);
+
+    map.fillText("EMAIL: davehardenbrook@yahoo.com", 0, 0);
+
+    map.restore();
+
+}
+
 Renderer.prototype.renderLeaderboard = function () {
 
     map.save();
@@ -869,6 +925,24 @@ Renderer.prototype.renderStartInstructions = function () {
     map.font = "20px Arial";
 
     map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 95);
+
+    map.fillText(textToRender, 0, 0);
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderEnergyInstructions = function () {
+
+    map.save();
+
+    var textToRender = "COLLECT DEBRIS TO INCREASE ENERGY";
+
+    map.fillStyle = "yellow";
+
+    map.font = "20px Arial";
+
+    map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 155);
 
     map.fillText(textToRender, 0, 0);
 
