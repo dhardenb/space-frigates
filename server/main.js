@@ -19,8 +19,6 @@ Meteor.onConnection(function(connection) {
 
     connection.onClose(function() {
 
-        clientConnectionsGauge.dec();
-
         gameObjects = removeByAttr(gameObjects, "Id", connection.id);
 
         // Remove the ship? Turn it into a zombie ship?
