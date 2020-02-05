@@ -27,7 +27,6 @@ Meteor.onConnection(function(connection) {
 
     });
 
-    clientConnectionsGauge.inc();
     var newPlayer = new Player();
     newPlayer.init(connection.id);
     gameObjects.push(newPlayer);

@@ -4,7 +4,6 @@ import './ai.js';
 import { packGameState } from '../utilities/utilities.js';
 
 Server = function Server() {
-    prometheus = require('prom-client');
     engine = new Engine();
     updateId = 0;
     ai = new Ai();
@@ -19,28 +18,9 @@ Server = function Server() {
 }
 
 Server.prototype.init = function() {
-    server.setupMetrics();
-    server.setupRouter();
     server.setupStreamPermissions();
     server.setupStreamListeners();
     server.startPhysicsLoop();
-}
-
-Server.prototype.setupMetrics = function () {
-    collectDefaultMetrics = prometheus.collectDefaultMetrics;
-    collectDefaultMetrics({ timeout: 5000 });
-    
-    clientConnectionsGauge = new prometheus.Gauge({
-        name: 'sf_client_connections',
-        help: 'Number of current connections'
-    });
-}
-
-Server.prototype.setupRouter = function () {
-    Picker.route('/metrics', function( params, request, response, next ) {
-        response.setHeader( 'Content-Type', prometheus.register.contentType);
-        response.end(prometheus.register.metrics());
-    });
 }
 
 Server.prototype.setupStreamPermissions = function() {
