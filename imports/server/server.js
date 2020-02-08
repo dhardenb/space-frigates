@@ -48,7 +48,7 @@ Server.prototype.startPhysicsLoop = function() {
 }
 
 Meteor.methods({
-    createNewPlayerShip: function() {
+    createNewPlayerShip: function(name) {
         
         var playerShip = new Ship();
         playerShip.init('Human');
@@ -59,6 +59,7 @@ Meteor.methods({
             if (gameObjects[i].Type == 'Player') {
                 if (gameObjects[i].Id == this.connection.id) {
                     gameObjects[i].ShipId = playerShip.Id;
+                    gameObjects[i].Name = name;
                 }
             }
         }
@@ -68,15 +69,6 @@ Meteor.methods({
 
     getPlayerId: function() {
         return this.connection.id;
-    },
-
-    updatePlayerName: function(name) {
-        for (var i=0, j=gameObjects.length; i<j; i++) {
-            if (gameObjects[i].Type == 'Player') {
-                if (gameObjects[i].Id == this.connection.id) {
-                    gameObjects[i].Name = name;
-                }
-            }
-        }
     }
+    
 });

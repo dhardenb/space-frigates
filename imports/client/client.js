@@ -171,17 +171,12 @@ Client.prototype.requestShip = function() {
     }
 
     if (!localMode) {
-        Meteor.call('createNewPlayerShip', (err, res) => {
+        Meteor.call('createNewPlayerShip', playerName, (err, res) => {
             if (err) {
                 alert(err);
             } else {
                 gameMode = 'PLAY_MODE';
                 playerShipId = res;
-            }
-        });
-        Meteor.call('updatePlayerName', playerName, (err, res) => {
-            if (err) {
-                alert(err);
             }
         });
     } else {
