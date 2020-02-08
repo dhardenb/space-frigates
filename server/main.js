@@ -17,16 +17,28 @@ Meteor.startup(() => {
 
 Meteor.onConnection(function(connection) {
 
-    connection.onClose(function() {
-
-        gameObjects = removeByAttr(gameObjects, "Id", connection.id);
-
-        // Remove the ship? Turn it into a zombie ship?
-
-    });
-
     var newPlayer = new Player();
     newPlayer.init(connection.id);
     gameObjects.push(newPlayer);
+
+    connection.onClose(function() {
+
+        var shipIdToRemove = 0;
+
+        for (var i=0, j=gameObjects.length; i<j; i++) {
+            if (gameObjects[i].Type == 'Player') {
+                if (gameObjects[i].Id == connection.id) {
+                    shipIdToRemove = gameObjects[i].ShipId;
+                }
+            }
+        }
+
+        // Remove players ship
+        gameObjects = removeByAttr(gameObjects, "Id", shipIdToRemove);
+
+        // Remove player
+        gameObjects = removeByAttr(gameObjects, "Id", connection.id);
+        
+    });
     
 });
