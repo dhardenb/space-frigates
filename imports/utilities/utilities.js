@@ -34,8 +34,6 @@ function packGameState(unpackedGameState) {
 
     unpackedGameState.gameState = removeByAttr(unpackedGameState.gameState, "Type", "Particle");
 
-    unpackedGameState.gameState = removeByAttr(unpackedGameState.gameState, "Type", "Thruster");
-
     //////////
     // ROOT //
     //////////
@@ -126,6 +124,19 @@ function packGameState(unpackedGameState) {
             packedGameState[1][i].push(unpackedGameState.gameState[i].SoundType);
             packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
             packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
+
+        }
+
+        if (unpackedGameState.gameState[i].Type == 'Thruster') {
+
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
+            packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
 
         }
 
@@ -230,6 +241,19 @@ function unpackGameState(packedGameState) {
             unpackedGameState.gameState[i].SoundType = packedGameState[1][i][1];
             unpackedGameState.gameState[i].LocationX = packedGameState[1][i][2];
             unpackedGameState.gameState[i].LocationY = packedGameState[1][i][3];
+
+        }
+
+        if (packedGameState[1][i][1] == 'Thruster') {
+
+            unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
+            unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
+            unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
+            unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
+            unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
+            unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
+            unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
+            unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
 
         }
 

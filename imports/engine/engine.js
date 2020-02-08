@@ -272,6 +272,16 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
 
         }
 
+        else if (remoteGameObjects[x].Type == 'Thruster') {
+
+          var newThruster = new Thruster();
+
+          newThruster.copy(remoteGameObjects[x]);
+
+          convertedObjects.push(newThruster);
+
+        }
+
   }
 
   localGameObjects = removeByAttr(localGameObjects, "Type", "Player");
@@ -287,6 +297,8 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
   localGameObjects = removeByAttr(localGameObjects, "Type", "Debris");
 
   localGameObjects = removeByAttr(localGameObjects, "Type", "Sound");
+
+  localGameObjects = removeByAttr(localGameObjects, "Type", "Thruster");
 
   for (i = 0; i < convertedObjects.length; i++) {
 
