@@ -826,7 +826,11 @@ Renderer.prototype.renderLeaderboard = function () {
 
         if (gameObjects[i].Type == 'Player') {
 
-            players.push(gameObjects[i]);
+            if (gameObjects[i].Name != "") {
+
+                players.push(gameObjects[i]);
+
+            }
 
         }
 
