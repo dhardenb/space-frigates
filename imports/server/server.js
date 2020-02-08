@@ -32,14 +32,6 @@ Server.prototype.setupStreamPermissions = function() {
 
 Server.prototype.setupStreamListeners = function() {
     inputStream.on('input', function(input) {
-        for (var x = 0, y = players.length; x < y; x++) {
-            if (this.connection.id == players[x].id) {
-                players[x].lastSeqNum = input.seqNum;
-            }
-        }
-
-        // Not really sure I need to push the entire command anymore
-        // because the engine doesn't care about the seq number....
         commands.push(input);
     });
 }
