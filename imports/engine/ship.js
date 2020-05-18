@@ -74,8 +74,11 @@ Ship.prototype.update = function() {
     //
     // Future potential features:
     //     -) reactor effecincy reduced with damage
+    //     -) the ability to set run rate (right now it is always 100%)
     //     -) ability to put reactor into overdrive, which gives risk of 
-    //     -) malfunction
+    //     -) the ability to track use for maintenance purposes
+    //     -) the amount of "noise" the unit gives off, making the ship 
+    //        easier or harder to track
     ///////////////////////////////////////////////////////////////////////////
 
     // Kilos of fuel the reactor consumes per second
