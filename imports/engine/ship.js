@@ -53,24 +53,72 @@ Ship.prototype.update = function() {
 	    }
     }
 
-    ///////////////////////////////////////////////////////
-    // Power Plant
-    ///////////////////////////////////////////////////////
-    if (this.Fuel >= 0.25) {
-        if (this.Capacitor < 100) {
-            this.Capacitor += 0.25; // BAD! Should be with respect to time!!!
-            this.Fuel -= 0.25; // BAD! Should be with respect to time!!!
+    ///////////////////////////////////////////////////////////////////////////
+    // Reactor
+    //
+    // The Reactor is responsible for converting fuel into energy.
+    //
+    // The primary attribute is how many kilos of fuel the plant
+    // can convert to joules per second.
+    //
+    // Secondary attributes will be: cost, weight, and effeiceny.
+    //
+    // The tradition conversion rate has been 15 kilos of fuel per second
+    // The traditional fuel potential as been 1 joule of energy per 1 kilo
+    //    of fuel
+    // The traditional effeciancy has been 100%
+    // The traditional capacity of the capacitor has been 100 joules
+    // The tradition amount of fuel carried by a Viper class ship is 1000 kilos
+    // The tradition cost is N/A
+    // The tradition weight is N/A
+    //
+    // Future potential features:
+    //     -) reactor effecincy reduced with damage
+    //     -) ability to put reactor into overdrive, which gives risk of 
+    //     -) malfunction
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Kilos of fuel the reactor consumes per second
+    var reactorConversionRate = 15;
+
+    // Perctage of kilos of fuel turned into joules of energy
+    var reactorConversionEffeciancy = 1.0;
+
+    // How many joules of energy each kilo of fuel creates
+    var fuelPotential = 1.0;
+
+    // Amount of jouels of energy the capacitor can hold    
+    var capacitorCapacity = 100;
+
+    if (this.Fuel >= reactorConversionRate / framesPerSecond) {
+        if (this.Capacitor <= capacitorCapacity - reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond) {
+            this.Fuel -= reactorConversionRate / framesPerSecond;
+            this.Capacitor += reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond;
         }
     }
 
-    //////////////////
-    // Solar Panels //
-    //////////////////
-    if (this.Capacitor < 100) {
-        this.Capacitor += 0.05;
-    }
-    if (this.Capacitor > 100) {
-        this.Capacitor = 100;
+    ///////////////////////////////////////////////////////////////////////////
+    // Solar Panels 
+    //
+    // In addition to the ship's reactor, energy is also produced by the
+    //      ships solor panels. Although the joules of energy generated in this 
+    //      way is much smaller than the reactor, it serves as a backup system
+    //      in case the ship runs out of fuel or the reactor is damaged.
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Joules generated per second
+    var solarConversionRate = 3;
+
+    // Percentage of maximum conversion rate possible
+    var solarConversionEffeciancy = 1;
+
+    // Amount of jouels of energy the capacitor can hold  
+    var capacitorCapacity = 100;
+
+    if (this.Capacitor <= capacitorCapacity - solarConversionRate * solarConversionEffeciancy / framesPerSecond) {
+        this.Capacitor += solarConversionRate * solarConversionEffeciancy / framesPerSecond;
     }
 
     ///////////////////////////////////////////////////////
