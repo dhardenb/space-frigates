@@ -180,6 +180,18 @@ Renderer.prototype.renderMap = function () {
     
         this.renderShieldStatus();
 
+        // this.renderRotateLeftButton();
+
+        // this.renderRotateRightButton();
+
+        // this.renderThrustButton();
+
+        // this.renderBrakeButton();
+
+        // this.renderShieldButton();
+
+        // this.renderFireButton();
+
     }
 
     map.restore();
@@ -389,8 +401,6 @@ Renderer.prototype.renderShip = function (ship) {
 
     map.closePath();
 
-    map.stroke();
-    
     map.stroke();
 
     map.fill();
@@ -1269,7 +1279,106 @@ Renderer.prototype.renderMeterBar = function (x, y, filled, color) {
     map.restore();
 }
 
+Renderer.prototype.renderRotateLeftButton = function () {
+
+    map.save();
+
+    map.translate(0 + availablePixels * 0.1, availableHeight - availablePixels * 0.2);
+
+    this.renderButton();
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderRotateRightButton = function () {
+
+    map.save();
+
+    map.translate(0 + availablePixels * 0.25, availableHeight - availablePixels * 0.2);
+
+    this.renderButton();
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderThrustButton = function () {
+
+    map.save();
+
+    map.translate(0 + availablePixels * 0.175, availableHeight - availablePixels * 0.3);
+
+    this.renderButton();
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderBrakeButton = function () {
+
+    map.save();
+
+    map.translate(0 + availablePixels * 0.175, availableHeight - availablePixels * 0.1);
+
+    this.renderButton();
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderShieldButton = function () {
+
+    map.save();
+
+    map.translate(availableWidth - availablePixels * 0.25, availableHeight - availablePixels * 0.1);
+
+    this.renderButton();
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderFireButton = function () {
+
+    map.save();
+
+    map.translate(availableWidth - availablePixels * 0.1, availableHeight - availablePixels * 0.1);
+
+    this.renderButton();
+
+    map.restore();
+
+}
+
+Renderer.prototype.renderButton = function () {
+
+    map.save();
+
+    map.strokeStyle = "rgba(128, 128, 128, 0.5)";
+
+    map.lineWidth = availablePixels * 0.005;
+    
+    map.beginPath();
+    
+    map.arc(0, 0, availablePixels * 0.05, 0, 2 * Math.PI);
+
+    map.stroke();
+
+    map.restore();
+
+}
+
 Renderer.prototype.renderEditor = function () {
+
+    var windowOffset = 22;
+    availableWidth = window.innerWidth - windowOffset;
+    availableHeight = window.innerHeight - windowOffset;
+    availablePixels = availableHeight < availableWidth ? availableHeight : availableWidth;
+    pixelsPerMeter = availablePixels / 2 / visualRange;
+    map.canvas.width = availableWidth;
+    map.canvas.height = availableHeight;
+    map.clearRect(0, 0, availableWidth, availableHeight);
 
     ////////////////////
     // Setup the view //
@@ -1303,7 +1412,43 @@ Renderer.prototype.renderEditor = function () {
 
     map.lineJoin = "round";
 
-    map.stroke(shipPath);
+    map.beginPath();
+
+    map.moveTo(-0.05, -0.5);
+
+    map.lineTo(0.05, -0.5);
+
+    map.lineTo(0.1, -0.2);
+
+    map.lineTo(0.2, -0.1);
+
+    map.lineTo(0.2, 0.1);
+
+    map.lineTo(0.4, 0.3);
+
+    map.lineTo(0.4, 0.4);
+
+    map.lineTo(0.2, 0.4);
+
+    map.lineTo(0.2, 0.5);
+
+    map.lineTo(-0.2, 0.5);
+
+    map.lineTo(-0.2, 0.4);
+
+    map.lineTo(-0.4, 0.4);
+
+    map.lineTo(-0.4, 0.3);
+
+    map.lineTo(-0.2, 0.1);
+
+    map.lineTo(-0.2, -0.1);
+
+    map.lineTo(-0.1, -0.2);
+
+    map.closePath();
+
+    map.stroke();
 
     map.fillStyle = "rgba(0, 50, 0, 1.0)";
 
