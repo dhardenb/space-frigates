@@ -18,11 +18,7 @@
 
 			"frameRate" : "16.67",
 
-			"messageOutputRate" : "16.67",
-
-			"twillioAccountSid" : "ACebd16a481e27cc7f12553d614a84a346",
-
-			"authToken" : "94b9031a9c707911f1853145c2c628d2"
+			"messageOutputRate" : "16.67"
 
 		}
 
