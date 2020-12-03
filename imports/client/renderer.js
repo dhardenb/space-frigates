@@ -1269,14 +1269,6 @@ Renderer.prototype.renderMeterBar = function (x, y, filled, color) {
     map.restore();
 }
 
-Star = function Star(x, y, alpha) {
-
-  this.x = x;
-  this.y = y;
-  this.alpha = alpha;
-
-}
-
 Renderer.prototype.renderEditor = function () {
 
     ////////////////////
@@ -1800,5 +1792,13 @@ Renderer.prototype.renderEditor = function () {
     map.stroke();
 
     map.restore();
+
+}
+
+Star = function Star(x, y, alpha) {
+
+  this.x = x;
+  this.y = y;
+  this.alpha = alpha;
 
 }
