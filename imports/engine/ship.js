@@ -36,22 +36,25 @@ Ship.prototype.copy = function(jsonObject) {
     this.Capacitor = jsonObject.Capacitor;
 }
 
-Ship.prototype.update = function() {
+Ship.prototype.determineCurrentCommand = function() {
 
     ///////////////////////////////////////////////////////
     // Determine Current Command
     ///////////////////////////////////////////////////////
-    var currentCommand = null;
+    this.currentCommand = null;
 
 	for(var x = 0, y = commands.length; x < y; x++) {
 
 	    if (commands[x].targetId == this.Id) {
 
-	    	currentCommand = commands[x].command;
+	    	this.currentCommand = commands[x].command;
 
 	    	break;
 	    }
     }
+}
+
+Ship.prototype.updateRector = function() {
 
     ///////////////////////////////////////////////////////////////////////////
     // Reactor
@@ -99,7 +102,10 @@ Ship.prototype.update = function() {
             this.Capacitor += reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond;
         }
     }
+}
 
+Ship.prototype.updateSolarPanels = function() {
+    
     ///////////////////////////////////////////////////////////////////////////
     // Solar Panels 
     //
@@ -107,7 +113,6 @@ Ship.prototype.update = function() {
     //      ships solor panels. Although the joules of energy generated in this 
     //      way is much smaller than the reactor, it serves as a backup system
     //      in case the ship runs out of fuel or the reactor is damaged.
-    //
     //
     ///////////////////////////////////////////////////////////////////////////
 
@@ -123,11 +128,14 @@ Ship.prototype.update = function() {
     if (this.Capacitor <= capacitorCapacity - solarConversionRate * solarConversionEffeciancy / framesPerSecond) {
         this.Capacitor += solarConversionRate * solarConversionEffeciancy / framesPerSecond;
     }
+}
 
+Ship.prototype.updateBrakes = function() {
+    
     ///////////////////////////////////////////////////////
     // Update Brakes
     ///////////////////////////////////////////////////////
-    if (currentCommand == 4) {
+    if (this.currentCommand == 4) {
 
         var activateBrakes;
 
@@ -157,11 +165,14 @@ Ship.prototype.update = function() {
             }
         }
     }
+}
+
+Ship.prototype.fireMissile = function() {
 
     ///////////////////////////////////////////////////////
     // Fire Missile
     ///////////////////////////////////////////////////////
-    if (currentCommand == 0) {
+    if (this.currentCommand == 0) {
 
         var activateMissile;
 
@@ -185,11 +196,14 @@ Ship.prototype.update = function() {
             gameObjects.push(newSound);
         }
     }
+}
+
+Ship.prototype.updateThrusters = function() {
 
     ///////////////////////////////////////////////////////
     // Main Thrusters
     ///////////////////////////////////////////////////////
-    if (currentCommand == 2) {
+    if (this.currentCommand == 2) {
 
         var activateThruster;
 
@@ -210,11 +224,14 @@ Ship.prototype.update = function() {
             gameObjects.push(newThruster);
         }
     }
+}
+
+Ship.prototype.rotateLeft = function() {
 
     ///////////////////////////////////////////////////////
     // Rotate Left
     ///////////////////////////////////////////////////////
-    if (currentCommand == 3) {
+    if (this.currentCommand == 3) {
 
         var activateRotateLeft;
 
@@ -245,12 +262,15 @@ Ship.prototype.update = function() {
                 }
             }
         }
-
     }
+}
+
+Ship.prototype.rotateRight = function() {
+
     ///////////////////////////////////////////////////////
     // Rotate Right
     ///////////////////////////////////////////////////////
-    if (currentCommand == 1) {
+    if (this.currentCommand == 1) {
 
         var activateRotateRight;
 
@@ -282,11 +302,14 @@ Ship.prototype.update = function() {
             }
         }
     }
+}
+
+Ship.prototype.updateShields = function() {
 
     ///////////////////////////////////////////////////////
     // Shields
     ///////////////////////////////////////////////////////
-    if (currentCommand == 5) {
+    if (this.currentCommand == 5) {
         if (this.ShieldOn == 0) {
             this.ShieldOn = 1; 
         } else {
@@ -341,6 +364,9 @@ Ship.prototype.update = function() {
 
         this.ShieldStatus = 0
     }
+}
+
+Ship.prototype.updateVelocity = function() {
 
     ///////////////////////////////////////////////////////
     // Update Velocity
@@ -348,6 +374,9 @@ Ship.prototype.update = function() {
     if (this.Velocity < 0) {
         this.Velocity = 0;
     }
+}
+
+Ship.prototype.updateFuelTank = function() {
 
     ///////////////////////////////////////////////////////
     // Fuel Tank
@@ -355,16 +384,39 @@ Ship.prototype.update = function() {
     if (this.Fuel > 1000) {
         this.Fuel = 1000;
     }
+}
+
+Ship.prototype.updateFacing = function() {
 
     ///////////////////////////////////////////////////////
     // Update Facing
     ///////////////////////////////////////////////////////
     physics.findNewFacing(this);
+}
+
+Ship.prototype.updateLocation = function() {
 
     ///////////////////////////////////////////////////////
     // Update Location
     ///////////////////////////////////////////////////////
     physics.moveObjectAlongVector(this);
+}
+
+Ship.prototype.update = function() {
+
+    this.determineCurrentCommand();
+    this.updateRector();
+    this.updateSolarPanels();
+    this.updateBrakes();
+    this.fireMissile();
+    this.updateThrusters();
+    this.rotateLeft();
+    this.rotateRight();
+    this.updateShields();
+    this.updateVelocity();
+    this.updateFuelTank();
+    this.updateFacing();
+    this.updateLocation();    
 }
 
 Ship.prototype.setStartingHumanPosition = function() {
@@ -418,7 +470,6 @@ Ship.prototype.setStartingHumanPosition = function() {
   // map
   this.Facing = Math.random()*360+1;
 }
-
 
 // I'll have to modify this to take in the players starting position...
 Ship.prototype.setStartingAiPosition = function() {
