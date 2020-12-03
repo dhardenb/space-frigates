@@ -36,47 +36,106 @@ Ship.prototype.copy = function(jsonObject) {
     this.Capacitor = jsonObject.Capacitor;
 }
 
-Ship.prototype.update = function() {
+Ship.prototype.determineCurrentCommand = function() {
 
     ///////////////////////////////////////////////////////
     // Determine Current Command
     ///////////////////////////////////////////////////////
-    var currentCommand = null;
+    this.currentCommand = null;
 
 	for(var x = 0, y = commands.length; x < y; x++) {
 
 	    if (commands[x].targetId == this.Id) {
 
-	    	currentCommand = commands[x].command;
+	    	this.currentCommand = commands[x].command;
 
 	    	break;
 	    }
     }
+}
 
-    ///////////////////////////////////////////////////////
-    // Power Plant
-    ///////////////////////////////////////////////////////
-    if (this.Fuel >= 0.25) {
-        if (this.Capacitor < 100) {
-            this.Capacitor += 0.25; // BAD! Should be with respect to time!!!
-            this.Fuel -= 0.25; // BAD! Should be with respect to time!!!
+Ship.prototype.updateRector = function() {
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Reactor
+    //
+    // The Reactor is responsible for converting fuel into energy.
+    //
+    // The primary attribute is how many kilos of fuel the plant
+    // can convert to joules per second.
+    //
+    // Secondary attributes will be: cost, weight, and effeiceny.
+    //
+    // The tradition conversion rate has been 15 kilos of fuel per second
+    // The traditional fuel potential as been 1 joule of energy per 1 kilo
+    //    of fuel
+    // The traditional effeciancy has been 100%
+    // The traditional capacity of the capacitor has been 100 joules
+    // The tradition amount of fuel carried by a Viper class ship is 1000 kilos
+    // The tradition cost is N/A
+    // The tradition weight is N/A
+    //
+    // Future potential features:
+    //     -) reactor effecincy reduced with damage
+    //     -) the ability to set run rate (right now it is always 100%)
+    //     -) ability to put reactor into overdrive, which gives risk of 
+    //     -) the ability to track use for maintenance purposes
+    //     -) the amount of "noise" the unit gives off, making the ship 
+    //        easier or harder to track
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Kilos of fuel the reactor consumes per second
+    var reactorConversionRate = 15;
+
+    // Perctage of kilos of fuel turned into joules of energy
+    var reactorConversionEffeciancy = 1.0;
+
+    // How many joules of energy each kilo of fuel creates
+    var fuelPotential = 1.0;
+
+    // Amount of jouels of energy the capacitor can hold    
+    var capacitorCapacity = 100;
+
+    if (this.Fuel >= reactorConversionRate / framesPerSecond) {
+        if (this.Capacitor <= capacitorCapacity - reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond) {
+            this.Fuel -= reactorConversionRate / framesPerSecond;
+            this.Capacitor += reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond;
         }
     }
+}
 
-    //////////////////
-    // Solar Panels //
-    //////////////////
-    if (this.Capacitor < 100) {
-        this.Capacitor += 0.05;
-    }
-    if (this.Capacitor > 100) {
-        this.Capacitor = 100;
-    }
+Ship.prototype.updateSolarPanels = function() {
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Solar Panels 
+    //
+    // In addition to the ship's reactor, energy is also produced by the
+    //      ships solor panels. Although the joules of energy generated in this 
+    //      way is much smaller than the reactor, it serves as a backup system
+    //      in case the ship runs out of fuel or the reactor is damaged.
+    //
+    ///////////////////////////////////////////////////////////////////////////
 
+    // Joules generated per second
+    var solarConversionRate = 3;
+
+    // Percentage of maximum conversion rate possible
+    var solarConversionEffeciancy = 1;
+
+    // Amount of jouels of energy the capacitor can hold  
+    var capacitorCapacity = 100;
+
+    if (this.Capacitor <= capacitorCapacity - solarConversionRate * solarConversionEffeciancy / framesPerSecond) {
+        this.Capacitor += solarConversionRate * solarConversionEffeciancy / framesPerSecond;
+    }
+}
+
+Ship.prototype.updateBrakes = function() {
+    
     ///////////////////////////////////////////////////////
     // Update Brakes
     ///////////////////////////////////////////////////////
-    if (currentCommand == 4) {
+    if (this.currentCommand == 4) {
 
         var activateBrakes;
 
@@ -106,11 +165,14 @@ Ship.prototype.update = function() {
             }
         }
     }
+}
+
+Ship.prototype.fireMissile = function() {
 
     ///////////////////////////////////////////////////////
     // Fire Missile
     ///////////////////////////////////////////////////////
-    if (currentCommand == 0) {
+    if (this.currentCommand == 0) {
 
         var activateMissile;
 
@@ -134,11 +196,14 @@ Ship.prototype.update = function() {
             gameObjects.push(newSound);
         }
     }
+}
+
+Ship.prototype.updateThrusters = function() {
 
     ///////////////////////////////////////////////////////
     // Main Thrusters
     ///////////////////////////////////////////////////////
-    if (currentCommand == 2) {
+    if (this.currentCommand == 2) {
 
         var activateThruster;
 
@@ -159,11 +224,14 @@ Ship.prototype.update = function() {
             gameObjects.push(newThruster);
         }
     }
+}
+
+Ship.prototype.rotateLeft = function() {
 
     ///////////////////////////////////////////////////////
     // Rotate Left
     ///////////////////////////////////////////////////////
-    if (currentCommand == 3) {
+    if (this.currentCommand == 3) {
 
         var activateRotateLeft;
 
@@ -194,12 +262,15 @@ Ship.prototype.update = function() {
                 }
             }
         }
-
     }
+}
+
+Ship.prototype.rotateRight = function() {
+
     ///////////////////////////////////////////////////////
     // Rotate Right
     ///////////////////////////////////////////////////////
-    if (currentCommand == 1) {
+    if (this.currentCommand == 1) {
 
         var activateRotateRight;
 
@@ -231,11 +302,14 @@ Ship.prototype.update = function() {
             }
         }
     }
+}
+
+Ship.prototype.updateShields = function() {
 
     ///////////////////////////////////////////////////////
     // Shields
     ///////////////////////////////////////////////////////
-    if (currentCommand == 5) {
+    if (this.currentCommand == 5) {
         if (this.ShieldOn == 0) {
             this.ShieldOn = 1; 
         } else {
@@ -290,6 +364,9 @@ Ship.prototype.update = function() {
 
         this.ShieldStatus = 0
     }
+}
+
+Ship.prototype.updateVelocity = function() {
 
     ///////////////////////////////////////////////////////
     // Update Velocity
@@ -297,6 +374,9 @@ Ship.prototype.update = function() {
     if (this.Velocity < 0) {
         this.Velocity = 0;
     }
+}
+
+Ship.prototype.updateFuelTank = function() {
 
     ///////////////////////////////////////////////////////
     // Fuel Tank
@@ -304,16 +384,39 @@ Ship.prototype.update = function() {
     if (this.Fuel > 1000) {
         this.Fuel = 1000;
     }
+}
+
+Ship.prototype.updateFacing = function() {
 
     ///////////////////////////////////////////////////////
     // Update Facing
     ///////////////////////////////////////////////////////
     physics.findNewFacing(this);
+}
+
+Ship.prototype.updateLocation = function() {
 
     ///////////////////////////////////////////////////////
     // Update Location
     ///////////////////////////////////////////////////////
     physics.moveObjectAlongVector(this);
+}
+
+Ship.prototype.update = function() {
+
+    this.determineCurrentCommand();
+    this.updateRector();
+    this.updateSolarPanels();
+    this.updateBrakes();
+    this.fireMissile();
+    this.updateThrusters();
+    this.rotateLeft();
+    this.rotateRight();
+    this.updateShields();
+    this.updateVelocity();
+    this.updateFuelTank();
+    this.updateFacing();
+    this.updateLocation();    
 }
 
 Ship.prototype.setStartingHumanPosition = function() {
@@ -367,7 +470,6 @@ Ship.prototype.setStartingHumanPosition = function() {
   // map
   this.Facing = Math.random()*360+1;
 }
-
 
 // I'll have to modify this to take in the players starting position...
 Ship.prototype.setStartingAiPosition = function() {
