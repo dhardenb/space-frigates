@@ -46,6 +46,7 @@ Engine.prototype.update = function (currentFramesPerSecond) {
 }
 
 Engine.prototype.collisionDetection = function () {
+  
   var solidObjects = this.findSolidObjects();
 
   // Run colision detection for each solidObject
@@ -60,30 +61,31 @@ Engine.prototype.collisionDetection = function () {
 
         if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size / 2 + solidObjects[k].Size / 2)) {
 
-
             // ship hit by missile
             if ((solidObjects[k].Type == "Human" ||
                 solidObjects[k].Type == "Alpha" ||
                 solidObjects[k].Type == "Bravo") &&
                 (solidObjects[i].Type == "Missile")) {
 
+                // The amount of damage that the missle does is determined by
+                // the amount of fuel remaining. So, the amount of damage
+                // done by the missile is reduced the further is travels.
+                // NOTE: Once a missile runs of a fuel it dissapaears
                 var damage = solidObjects[i].Fuel;
 
-                if (solidObjects[k].ShieldStatus < damage) {
-                    solidObjects[k].ShieldStatus = 0;
-                    solidObjects[k].HullStrength -= damage - solidObjects[k].ShieldStatus;
-                } else {
-                    solidObjects[k].ShieldStatus -= damage;
-                }
+                // Apply the damage to the taregt ship
+                solidObjects[k].takeDamage(damage);
 
+                // If the struck ship has less than zero hull points then
+                // it explodes and is destroyed!
                 if (solidObjects[k].HullStrength <= 0) {
 
-                    this.createDebris(solidObjects[k]);
-                    this.createExplosion(solidObjects[k]);
-                    deadObjects.push(solidObjects[k]);
-                    this.scoreDeath(solidObjects[k].Id);
-                    this.scoreKill(solidObjects[i].Owner);
-                }
+                  this.createDebris(solidObjects[k]);
+                  this.createExplosion(solidObjects[k]);
+                  deadObjects.push(solidObjects[k]);
+                  this.scoreDeath(solidObjects[k].Id);
+                  this.scoreKill(solidObjects[i].Owner);
+              }
 
                 break;
 

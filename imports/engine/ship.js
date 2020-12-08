@@ -1,5 +1,12 @@
+const { AlphaSenderContext } = require("twilio/lib/rest/messaging/v1/service/alphaSender");
+
 Ship = function Ship() {
     this.Size = 8.0;
+    this.MaxHullStrength = 100;
+    this.ThrusterStrength = 100;
+    this.MaxThrusterStrength = 100;
+    this.PlasmaCannonStrength = 100;
+    this.MaxPlasmaCannonStrength = 100;
 }
 
 Ship.prototype.init = function(shipType) {
@@ -522,4 +529,27 @@ Ship.prototype.setStartingAiPosition = function() {
   // oppostie the angle of it's starting postion relative to the center of the
   // map
   this.Facing = Math.random()*360+1;
+}
+
+Ship.prototype.takeDamage = function (damage) {
+
+    if (this.ShieldStatus < damage) {
+        this.ShieldStatus = 0;
+        this.HullStrength -= damage - this.ShieldStatus;
+        this.checkForComponentDamage();
+    } else {
+        this.ShieldStatus -= damage;
+    }
+
+}
+
+Ship.prototype.checkForComponentDamage = function () {
+
+    if (this.HullStrength / this.MaxHullStrength <= .33) {
+        // Something is taking damage!!!
+    }
+    else if (this.HullStrength / this.MaxHullStrength <= .66) {
+        // Something might take damage!!!
+    }
+
 }
