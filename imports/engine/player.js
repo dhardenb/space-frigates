@@ -1,6 +1,9 @@
-Player = function Player(id) {
-    this.Id = id;
+Player = function Player() {
     this.Type = "Player";
+}
+
+Player.prototype.init = function(id) {
+    this.Id = id;
     this.Name = "";
     this.ShipId = 0;
     this.LastSeqNum = 0;

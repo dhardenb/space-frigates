@@ -1,9 +1,12 @@
 import { getRandomInt } from '../utilities/utilities.js';
 
-Debris = function Debris(sourceObject) {
-    this.Id = engine.getNextGameObjectId();
+Debris = function Debris() {
     this.Type = "Debris";
     this.Size = 4.0;
+}
+
+Debris.prototype.init = function(sourceObject) {
+    this.Id = engine.getNextGameObjectId();
     this.Fuel = sourceObject.Fuel;
     this.LocationX = sourceObject.LocationX;
   	this.LocationY = sourceObject.LocationY;

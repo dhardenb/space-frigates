@@ -1,7 +1,15 @@
-Ship = function Ship(shipType) {
+Ship = function Ship() {
+    this.Size = 8.0;
+    this.MaxHullStrength = 100;
+    this.ThrusterStrength = 100;
+    this.MaxThrusterStrength = 100;
+    this.PlasmaCannonStrength = 100;
+    this.MaxPlasmaCannonStrength = 100;
+}
+
+Ship.prototype.init = function(shipType) {
     this.Id = engine.getNextGameObjectId();
     this.Type = shipType;
-    this.Size = 8.0;
     this.Fuel = 1000;
   	this.LocationX = 0;
   	this.LocationY = 0;
@@ -14,11 +22,6 @@ Ship = function Ship(shipType) {
     this.ShieldStatus = 0;
     this.HullStrength = 100;
     this.Capacitor = 100;
-    this.MaxHullStrength = 100;
-    this.ThrusterStrength = 100;
-    this.MaxThrusterStrength = 100;
-    this.PlasmaCannonStrength = 100;
-    this.MaxPlasmaCannonStrength = 100;
 }
 
 Ship.prototype.determineCurrentCommand = function() {
@@ -172,10 +175,12 @@ Ship.prototype.fireMissile = function() {
         }
 
         if (activateMissile) {
-            var newMissile = new Missile(this);
+            var newMissile = new Missile();
+            newMissile.init(this);
             gameObjects.push(newMissile);
             
-            var newSound = new mySound("MissileFired", this);
+            var newSound = new mySound();
+            newSound.init("MissileFired", this);
             gameObjects.push(newSound);
         }
     }
@@ -202,7 +207,8 @@ Ship.prototype.updateThrusters = function() {
 
         if (activateThruster) {
             physics.findNewVelocity(this, this.Facing, 20);
-            var newThruster = new Thruster(this);
+            var newThruster = new Thruster();
+            newThruster.init(this);
             gameObjects.push(newThruster);
         }
     }

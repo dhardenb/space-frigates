@@ -17,7 +17,8 @@ Meteor.startup(() => {
 
 Meteor.onConnection(function(connection) {
 
-    var newPlayer = new Player(connection.id);
+    var newPlayer = new Player();
+    newPlayer.init(connection.id);
     gameObjects.push(newPlayer);
 
     connection.onClose(function() {

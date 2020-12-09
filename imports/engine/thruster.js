@@ -1,10 +1,13 @@
-Thruster = function Thruster(sourceObject) {
-    this.Id = engine.getNextGameObjectId;
+Thruster = function Thruster() {
     this.Type = "Thruster";
     this.Size = 6.0;
     this.ThrusterOffset = 2.0;
     this.initialVelocity = 0;
     this.fuelConsumptionRate = 1;
+}
+
+Thruster.prototype.init = function(sourceObject) {
+    this.Id = engine.getNextGameObjectId;
     this.LocationX = sourceObject.LocationX;
     this.LocationY = sourceObject.LocationY;
     this.Facing = sourceObject.Facing;
