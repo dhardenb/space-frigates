@@ -1,5 +1,3 @@
-const { AlphaSenderContext } = require("twilio/lib/rest/messaging/v1/service/alphaSender");
-
 Ship = function Ship(shipType) {
     this.Id = engine.getNextGameObjectId();
     this.Type = shipType;
