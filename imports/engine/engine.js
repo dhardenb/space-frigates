@@ -223,65 +223,35 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
     for (var x = 0, y = remoteGameObjects.length; x < y; x++) {
 
         if (remoteGameObjects[x].Type == 'Player') {
-
-          var newPlayer = new Player();
-
-          newPlayer.copy(remoteGameObjects[x]);
-
+          var newPlayer = Object.assign(new Player, remoteGameObjects[x]);
           convertedObjects.push(newPlayer);
-
         }
 
         else if (remoteGameObjects[x].Type == 'Human' ||
-          remoteGameObjects[x].Type == 'Alpha' ||
-          remoteGameObjects[x].Type == 'Bravo') {
-
-          var newShip = new Ship();
-
-          newShip.copy(remoteGameObjects[x]);
-
+                  remoteGameObjects[x].Type == 'Alpha' ||
+                  remoteGameObjects[x].Type == 'Bravo') {
+          var newShip = Object.assign(new Ship, remoteGameObjects[x]);
           convertedObjects.push(newShip);
-
         }
 
         else if (remoteGameObjects[x].Type == 'Missile') {
-
-          var newMissile = new Missile();
-
-          newMissile.copy(remoteGameObjects[x]);
-
+          var newMissile = Object.assign(new Missile, remoteGameObjects[x]);
           convertedObjects.push(newMissile);
-
         }
 
         else if (remoteGameObjects[x].Type == 'Debris') {
-
-          var newDebris = new Debris();
-
-          newDebris.copy(remoteGameObjects[x]);
-
+          var newDebris = Object.assign(new Debris, remoteGameObjects[x]);
           convertedObjects.push(newDebris);
-
         }
 
         else if (remoteGameObjects[x].Type == 'Sound') {
-
-          var newSound = new mySound();
-
-          newSound.copy(remoteGameObjects[x]);
-
+          var newSound = Object.assign(new Sound, remoteGameObjects[x]);
           convertedObjects.push(newSound);
-
         }
 
         else if (remoteGameObjects[x].Type == 'Thruster') {
-
-          var newThruster = new Thruster();
-
-          newThruster.copy(remoteGameObjects[x]);
-
+          var newThruster = Object.assign(new Thruster, remoteGameObjects[x]);
           convertedObjects.push(newThruster);
-
         }
 
   }

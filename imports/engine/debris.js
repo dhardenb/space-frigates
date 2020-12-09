@@ -19,18 +19,6 @@ Debris.prototype.init = function(sourceObject) {
     this.initRotation();
 }
 
-Debris.prototype.copy = function(jsonObject) {
-    this.Id = jsonObject.Id;
-    this.Fuel = jsonObject.Fuel;
-  	this.LocationX = jsonObject.LocationX;
-  	this.LocationY = jsonObject.LocationY;
-  	this.Facing = jsonObject.Facing;
-  	this.Heading = jsonObject.Heading;
-  	this.Velocity = jsonObject.Velocity;
-    this.RotationDirection = jsonObject.RotationDirection;
-  	this.RotationVelocity = jsonObject.RotationVelocity;
-}
-
 Debris.prototype.update = function() {
     physics.findNewFacing(this);
 	  physics.moveObjectAlongVector(this);

@@ -12,14 +12,4 @@ mySound.prototype.init = function(soundType, sourceObject) {
 
 }
 
-mySound.prototype.copy = function(jsonObject) {
-
-    this.SoundType = jsonObject.SoundType;
-    
-    this.LocationX = jsonObject.LocationX;
-    
-    this.LocationY = jsonObject.LocationY;
-
-}
-
 mySound.prototype.update = function() {}

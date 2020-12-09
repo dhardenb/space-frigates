@@ -26,23 +26,6 @@ Ship.prototype.init = function(shipType) {
     this.Capacitor = 100;
 }
 
-Ship.prototype.copy = function(jsonObject) {
-    this.Id = jsonObject.Id;
-    this.Type = jsonObject.Type;
-    this.Fuel = jsonObject.Fuel;
-  	this.LocationX = jsonObject.LocationX;
-  	this.LocationY = jsonObject.LocationY;
-  	this.Facing = jsonObject.Facing;
-  	this.Heading = jsonObject.Heading;
-  	this.Velocity = jsonObject.Velocity;
-  	this.RotationDirection = jsonObject.RotationDirection;
-  	this.RotationVelocity = jsonObject.RotationVelocity;
-    this.ShieldOn = jsonObject.ShieldOn;
-    this.ShieldStatus = jsonObject.ShieldStatus;
-    this.HullStrength = jsonObject.HullStrength;
-    this.Capacitor = jsonObject.Capacitor;
-}
-
 Ship.prototype.determineCurrentCommand = function() {
 
     ///////////////////////////////////////////////////////

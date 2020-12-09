@@ -24,19 +24,6 @@ Missile.prototype.init = function(sourceObject) {
 
 }
 
-Missile.prototype.copy = function(jsonObject) {
-
-    this.Id = jsonObject.Id;
-  	this.LocationX = jsonObject.LocationX;
-  	this.LocationY = jsonObject.LocationY;
-  	this.Facing = jsonObject.Facing;
-  	this.Heading = jsonObject.Heading;
-  	this.Velocity = jsonObject.Velocity;
-	this.Fuel = jsonObject.Fuel;
-	this.Owner = jsonObject.Owner;
-
-}
-
 Missile.prototype.update = function() {
 
 	this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
