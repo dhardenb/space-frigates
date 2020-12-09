@@ -245,7 +245,7 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
         }
 
         else if (remoteGameObjects[x].Type == 'Sound') {
-          var newSound = Object.assign(new Sound, remoteGameObjects[x]);
+          var newSound = Object.assign(new mySound, remoteGameObjects[x]);
           convertedObjects.push(newSound);
         }
 
