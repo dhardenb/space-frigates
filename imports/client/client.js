@@ -180,8 +180,7 @@ Client.prototype.requestShip = function() {
             }
         });
     } else {
-        var playerShip = new Ship();
-        playerShip.init('Human');
+        var playerShip = new Ship('Human');
         playerShip.Name = playerName;
         playerShip.setStartingHumanPosition();
         gameObjects.push(playerShip);

@@ -1,27 +1,20 @@
-Missile = function Missile() {
-
+Missile = function Missile(sourceObject) {
+	this.Id = engine.getNextGameObjectId();
     this.Type = "Missile";
     this.Size = 3.0;
     this.MissileLaunchOffset = 1.0;
   	this.initialVelocity = 100;
 	this.Velocity = 0;
 	this.fuelConsumptionRate = 60; // 60 per second!
-
-}
-
-Missile.prototype.init = function(sourceObject) {
-
-    this.Id = engine.getNextGameObjectId();
-  	this.LocationX = sourceObject.LocationX;
+	this.LocationX = sourceObject.LocationX;
   	this.LocationY = sourceObject.LocationY;
   	this.Facing = sourceObject.Facing;
   	this.Heading = sourceObject.Heading;
 	this.Fuel = 60;
 	this.Owner = sourceObject.Id;
 
-  	this.calclulateInitialPosition(sourceObject);
+	this.calclulateInitialPosition(sourceObject);
   	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
-
 }
 
 Missile.prototype.update = function() {

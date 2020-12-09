@@ -139,26 +139,15 @@ Engine.prototype.collisionDetection = function () {
 }
 
 Engine.prototype.createDebris = function (sourceGameObject) {
-
-    var newDebris = new Debris();
-
-    newDebris.init(sourceGameObject);
-
+    var newDebris = new Debris(sourceGameObject);
     gameObjects.push(newDebris);
 }
 
 Engine.prototype.createExplosion = function (sourceGameObject) {
-
     for (var i = 0; i < explosionSize; i++) {
-
-        var newParticle = new Particle();
-
-        newParticle.init(sourceGameObject);
-
+        var newParticle = new Particle(sourceGameObject);
         gameObjects.push(newParticle);
-
     }
-
 }
 
 Engine.prototype.fuelDetection = function () {

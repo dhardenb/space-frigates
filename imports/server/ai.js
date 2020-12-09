@@ -32,9 +32,7 @@ Ai.prototype.createNewShip = function() {
 
     if (nextShipType == 1) {
 
-        newAiShip = new Ship();
-
-        newAiShip.init('Alpha');
+        newAiShip = new Ship('Alpha');
 
         newAiShip.setStartingAiPosition();
 
@@ -44,9 +42,7 @@ Ai.prototype.createNewShip = function() {
 
     else if (nextShipType == 2) {
 
-        newAiShip = new Ship();
-
-        newAiShip.init('Bravo');
+        newAiShip = new Ship('Bravo');
 
         newAiShip.setStartingAiPosition();
 
