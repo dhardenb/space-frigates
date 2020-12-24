@@ -2,7 +2,7 @@ import {Player} from './player.js';
 import {Missile} from './missile.js';
 import './ship.js';
 import {Particle} from './particle.js';
-import './thruster.js';
+import {Thruster} from './thruster.js';
 import {Physics} from './physics.js';
 import {Debris} from './debris.js';
 import {Sound} from './sound.js';
@@ -209,9 +209,10 @@ Engine.prototype.removeSoundObjects = function() {
 
 Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects) {
 
+    // Should change this from a global to class property
     var convertedObjects = [];
 
-    for (var x = 0, y = remoteGameObjects.length; x < y; x++) {
+    for (let x = 0, y = remoteGameObjects.length; x < y; x++) {
 
         if (remoteGameObjects[x].Type == 'Player') {
           const newPlayer = Object.assign(new Player, remoteGameObjects[x]);
@@ -221,7 +222,7 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
         else if (remoteGameObjects[x].Type == 'Human' ||
                   remoteGameObjects[x].Type == 'Alpha' ||
                   remoteGameObjects[x].Type == 'Bravo') {
-          var newShip = Object.assign(new Ship, remoteGameObjects[x]);
+          const newShip = Object.assign(new Ship, remoteGameObjects[x]);
           convertedObjects.push(newShip);
         }
 
@@ -231,7 +232,7 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
         }
 
         else if (remoteGameObjects[x].Type == 'Debris') {
-          var newDebris = Object.assign(new Debris, remoteGameObjects[x]);
+          const newDebris = Object.assign(new Debris, remoteGameObjects[x]);
           convertedObjects.push(newDebris);
         }
 
@@ -241,7 +242,7 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
         }
 
         else if (remoteGameObjects[x].Type == 'Thruster') {
-          var newThruster = Object.assign(new Thruster, remoteGameObjects[x]);
+          const newThruster = Object.assign(new Thruster, remoteGameObjects[x]);
           convertedObjects.push(newThruster);
         }
 

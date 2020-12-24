@@ -1,6 +1,7 @@
 import {Missile} from './missile.js';
 import {Physics} from './physics.js';
 import {Sound} from './sound.js';
+import {Thruster} from './thruster.js';
 
 Ship = function Ship() {
     this.Size = 8.0;
@@ -211,7 +212,7 @@ Ship.prototype.updateThrusters = function() {
 
         if (activateThruster) {
             Physics.findNewVelocity(this, this.Facing, 20);
-            var newThruster = new Thruster();
+            const newThruster = new Thruster();
             newThruster.init(this);
             gameObjects.push(newThruster);
         }
