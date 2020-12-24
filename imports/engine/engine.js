@@ -1,4 +1,4 @@
-import './player.js';
+import {Player} from './player.js';
 import {Missile} from './missile.js';
 import './ship.js';
 import {Particle} from './particle.js';
@@ -214,7 +214,7 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
     for (var x = 0, y = remoteGameObjects.length; x < y; x++) {
 
         if (remoteGameObjects[x].Type == 'Player') {
-          var newPlayer = Object.assign(new Player, remoteGameObjects[x]);
+          const newPlayer = Object.assign(new Player, remoteGameObjects[x]);
           convertedObjects.push(newPlayer);
         }
 

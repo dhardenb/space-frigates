@@ -3,7 +3,6 @@ import {Physics} from './physics.js';
 export class Missile {
 
 	constructor() {
-		
 		this.Type = "Missile";
 		this.Size = 3.0;
 		this.MissileLaunchOffset = 1.0;
@@ -13,7 +12,6 @@ export class Missile {
 	}
 
 	init(sourceObject) {										
-
 		this.Id = engine.getNextGameObjectId();
 		this.LocationX = sourceObject.LocationX;
 		this.LocationY = sourceObject.LocationY;
@@ -21,17 +19,13 @@ export class Missile {
 		this.Heading = sourceObject.Heading;
 		this.Fuel = 60;
 		this.Owner = sourceObject.Id;
-
 		this.calclulateInitialPosition(sourceObject);
 		Physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
-
 	}
 
 	update() {	
-
 		this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
 		Physics.moveObjectAlongVector(this);
-
 	}
 
 	calclulateInitialPosition(sourceObject) {

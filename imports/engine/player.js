@@ -1,14 +1,17 @@
-Player = function Player() {
-    this.Type = "Player";
-}
+export class Player {
 
-Player.prototype.init = function(id) {
-    this.Id = id;
-    this.Name = "";
-    this.ShipId = 0;
-    this.LastSeqNum = 0;
-    this.Kills = 0;
-    this.Deaths = 0;
-}
+    constructor() {
+        this.Type = "Player";
+    }   
 
-Player.prototype.update = function() {}
+    init(id) {
+        this.Id = id;
+        this.Name = "";
+        this.ShipId = 0;
+        this.LastSeqNum = 0;
+        this.Kills = 0;
+        this.Deaths = 0;
+    }
+
+    update = function() {}
+}
