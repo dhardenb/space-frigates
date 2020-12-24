@@ -1,7 +1,7 @@
 import './player.js';
 import {Missile} from './missile.js';
 import './ship.js';
-import './particle.js';
+import {Particle} from './particle.js';
 import './thruster.js';
 import {Physics} from './physics.js';
 import {Debris} from './debris.js';
@@ -139,26 +139,17 @@ Engine.prototype.collisionDetection = function () {
 }
 
 Engine.prototype.createDebris = function (sourceGameObject) {
-
-    var newDebris = new Debris();
-
+    const newDebris = new Debris();
     newDebris.init(sourceGameObject);
-
     gameObjects.push(newDebris);
 }
 
 Engine.prototype.createExplosion = function (sourceGameObject) {
-
     for (var i = 0; i < explosionSize; i++) {
-
-        var newParticle = new Particle();
-
+        const newParticle = new Particle();
         newParticle.init(sourceGameObject);
-
         gameObjects.push(newParticle);
-
     }
-
 }
 
 Engine.prototype.fuelDetection = function () {
