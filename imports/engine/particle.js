@@ -1,3 +1,5 @@
+import {Physics} from './physics.js';
+
 Particle = function Particle() {
 
     this.Type = "Particle";
@@ -22,6 +24,6 @@ Particle.prototype.update = function() {
 
     this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
 
-    physics.moveObjectAlongVector(this);
+    Physics.moveObjectAlongVector(this);
 
 }

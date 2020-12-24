@@ -1,4 +1,5 @@
 import { getRandomInt } from '../utilities/utilities.js';
+import {Physics} from './physics.js';
 
 export class Debris {
     
@@ -47,8 +48,8 @@ export class Debris {
     //
     // I think passing self by reference here is okay?
     update() {
-        physics.findNewFacing(this);
-	    physics.moveObjectAlongVector(this);
+        Physics.findNewFacing(this);
+	    Physics.moveObjectAlongVector(this);
     }
 
     // I have a feeling that the is a better way to express

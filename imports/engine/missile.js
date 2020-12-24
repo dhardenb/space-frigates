@@ -1,3 +1,5 @@
+import {Physics} from './physics.js';
+
 Missile = function Missile() {
 
     this.Type = "Missile";
@@ -20,7 +22,7 @@ Missile.prototype.init = function(sourceObject) {
 	this.Owner = sourceObject.Id;
 
   	this.calclulateInitialPosition(sourceObject);
-  	physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
+  	Physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
 
 }
 
@@ -28,7 +30,7 @@ Missile.prototype.update = function() {
 
 	this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
 
-	physics.moveObjectAlongVector(this);
+	Physics.moveObjectAlongVector(this);
 
 }
 

@@ -1,3 +1,5 @@
+import {Physics} from './physics.js';
+
 Ship = function Ship() {
     this.Size = 8.0;
     this.MaxHullStrength = 100;
@@ -206,7 +208,7 @@ Ship.prototype.updateThrusters = function() {
         }
 
         if (activateThruster) {
-            physics.findNewVelocity(this, this.Facing, 20);
+            Physics.findNewVelocity(this, this.Facing, 20);
             var newThruster = new Thruster();
             newThruster.init(this);
             gameObjects.push(newThruster);
@@ -379,7 +381,7 @@ Ship.prototype.updateFacing = function() {
     ///////////////////////////////////////////////////////
     // Update Facing
     ///////////////////////////////////////////////////////
-    physics.findNewFacing(this);
+    Physics.findNewFacing(this);
 }
 
 Ship.prototype.updateLocation = function() {
@@ -387,7 +389,7 @@ Ship.prototype.updateLocation = function() {
     ///////////////////////////////////////////////////////
     // Update Location
     ///////////////////////////////////////////////////////
-    physics.moveObjectAlongVector(this);
+    Physics.moveObjectAlongVector(this);
 }
 
 Ship.prototype.update = function() {

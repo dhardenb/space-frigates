@@ -3,7 +3,7 @@ import './missile.js';
 import './ship.js';
 import './particle.js';
 import './thruster.js';
-import './physics.js';
+import {Physics} from './physics.js';
 import {Debris} from './debris.js';
 import './sound.js';
 import { removeByAttr } from '../utilities/utilities.js';

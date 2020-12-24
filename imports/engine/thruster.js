@@ -1,3 +1,5 @@
+import {Physics} from './physics.js';
+
 Thruster = function Thruster() {
     this.Type = "Thruster";
     this.Size = 6.0;
@@ -16,12 +18,12 @@ Thruster.prototype.init = function(sourceObject) {
     this.Fuel = 0.1;
 
     this.calclulateInitialPosition(sourceObject);
-    physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
+    Physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
 }
 
 Thruster.prototype.update = function() {
     this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
-	physics.moveObjectAlongVector(this);
+	Physics.moveObjectAlongVector(this);
 }
 
 Thruster.prototype.calclulateInitialPosition = function(sourceObject) {
