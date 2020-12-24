@@ -4,7 +4,7 @@ import './ship.js';
 import './particle.js';
 import './thruster.js';
 import './physics.js';
-import './debris.js';
+import {Debris} from './debris.js';
 import './sound.js';
 import { removeByAttr } from '../utilities/utilities.js';
 
