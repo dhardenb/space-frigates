@@ -1,5 +1,5 @@
 import './player.js';
-import './missile.js';
+import {Missile} from './missile.js';
 import './ship.js';
 import './particle.js';
 import './thruster.js';
@@ -235,7 +235,7 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
         }
 
         else if (remoteGameObjects[x].Type == 'Missile') {
-          var newMissile = Object.assign(new Missile, remoteGameObjects[x]);
+          const newMissile = Object.assign(new Missile, remoteGameObjects[x]);
           convertedObjects.push(newMissile);
         }
 

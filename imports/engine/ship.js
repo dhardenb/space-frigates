@@ -1,3 +1,4 @@
+import {Missile} from './missile.js';
 import {Physics} from './physics.js';
 
 Ship = function Ship() {
@@ -177,7 +178,7 @@ Ship.prototype.fireMissile = function() {
         }
 
         if (activateMissile) {
-            var newMissile = new Missile();
+            const newMissile = new Missile();
             newMissile.init(this);
             gameObjects.push(newMissile);
             
