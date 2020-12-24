@@ -72,7 +72,7 @@ Ship.prototype.updateRector = function() {
     //        easier or harder to track
     ///////////////////////////////////////////////////////////////////////////
 
-    // Kilos of fuel the reactor consumes per second
+    // Kilograms of fuel the reactor consumes per second
     var reactorConversionRate = 15;
 
     // Perctage of kilos of fuel turned into joules of energy
