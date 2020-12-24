@@ -1,15 +1,14 @@
-mySound = function mySound() {
-    this.Type = "Sound";
+export class Sound {
+
+    constructor() {
+        this.Type = "Sound";
+    }
+
+    init = function(soundType, sourceObject) {
+        this.SoundType = soundType;
+        this.LocationX = sourceObject.LocationX;
+        this.LocationY = sourceObject.LocationY;
+    }
+
+    update = function() {}
 }
-
-mySound.prototype.init = function(soundType, sourceObject) {
-
-    this.SoundType = soundType;
-
-    this.LocationX = sourceObject.LocationX;
-    
-    this.LocationY = sourceObject.LocationY;
-
-}
-
-mySound.prototype.update = function() {}

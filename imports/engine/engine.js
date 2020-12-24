@@ -5,7 +5,7 @@ import {Particle} from './particle.js';
 import './thruster.js';
 import {Physics} from './physics.js';
 import {Debris} from './debris.js';
-import './sound.js';
+import {Sound} from './sound.js';
 import { removeByAttr } from '../utilities/utilities.js';
 
 Engine = function Engine() {
@@ -236,7 +236,7 @@ Engine.prototype.convertObjects = function (localGameObjects, remoteGameObjects)
         }
 
         else if (remoteGameObjects[x].Type == 'Sound') {
-          var newSound = Object.assign(new mySound, remoteGameObjects[x]);
+          const newSound = Object.assign(new Sound, remoteGameObjects[x]);
           convertedObjects.push(newSound);
         }
 

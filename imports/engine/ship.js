@@ -1,5 +1,6 @@
 import {Missile} from './missile.js';
 import {Physics} from './physics.js';
+import {Sound} from './sound.js';
 
 Ship = function Ship() {
     this.Size = 8.0;
@@ -182,7 +183,7 @@ Ship.prototype.fireMissile = function() {
             newMissile.init(this);
             gameObjects.push(newMissile);
             
-            var newSound = new mySound();
+            const newSound = new Sound();
             newSound.init("MissileFired", this);
             gameObjects.push(newSound);
         }
