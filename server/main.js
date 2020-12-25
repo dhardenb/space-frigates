@@ -3,16 +3,13 @@ import { Meteor } from 'meteor/meteor';
 
 import '../imports/server/server.js';
 
-import '../imports/engine/player.js';
+import {Player} from '../imports/engine/player.js';
 
 import { removeByAttr } from '../imports/utilities/utilities.js';
 
 Meteor.startup(() => {
-
     server = new Server();
-
     server.init();
-
 });
 
 Meteor.onConnection(function(connection) {

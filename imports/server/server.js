@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import '../engine/engine.js';
+import {Ship} from '../engine/ship.js';
 import './ai.js';
 import { packGameState } from '../utilities/utilities.js';
 

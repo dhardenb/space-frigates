@@ -1,3 +1,4 @@
+import {Ship} from '../engine/ship.js';
 
 Ai = function Ai() {
 

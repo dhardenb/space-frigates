@@ -1,6 +1,6 @@
 import {Player} from './player.js';
 import {Missile} from './missile.js';
-import './ship.js';
+import {Ship} from './ship.js';
 import {Particle} from './particle.js';
 import {Thruster} from './thruster.js';
 import {Physics} from './physics.js';
