@@ -47,7 +47,7 @@ export class Debris {
     // physics is a gloabl, need to fix that!
     //
     // I think passing self by reference here is okay?
-    update() {
+    update(framesPerSecond) {
         Physics.findNewFacing(this);
 	    Physics.moveObjectAlongVector(this);
     }

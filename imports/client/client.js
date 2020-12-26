@@ -1,4 +1,4 @@
-import '../engine/engine.js';
+import {Engine} from '../engine/engine.js';
 import './keyboard.js';
 import './renderer.js';
 import { unpackGameState } from '../utilities/utilities.js';

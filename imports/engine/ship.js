@@ -41,7 +41,7 @@ export class Ship {
         }
     }
 
-    updateRector() {
+    updateRector(framesPerSecond) {
         ///////////////////////////////////////////////////////////////////////////
         // Reactor
         //
@@ -85,7 +85,7 @@ export class Ship {
         }
     }
 
-    updateSolarPanels() {
+    updateSolarPanels(framesPerSecond) {
         ///////////////////////////////////////////////////////////////////////////
         // Solar Panels 
         //
@@ -297,10 +297,10 @@ export class Ship {
         Physics.moveObjectAlongVector(this);
     }
 
-    update() {
+    update(framesPerSecond) {
         this.determineCurrentCommand();
-        this.updateRector();
-        this.updateSolarPanels();
+        this.updateRector(framesPerSecond);
+        this.updateSolarPanels(framesPerSecond);
         this.updateBrakes();
         this.fireMissile();
         this.updateThrusters();
@@ -310,7 +310,7 @@ export class Ship {
         this.updateVelocity();
         this.updateFuelTank();
         this.updateFacing();
-        this.updateLocation();    
+        this.updateLocation(); 
     }
 
     setStartingHumanPosition() {

@@ -2,42 +2,45 @@ export class Physics {
 
     constructor() {}
 
+    // Need to fix this when I fix the game loop
+    static framesPerSecond = 60;
+
     static moveObjectAlongVector(GameObject) {
         if (GameObject.Heading == 0)
         {
-            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / framesPerSecond;
+            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / Physics.framesPerSecond;
         }
         else if (GameObject.Heading == 90)
         {
-            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / framesPerSecond;
+            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / Physics.framesPerSecond;
         }
         else if (GameObject.Heading == 180)
         {
-            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / framesPerSecond;
+            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / Physics.framesPerSecond;
         }
         else if (GameObject.Heading == 270)
         {
-            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / framesPerSecond;
+            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / Physics.framesPerSecond;
         }
         else if (GameObject.Heading < 90)
         {
-            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / framesPerSecond * (Math.sin(GameObject.Heading * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / framesPerSecond * (Math.cos(GameObject.Heading * 0.0174532925));
+            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / Physics.framesPerSecond * (Math.sin(GameObject.Heading * 0.0174532925));
+            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / Physics.framesPerSecond * (Math.cos(GameObject.Heading * 0.0174532925));
         }
         else if (GameObject.Heading < 180)
         {
-            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / framesPerSecond * (Math.sin((180 - GameObject.Heading) * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / framesPerSecond * (Math.cos((180 - GameObject.Heading) * 0.0174532925));
+            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / Physics.framesPerSecond * (Math.sin((180 - GameObject.Heading) * 0.0174532925));
+            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / Physics.framesPerSecond * (Math.cos((180 - GameObject.Heading) * 0.0174532925));
         }
         else if (GameObject.Heading < 270)
         {
-            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / framesPerSecond * (Math.sin((GameObject.Heading - 180) * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / framesPerSecond * (Math.cos((GameObject.Heading - 180) * 0.0174532925));
+            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / Physics.framesPerSecond * (Math.sin((GameObject.Heading - 180) * 0.0174532925));
+            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / Physics.framesPerSecond * (Math.cos((GameObject.Heading - 180) * 0.0174532925));
         }
         else
         {
-            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / framesPerSecond * (Math.sin((360 - GameObject.Heading) * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / framesPerSecond * (Math.cos((360 - GameObject.Heading) * 0.0174532925));
+            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / Physics.framesPerSecond * (Math.sin((360 - GameObject.Heading) * 0.0174532925));
+            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / Physics.framesPerSecond * (Math.cos((360 - GameObject.Heading) * 0.0174532925));
         }
     }
 
@@ -179,11 +182,11 @@ export class Physics {
 
             if (GameObject.RotationDirection == 'CounterClockwise') {
 
-                GameObject.Facing = GameObject.Facing - GameObject.RotationVelocity * 90 / framesPerSecond;
+                GameObject.Facing = GameObject.Facing - GameObject.RotationVelocity * 90 / Physics.framesPerSecond;
             }
             else {
 
-                GameObject.Facing = GameObject.Facing + GameObject.RotationVelocity * 90 / framesPerSecond;
+                GameObject.Facing = GameObject.Facing + GameObject.RotationVelocity * 90 / Physics.framesPerSecond;
             }
         }
 

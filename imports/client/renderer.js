@@ -1,6 +1,6 @@
 
 import {Howl} from 'howler';
-import { map } from 'lodash';
+import {map} from 'lodash';
 var _ = require('lodash');
 
 Renderer = function Renderer() {
@@ -22,6 +22,8 @@ Renderer = function Renderer() {
     version = Meteor.settings.public.version;
 
     gameVolume = Meteor.settings.public.gameVolume;
+
+    mapRadius = Meteor.settings.public.mapRadius;
 
     this.setupMapCanvas();
 
