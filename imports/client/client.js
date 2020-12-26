@@ -1,5 +1,5 @@
 import {Engine} from '../engine/engine.js';
-import './keyboard.js';
+import {Keyboard} from './keyboard.js';
 import './renderer.js';
 import {Utilities} from '../utilities/utilities.js';
 
