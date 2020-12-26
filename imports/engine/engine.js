@@ -5,7 +5,7 @@ import {Particle} from './particle.js';
 import {Thruster} from './thruster.js';
 import {Debris} from './debris.js';
 import {Sound} from './sound.js';
-import {removeByAttr} from '../utilities/utilities.js';
+import {Utilities} from '../utilities/utilities.js';
 
 export class Engine {
 
@@ -156,7 +156,7 @@ export class Engine {
     }
 
     removeSoundObjects() {
-        gameObjects = removeByAttr(gameObjects, "Type", "Sound");
+        gameObjects = Utilities.removeByAttr(gameObjects, "Type", "Sound");
     }
 
     convertObjects(localGameObjects, remoteGameObjects) {
@@ -188,15 +188,15 @@ export class Engine {
                 convertedObjects.push(newThruster);
             }
         }
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Player");
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Human");
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Alpha");
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Bravo");
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Missile");
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Debris");
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Sound");
-        localGameObjects = removeByAttr(localGameObjects, "Type", "Thruster");
-        for (i = 0; i < convertedObjects.length; i++) {
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Player");
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Human");
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Alpha");
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Bravo");
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Missile");
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Debris");
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Sound");
+        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Thruster");
+        for (let i = 0; i < convertedObjects.length; i++) {
             localGameObjects.push(convertedObjects[i]);
         }
         return localGameObjects;

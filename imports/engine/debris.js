@@ -1,5 +1,5 @@
-import { getRandomInt } from '../utilities/utilities.js';
 import {Physics} from './physics.js';
+import {Utilities} from '../utilities/utilities.js';
 
 export class Debris {
     
@@ -62,7 +62,7 @@ export class Debris {
     // Not sure just straight up random determination here is 
     // very elegent
     static setIntitialRotationDirection() {
-        return getRandomInt(0,1) == 0 ? 'Clockwise' : 'CounterClockwise';
+        return Utilities.getRandomInt(0,1) == 0 ? 'Clockwise' : 'CounterClockwise';
     }
 
     // I have a feeling that the is a better way to express
@@ -74,6 +74,6 @@ export class Debris {
     // consideration to determine and / or have some configuration
     // settings
     static setInitialRotationVelocity() {
-        return getRandomInt(1,3);
+        return Utilities.getRandomInt(1,3);
     }
 }
