@@ -1,6 +1,6 @@
 import {Engine} from '../engine/engine.js';
 import {Keyboard} from './keyboard.js';
-import './renderer.js';
+import {Renderer} from './renderer.js';
 import {Utilities} from '../utilities/utilities.js';
 
 Client = function Client() {

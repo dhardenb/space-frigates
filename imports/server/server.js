@@ -1,7 +1,7 @@
-import {Meteor} from 'meteor/meteor';
-import {Engine} from '../engine/engine.js';
-import {Ship} from '../engine/ship.js';
 import {Ai} from './ai.js';
+import {Engine} from '../engine/engine.js';
+import {Meteor} from 'meteor/meteor';
+import {Ship} from '../engine/ship.js';
 import {Utilities} from '../utilities/utilities.js';
 
 Server = function Server() {
