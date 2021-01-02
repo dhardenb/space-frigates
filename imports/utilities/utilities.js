@@ -1,7 +1,7 @@
 export class Utilities {
 
     static removeByAttr(arr, attr, value) {
-        var i = arr.length;
+        let i = arr.length;
         while(i--) {
             if( arr[i]
                 && arr[i].hasOwnProperty(attr)
@@ -38,7 +38,7 @@ export class Utilities {
 
         packedGameState.push([]);
 
-        packedGameState[0].push(updateId);
+        packedGameState[0].push(unpackedGameState.updateId);
         packedGameState[0].push(Date.now());
 
         ///////////////
