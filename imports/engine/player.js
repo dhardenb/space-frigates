@@ -13,5 +13,5 @@ export class Player {
         this.Deaths = 0;
     }
 
-    update = function(framesPerSecond) {}
+    update(framesPerSecond) {}
 }
