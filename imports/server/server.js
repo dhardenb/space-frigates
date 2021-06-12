@@ -1,7 +1,8 @@
-import { Meteor } from 'meteor/meteor';
-import '../engine/engine.js';
-import './ai.js';
-import { packGameState } from '../utilities/utilities.js';
+import {Ai} from './ai.js';
+import {Engine} from '../engine/engine.js';
+import {Meteor} from 'meteor/meteor';
+import {Ship} from '../engine/ship.js';
+import {Utilities} from '../utilities/utilities.js';
 
 Server = function Server() {
     engine = new Engine();
@@ -41,7 +42,7 @@ Server.prototype.startPhysicsLoop = function() {
         ai.createNewShip();
         ai.issueCommands();
         engine.update(60);
-        outputStream.emit('output', packGameState({updateId: updateId, gameState: gameObjects}));
+        outputStream.emit('output', Utilities.packGameState({updateId: updateId, gameState: gameObjects}));
         engine.removeSoundObjects();
         updateId++;
     }, frameRate);

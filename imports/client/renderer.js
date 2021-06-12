@@ -1,1949 +1,1776 @@
-
 import {Howl} from 'howler';
-var _ = require('lodash');
+import {map} from 'lodash';
+import {Star} from './star.js'
 
-Renderer = function Renderer() {
+export class Renderer {
 
-    visualRange = 100;
+    constructor() {
+        this.visualRange = 100;
+        this.audioRange = 50;
+        this.pixelsPerMeter = 0;
+        this.miniMapZoomLevel = 0.0625;
+        this.availableWidth = 0;
+        this.availableHeight = 0;
+        this.stars = [];
+        this.version = Meteor.settings.public.version;
+        this.gameVolume = Meteor.settings.public.gameVolume;
+        this.mapRadius = Meteor.settings.public.mapRadius
+        this.setupMapCanvas();
+        this._ = require('lodash');
+    }
 
-    audioRange = 50;
+    setupMapCanvas() {
+        this.map = document.getElementById("map").getContext('2d');
+        this.focalX = 0;
+        this.focalY = 0;
+        this.createStars();
+    }
 
-    pixelsPerMeter = 0;
+    createStars() {
+        for (var x = 0-this.mapRadius*2; x < this.mapRadius*2; x++) {
+            for (var y = 0-this.mapRadius*2; y < this.mapRadius*2; y++) {
+                if (Math.floor((Math.random()*1000)+1) == 1) {
+                    this.stars.push(new Star(x, y, Math.random()));
+                }
+            }
+        }
+    }
 
-    miniMapZoomLevel = 0.0625;
+    renderMap() {
+        var windowOffset = 22;
+        this.availableWidth = window.innerWidth - windowOffset;
+        this.availableHeight = window.innerHeight - windowOffset;
+        this.availablePixels = this.availableHeight < this.availableWidth ? this.availableHeight : this.availableWidth;
+        this.pixelsPerMeter = this.availablePixels / 2 / this.visualRange;
+        this.map.canvas.width = this.availableWidth;
+        this.map.canvas.height = this.availableHeight;
+        this.map.clearRect(0, 0, this.availableWidth, this.availableHeight);
+        this.map.save();
+        this.calculateOffset();
+        this.map.translate(this.availableWidth / 2 + this.focalX, this.availableHeight / 2 + this.focalY);
+        for (let x=0, y=this.stars.length; x<y; x++) {
+            this.renderStar(this.stars[x]);
+        }
+        this.renderBoundry();
+        for (var i = 0; i < gameObjects.length; i++) {
 
-    availableWidth = 0;
+            if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
 
-    availableHeight = 0;
+                this.renderShip(gameObjects[i]);
 
-    stars = [];
+            }
 
-    version = Meteor.settings.public.version;
+            else if (gameObjects[i].Type == 'Particle') {
 
-    gameVolume = Meteor.settings.public.gameVolume;
+                this.renderParticle(gameObjects[i]);
 
-    this.setupMapCanvas();
+            }
 
-}
+            else if (gameObjects[i].Type == 'Thruster') {
 
-Renderer.prototype.setupMapCanvas = function() {
+                this.renderThruster(gameObjects[i]);
 
-    map = document.getElementById("map").getContext('2d');
+            }
 
-    focalX = 0;
+            else if (gameObjects[i].Type == 'Missile') {
 
-    focalY = 0;
+                this.renderMissle(gameObjects[i]);
 
-    this.createStars();
+            }
 
-}
+            else if (gameObjects[i].Type == 'Debris') {
 
-Renderer.prototype.createStars = function() {
+                this.renderDebris(gameObjects[i]);
 
-    for (var x = 0-mapRadius*2; x < mapRadius*2; x++) {
+            }
 
-        for (var y = 0-mapRadius*2; y < mapRadius*2; y++) {
+            else if (gameObjects[i].Type == 'Sound') {
 
-            if (Math.floor((Math.random()*1000)+1) == 1) {
-
-                stars.push(new Star(x, y, Math.random()));
+                this.renderSound(gameObjects[i]);
 
             }
 
         }
 
-    }
+        this.map.restore();
 
-}
+        this.map.save();
 
-Renderer.prototype.renderMap = function () {
+        this.renderMiniMap();
 
-    var windowOffset = 22;
+        if (gameMode == 'START_MODE') {
 
-    availableWidth = window.innerWidth - windowOffset;
+            this.renderLeaderboard();
 
-    availableHeight = window.innerHeight - windowOffset;
+            this.renderTitle();
 
-    availablePixels = availableHeight < availableWidth ? availableHeight : availableWidth;
+            this.renderVersion();
 
-    pixelsPerMeter = availablePixels / 2 / visualRange;
+            this.renderTwitter();
 
-    map.canvas.width = availableWidth;
+            this.renderBlog();
 
-    map.canvas.height = availableHeight;
+            this.renderEmail();
 
-    map.clearRect(0, 0, availableWidth, availableHeight);
+            this.renderInstructions();
 
-    map.save();
+            this.renderNameInputBox();
 
-    if (gameMode == "START_MODE") {
+            this.renderName();
 
-        // map.filter = 'blur(4px)';
+            this.renderStartInstructions();
 
-    } else {
+            this.renderEnergyInstructions();
 
-       // map.filter = 'blur(0px)';
+        } else if (gameMode == 'PLAY_MODE') {
 
-    }
+            this.renderLeaderboard();
 
-    this.calculateOffset();
+            this.renderHullStrength();
 
-    map.translate(availableWidth / 2 + focalX, availableHeight / 2 + focalY);
+            this.renderFuelStatus();
+        
+            this.renderCapacitorStatus();
+        
+            this.renderShieldStatus();
 
-    for (let x=0, y=stars.length; x<y; x++) {
+            this.renderDamgeIndicator();
 
-        this.renderStar(stars[x]);
+            // this.renderRotateLeftButton();
 
-    }
+            // this.renderRotateRightButton();
 
-    this.renderBoundry();
+            // this.renderThrustButton();
 
-    for (var i = 0; i < gameObjects.length; i++) {
+            // this.renderBrakeButton();
 
-        if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+            // this.renderShieldButton();
 
-            this.renderShip(gameObjects[i]);
-
-        }
-
-        else if (gameObjects[i].Type == 'Particle') {
-
-            this.renderParticle(gameObjects[i]);
+            // this.renderFireButton();
 
         }
 
-        else if (gameObjects[i].Type == 'Thruster') {
-
-            this.renderThruster(gameObjects[i]);
-
-        }
-
-        else if (gameObjects[i].Type == 'Missile') {
-
-            this.renderMissle(gameObjects[i]);
-
-        }
-
-        else if (gameObjects[i].Type == 'Debris') {
-
-            this.renderDebris(gameObjects[i]);
-
-        }
-
-        else if (gameObjects[i].Type == 'Sound') {
-
-            this.renderSound(gameObjects[i]);
-
-        }
+        this.map.restore();
 
     }
 
-    map.restore();
+    calculateOffset() {
+        for (var x = 0, y = gameObjects.length; x < y; x++) {
+            if (gameObjects[x].Id == playerShipId) {
+                this.focalX = -gameObjects[x].LocationX * this.pixelsPerMeter;
+                this.focalY = -gameObjects[x].LocationY * this.pixelsPerMeter;
+            }
+        }
+    }
 
-    map.save();
-
-    this.renderMiniMap();
-
-    if (gameMode == 'START_MODE') {
-
-        this.renderLeaderboard();
-
-        this.renderTitle();
-
-        this.renderVersion();
-
-        this.renderTwitter();
-
-        this.renderBlog();
-
-        this.renderEmail();
-
-        this.renderInstructions();
-
-        this.renderNameInputBox();
-
-        this.renderName();
-
-        this.renderStartInstructions();
-
-        this.renderEnergyInstructions();
-
-    } else if (gameMode == 'PLAY_MODE') {
-
-        this.renderLeaderboard();
-
-        this.renderHullStrength();
-
-        this.renderFuelStatus();
+    renderMiniMap() {
     
-        this.renderCapacitorStatus();
+        this.map.save();
+
+        this.map.translate(this.availableWidth - this.availablePixels / 8 - 20, this.availablePixels / 8 + 20);
+
+        /////////////////////////////////
+        // Render Background and Bezel //
+        /////////////////////////////////
+
+        this.map.save();
+
+        this.map.beginPath();
+
+        this.map.arc(0, 0, this.availablePixels / 8, 0, 2 * Math.PI);
+
+        this.map.strokeStyle = "rgba(50, 50, 50, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 0, 0, 1.0)"
+
+        this.map.lineWidth = 5;
+
+        this.map.fill();
+
+        this.map.stroke();
+
+        this.map.clip()
+
+        //////////////////////////////
+        // Render ships and boundry //
+        //////////////////////////////
+
+        this.map.scale(this.miniMapZoomLevel, this.miniMapZoomLevel);
+
+        this.map.translate(this.focalX, this.focalY);
+
+        this.renderBoundry();
+
+        for (var i=0, j=gameObjects.length; i<j; i++) {
+            if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+                this.renderMiniShip(gameObjects[i]);
+            }
+        }
+
+        this.map.restore();
+
+        this.map.restore();
+    }
+
+    renderMiniShip(ship) {
     
-        this.renderShieldStatus();
+        this.map.save();
 
-        // this.renderRotateLeftButton();
+        this.map.translate(ship.LocationX * this.pixelsPerMeter, ship.LocationY * this.pixelsPerMeter);
 
-        // this.renderRotateRightButton();
+        this.map.scale(ship.Size * this.pixelsPerMeter, ship.Size * this.pixelsPerMeter);
 
-        // this.renderThrustButton();
+        this.map.beginPath();
 
-        // this.renderBrakeButton();
+        this.map.arc(0, 0, 1.0, 0, 2 * Math.PI);
 
-        // this.renderShieldButton();
+        let fillStyle = "";
 
-        // this.renderFireButton();
+        if (ship.Id == playerShipId) {
+            fillStyle = "rgba(0, 128, 0, 1.0)";
+        } else if (ship.Type == "Human") {
+            fillStyle = "rgba(255, 0, 0, 1.0)";
+        } else {
+            fillStyle = "rgba(128, 128, 128, 1.0)";
+        }
+
+        this.map.fillStyle = fillStyle;
+
+        this.map.fill();
+
+        this.map.restore();
 
     }
 
-    map.restore();
+    renderStar(star) {
 
-}
+        this.map.save();
 
-Renderer.prototype.calculateOffset = function () {
+        this.map.translate(star.x * this.pixelsPerMeter, star.y * this.pixelsPerMeter);
 
-    for (var x = 0, y = gameObjects.length; x < y; x++) {
+        this.map.beginPath();
 
-        if (gameObjects[x].Id == playerShipId) {
+        this.map.arc(0, 0, 0.25 * this.pixelsPerMeter, 0, 2 * Math.PI);
 
-            focalX = -gameObjects[x].LocationX * pixelsPerMeter;
+        this.map.fillStyle = "rgba(255, 255, 255," + star.alpha + ")";
 
-            focalY = -gameObjects[x].LocationY * pixelsPerMeter;
+        this.map.fill();
+
+        this.map.restore();
+
+    }
+
+    renderBoundry() {
+
+        this.map.save();
+
+        this.map.beginPath();
+
+        this.map.arc(0, 0, this.mapRadius * this.pixelsPerMeter, 0, 2 * Math.PI);
+
+        this.map.strokeStyle = "rgba(255, 255, 0, 0.5)";
+
+        this.map.lineWidth = 5;
+
+        this.map.stroke();
+
+        this.map.restore();
+
+    }
+
+    renderShip(ship) {
+
+        this.map.save();
+
+        this.map.translate(ship.LocationX * this.pixelsPerMeter, ship.LocationY * this.pixelsPerMeter);
+
+        this.map.rotate(ship.Facing * Math.PI / 180);
+
+        this.map.scale(ship.Size * this.pixelsPerMeter, ship.Size * this.pixelsPerMeter);
+
+        if (ship.ShieldStatus > 0) {
+
+            this.map.beginPath();
+
+            this.map.arc(0, 0, 1, 0, 2 * Math.PI);
+
+            this.map.lineWidth =  0.05;
+
+            this.map.strokeStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/150 + ")";
+
+            this.map.stroke();
+
+            this.map.fillStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/300 + ")";
+
+            this.map.fill();
 
         }
 
-    }
+        this.map.strokeStyle = "rgba(50, 50, 50, 1.0)";
 
-}
+        this.map.lineWidth =  0.1;
 
-Renderer.prototype.renderMiniMap = function () {
-    
-    map.save();
+        this.map.lineJoin = "round";
 
-    map.translate(availableWidth - availablePixels / 8 - 20, availablePixels / 8 + 20);
+        this.map.fillStyle = "rgba(100, 100, 100, 1.0)";
 
-    /////////////////////////////////
-    // Render Background and Bezel //
-    /////////////////////////////////
+        this.map.beginPath();
 
-    map.save();
+        this.map.moveTo(-0.05, -0.5);
 
-    map.beginPath();
+        this.map.lineTo(0.05, -0.5);
 
-    map.arc(0, 0, availablePixels / 8, 0, 2 * Math.PI);
+        this.map.lineTo(0.1, -0.2);
 
-    map.strokeStyle = "rgba(50, 50, 50, 1.0)";
+        this.map.lineTo(0.2, -0.1);
 
-    map.fillStyle = "rgba(0, 0, 0, 1.0)"
+        this.map.lineTo(0.2, 0.1);
 
-    map.lineWidth = 5;
+        this.map.lineTo(0.4, 0.3);
 
-    map.fill();
+        this.map.lineTo(0.4, 0.4);
 
-    map.stroke();
+        this.map.lineTo(0.2, 0.4);
 
-    map.clip()
+        this.map.lineTo(0.2, 0.5);
 
-    //////////////////////////////
-    // Render ships and boundry //
-    //////////////////////////////
+        this.map.lineTo(-0.2, 0.5);
 
-    map.scale(miniMapZoomLevel, miniMapZoomLevel);
+        this.map.lineTo(-0.2, 0.4);
 
-    map.translate(focalX, focalY);
+        this.map.lineTo(-0.4, 0.4);
 
-    this.renderBoundry();
+        this.map.lineTo(-0.4, 0.3);
 
-    for (var i=0, j=gameObjects.length; i<j; i++) {
-        if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
-            this.renderMiniShip(gameObjects[i]);
+        this.map.lineTo(-0.2, 0.1);
+
+        this.map.lineTo(-0.2, -0.1);
+
+        this.map.lineTo(-0.1, -0.2);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        this.map.fill();
+
+        //////////////////
+        // Draw Cockpit //
+        //////////////////
+
+        if (ship.HullStrength >= 66) {
+
+            this.map.fillStyle = "green";
+
+        } else if (ship.HullStrength >= 33) {
+
+            this.map.fillStyle = "yellow";
+
+        } else {
+
+            // map.strokeStyle = "rgb(250, 0, 0)";
+
+            this.map.fillStyle = "red";
+
         }
-    }
 
-    map.restore();
+        this.map.lineWidth =  0.05;
 
-    map.restore();
-}
+        this.map.beginPath();
 
-Renderer.prototype.renderMiniShip = function (ship) {
-    
-    map.save();
+        this.map.moveTo(0.0, -0.1);
 
-    map.translate(ship.LocationX * pixelsPerMeter, ship.LocationY * pixelsPerMeter);
+        this.map.lineTo(-0.1, 0.3);
 
-    map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
+        this.map.lineTo(0.1, 0.3);
 
-    map.beginPath();
+        this.map.closePath();
 
-    map.arc(0, 0, 1.0, 0, 2 * Math.PI);
+        this.map.stroke();
 
-    var fillStyle = "";
+        this.map.fill();
 
-    if (ship.Id == playerShipId) {
-        fillStyle = "rgba(0, 128, 0, 1.0)";
-    } else if (ship.Type == "Human") {
-        fillStyle = "rgba(255, 0, 0, 1.0)";
-    } else {
-        fillStyle = "rgba(128, 128, 128, 1.0)";
-    }
+        this.map.restore();
 
-    map.fillStyle = fillStyle;
+        ////////////////////////
+        // Draw the ship name //
+        ////////////////////////
 
-    map.fill();
+        this.map.save();
 
-    map.restore();
+        var nameToDraw = "";
+        var playerName = "";
 
-}
+        for (var i=0, j=gameObjects.length; i<j; i++) {
 
-Renderer.prototype.renderStar = function (star) {
+            if (gameObjects[i].Type == 'Player') {
 
-    map.save();
+                if (gameObjects[i].ShipId == ship.Id) {
+                    
+                    playerName = gameObjects[i].Name;
 
-    map.translate(star.x * pixelsPerMeter, star.y * pixelsPerMeter);
+                }
 
-    map.beginPath();
+            }
 
-    map.arc(0, 0, 0.25 * pixelsPerMeter, 0, 2 * Math.PI);
+        }
 
-    map.fillStyle = "rgba(255, 255, 255," + star.alpha + ")";
+        if (ship.Type != 'Human') {
 
-    map.fill();
+            nameToDraw = "";
 
-    map.restore();
+        } else {
 
-}
+            if (playerName == "") {
 
-Renderer.prototype.renderBoundry = function () {
+                nameToDraw = "GUEST";
 
-    map.save();
+            } else {
 
-    map.beginPath();
+                nameToDraw = playerName;
 
-    map.arc(0, 0, mapRadius * pixelsPerMeter, 0, 2 * Math.PI);
+            }
 
-    map.strokeStyle = "rgba(255, 255, 0, 0.5)";
+        }
 
-    map.lineWidth = 5;
+        this.map.fillStyle = "gray";
 
-    map.stroke();
+        this.map.font = "12px Arial";
 
-    map.restore();
+        this.map.translate(ship.LocationX * this.pixelsPerMeter - this.map.measureText(nameToDraw).width / 2, ship.LocationY * this.pixelsPerMeter + ship.Size * this.pixelsPerMeter * 1.5);
 
-}
+        this.map.fillText(nameToDraw, 0, 0);
 
-Renderer.prototype.renderShip = function (ship) {
-
-    map.save();
-
-    map.translate(ship.LocationX * pixelsPerMeter, ship.LocationY * pixelsPerMeter);
-
-    map.rotate(ship.Facing * Math.PI / 180);
-
-    map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
-
-    if (ship.ShieldStatus > 0) {
-
-        map.beginPath();
-
-        map.arc(0, 0, 1, 0, 2 * Math.PI);
-
-        map.lineWidth =  0.05;
-
-        map.strokeStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/150 + ")";
-
-        map.stroke();
-
-        map.fillStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/300 + ")";
-
-        map.fill();
+        this.map.restore();
 
     }
 
-    map.strokeStyle = "rgba(50, 50, 50, 1.0)";
+    renderParticle(particle) {
 
-    map.lineWidth =  0.1;
+        this.map.save();
 
-    map.lineJoin = "round";
+        this.map.translate(particle.LocationX * this.pixelsPerMeter, particle.LocationY * this.pixelsPerMeter);
 
-    map.fillStyle = "rgba(100, 100, 100, 1.0)";
+        this.map.beginPath();
 
-    map.beginPath();
+        this.map.arc(0, 0, particle.Size * 0.5 * this.pixelsPerMeter, 0, 2 * Math.PI);
 
-    map.moveTo(-0.05, -0.5);
+        this.map.strokeStyle = "rgba(255, 0, 0, 1)";
 
-    map.lineTo(0.05, -0.5);
+        this.map.lineWidth = 1.0;
 
-    map.lineTo(0.1, -0.2);
+        this.map.stroke();
 
-    map.lineTo(0.2, -0.1);
+        this.map.fillStyle = "rgba(255, 255, 0, 1)";
 
-    map.lineTo(0.2, 0.1);
+        this.map.fill();
 
-    map.lineTo(0.4, 0.3);
-
-    map.lineTo(0.4, 0.4);
-
-    map.lineTo(0.2, 0.4);
-
-    map.lineTo(0.2, 0.5);
-
-    map.lineTo(-0.2, 0.5);
-
-    map.lineTo(-0.2, 0.4);
-
-    map.lineTo(-0.4, 0.4);
-
-    map.lineTo(-0.4, 0.3);
-
-    map.lineTo(-0.2, 0.1);
-
-    map.lineTo(-0.2, -0.1);
-
-    map.lineTo(-0.1, -0.2);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.fill();
-
-    //////////////////
-    // Draw Cockpit //
-    //////////////////
-
-    if (ship.HullStrength >= 66) {
-
-        map.fillStyle = "green";
-
-    } else if (ship.HullStrength >= 33) {
-
-        map.fillStyle = "yellow";
-
-    } else {
-
-        // map.strokeStyle = "rgb(250, 0, 0)";
-
-        map.fillStyle = "red";
+        this.map.restore();
 
     }
 
-    map.lineWidth =  0.05;
+    renderThruster(thruster) {
 
-    map.beginPath();
+        this.map.save();
 
-    map.moveTo(0.0, -0.1);
+        this.map.translate(thruster.LocationX * this.pixelsPerMeter, thruster.LocationY * this.pixelsPerMeter);
 
-    map.lineTo(-0.1, 0.3);
+        this.map.rotate(thruster.Facing * Math.PI / 180);
 
-    map.lineTo(0.1, 0.3);
+        this.map.scale(thruster.Size * this.pixelsPerMeter, thruster.Size * this.pixelsPerMeter);
 
-    map.closePath();
+        this.map.strokeStyle = "rgba(255, 0, 0, 1)";
 
-    map.stroke();
+        this.map.lineWidth = 0.1;
 
-    map.fill();
+        this.map.lineJoin = "round";
 
-    map.restore();
+        this.map.fillStyle = "rgba(255, 255, 0, 1)";
 
-    ////////////////////////
-    // Draw the ship name //
-    ////////////////////////
+        this.map.beginPath();
 
-    map.save();
+        this.map.moveTo(-0.2, -0.5);
 
-    var nameToDraw = "";
-    var playerName = "";
+        this.map.lineTo(0.2, -0.5);
 
-    for (var i=0, j=gameObjects.length; i<j; i++) {
+        this.map.lineTo(0.0, 0.5);
 
-        if (gameObjects[i].Type == 'Player') {
+        this.map.closePath();
 
-            if (gameObjects[i].ShipId == ship.Id) {
+        this.map.stroke();
+
+        this.map.fill();
+
+        this.map.restore();
+
+    }
+
+    renderMissle(missile) {
+
+        this.map.save();
+
+        this.map.translate(missile.LocationX * this.pixelsPerMeter, missile.LocationY * this.pixelsPerMeter);
+
+        this.map.rotate(missile.Facing * Math.PI / 180);
+
+        this.map.scale(missile.Size * this.pixelsPerMeter, missile.Size * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(255, 255, 255, " + missile.Fuel / 60 + ")";
+
+        this.map.lineWidth = 0.1;
+
+        this.map.fillStyle = "rgba(0, 255, 255, " + missile.Fuel / 60 + ")";
+
+        this.map.beginPath();
+
+        this.map.moveTo(-0.1, -0.5);
+
+        this.map.lineTo(0.1, -0.5);
+
+        this.map.lineTo(0.1, 0.5);
+
+        this.map.lineTo(-0.1, 0.5);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        this.map.fill();
+
+        this.map.restore();
+
+    }
+
+    renderDebris(debris) {
+
+        this.map.save();
+
+        this.map.translate(debris.LocationX * this.pixelsPerMeter, debris.LocationY * this.pixelsPerMeter);
+
+        this.map.rotate(debris.Facing * Math.PI / 180);
+
+        this.map.scale(debris.Size * this.pixelsPerMeter, debris.Size * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(50, 50, 50, 1)";
+
+        this.map.lineWidth = 0.1;
+
+        this.map.lineJoin = "round";
+
+        this.map.fillStyle = "rgba(100, 100, 100, 1)";
+
+        this.map.beginPath();
+
+        this.map.moveTo(-0.8, 0.0);
+
+        this.map.lineTo(-0.4, 0.6);
+
+        this.map.lineTo(-0.2, 0.2);
+
+        this.map.lineTo(0.2, 0.8);
+
+        this.map.lineTo(0.6, 0.2);
+
+        this.map.lineTo(0.2, 0.2);
+
+        this.map.lineTo(0.0, -0.4);
+
+        this.map.lineTo(-0.8, 0.0);
+
+        this.map.closePath();
+
+        this.map.moveTo(0.4, 0.0);
+
+        this.map.lineTo(0.8, -0.4);
+
+        this.map.lineTo(0.6, -0.8);
+
+        this.map.lineTo(0.4, -0.6);
+
+        this.map.lineTo(0.2, -0.8);
+
+        this.map.lineTo(0.2, -0.6);
+
+        this.map.lineTo(0.4, 0.0);
+
+        this.map.closePath();
+
+        this.map.moveTo(-0.8, -0.2);
+
+        this.map.lineTo(-0.4, -0.2);
+
+        this.map.lineTo(0.0, -0.6);
+
+        this.map.lineTo(-0.4, -0.8);
+
+        this.map.lineTo(-0.6, -0.4);
+
+        this.map.lineTo(-0.8, -0.6);
+
+        this.map.closePath();
+        
+        this.map.stroke();
+        
+        this.map.fill();
+
+        this.map.restore();
+
+    }
+
+    renderSound(sound) {
+
+        if (gameMode == 'PLAY_MODE') {
+
+            var playersShip = null;
+
+            var distanceFromPlayersShip = 0;
+
+            var soundVolume = 1.0;
+
+            for (var x = 0, y = gameObjects.length; x < y; x++) {
+
+                if (gameObjects[x].Id == playerShipId) {
+
+                    playersShip = gameObjects[x];
+
+                }
+
+            }
+
+            if (playersShip != null) {
                 
-                playerName = gameObjects[i].Name;
+                distanceFromPlayersShip = Math.sqrt((playersShip.LocationX - sound.LocationX) * (playersShip.LocationX - sound.LocationX) + (playersShip.LocationY - sound.LocationY) * (playersShip.LocationY - sound.LocationY)) / this.pixelsPerMeter;
 
             }
+
+            soundVolume = (this.audioRange - distanceFromPlayersShip) / this.audioRange * this.gameVolume;
+
+            if (soundVolume < 0) {
+
+                soundVolume = 0;
+
+            }
+
+            let srcFile = '';
+
+            if (sound.SoundType == "MissileFired") {
+                
+                soundVolume = soundVolume * 1.0;
+                
+                srcFile = '/lazer.mp3';
+
+            }
+
+            var howl = new Howl({
+                    
+                src: [srcFile],
+
+                volume: soundVolume
+            
+            });
+            
+            howl.play();
 
         }
 
     }
 
-    if (ship.Type != 'Human') {
+    renderTitle() {
 
-        nameToDraw = "";
+        this.map.save();
 
-    } else {
+        this.map.strokeStyle = "yellow";
+
+        this.map.font = "60px Arial";
+
+        this.map.translate(this.availableWidth / 2 - this.map.measureText("Space Frigates").width / 2, 50);
+
+        this.map.strokeText("Space Frigates", 0, 0);
+
+        this.map.restore();
+
+    }
+
+    renderVersion() {
+
+        this.map.save();
+
+        this.map.fillStyle = "yellow";
+
+        this.map.font = "20px Arial";
+
+        this.map.translate(this.availableWidth / 2 - this.map.measureText("PUBLIC ALPHA - " + this.version).width / 2, 90);
+
+        this.map.fillText("PUBLIC ALPHA - " + this.version, 0, 0);
+
+        this.map.restore();
+
+    }
+
+    renderTwitter() {
+
+        this.map.save();
+
+        this.map.fillStyle = "yellow";
+
+        this.map.font = "20px Arial";
+
+        this.map.translate(this.availableWidth / 2 - this.map.measureText("TWITTER: @spacefrigates").width / 2, 130);
+
+        this.map.fillText("TWITTER: @spacefrigates", 0, 0);
+
+        this.map.restore();
+
+    }
+
+    renderBlog() {
+
+        this.map.save();
+
+        this.map.fillStyle = "yellow";
+
+        this.map.font = "20px Arial";
+
+        this.map.translate(this.availableWidth / 2 - this.map.measureText("BLOG: blog.spacefrigates.com").width / 2, 170);
+
+        this.map.fillText("BLOG: blog.spacefrigates.com", 0, 0);
+
+        this.map.restore();
+
+    }
+
+    renderEmail() {
+
+        this.map.save();
+
+        this.map.fillStyle = "yellow";
+
+        this.map.font = "20px Arial";
+
+        this.map.translate(this.availableWidth / 2 - this.map.measureText("EMAIL: davehardenbrook@yahoo.com").width / 2, 210);
+
+        this.map.fillText("EMAIL: davehardenbrook@yahoo.com", 0, 0);
+
+        this.map.restore();
+
+    }
+
+    renderLeaderboard() {
+
+        this.map.save();
+
+        this.map.translate(10, 25);
+
+        this.map.font = "20px Arial";
+
+        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+        this.map.fillText("PILOT", 0, 0);
+
+        this.map.save();
+
+        this.map.translate(155, 0);
+
+        this.map.fillText("K", 0, 0);
+
+        this.map.translate(40, 0);
+
+        this.map.fillText("D", 0, 0);
+
+        this.map.restore();
+
+        var players = [];
+
+        for (var i=0, j=gameObjects.length; i<j; i++) {
+
+            if (gameObjects[i].Type == 'Player') {
+
+                if (gameObjects[i].Name != "") {
+
+                    players.push(gameObjects[i]);
+
+                }
+
+            }
+
+        }
+
+        players = this._.orderBy(players, 'Kills', 'desc');
+
+        for (var i=0, j=players.length; i<j; i++) {
+
+            this.map.translate(0, 25);
+
+            if (players[i].Id == playerId) {
+
+                this.map.fillStyle = "rgba(255, 255, 0, 0.5)";
+
+            } else {
+
+                this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+            }
+
+            this.map.fillText(players[i].Name, 0, 0);
+
+            this.map.save();
+
+            this.map.translate(155, 0);
+
+            this.map.fillText(players[i].Kills, 0, 0);
+
+            this.map.translate(40, 0);
+
+            this.map.fillText(players[i].Deaths, 0, 0);
+
+            this.map.restore();
+
+        }
+
+        this.map.restore();
+
+    }
+
+    renderNameInputBox() {
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth / 2 - 100, this.availableHeight / 2);
+
+        this.map.strokeStyle = "yellow";
+
+        this.map.strokeRect(0, 0, 200, 50);
+
+        this.map.restore();
+
+    }
+
+    renderName() {
+
+        this.map.save();
+
+        let textToRender = "";
 
         if (playerName == "") {
 
-            nameToDraw = "GUEST";
+            textToRender = "GUEST";
+
+            this.map.fillStyle = "gray";
+
+            this.map.font = "italic 20px Arial";
 
         } else {
 
-            nameToDraw = playerName;
+            textToRender = playerName;
+
+            this.map.fillStyle = "yellow";
+
+            this.map.font = "20px Arial";
 
         }
 
+        this.map.translate(this.availableWidth / 2 - this.map.measureText(textToRender).width / 2, this.availableHeight / 2 + 35);
+
+        this.map.fillText(textToRender, 0, 0);
+
+        this.map.restore();
+
     }
 
-    map.fillStyle = "gray";
+    renderStartInstructions() {
 
-    map.font = "12px Arial";
+        this.map.save();
 
-    map.translate(ship.LocationX * pixelsPerMeter - map.measureText(nameToDraw).width / 2, ship.LocationY * pixelsPerMeter + ship.Size * pixelsPerMeter * 1.5);
+        let textToRender = "PRESS ENTER TO START";
 
-    map.fillText(nameToDraw, 0, 0);
+        this.map.fillStyle = "yellow";
 
-    map.restore();
+        this.map.font = "20px Arial";
 
-}
+        this.map.translate(this.availableWidth / 2 - this.map.measureText(textToRender).width / 2, this.availableHeight / 2 + 95);
 
-Renderer.prototype.renderParticle = function (particle) {
+        this.map.fillText(textToRender, 0, 0);
 
-    map.save();
+        this.map.restore();
 
-    map.translate(particle.LocationX * pixelsPerMeter, particle.LocationY * pixelsPerMeter);
+    }
 
-    map.beginPath();
+    renderEnergyInstructions() {
 
-    map.arc(0, 0, particle.Size * 0.5 * pixelsPerMeter, 0, 2 * Math.PI);
+        this.map.save();
 
-    map.strokeStyle = "rgba(255, 0, 0, 1)";
+        let textToRender = "COLLECT DEBRIS TO INCREASE ENERGY";
 
-    map.lineWidth = 1.0;
+        this.map.fillStyle = "yellow";
 
-    map.stroke();
+        this.map.font = "20px Arial";
 
-    map.fillStyle = "rgba(255, 255, 0, 1)";
+        this.map.translate(this.availableWidth / 2 - this.map.measureText(textToRender).width / 2, this.availableHeight / 2 + 155);
 
-    map.fill();
+        this.map.fillText(textToRender, 0, 0);
 
-    map.restore();
+        this.map.restore();
 
-}
+    }
 
-Renderer.prototype.renderThruster = function (thruster) {
+    renderHullStrength() {
 
-    map.save();
+        let ship = {};
+        let hullStrengthDisplayValue;
 
-    map.translate(thruster.LocationX * pixelsPerMeter, thruster.LocationY * pixelsPerMeter);
+        for (let i=0, j=gameObjects.length; i<j; i++) {
 
-    map.rotate(thruster.Facing * Math.PI / 180);
+            if (gameObjects[i].Id == playerShipId) {
 
-    map.scale(thruster.Size * pixelsPerMeter, thruster.Size * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(255, 0, 0, 1)";
-
-    map.lineWidth = 0.1;
-
-    map.lineJoin = "round";
-
-    map.fillStyle = "rgba(255, 255, 0, 1)";
-
-    map.beginPath();
-
-    map.moveTo(-0.2, -0.5);
-
-    map.lineTo(0.2, -0.5);
-
-    map.lineTo(0.0, 0.5);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.fill();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderMissle = function (missile) {
-
-    map.save();
-
-    map.translate(missile.LocationX * pixelsPerMeter, missile.LocationY * pixelsPerMeter);
-
-    map.rotate(missile.Facing * Math.PI / 180);
-
-    map.scale(missile.Size * pixelsPerMeter, missile.Size * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(255, 255, 255, " + missile.Fuel / 60 + ")";
-
-    map.lineWidth = 0.1;
-
-    map.fillStyle = "rgba(0, 255, 255, " + missile.Fuel / 60 + ")";
-
-    map.beginPath();
-
-    map.moveTo(-0.1, -0.5);
-
-    map.lineTo(0.1, -0.5);
-
-    map.lineTo(0.1, 0.5);
-
-    map.lineTo(-0.1, 0.5);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.fill();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderDebris = function (debris) {
-
-    map.save();
-
-    map.translate(debris.LocationX * pixelsPerMeter, debris.LocationY * pixelsPerMeter);
-
-    map.rotate(debris.Facing * Math.PI / 180);
-
-    map.scale(debris.Size * pixelsPerMeter, debris.Size * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(50, 50, 50, 1)";
-
-    map.lineWidth = 0.1;
-
-    map.lineJoin = "round";
-
-    map.fillStyle = "rgba(100, 100, 100, 1)";
-
-    map.beginPath();
-
-    map.moveTo(-0.8, 0.0);
-
-    map.lineTo(-0.4, 0.6);
-
-    map.lineTo(-0.2, 0.2);
-
-    map.lineTo(0.2, 0.8);
-
-    map.lineTo(0.6, 0.2);
-
-    map.lineTo(0.2, 0.2);
-
-    map.lineTo(0.0, -0.4);
-
-    map.lineTo(-0.8, 0.0);
-
-    map.closePath();
-
-    map.moveTo(0.4, 0.0);
-
-    map.lineTo(0.8, -0.4);
-
-    map.lineTo(0.6, -0.8);
-
-    map.lineTo(0.4, -0.6);
-
-    map.lineTo(0.2, -0.8);
-
-    map.lineTo(0.2, -0.6);
-
-    map.lineTo(0.4, 0.0);
-
-    map.closePath();
-
-    map.moveTo(-0.8, -0.2);
-
-    map.lineTo(-0.4, -0.2);
-
-    map.lineTo(0.0, -0.6);
-
-    map.lineTo(-0.4, -0.8);
-
-    map.lineTo(-0.6, -0.4);
-
-    map.lineTo(-0.8, -0.6);
-
-    map.closePath();
-    
-    map.stroke();
-    
-    map.fill();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderSound = function (sound) {
-
-    if (gameMode == 'PLAY_MODE') {
-
-        var playersShip = null;
-
-        var distanceFromPlayersShip = 0;
-
-        var soundVolume = 1.0;
-
-        for (var x = 0, y = gameObjects.length; x < y; x++) {
-
-            if (gameObjects[x].Id == playerShipId) {
-
-                playersShip = gameObjects[x];
+                ship = gameObjects[i];
 
             }
 
         }
 
-        if (playersShip != null) {
-            
-            distanceFromPlayersShip = Math.sqrt((playersShip.LocationX - sound.LocationX) * (playersShip.LocationX - sound.LocationX) + (playersShip.LocationY - sound.LocationY) * (playersShip.LocationY - sound.LocationY)) / pixelsPerMeter;
+        hullStrengthDisplayValue = Math.floor(ship.HullStrength);
 
-        }
+        this.map.save();
 
-        soundVolume = (audioRange - distanceFromPlayersShip) / audioRange * gameVolume;
+        this.map.translate(0, this.availableHeight - 125);
 
-        if (soundVolume < 0) {
+        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
 
-            soundVolume = 0;
+        this.map.font = "20px Arial";
 
-        }
+        this.map.fillText("HULL ", 0, 0);
 
-        var src = '';
+        this.map.restore();
 
-        if (sound.SoundType == "MissileFired") {
-            
-            soundVolume = soundVolume * 1.0;
-            
-            srcFile = '/lazer.mp3';
+        this.map.save();
 
-        }
+        this.map.translate(125, this.availableHeight - 144);
 
-        var howl = new Howl({
-                
-            src: [srcFile],
+        this.renderMeter(hullStrengthDisplayValue);
 
-            volume: soundVolume
-        
-        });
-        
-        howl.play();
+        this.map.restore();
 
     }
 
-}
+    renderFuelStatus() {
 
-Renderer.prototype.renderTitle = function () {
+        let ship = {};
 
-    map.save();
+        for (let i=0, j=gameObjects.length; i<j; i++) {
 
-    map.strokeStyle = "yellow";
+            if (gameObjects[i].Id == playerShipId) {
 
-    map.font = "60px Arial";
-
-    map.translate(availableWidth / 2 - map.measureText("Space Frigates").width / 2, 50);
-
-    map.strokeText("Space Frigates", 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderVersion = function () {
-
-    map.save();
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(availableWidth / 2 - map.measureText("PUBLIC ALPHA - " + version).width / 2, 90);
-
-    map.fillText("PUBLIC ALPHA - " + version, 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderTwitter = function () {
-
-    map.save();
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(availableWidth / 2 - map.measureText("TWITTER: @spacefrigates").width / 2, 130);
-
-    map.fillText("TWITTER: @spacefrigates", 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderBlog = function () {
-
-    map.save();
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(availableWidth / 2 - map.measureText("BLOG: blog.spacefrigates.com").width / 2, 170);
-
-    map.fillText("BLOG: blog.spacefrigates.com", 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderEmail = function () {
-
-    map.save();
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(availableWidth / 2 - map.measureText("EMAIL: davehardenbrook@yahoo.com").width / 2, 210);
-
-    map.fillText("EMAIL: davehardenbrook@yahoo.com", 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderLeaderboard = function () {
-
-    map.save();
-
-    map.translate(10, 25);
-
-    map.font = "20px Arial";
-
-    map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-    map.fillText("PILOT", 0, 0);
-
-    map.save();
-
-    map.translate(155, 0);
-
-    map.fillText("K", 0, 0);
-
-    map.translate(40, 0);
-
-    map.fillText("D", 0, 0);
-
-    map.restore();
-
-    var players = [];
-
-    for (var i=0, j=gameObjects.length; i<j; i++) {
-
-        if (gameObjects[i].Type == 'Player') {
-
-            if (gameObjects[i].Name != "") {
-
-                players.push(gameObjects[i]);
+                ship = gameObjects[i];
 
             }
 
         }
 
+        let fuelDisplayValue = Math.floor(ship.Fuel);
+
+        this.map.save();
+
+        this.map.translate(0, this.availableHeight - 90);
+
+        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+        this.map.font = "20px Arial";
+
+        this.map.fillText("FUEL ", 0, 0);
+
+        this.map.restore();
+
+        this.map.save();
+
+        this.map.translate(125, this.availableHeight - 108);
+
+        this.renderMeter(fuelDisplayValue / 1000 * 100);
+
+        this.map.restore();
+
     }
 
-    players = _.orderBy(players, 'Kills', 'desc');
+    renderCapacitorStatus() {
 
-    for (var i=0, j=players.length; i<j; i++) {
+        let ship = {};
 
-        map.translate(0, 25);
+        for (let i=0, j=gameObjects.length; i<j; i++) {
 
-        if (players[i].Id == playerId) {
+            if (gameObjects[i].Id == playerShipId) {
 
-            map.fillStyle = "rgba(255, 255, 0, 0.5)";
+                ship = gameObjects[i];
 
+            }
+
+        }
+
+        let capacitorDisplayValue = Math.floor(ship.Capacitor);
+
+        this.map.save();
+
+        this.map.translate(0, this.availableHeight - 55);
+
+        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+        this.map.font = "20px Arial";
+
+        this.map.fillText("CAPACITOR ", 0, 0);
+
+        this.map.restore();
+
+        this.map.save();
+
+        this.map.translate(125, this.availableHeight - 72);
+
+        this.renderMeter(capacitorDisplayValue);
+
+        this.map.restore();
+
+    }
+
+    renderShieldStatus() {
+
+        let ship = {};
+        let shieldDisplayValue;
+
+        for (let i=0, j=gameObjects.length; i<j; i++) {
+
+            if (gameObjects[i].Id == playerShipId) {
+
+                ship = gameObjects[i];
+
+            }
+
+        }
+
+        shieldDisplayValue = Math.floor(ship.ShieldStatus);
+
+        this.map.save();
+
+        this.map.translate(0, this.availableHeight - 20);
+
+        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
+
+        this.map.font = "20px Arial";
+
+        this.map.fillText("SHIELDS ", 0, 0);
+
+        this.map.restore();
+
+        this.map.save();
+
+        this.map.translate(125, this.availableHeight - 37);
+
+        if (ship.ShieldOn == 0 && shieldDisplayValue == 0) {
+
+            shieldDisplayValue = -1;
+
+        }
+
+        this.renderMeter(shieldDisplayValue);
+
+        this.map.restore();
+
+    }
+
+    renderInstructions() {
+
+        this.map.save();
+
+        this.map.fillStyle = "yellow";
+
+        this.map.font = "20px Arial";
+
+        this.map.translate(0, this.availableHeight - 160);
+
+        this.map.fillText("ENTER => New Ship", 0, 0);
+
+        this.map.translate(0, 25);
+
+        this.map.fillText("W or UP ARROW => Thrust", 0, 0);
+
+        this.map.translate(0, 25);
+
+        this.map.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
+
+        this.map.translate(0, 25);
+
+        this.map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
+
+        this.map.translate(0, 25);
+
+        this.map.fillText("S or DOWN ARROW => Stop", 0, 0);
+
+        this.map.translate(0, 25);
+
+        this.map.fillText("ALT => Toggle Shields", 0, 0);
+
+        this.map.translate(0, 25);
+
+        this.map.fillText("SPACEBAR => Fire", 0, 0);
+
+        this.map.restore();
+
+    }
+
+    renderMeter(percentage) {
+    
+        this.map.save();
+
+        let color = "";
+
+        if (percentage == -1) {
+            color = "gray";
+        } else if (percentage <= 33) {
+            color = "red";
+        } else if (percentage <= 66) {
+            color = "yellow";
         } else {
+            color = "green";
+        }
+        
+        if (percentage <= 0) {
+            this.renderMeterBar(0, 0, false, color);
+        } else {
+            this.renderMeterBar(0, 0, true, color);
+        }
 
-            map.fillStyle = "rgba(128, 128, 128, 0.5)";
+        if (percentage < 11) {
+            this.renderMeterBar(20, 0, false, color);
+        } else {
+            this.renderMeterBar(20, 0, true, color);
+        }
+
+        if (percentage < 21) {
+            this.renderMeterBar(40, 0, false, color);
+        } else {
+            this.renderMeterBar(40, 0, true, color);
+        }
+
+        if (percentage < 31) {
+            this.renderMeterBar(60, 0, false, color);
+        } else {
+            this.renderMeterBar(60, 0, true, color);
+        }
+
+        if (percentage < 41) {
+            this.renderMeterBar(80, 0, false, color);
+        } else {
+            this.renderMeterBar(80, 0, true, color);
+        }
+
+        if (percentage < 51) {
+            this.renderMeterBar(100, 0, false, color);
+        } else {
+            this.renderMeterBar(100, 0, true, color);
+        }
+
+        if (percentage < 61) {
+            this.renderMeterBar(120, 0, false, color);
+        } else {
+            this.renderMeterBar(120, 0, true, color);
+        }
+
+        if (percentage < 71) {
+            this.renderMeterBar(140, 0, false, color);
+        } else {
+            this.renderMeterBar(140, 0, true, color);
+        }
+
+        if (percentage < 81) {
+            this.renderMeterBar(160, 0, false, color);
+        } else {
+            this.renderMeterBar(160, 0, true, color);
+        }
+
+        if (percentage < 91) {
+            this.renderMeterBar(180, 0, false, color);
+        } else {
+            this.renderMeterBar(180, 0, true, color);
+        }
+
+        this.map.restore();
+    }
+
+    renderMeterBar(x, y, filled, color) {
+    
+        this.map.save();
+
+        let fillColor = "";
+        let strokeColor = color;
+        
+        if (filled) {
+            if (color == "gray") {
+                fillColor = "rgba(128, 128, 128, 0.25)";
+            } else if (color == "green") {
+                fillColor = "rgba(0, 128, 0, 0.25)";
+            } else if (color == "yellow") {
+                fillColor = "rgba(255, 255, 0, 0.25)";
+            } else if (color == "red") {
+                fillColor = "rgba(255, 0, 0, 0.25)";
+            }
+        } else {
+            fillColor = "rgba(0,0,0,0.5)";
+        }
+
+        this.map.fillStyle = fillColor;
+
+        this.map.strokeStyle = strokeColor;
+        
+        this.map.beginPath();
+        
+        this.map.rect(x, y, 10, 20);
+        
+        this.map.fill();
+
+        this.map.stroke();
+
+        this.map.restore();
+    }
+
+    renderRotateLeftButton() {
+
+        this.map.save();
+
+        this.map.translate(0 + this.availablePixels * 0.1, this.availableHeight - this.availablePixels * 0.2);
+
+        this.renderButton();
+
+        this.map.restore();
+
+    }
+
+    renderRotateRightButton() {
+
+        this.map.save();
+
+        this.map.translate(0 + this.availablePixels * 0.25, this.availableHeight - this.availablePixels * 0.2);
+
+        this.renderButton();
+
+        this.map.restore();
+
+    }
+
+    renderThrustButton() {
+
+        this.map.save();
+
+        this.map.translate(0 + this.availablePixels * 0.175, this.availableHeight - this.availablePixels * 0.3);
+
+        this.renderButton();
+
+        this.map.restore();
+
+    }
+
+    renderBrakeButton() {
+
+        this.map.save();
+
+        this.map.translate(0 + this.availablePixels * 0.175, this.availableHeight - this.availablePixels * 0.1);
+
+        this.renderButton();
+
+        this.map.restore();
+
+    }
+
+    renderShieldButton() {
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth - this.availablePixels * 0.25, this.availableHeight - this.availablePixels * 0.1);
+
+        this.renderButton();
+
+        this.map.restore();
+
+    }
+
+    renderFireButton() {
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth - this.availablePixels * 0.1, this.availableHeight - this.availablePixels * 0.1);
+
+        this.renderButton();
+
+        this.map.restore();
+    }
+
+    renderButton() {
+
+        this.map.save();
+
+        this.map.strokeStyle = "rgba(128, 128, 128, 0.5)";
+
+        this.map.lineWidth = availablePixels * 0.005;
+        
+        this.map.beginPath();
+        
+        this.map.arc(0, 0, this.availablePixels * 0.05, 0, 2 * Math.PI);
+
+        this.map.stroke();
+
+        this.map.restore();
+
+    }
+
+    renderDamgeIndicator() {
+
+        const totalLengthOfObject = 32;
+
+        //////////
+        // Ship //
+        //////////
+
+        let ship = {};
+
+        for (let i=0, j=gameObjects.length; i<j; i++) {
+
+            if (gameObjects[i].Id == playerShipId) {
+
+                ship = gameObjects[i];
+
+            }
 
         }
 
-        map.fillText(players[i].Name, 0, 0);
+        //////////
+        // Hull //
+        //////////
 
-        map.save();
+        this.map.save();
 
-        map.translate(155, 0);
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
 
-        map.fillText(players[i].Kills, 0, 0);
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
 
-        map.translate(40, 0);
+        if (ship.HullStrength / ship.MaxHullStrength <= .33) {
+            this.map.strokeStyle = "rgba(255, 0, 0, 1.0)";
+            this.map.fillStyle = "rgba(100, 0, 0, 1.0)";
+        }
+        else if (ship.HullStrength / ship.MaxHullStrength <= .66) {
+            this.map.strokeStyle = "rgba(255, 255, 0, 1.0)";
+            this.map.fillStyle = "rgba(100, 100, 0, 1.0)";
+        }
+        else {
+            this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+            this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+        }
+        
+        this.map.lineWidth =  0.01;
 
-        map.fillText(players[i].Deaths, 0, 0);
+        this.map.lineJoin = "round";
 
-        map.restore();
+        this.map.beginPath();
 
-    }
+        this.map.moveTo(-0.05, -0.5);
 
-    map.restore();
+        this.map.lineTo(0.05, -0.5);
 
-}
+        this.map.lineTo(0.1, -0.2);
 
-Renderer.prototype.renderNameInputBox = function () {
+        this.map.lineTo(0.2, -0.1);
 
-    map.save();
+        this.map.lineTo(0.2, 0.1);
 
-    map.translate(availableWidth / 2 - 100, availableHeight / 2);
+        this.map.lineTo(0.4, 0.3);
 
-    map.strokeStyle = "yellow";
+        this.map.lineTo(0.4, 0.4);
 
-    map.strokeRect(0, 0, 200, 50);
+        this.map.lineTo(0.2, 0.4);
 
-    map.restore();
+        this.map.lineTo(0.2, 0.5);
 
-}
+        this.map.lineTo(-0.2, 0.5);
 
-Renderer.prototype.renderName = function () {
+        this.map.lineTo(-0.2, 0.4);
 
-    map.save();
+        this.map.lineTo(-0.4, 0.4);
 
-    var textToRender = "";
+        this.map.lineTo(-0.4, 0.3);
 
-    if (playerName == "") {
+        this.map.lineTo(-0.2, 0.1);
 
-        textToRender = "GUEST";
+        this.map.lineTo(-0.2, -0.1);
 
-        map.fillStyle = "gray";
+        this.map.lineTo(-0.1, -0.2);
 
-        map.font = "italic 20px Arial";
+        this.map.closePath();
 
-    } else {
+        this.map.stroke();
 
-        textToRender = playerName;
+        // map.fill();
 
-        map.fillStyle = "yellow";
+        this.map.restore();
 
-        map.font = "20px Arial";
+        ///////////////////
+        // Plasma Cannon //
+        ///////////////////
 
-    }
+        this.map.save();
 
-    map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 35);
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
 
-    map.fillText(textToRender, 0, 0);
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
 
-    map.restore();
-
-}
-
-Renderer.prototype.renderStartInstructions = function () {
-
-    map.save();
-
-    var textToRender = "PRESS ENTER TO START";
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 95);
-
-    map.fillText(textToRender, 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderEnergyInstructions = function () {
-
-    map.save();
-
-    var textToRender = "COLLECT DEBRIS TO INCREASE ENERGY";
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(availableWidth / 2 - map.measureText(textToRender).width / 2, availableHeight / 2 + 155);
-
-    map.fillText(textToRender, 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderHullStrength = function () {
-
-    var ship = {};
-    var hullStrengthDisplayValue;
-
-    for (var i=0, j=gameObjects.length; i<j; i++) {
-
-        if (gameObjects[i].Id == playerShipId) {
-
-            ship = gameObjects[i];
-
+        if (ship.PlasmaCannonStrength / ship.MaxPlasmaCannonStrength <= .33) {
+            this.map.strokeStyle = "rgba(255, 0, 0, 1.0)";
+            this.map.fillStyle = "rgba(100, 0, 0, 1.0)";
+        }
+        else if (ship.PlasmaCannonStrength / ship.MaxPlasmaCannonStrength <= .66) {
+            this.map.strokeStyle = "rgba(255, 255, 0, 1.0)";
+            this.map.fillStyle = "rgba(100, 100, 0, 1.0)";
+        }
+        else {
+            this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+            this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
         }
 
-    }
+        this.map.lineWidth =  0.01;
 
-    hullStrengthDisplayValue = Math.floor(ship.HullStrength);
+        this.map.lineJoin = "round";
 
-    map.save();
+        this.map.beginPath();
 
-    map.translate(0, availableHeight - 125);
+        this.map.moveTo(-0.025, -0.48);
 
-    map.fillStyle = "rgba(128, 128, 128, 0.5)";
+        this.map.lineTo(0.025, -0.48);
 
-    map.font = "20px Arial";
+        this.map.lineTo(0.065, -0.22);
 
-    map.fillText("HULL ", 0, 0);
+        this.map.lineTo(-0.065, -0.22);
 
-    map.restore();
+        this.map.closePath();
 
-    map.save();
+        this.map.stroke();
 
-    map.translate(125, availableHeight - 144);
+        // map.fill();
 
-    this.renderMeter(hullStrengthDisplayValue);
+        this.map.restore();
 
-    map.restore();
+        this.map.restore();
 
-}
+        /////////////
+        // Cockpit //
+        /////////////
 
-Renderer.prototype.renderFuelStatus = function () {
+        this.map.save();
 
-    var ship = {};
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
 
-    for (var i=0, j=gameObjects.length; i<j; i++) {
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
 
-        if (gameObjects[i].Id == playerShipId) {
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
 
-            ship = gameObjects[i];
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
 
+        this.map.lineWidth =  0.01;
+
+        this.map.lineJoin = "round";
+
+        this.map.beginPath();
+
+        this.map.moveTo(-0.05, -0.08);
+
+        this.map.lineTo(0.05, -0.08);
+
+        this.map.lineTo(0.08, -0.02);
+
+        this.map.lineTo(0.08, 0.18);
+
+        this.map.lineTo(-0.08, 0.18);
+
+        this.map.lineTo(-0.08, -0.02);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        // map.fill();
+
+        this.map.restore();
+
+        this.map.restore();
+
+        ///////////////////
+        // Main Thruster //
+        ///////////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        if (ship.ThrusterStrength / ship.MaxThrusterStrength <= .33) {
+            this.map.strokeStyle = "rgba(255, 0, 0, 1.0)";
+            this.map.fillStyle = "rgba(100, 0, 0, 1.0)";
+        }
+        else if (ship.ThrusterStrength / ship.MaxThrusterStrength <= .66) {
+            this.map.strokeStyle = "rgba(255, 255, 0, 1.0)";
+            this.map.fillStyle = "rgba(100, 100, 0, 1.0)";
+        }
+        else {
+            this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+            this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
         }
 
+        this.map.lineWidth =  0.01;
+
+        this.map.lineJoin = "round";
+
+        this.map.beginPath();
+
+        this.map.moveTo(-0.08, 0.32);
+
+        this.map.lineTo(0.08, 0.32);
+
+        this.map.lineTo(0.08, 0.45);
+
+        this.map.lineTo(0.05, 0.48);
+
+        this.map.lineTo(-0.05, 0.48);
+
+        this.map.lineTo(-0.08, 0.45);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        // map.fill();
+
+        this.map.restore();
+
+        this.map.restore();
+
+        /////////////////////
+        // Right Capacitor //
+        /////////////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+        this.map.lineWidth =  0.01;
+
+        this.map.lineJoin = "round";
+
+        this.map.beginPath();
+
+        this.map.moveTo(0.22, 0.16);
+
+        this.map.lineTo(0.38, 0.32);
+
+        this.map.lineTo(0.38, 0.38);
+
+        this.map.lineTo(0.22, 0.38);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        this.map.restore();
+
+        this.map.restore();
+
+        /////////////////////
+        // Left Capacitor ///
+        /////////////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+        this.map.lineWidth =  0.01;
+
+        this.map.lineJoin = "round";
+
+        this.map.beginPath();
+
+        this. map.moveTo(-0.22, 0.16);
+
+        this.map.lineTo(-0.38, 0.32);
+
+        this.map.lineTo(-0.38, 0.38);
+
+        this.map.lineTo(-0.22, 0.38);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        this.map.restore();
+
+        this.map.restore();
+
+        ////////////////////
+        // Ship Computer ///
+        ////////////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+        this.map.lineWidth =  0.01;
+
+        this.map.lineJoin = "round";
+
+        this.map.beginPath();
+
+        this.map.moveTo(-0.06, -0.02);
+
+        this.map.lineTo(-0.04, -0.06);
+
+        this.map.lineTo(0.04, -0.06);
+
+        this.map.lineTo(0.06, -0.02);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        this.map.restore();
+
+        this.map.restore();
+
+        //////////////////////////
+        // Life Support System ///
+        //////////////////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+        this.map.lineWidth =  0.01;
+
+        this.map.lineJoin = "round";
+
+        this.map.beginPath();
+
+        this.map.moveTo(-0.06, 0.12);
+
+        this.map.lineTo(0.06, 0.12);
+
+        this.map.lineTo(0.06, 0.16);
+
+        this.map.lineTo(-0.06, 0.16);
+
+        this.map.closePath();
+
+        this.map.stroke();
+
+        this.map.restore();
+
+        this.map.restore();
+
+        ////////////
+        // Pilot ///
+        ////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+        this.map.lineWidth =  0.01;
+
+        this.map.beginPath();
+
+        this.map.arc(0, 0.05, 0.05, 0, 2 * Math.PI);
+
+        this.map.stroke();
+
+        this.map.restore();
+
+        this.map.restore();
+
+        /////////////
+        // Reactor //
+        /////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+        this.map.lineWidth =  0.01;
+
+        this.map.beginPath();
+
+        this.map.moveTo(-0.05, 0.22);
+
+        this.map.lineTo(0.05, 0.22);
+
+        this.map.bezierCurveTo(0.1, 0.22, 0.1, 0.28, 0.05, 0.28);
+
+        this.map.lineTo(-0.05, 0.28);
+
+        this.map.bezierCurveTo(-0.1, 0.28, -0.1, 0.22, -0.05, 0.22);
+
+        this.map.stroke();
+
+        this.map.restore();
+
+        //////////////////////
+        // Shield Generator //
+        //////////////////////
+
+        this.map.save();
+
+        this.map.translate(this.availableWidth * .9, this.availableHeight * .9);
+
+        this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
+
+        this.map.strokeStyle = "rgba(0, 255, 0, 1.0)";
+
+        this.map.fillStyle = "rgba(0, 100, 0, 1.0)";
+
+        this.map.lineWidth =  0.01;
+
+        this.map.beginPath();
+
+        this.map.arc(0, -0.15, 0.04, 0, 2 * Math.PI);
+
+        this.map.stroke();
+
+        this.map.restore();
+
     }
-
-    var fuelDisplayValue = Math.floor(ship.Fuel);
-
-    map.save();
-
-    map.translate(0, availableHeight - 90);
-
-    map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-    map.font = "20px Arial";
-
-    map.fillText("FUEL ", 0, 0);
-
-    map.restore();
-
-    map.save();
-
-    map.translate(125, availableHeight - 108);
-
-    this.renderMeter(fuelDisplayValue / 1000 * 100);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderCapacitorStatus = function () {
-
-    var ship = {};
-
-    for (var i=0, j=gameObjects.length; i<j; i++) {
-
-        if (gameObjects[i].Id == playerShipId) {
-
-            ship = gameObjects[i];
-
-        }
-
-    }
-
-    var capacitorDisplayValue = Math.floor(ship.Capacitor);
-
-    map.save();
-
-    map.translate(0, availableHeight - 55);
-
-    map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-    map.font = "20px Arial";
-
-    map.fillText("CAPACITOR ", 0, 0);
-
-    map.restore();
-
-    map.save();
-
-    map.translate(125, availableHeight - 72);
-
-    this.renderMeter(capacitorDisplayValue);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderShieldStatus = function () {
-
-    var ship = {};
-    var shieldDisplayValue;
-
-    for (var i=0, j=gameObjects.length; i<j; i++) {
-
-        if (gameObjects[i].Id == playerShipId) {
-
-            ship = gameObjects[i];
-
-        }
-
-    }
-
-    shieldDisplayValue = Math.floor(ship.ShieldStatus);
-
-    map.save();
-
-    map.translate(0, availableHeight - 20);
-
-    map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-    map.font = "20px Arial";
-
-    map.fillText("SHIELDS ", 0, 0);
-
-    map.restore();
-
-    map.save();
-
-    map.translate(125, availableHeight - 37);
-
-    if (ship.ShieldOn == 0 && shieldDisplayValue == 0) {
-
-        shieldDisplayValue = -1;
-
-    }
-
-    this.renderMeter(shieldDisplayValue);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderInstructions = function () {
-
-    map.save();
-
-    map.fillStyle = "yellow";
-
-    map.font = "20px Arial";
-
-    map.translate(0, availableHeight - 160);
-
-    map.fillText("ENTER => New Ship", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("W or UP ARROW => Thrust", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("S or DOWN ARROW => Stop", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("ALT => Toggle Shields", 0, 0);
-
-    map.translate(0, 25);
-
-    map.fillText("SPACEBAR => Fire", 0, 0);
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderMeter = function (percentage) {
-    
-    map.save();
-
-    var color = "";
-
-    if (percentage == -1) {
-        color = "gray";
-    } else if (percentage <= 33) {
-        color = "red";
-    } else if (percentage <= 66) {
-        color = "yellow";
-    } else {
-        color = "green";
-    }
-    
-    if (percentage <= 0) {
-        this.renderMeterBar(0, 0, false, color);
-    } else {
-        this.renderMeterBar(0, 0, true, color);
-    }
-
-    if (percentage < 11) {
-        this.renderMeterBar(20, 0, false, color);
-    } else {
-        this.renderMeterBar(20, 0, true, color);
-    }
-
-    if (percentage < 21) {
-        this.renderMeterBar(40, 0, false, color);
-    } else {
-        this.renderMeterBar(40, 0, true, color);
-    }
-
-    if (percentage < 31) {
-        this.renderMeterBar(60, 0, false, color);
-    } else {
-        this.renderMeterBar(60, 0, true, color);
-    }
-
-    if (percentage < 41) {
-        this.renderMeterBar(80, 0, false, color);
-    } else {
-        this.renderMeterBar(80, 0, true, color);
-    }
-
-    if (percentage < 51) {
-        this.renderMeterBar(100, 0, false, color);
-    } else {
-        this.renderMeterBar(100, 0, true, color);
-    }
-
-    if (percentage < 61) {
-        this.renderMeterBar(120, 0, false, color);
-    } else {
-        this.renderMeterBar(120, 0, true, color);
-    }
-
-    if (percentage < 71) {
-        this.renderMeterBar(140, 0, false, color);
-    } else {
-        this.renderMeterBar(140, 0, true, color);
-    }
-
-    if (percentage < 81) {
-        this.renderMeterBar(160, 0, false, color);
-    } else {
-        this.renderMeterBar(160, 0, true, color);
-    }
-
-    if (percentage < 91) {
-        this.renderMeterBar(180, 0, false, color);
-    } else {
-        this.renderMeterBar(180, 0, true, color);
-    }
-
-    map.restore();
-}
-
-Renderer.prototype.renderMeterBar = function (x, y, filled, color) {
-    
-    map.save();
-
-    var fillColor = "";
-    var strokeColor = color;
-    
-    if (filled) {
-        if (color == "gray") {
-            fillColor = "rgba(128, 128, 128, 0.25)";
-        } else if (color == "green") {
-            fillColor = "rgba(0, 128, 0, 0.25)";
-        } else if (color == "yellow") {
-            fillColor = "rgba(255, 255, 0, 0.25)";
-        } else if (color == "red") {
-            fillColor = "rgba(255, 0, 0, 0.25)";
-        }
-    } else {
-        fillColor = "rgba(0,0,0,0.5)";
-    }
-
-    map.fillStyle = fillColor;
-
-    map.strokeStyle = strokeColor;
-    
-    map.beginPath();
-    
-    map.rect(x, y, 10, 20);
-    
-    map.fill();
-
-    map.stroke();
-
-    map.restore();
-}
-
-Renderer.prototype.renderRotateLeftButton = function () {
-
-    map.save();
-
-    map.translate(0 + availablePixels * 0.1, availableHeight - availablePixels * 0.2);
-
-    this.renderButton();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderRotateRightButton = function () {
-
-    map.save();
-
-    map.translate(0 + availablePixels * 0.25, availableHeight - availablePixels * 0.2);
-
-    this.renderButton();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderThrustButton = function () {
-
-    map.save();
-
-    map.translate(0 + availablePixels * 0.175, availableHeight - availablePixels * 0.3);
-
-    this.renderButton();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderBrakeButton = function () {
-
-    map.save();
-
-    map.translate(0 + availablePixels * 0.175, availableHeight - availablePixels * 0.1);
-
-    this.renderButton();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderShieldButton = function () {
-
-    map.save();
-
-    map.translate(availableWidth - availablePixels * 0.25, availableHeight - availablePixels * 0.1);
-
-    this.renderButton();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderFireButton = function () {
-
-    map.save();
-
-    map.translate(availableWidth - availablePixels * 0.1, availableHeight - availablePixels * 0.1);
-
-    this.renderButton();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderButton = function () {
-
-    map.save();
-
-    map.strokeStyle = "rgba(128, 128, 128, 0.5)";
-
-    map.lineWidth = availablePixels * 0.005;
-    
-    map.beginPath();
-    
-    map.arc(0, 0, availablePixels * 0.05, 0, 2 * Math.PI);
-
-    map.stroke();
-
-    map.restore();
-
-}
-
-Renderer.prototype.renderEditor = function () {
-
-    var windowOffset = 22;
-    availableWidth = window.innerWidth - windowOffset;
-    availableHeight = window.innerHeight - windowOffset;
-    availablePixels = availableHeight < availableWidth ? availableHeight : availableWidth;
-    pixelsPerMeter = availablePixels / 2 / visualRange;
-    map.canvas.width = availableWidth;
-    map.canvas.height = availableHeight;
-    map.clearRect(0, 0, availableWidth, availableHeight);
-
-    ////////////////////
-    // Setup the view //
-    ////////////////////
-
-    visualRange = 4;
-
-    totalLengthOfObject = 8;
-
-    pixelsPerMeter = availablePixels / 2 / visualRange;
-
-    map.clearRect(0, 0, availableWidth, availableHeight);
-
-    //////////
-    // Ship //
-    //////////
-
-    //////////
-    // Hull //
-    //////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(-0.05, -0.5);
-
-    map.lineTo(0.05, -0.5);
-
-    map.lineTo(0.1, -0.2);
-
-    map.lineTo(0.2, -0.1);
-
-    map.lineTo(0.2, 0.1);
-
-    map.lineTo(0.4, 0.3);
-
-    map.lineTo(0.4, 0.4);
-
-    map.lineTo(0.2, 0.4);
-
-    map.lineTo(0.2, 0.5);
-
-    map.lineTo(-0.2, 0.5);
-
-    map.lineTo(-0.2, 0.4);
-
-    map.lineTo(-0.4, 0.4);
-
-    map.lineTo(-0.4, 0.3);
-
-    map.lineTo(-0.2, 0.1);
-
-    map.lineTo(-0.2, -0.1);
-
-    map.lineTo(-0.1, -0.2);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.fillStyle = "rgba(0, 50, 0, 1.0)";
-
-    map.restore();
-
-    ///////////////////
-    // Plasma Cannon //
-    ///////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(-0.025, -0.48);
-
-    map.lineTo(0.025, -0.48);
-
-    map.lineTo(0.065, -0.22);
-
-    map.lineTo(-0.065, -0.22);
-
-    map.closePath();
-
-    map.stroke();
-
-    // map.fill();
-
-    map.restore();
-
-    map.restore();
-
-    /////////////
-    // Cockpit //
-    /////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(-0.05, -0.08);
-
-    map.lineTo(0.05, -0.08);
-
-    map.lineTo(0.08, -0.02);
-
-    map.lineTo(0.08, 0.18);
-
-    map.lineTo(-0.08, 0.18);
-
-    map.lineTo(-0.08, -0.02);
-
-    map.closePath();
-
-    map.stroke();
-
-    // map.fill();
-
-    map.restore();
-
-    map.restore();
-
-    ///////////////////
-    // Main Thruster //
-    ///////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(-0.08, 0.32);
-
-    map.lineTo(0.08, 0.32);
-
-    map.lineTo(0.08, 0.45);
-
-    map.lineTo(0.05, 0.48);
-
-    map.lineTo(-0.05, 0.48);
-
-    map.lineTo(-0.08, 0.45);
-
-    map.closePath();
-
-    map.stroke();
-
-    // map.fill();
-
-    map.restore();
-
-    map.restore();
-
-    /////////////////////
-    // Right Capacitor //
-    /////////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(0.22, 0.16);
-
-    map.lineTo(0.38, 0.32);
-
-    map.lineTo(0.38, 0.38);
-
-    map.lineTo(0.22, 0.38);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.restore();
-
-    map.restore();
-
-    /////////////////////
-    // Left Capacitor ///
-    /////////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(-0.22, 0.16);
-
-    map.lineTo(-0.38, 0.32);
-
-    map.lineTo(-0.38, 0.38);
-
-    map.lineTo(-0.22, 0.38);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.restore();
-
-    map.restore();
-
-    ////////////////////
-    // Ship Computer ///
-    ////////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(-0.06, -0.02);
-
-    map.lineTo(-0.04, -0.06);
-
-    map.lineTo(0.04, -0.06);
-
-    map.lineTo(0.06, -0.02);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.restore();
-
-    map.restore();
-
-    //////////////////////////
-    // Life Support System ///
-    //////////////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.lineJoin = "round";
-
-    map.beginPath();
-
-    map.moveTo(-0.06, 0.12);
-
-    map.lineTo(0.06, 0.12);
-
-    map.lineTo(0.06, 0.16);
-
-    map.lineTo(-0.06, 0.16);
-
-    map.closePath();
-
-    map.stroke();
-
-    map.restore();
-
-    map.restore();
-
-    ////////////
-    // Pilot ///
-    ////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.beginPath();
-
-    map.arc(0, 0.05, 0.05, 0, 2 * Math.PI);
-
-    map.stroke();
-
-    map.restore();
-
-    map.restore();
-
-    /////////////
-    // Reactor //
-    /////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.beginPath();
-
-    map.moveTo(-0.05, 0.22);
-
-    map.lineTo(0.05, 0.22);
-
-    map.bezierCurveTo(0.1, 0.22, 0.1, 0.28, 0.05, 0.28);
-
-    map.lineTo(-0.05, 0.28);
-
-    map.bezierCurveTo(-0.1, 0.28, -0.1, 0.22, -0.05, 0.22);
-
-    map.stroke();
-
-    map.restore();
-
-    //////////////////////
-    // Shield Generator //
-    //////////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
-
-    map.strokeStyle = "rgba(0, 255, 0, 1.0)";
-
-    map.fillStyle = "rgba(0, 100, 0, 1.0)";
-
-    map.lineWidth =  0.01;
-
-    map.beginPath();
-
-    map.arc(0, -0.15, 0.04, 0, 2 * Math.PI);
-
-    map.stroke();
-
-    map.restore();
-
-    /////////////////////////////
-    // Draw the reference grid //
-    /////////////////////////////
-
-    map.save();
-
-    map.translate(availableWidth / 2, availableHeight / 2);
-
-    map.scale(totalLengthOfObject / 2 * pixelsPerMeter, totalLengthOfObject / 2 * pixelsPerMeter);
-
-    map.lineWidth =  0.01;
-
-    map.beginPath();
-
-    map.moveTo(-1, -1);
-
-    map.lineTo(1, -1);
-
-    map.moveTo(-1, -0.8);
-
-    map.lineTo(1, -0.8);
-
-    map.moveTo(-1, -0.6);
-
-    map.lineTo(1, -0.6);
-
-    map.moveTo(-1, -0.4);
-
-    map.lineTo(1, -0.4);
-
-    map.moveTo(-1, -0.2);
-
-    map.lineTo(1, -0.2);
-
-    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
-
-    map.stroke();
-
-    map.beginPath();
-
-    map.moveTo(-1, 0);
-
-    map.lineTo(1, 0);
-
-    map.strokeStyle = "rgba(255, 0, 0, 0.25)";
-
-    map.stroke();
-
-    map.beginPath();
-
-    map.moveTo(-1, 0.2);
-
-    map.lineTo(1, 0.2);
-
-    map.moveTo(-1, 0.4);
-
-    map.lineTo(1, 0.4);
-
-    map.moveTo(-1, 0.6);
-
-    map.lineTo(1, 0.6);
-
-    map.moveTo(-1, 0.8);
-
-    map.lineTo(1, 0.8);
-
-    map.moveTo(-1, 1);
-
-    map.lineTo(1, 1);
-
-    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
-
-    map.stroke();
-
-    map.beginPath();
-
-    map.moveTo(-1, -1);
-
-    map.lineTo(-1, 1);
-
-    map.moveTo(-0.8, -1);
-
-    map.lineTo(-0.8, 1);
-
-    map.moveTo(-0.6, -1);
-
-    map.lineTo(-0.6, 1);
-
-    map.moveTo(-0.4, -1);
-
-    map.lineTo(-0.4, 1);
-
-    map.moveTo(-0.2, -1);
-
-    map.lineTo(-0.2, 1);
-
-    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
-
-    map.stroke();
-
-    map.beginPath();
-
-    map.moveTo(0, -1);
-
-    map.lineTo(0, 1);
-
-    map.strokeStyle = "rgba(255, 0, 0, 0.25)";
-
-    map.stroke();
-
-    map.beginPath();
-
-    map.moveTo(0.2, -1);
-
-    map.lineTo(0.2, 1);
-
-    map.moveTo(0.4, -1);
-
-    map.lineTo(0.4, 1);
-
-    map.moveTo(0.6, -1);
-
-    map.lineTo(0.6, 1);
-
-    map.moveTo(0.8, -1);
-
-    map.lineTo(0.8, 1);
-
-    map.moveTo(1, -1);
-
-    map.lineTo(1, 1);
-
-    map.strokeStyle = "rgba(50, 50, 50, 0.25)";
-
-    map.stroke();
-
-    map.restore();
-
-}
-
-Star = function Star(x, y, alpha) {
-
-  this.x = x;
-  this.y = y;
-  this.alpha = alpha;
-
 }

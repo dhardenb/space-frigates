@@ -1,25 +1,14 @@
-mySound = function mySound() {
-    this.Type = "Sound";
+export class Sound {
+
+    constructor() {
+        this.Type = "Sound";
+    }
+
+    init = function(soundType, sourceObject) {
+        this.SoundType = soundType;
+        this.LocationX = sourceObject.LocationX;
+        this.LocationY = sourceObject.LocationY;
+    }
+
+    update(framesPerSecond) {}
 }
-
-mySound.prototype.init = function(soundType, sourceObject) {
-
-    this.SoundType = soundType;
-
-    this.LocationX = sourceObject.LocationX;
-    
-    this.LocationY = sourceObject.LocationY;
-
-}
-
-mySound.prototype.copy = function(jsonObject) {
-
-    this.SoundType = jsonObject.SoundType;
-    
-    this.LocationX = jsonObject.LocationX;
-    
-    this.LocationY = jsonObject.LocationY;
-
-}
-
-mySound.prototype.update = function() {}

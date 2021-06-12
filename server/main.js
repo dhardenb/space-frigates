@@ -1,18 +1,11 @@
-
-import { Meteor } from 'meteor/meteor';
-
+import {Meteor} from 'meteor/meteor';
+import {Player} from '../imports/engine/player.js';
 import '../imports/server/server.js';
-
-import '../imports/engine/player.js';
-
-import { removeByAttr } from '../imports/utilities/utilities.js';
+import {Utilities} from '../imports/utilities/utilities.js';
 
 Meteor.startup(() => {
-
     server = new Server();
-
     server.init();
-
 });
 
 Meteor.onConnection(function(connection) {
@@ -34,10 +27,10 @@ Meteor.onConnection(function(connection) {
         }
 
         // Remove players ship
-        gameObjects = removeByAttr(gameObjects, "Id", shipIdToRemove);
+        gameObjects = Utilities.removeByAttr(gameObjects, "Id", shipIdToRemove);
 
         // Remove player
-        gameObjects = removeByAttr(gameObjects, "Id", connection.id);
+        gameObjects = Utilities.removeByAttr(gameObjects, "Id", connection.id);
         
     });
     

@@ -1,7 +1,7 @@
-import '../engine/engine.js';
-import './keyboard.js';
-import './renderer.js';
-import { unpackGameState } from '../utilities/utilities.js';
+import {Engine} from '../engine/engine.js';
+import {Keyboard} from './keyboard.js';
+import {Renderer} from './renderer.js';
+import {Utilities} from '../utilities/utilities.js';
 
 Client = function Client() {
     localMode = false;
@@ -47,7 +47,7 @@ Client.prototype.setupStreamListeners = function() {
     // 3) What is the size of the update
     // 4) How many local commands have to be reissued
     outputStream.on('output', function(serverUpdate) {
-        serverUpdate = unpackGameState(serverUpdate);
+        serverUpdate = Utilities.unpackGameState(serverUpdate);
 
         // var downloadTime = Date.now() - serverUpdate.update.createdAt;
         
