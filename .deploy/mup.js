@@ -1,7 +1,7 @@
 module.exports = {
   servers: {
     one: {
-      host: '104.248.52.121',
+      host: '157.230.182.86',
       username: 'root',
       pem: '~/.ssh/id_rsa'
     }
@@ -20,11 +20,11 @@ module.exports = {
     },
 
     env: {
-      ROOT_URL: 'http://104.248.52.121',
+      ROOT_URL: 'http://157.230.182.86',
     },
 
     docker: {
-      image: 'abernix/meteord:node-8.4.0-base',
+      image: 'abernix/meteord:node-12-base',
     },
 
     enableUploadProgressBar: true
