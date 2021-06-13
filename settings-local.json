@@ -2,7 +2,7 @@
 	"public":
 
 		{
-			"mapRadius" : "300",
+			"mapRadius" : "1000",
 
 			"environment" : "local",
 
