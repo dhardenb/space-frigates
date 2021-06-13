@@ -5,10 +5,10 @@ import {Star} from './star.js'
 export class Renderer {
 
     constructor() {
-        this.visualRange = 100;
+        this.visualRange = 150;
         this.audioRange = 50;
         this.pixelsPerMeter = 0;
-        this.miniMapZoomLevel = 0.0625;
+        this.miniMapZoomLevel = 0.03;
         this.availableWidth = 0;
         this.availableHeight = 0;
         this.stars = [];
@@ -36,11 +36,37 @@ export class Renderer {
         }
     }
 
+    renderStars() {
+
+        // only render the star if it falls within the viewable area of the map
+
+        let centerOfCameraX = 0;
+        let centerOfCameraY = 0;
+
+        for (var x = 0, y = gameObjects.length; x < y; x++) {
+            if (gameObjects[x].Id == playerShipId) {
+                centerOfCameraX = gameObjects[x].LocationX;
+                centerOfCameraY = gameObjects[x].LocationY;
+            }
+        }
+
+        let leftSideOfCameraView = centerOfCameraX - this.availableWidth / 2;
+        let rightSideOfCameraView = centerOfCameraX + this.availableWidth / 2;
+        let topSideOfCameraView = centerOfCameraY - this.availableHeight / 2;
+        let bottomSideOfCameraView = centerOfCameraY + this.availableHeight / 2;
+
+        for (let x=0, y=this.stars.length; x<y; x++) {
+            if (this.stars[x].x > leftSideOfCameraView && this.stars[x].x <  rightSideOfCameraView && this.stars[x].y > topSideOfCameraView && this.stars[x].y < bottomSideOfCameraView) {
+                this.renderStar(this.stars[x]);
+            }
+        }
+    }
+
     renderMap() {
         var windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
         this.availableHeight = window.innerHeight - windowOffset;
-        this.availablePixels = this.availableHeight < this.availableWidth ? this.availableHeight : this.availableWidth;
+        this.availablePixels = this.availableHeight < this.availableWidth ? this.availableWidth : this.availableHeight;
         this.pixelsPerMeter = this.availablePixels / 2 / this.visualRange;
         this.map.canvas.width = this.availableWidth;
         this.map.canvas.height = this.availableHeight;
@@ -48,9 +74,7 @@ export class Renderer {
         this.map.save();
         this.calculateOffset();
         this.map.translate(this.availableWidth / 2 + this.focalX, this.availableHeight / 2 + this.focalY);
-        for (let x=0, y=this.stars.length; x<y; x++) {
-            this.renderStar(this.stars[x]);
-        }
+        this.renderStars();
         this.renderBoundry();
         for (var i = 0; i < gameObjects.length; i++) {
 
@@ -167,7 +191,7 @@ export class Renderer {
     
         this.map.save();
 
-        this.map.translate(this.availableWidth - this.availablePixels / 8 - 20, this.availablePixels / 8 + 20);
+        this.map.translate(this.availableWidth - this.availablePixels / 12 - 20, this.availablePixels / 12 + 20);
 
         /////////////////////////////////
         // Render Background and Bezel //
@@ -177,7 +201,7 @@ export class Renderer {
 
         this.map.beginPath();
 
-        this.map.arc(0, 0, this.availablePixels / 8, 0, 2 * Math.PI);
+        this.map.arc(0, 0, this.availablePixels / 12, 0, 2 * Math.PI);
 
         this.map.strokeStyle = "rgba(50, 50, 50, 1.0)";
 
