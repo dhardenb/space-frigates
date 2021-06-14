@@ -36,10 +36,7 @@ export class Renderer {
         }
     }
 
-    renderStars() {
-
-        // only render the star if it falls within the viewable area of the map
-
+    determineIfObjectShouldBeRendered(objectToInspect) {
         let centerOfCameraX = 0;
         let centerOfCameraY = 0;
 
@@ -55,8 +52,16 @@ export class Renderer {
         let topSideOfCameraView = centerOfCameraY - this.availableHeight / 2;
         let bottomSideOfCameraView = centerOfCameraY + this.availableHeight / 2;
 
+        if (objectToInspect.LocationX > leftSideOfCameraView && objectToInspect.LocationX <  rightSideOfCameraView && objectToInspect.LocationY > topSideOfCameraView && objectToInspect.LocationY < bottomSideOfCameraView) {
+            return true;
+        } else {
+            return false;
+        } 
+    }
+
+    renderStars() {
         for (let x=0, y=this.stars.length; x<y; x++) {
-            if (this.stars[x].x > leftSideOfCameraView && this.stars[x].x <  rightSideOfCameraView && this.stars[x].y > topSideOfCameraView && this.stars[x].y < bottomSideOfCameraView) {
+            if (this.determineIfObjectShouldBeRendered(this.stars[x])) {
                 this.renderStar(this.stars[x]);
             }
         }
@@ -76,44 +81,47 @@ export class Renderer {
         this.map.translate(this.availableWidth / 2 + this.focalX, this.availableHeight / 2 + this.focalY);
         this.renderStars();
         this.renderBoundry();
-        for (var i = 0; i < gameObjects.length; i++) {
 
-            if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+        for (let i = 0, j = gameObjects.length; i < j; i++) {
 
-                this.renderShip(gameObjects[i]);
+            if (this.determineIfObjectShouldBeRendered(gameObjects[i])) {
 
+                if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+
+                    this.renderShip(gameObjects[i]);
+
+                }
+
+                else if (gameObjects[i].Type == 'Particle') {
+
+                    this.renderParticle(gameObjects[i]);
+
+                }
+
+                else if (gameObjects[i].Type == 'Thruster') {
+
+                    this.renderThruster(gameObjects[i]);
+
+                }
+
+                else if (gameObjects[i].Type == 'Missile') {
+
+                    this.renderMissle(gameObjects[i]);
+
+                }
+
+                else if (gameObjects[i].Type == 'Debris') {
+
+                    this.renderDebris(gameObjects[i]);
+
+                }
+
+                else if (gameObjects[i].Type == 'Sound') {
+
+                    this.renderSound(gameObjects[i]);
+
+                }
             }
-
-            else if (gameObjects[i].Type == 'Particle') {
-
-                this.renderParticle(gameObjects[i]);
-
-            }
-
-            else if (gameObjects[i].Type == 'Thruster') {
-
-                this.renderThruster(gameObjects[i]);
-
-            }
-
-            else if (gameObjects[i].Type == 'Missile') {
-
-                this.renderMissle(gameObjects[i]);
-
-            }
-
-            else if (gameObjects[i].Type == 'Debris') {
-
-                this.renderDebris(gameObjects[i]);
-
-            }
-
-            else if (gameObjects[i].Type == 'Sound') {
-
-                this.renderSound(gameObjects[i]);
-
-            }
-
         }
 
         this.map.restore();
@@ -270,7 +278,7 @@ export class Renderer {
 
         this.map.save();
 
-        this.map.translate(star.x * this.pixelsPerMeter, star.y * this.pixelsPerMeter);
+        this.map.translate(star.LocationX * this.pixelsPerMeter, star.LocationY * this.pixelsPerMeter);
 
         this.map.beginPath();
 
