@@ -1,9 +1,7 @@
 import {Howl} from 'howler';
-import {map} from 'lodash';
 import {Star} from './star.js'
 
 export class Renderer {
-
     constructor() {
         this.visualRange = 150;
         this.audioRange = 50;
@@ -17,12 +15,14 @@ export class Renderer {
         this.mapRadius = Meteor.settings.public.mapRadius
         this.setupMapCanvas();
         this._ = require('lodash');
+        this.playerShip = {};
+        this.focalX = 0;
+        this.focalY = 0;
+        this.camera = {"centerX":0, "centerY":0, "boundry": {"left":0, "right":0, "top":0, "bottom":0}};
     }
 
     setupMapCanvas() {
         this.map = document.getElementById("map").getContext('2d');
-        this.focalX = 0;
-        this.focalY = 0;
         this.createStars();
     }
 
@@ -37,28 +37,14 @@ export class Renderer {
     }
 
     determineIfObjectShouldBeRendered(objectToInspect) {
-        let centerOfCameraX = 0;
-        let centerOfCameraY = 0;
-
-        for (var x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Id == playerShipId) {
-                centerOfCameraX = gameObjects[x].LocationX;
-                centerOfCameraY = gameObjects[x].LocationY;
-            }
-        }
-
-        let leftSideOfCameraView = centerOfCameraX - this.availableWidth / 2;
-        let rightSideOfCameraView = centerOfCameraX + this.availableWidth / 2;
-        let topSideOfCameraView = centerOfCameraY - this.availableHeight / 2;
-        let bottomSideOfCameraView = centerOfCameraY + this.availableHeight / 2;
-
-        if (objectToInspect.LocationX > leftSideOfCameraView && objectToInspect.LocationX <  rightSideOfCameraView && objectToInspect.LocationY > topSideOfCameraView && objectToInspect.LocationY < bottomSideOfCameraView) {
+        if (objectToInspect.LocationX > this.camera.left && objectToInspect.LocationX <  this.camera.right && objectToInspect.LocationY > this.camera.top && objectToInspect.LocationY < this.camera.bottom) {
             return true;
         } else {
             return false;
         } 
     }
 
+    // I really need to optimize this to use pre-render. That should be WAY faster!
     renderStars() {
         for (let x=0, y=this.stars.length; x<y; x++) {
             if (this.determineIfObjectShouldBeRendered(this.stars[x])) {
@@ -67,7 +53,36 @@ export class Renderer {
         }
     }
 
+    updateCamera() {
+        this.camera.centerX = this.playerShip.LocationX;
+        this.camera.centerY = this.playerShip.LocationY;
+        this.camera.left = this.playerShip.LocationX - this.availableWidth / 2;
+        this.camera.right = this.playerShip.LocationX + this.availableWidth / 2;
+        this.camera.top = this.playerShip.LocationY - this.availableHeight / 2;
+        this.camera.bottom = this.playerShip.LocationY + this.availableHeight / 2;
+    }
+
+    updateLocationOffset() {
+        this.focalX = -this.playerShip.LocationX * this.pixelsPerMeter;
+        this.focalY = -this.playerShip.LocationY * this.pixelsPerMeter;
+    }
+ 
+    // This is dumb, I should be able to set a pointer when the player
+    // is firts assigned a ship. It won't change after that until
+    // the player dies and restarts
+    updatePlayerShip() {
+        for (var i = 0, j = gameObjects.length; i < j; i++) {
+            if (gameObjects[i].Id == playerShipId) {
+                this.playerShip = gameObjects[i];
+            }
+        }
+    }
+
     renderMap() {
+
+        // This section is dumb. I should just set this once and then
+        // only call it again when the screen is resized. There is a known
+        // event for that, I just need to look it up
         var windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
         this.availableHeight = window.innerHeight - windowOffset;
@@ -75,9 +90,13 @@ export class Renderer {
         this.pixelsPerMeter = this.availablePixels / 2 / this.visualRange;
         this.map.canvas.width = this.availableWidth;
         this.map.canvas.height = this.availableHeight;
+
+        this.updatePlayerShip();
+        this.updateCamera();
+        this.updateLocationOffset();
+
         this.map.clearRect(0, 0, this.availableWidth, this.availableHeight);
         this.map.save();
-        this.calculateOffset();
         this.map.translate(this.availableWidth / 2 + this.focalX, this.availableHeight / 2 + this.focalY);
         this.renderStars();
         this.renderBoundry();
@@ -184,15 +203,6 @@ export class Renderer {
 
         this.map.restore();
 
-    }
-
-    calculateOffset() {
-        for (var x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Id == playerShipId) {
-                this.focalX = -gameObjects[x].LocationX * this.pixelsPerMeter;
-                this.focalY = -gameObjects[x].LocationY * this.pixelsPerMeter;
-            }
-        }
     }
 
     renderMiniMap() {
@@ -434,17 +444,12 @@ export class Renderer {
         var playerName = "";
 
         for (var i=0, j=gameObjects.length; i<j; i++) {
-
             if (gameObjects[i].Type == 'Player') {
-
                 if (gameObjects[i].ShipId == ship.Id) {
-                    
                     playerName = gameObjects[i].Name;
-
+                    break;
                 }
-
             }
-
         }
 
         if (ship.Type != 'Human') {
@@ -653,25 +658,13 @@ export class Renderer {
 
         if (gameMode == 'PLAY_MODE') {
 
-            var playersShip = null;
-
             var distanceFromPlayersShip = 0;
 
             var soundVolume = 1.0;
 
-            for (var x = 0, y = gameObjects.length; x < y; x++) {
-
-                if (gameObjects[x].Id == playerShipId) {
-
-                    playersShip = gameObjects[x];
-
-                }
-
-            }
-
-            if (playersShip != null) {
+            if (this.playerShip != null) {
                 
-                distanceFromPlayersShip = Math.sqrt((playersShip.LocationX - sound.LocationX) * (playersShip.LocationX - sound.LocationX) + (playersShip.LocationY - sound.LocationY) * (playersShip.LocationY - sound.LocationY)) / this.pixelsPerMeter;
+                distanceFromPlayersShip = Math.sqrt((this.playerShip.LocationX - sound.LocationX) * (this.playerShip.LocationX - sound.LocationX) + (this.playerShip.LocationY - sound.LocationY) * (this.playerShip.LocationY - sound.LocationY)) / this.pixelsPerMeter;
 
             }
 
@@ -950,17 +943,7 @@ export class Renderer {
         let ship = {};
         let hullStrengthDisplayValue;
 
-        for (let i=0, j=gameObjects.length; i<j; i++) {
-
-            if (gameObjects[i].Id == playerShipId) {
-
-                ship = gameObjects[i];
-
-            }
-
-        }
-
-        hullStrengthDisplayValue = Math.floor(ship.HullStrength);
+        hullStrengthDisplayValue = Math.floor(this.playerShip.HullStrength);
 
         this.map.save();
 
@@ -986,19 +969,7 @@ export class Renderer {
 
     renderFuelStatus() {
 
-        let ship = {};
-
-        for (let i=0, j=gameObjects.length; i<j; i++) {
-
-            if (gameObjects[i].Id == playerShipId) {
-
-                ship = gameObjects[i];
-
-            }
-
-        }
-
-        let fuelDisplayValue = Math.floor(ship.Fuel);
+        let fuelDisplayValue = Math.floor(this.playerShip.Fuel);
 
         this.map.save();
 
@@ -1024,19 +995,7 @@ export class Renderer {
 
     renderCapacitorStatus() {
 
-        let ship = {};
-
-        for (let i=0, j=gameObjects.length; i<j; i++) {
-
-            if (gameObjects[i].Id == playerShipId) {
-
-                ship = gameObjects[i];
-
-            }
-
-        }
-
-        let capacitorDisplayValue = Math.floor(ship.Capacitor);
+        let capacitorDisplayValue = Math.floor(this.playerShip.Capacitor);
 
         this.map.save();
 
@@ -1062,20 +1021,9 @@ export class Renderer {
 
     renderShieldStatus() {
 
-        let ship = {};
         let shieldDisplayValue;
 
-        for (let i=0, j=gameObjects.length; i<j; i++) {
-
-            if (gameObjects[i].Id == playerShipId) {
-
-                ship = gameObjects[i];
-
-            }
-
-        }
-
-        shieldDisplayValue = Math.floor(ship.ShieldStatus);
+        shieldDisplayValue = Math.floor(this.playerShip.ShieldStatus);
 
         this.map.save();
 
@@ -1093,7 +1041,7 @@ export class Renderer {
 
         this.map.translate(125, this.availableHeight - 37);
 
-        if (ship.ShieldOn == 0 && shieldDisplayValue == 0) {
+        if (this.playerShip.ShieldOn == 0 && shieldDisplayValue == 0) {
 
             shieldDisplayValue = -1;
 
@@ -1354,22 +1302,6 @@ export class Renderer {
         const totalLengthOfObject = 32;
 
         //////////
-        // Ship //
-        //////////
-
-        let ship = {};
-
-        for (let i=0, j=gameObjects.length; i<j; i++) {
-
-            if (gameObjects[i].Id == playerShipId) {
-
-                ship = gameObjects[i];
-
-            }
-
-        }
-
-        //////////
         // Hull //
         //////////
 
@@ -1379,11 +1311,11 @@ export class Renderer {
 
         this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
 
-        if (ship.HullStrength / ship.MaxHullStrength <= .33) {
+        if (this.playerShip.HullStrength / this.playerShip.MaxHullStrength <= .33) {
             this.map.strokeStyle = "rgba(255, 0, 0, 1.0)";
             this.map.fillStyle = "rgba(100, 0, 0, 1.0)";
         }
-        else if (ship.HullStrength / ship.MaxHullStrength <= .66) {
+        else if (this.playerShip.HullStrength / this.playerShip.MaxHullStrength <= .66) {
             this.map.strokeStyle = "rgba(255, 255, 0, 1.0)";
             this.map.fillStyle = "rgba(100, 100, 0, 1.0)";
         }
@@ -1448,11 +1380,11 @@ export class Renderer {
 
         this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
 
-        if (ship.PlasmaCannonStrength / ship.MaxPlasmaCannonStrength <= .33) {
+        if (this.playerShip.PlasmaCannonStrength / this.playerShip.MaxPlasmaCannonStrength <= .33) {
             this.map.strokeStyle = "rgba(255, 0, 0, 1.0)";
             this.map.fillStyle = "rgba(100, 0, 0, 1.0)";
         }
-        else if (ship.PlasmaCannonStrength / ship.MaxPlasmaCannonStrength <= .66) {
+        else if (this.playerShip.PlasmaCannonStrength / this.playerShip.MaxPlasmaCannonStrength <= .66) {
             this.map.strokeStyle = "rgba(255, 255, 0, 1.0)";
             this.map.fillStyle = "rgba(100, 100, 0, 1.0)";
         }
@@ -1537,11 +1469,11 @@ export class Renderer {
 
         this.map.scale(totalLengthOfObject * this.pixelsPerMeter, totalLengthOfObject * this.pixelsPerMeter);
 
-        if (ship.ThrusterStrength / ship.MaxThrusterStrength <= .33) {
+        if (this.playerShip.ThrusterStrength / this.playerShip.MaxThrusterStrength <= .33) {
             this.map.strokeStyle = "rgba(255, 0, 0, 1.0)";
             this.map.fillStyle = "rgba(100, 0, 0, 1.0)";
         }
-        else if (ship.ThrusterStrength / ship.MaxThrusterStrength <= .66) {
+        else if (this.playerShip.ThrusterStrength / this.playerShip.MaxThrusterStrength <= .66) {
             this.map.strokeStyle = "rgba(255, 255, 0, 1.0)";
             this.map.fillStyle = "rgba(100, 100, 0, 1.0)";
         }
