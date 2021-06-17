@@ -1,5 +1,4 @@
 import {Howl} from 'howler';
-import {Star} from './star.js'
 
 export class Renderer {
     constructor() {
@@ -13,27 +12,54 @@ export class Renderer {
         this.version = Meteor.settings.public.version;
         this.gameVolume = Meteor.settings.public.gameVolume;
         this.mapRadius = Meteor.settings.public.mapRadius
-        this.setupMapCanvas();
         this._ = require('lodash');
         this.playerShip = {};
         this.focalX = 0;
         this.focalY = 0;
-        this.camera = {"centerX":0, "centerY":0, "boundry": {"left":0, "right":0, "top":0, "bottom":0}};
-    }
-
-    setupMapCanvas() {
+        this.camera = {"centerX":0, "centerY":0, "prevCenterX":0, "prevCenterY":0, "boundry": {"left":0, "right":0, "top":0, "bottom":0}};
         this.map = document.getElementById("map").getContext('2d');
-        this.createStars();
+        this.background = document.getElementById("background").getContext('2d');
+        this.starField = {"upperLeft": {"x":0, "y":0}, "upperRight": {"x":0, "y":0}, "lowerLeft": {"x":0, "y":0}, "lowerRight": {"x":0, "y":0}};
+        this.createBackground();
     }
 
-    createStars() {
-        for (var x = 0-this.mapRadius*2; x < this.mapRadius*2; x++) {
-            for (var y = 0-this.mapRadius*2; y < this.mapRadius*2; y++) {
+    createBackground() {
+
+        // This should be handled in a dedicated event handler...
+        var windowOffset = 22;
+        this.availableWidth = window.innerWidth - windowOffset;
+        this.availableHeight = window.innerHeight - windowOffset;
+        this.availablePixels = this.availableHeight < this.availableWidth ? this.availableWidth : this.availableHeight;
+        this.pixelsPerMeter = this.availablePixels / 2 / this.visualRange;  
+        this.background.canvas.width = this.availableWidth;
+        this.background.canvas.height = this.availableHeight;
+
+        this.starFieldCanvas = document.createElement('canvas');
+        this.starFieldCanvas.width = this.availableWidth;
+        this.starFieldCanvas.height = this.availableHeight;
+        this.starFieldContext = this.starFieldCanvas.getContext('2d');
+
+        for (var x = 0; x < this.availableWidth; x++) {
+            for (var y = 0; y < this.availableHeight; y++) {
                 if (Math.floor((Math.random()*1000)+1) == 1) {
-                    this.stars.push(new Star(x, y, Math.random()));
+                    this.starFieldContext.beginPath();
+                    this.starFieldContext.arc(x, y, 1, 0, 2 * Math.PI);
+                    this.starFieldContext.fillStyle = "rgba(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + "255, " + Math.random() + ")";
+                    this.starFieldContext.fill();
                 }
             }
         }
+
+        this.starField.upperLeft.x = -this.availableWidth / 2;
+        this.starField.upperLeft.y = -this.availableHeight / 2;
+        this.starField.upperRight.x = this.availableWidth / 2;
+        this.starField.upperRight.y = -this.availableHeight / 2;
+        this.starField.lowerLeft.x = -this.availableWidth / 2;
+        this.starField.lowerLeft.y = this.availableHeight / 2;
+        this.starField.lowerRight.x = this.availableWidth / 2;
+        this.starField.lowerRight.y = this.availableHeight / 2;
+
+        this.background.drawImage(this.starFieldCanvas, 0, 0);
     }
 
     determineIfObjectShouldBeRendered(objectToInspect) {
@@ -44,18 +70,19 @@ export class Renderer {
         } 
     }
 
-    // I really need to optimize this to use pre-render. That should be WAY faster!
-    renderStars() {
-        for (let x=0, y=this.stars.length; x<y; x++) {
-            if (this.determineIfObjectShouldBeRendered(this.stars[x])) {
-                this.renderStar(this.stars[x]);
-            }
-        }
-    }
-
     updateCamera() {
-        this.camera.centerX = this.playerShip.LocationX;
-        this.camera.centerY = this.playerShip.LocationY;
+        this.camera.prevCenterX = this.camera.centerX;
+        this.camera.prevCenterY = this.camera.centerY;
+        if (typeof this.playerShip.LocationX === 'undefined') {
+            this.camera.centerX = 0;
+        } else {
+            this.camera.centerX = this.playerShip.LocationX;
+        }
+        if (typeof this.playerShip.LocationY === 'undefined') {
+            this.camera.centerY = 0;
+        } else {
+            this.camera.centerY = this.playerShip.LocationY;
+        }
         this.camera.left = this.playerShip.LocationX - this.availableWidth / 2;
         this.camera.right = this.playerShip.LocationX + this.availableWidth / 2;
         this.camera.top = this.playerShip.LocationY - this.availableHeight / 2;
@@ -65,6 +92,99 @@ export class Renderer {
     updateLocationOffset() {
         this.focalX = -this.playerShip.LocationX * this.pixelsPerMeter;
         this.focalY = -this.playerShip.LocationY * this.pixelsPerMeter;
+    }
+
+    scrollTheBackground() {
+
+        // WARNING! This only works right now if I set the players starting
+        // position in the world to (0,0)
+        //
+        // I need to figure out how to know when I player just started so that
+        // I cn reorient the background to the player position
+        //
+        // A possible solution is to add a field to the ship itself to
+        // indicate it's "age" Then, the rendering code can use this to know
+        // that if the ship is new that it should realign the scrolling to
+        // the new ships location
+        //
+        // Also, I kind of need this new porerty anyway so that I can implemnt
+        // the feature that a ship is "transparent" when it very first enters
+        // the battle so it can not blow up immeditalty
+       
+        this.horizontalScrollAdjustment = this.camera.prevCenterX - this.camera.centerX;
+        this.verticalScrollAdjustment = this.camera.prevCenterY - this.camera.centerY;
+
+        this.starField.upperLeft.x += this.horizontalScrollAdjustment * this.pixelsPerMeter;
+        this.starField.upperLeft.y += this.verticalScrollAdjustment * this.pixelsPerMeter;
+        this.starField.upperRight.x += this.horizontalScrollAdjustment * this.pixelsPerMeter;
+        this.starField.upperRight.y += this.verticalScrollAdjustment * this.pixelsPerMeter;
+        this.starField.lowerLeft.x += this.horizontalScrollAdjustment * this.pixelsPerMeter;
+        this.starField.lowerLeft.y += this.verticalScrollAdjustment * this.pixelsPerMeter;
+        this.starField.lowerRight.x += this.horizontalScrollAdjustment * this.pixelsPerMeter;
+        this.starField.lowerRight.y += this.verticalScrollAdjustment * this.pixelsPerMeter;
+
+        // upperLeft
+        if (this.starField.upperLeft.x > this.camera.boundry.right) {
+            this.starField.upperLeft.x -= this.availableWidth * 2;
+        }
+        if (this.starField.upperLeft.x +this.availableWidth < this.camera.boundry.left) {
+            this.starField.upperLeft.x += this.availableWidth * 2;
+        }
+        if (this.starField.upperLeft.y > this.camera.boundry.bottom) {
+            this.starField.upperLeft.y -= this.availableHeight * 2;
+        }
+        if (this.starField.upperLeft.y + this.availableHeight < this.camera.boundry.top) {
+            this.starField.upperLeft.y += this.availableHeight * 2;
+        }
+
+        // upperRight
+        if (this.starField.upperRight.x > this.camera.boundry.right) {
+            this.starField.upperRight.x -= this.availableWidth * 2;
+        }
+        if (this.starField.upperRight.x +this.availableWidth < this.camera.boundry.left) {
+            this.starField.upperRight.x += this.availableWidth * 2;
+        }
+        if (this.starField.upperRight.y > this.camera.boundry.bottom) {
+            this.starField.upperRight.y -= this.availableHeight * 2;
+        }
+        if (this.starField.upperRight.y + this.availableHeight < this.camera.boundry.top) {
+            this.starField.upperRight.y += this.availableHeight * 2;
+        }
+
+        // lowerLeft
+        if (this.starField.lowerLeft.x > this.camera.boundry.right) {
+            this.starField.lowerLeft.x -= this.availableWidth * 2;
+        }
+        if (this.starField.lowerLeft.x +this.availableWidth < this.camera.boundry.left) {
+            this.starField.lowerLeft.x += this.availableWidth * 2;
+        }
+        if (this.starField.lowerLeft.y > this.camera.boundry.bottom) {
+            this.starField.lowerLeft.y -= this.availableHeight * 2;
+        }
+        if (this.starField.lowerLeft.y + this.availableHeight < this.camera.boundry.top) {
+            this.starField.lowerLeft.y += this.availableHeight * 2;
+        }
+
+        // lowerRight
+        if (this.starField.lowerRight.x > this.camera.boundry.right) {
+            this.starField.lowerRight.x -= this.availableWidth * 2;
+        }
+        if (this.starField.lowerRight.x +this.availableWidth < this.camera.boundry.left) {
+            this.starField.lowerRight.x += this.availableWidth * 2;
+        }
+        if (this.starField.lowerRight.y > this.camera.boundry.bottom) {
+            this.starField.lowerRight.y -= this.availableHeight * 2;
+        }
+        if (this.starField.lowerRight.y + this.availableHeight < this.camera.boundry.top) {
+            this.starField.lowerRight.y += this.availableHeight * 2;
+        }
+        
+        this.background.clearRect(0,0, this.availableWidth, this.availableHeight);
+
+        this.background.drawImage(this.starFieldCanvas, this.starField.upperLeft.x, this.starField.upperLeft.y);
+        this.background.drawImage(this.starFieldCanvas, this.starField.upperRight.x, this.starField.upperRight.y);
+        this.background.drawImage(this.starFieldCanvas, this.starField.lowerLeft.x, this.starField.lowerLeft.y);
+        this.background.drawImage(this.starFieldCanvas, this.starField.lowerRight.x, this.starField.lowerRight.y);
     }
  
     // This is dumb, I should be able to set a pointer when the player
@@ -80,9 +200,6 @@ export class Renderer {
 
     renderMap() {
 
-        // This section is dumb. I should just set this once and then
-        // only call it again when the screen is resized. There is a known
-        // event for that, I just need to look it up
         var windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
         this.availableHeight = window.innerHeight - windowOffset;
@@ -94,11 +211,11 @@ export class Renderer {
         this.updatePlayerShip();
         this.updateCamera();
         this.updateLocationOffset();
+        this.scrollTheBackground();
 
         this.map.clearRect(0, 0, this.availableWidth, this.availableHeight);
         this.map.save();
         this.map.translate(this.availableWidth / 2 + this.focalX, this.availableHeight / 2 + this.focalY);
-        this.renderStars();
         this.renderBoundry();
 
         for (let i = 0, j = gameObjects.length; i < j; i++) {

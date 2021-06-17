@@ -10,10 +10,18 @@ attributes simply were not there, even though they were showing up fine
 for Chrome and Firefox. Not sure why. So the fix was what you see below,
 adding the attributes via a style sheet.*/
 
-#map {
+#background {
 
 	position: absolute;
 
 	z-index: 1
+
+}
+
+#map {
+
+	position: absolute;
+
+	z-index: 2
 
 }
