@@ -8,7 +8,6 @@ export class Renderer {
         this.miniMapZoomLevel = 0.03;
         this.availableWidth = 0;
         this.availableHeight = 0;
-        this.stars = [];
         this.version = Meteor.settings.public.version;
         this.gameVolume = Meteor.settings.public.gameVolume;
         this.mapRadius = Meteor.settings.public.mapRadius
@@ -609,13 +608,7 @@ export class Renderer {
 
         this.map.arc(0, 0, particle.Size * 0.5 * this.pixelsPerMeter, 0, 2 * Math.PI);
 
-        this.map.strokeStyle = "rgba(255, 0, 0, 1)";
-
-        this.map.lineWidth = 1.0;
-
-        this.map.stroke();
-
-        this.map.fillStyle = "rgba(255, 255, 0, 1)";
+        this.map.fillStyle = "rgba(255," + Math.floor(Math.random() * 255) + ", 0," + Math.random() + ")";
 
         this.map.fill();
 
