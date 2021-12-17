@@ -2,6 +2,7 @@ import {Engine} from '../engine/engine.js';
 import {Keyboard} from './keyboard.js';
 import {Renderer} from './renderer.js';
 import {Utilities} from '../utilities/utilities.js';
+import {Ship} from '../engine/ship.js';
 
 Client = function Client() {
     localMode = false;
@@ -31,7 +32,7 @@ Client = function Client() {
 Client.prototype.init = function() {
     client.setupEventHandlers();
     client.setupStreamListeners();
-    client.animationLoop();
+    window.requestAnimationFrame(client.gameLoop);
     client.getPlayerId();
 }
 
@@ -147,12 +148,16 @@ Client.prototype.setupStreamListeners = function() {
     });
 }
 
-Client.prototype.animationLoop = function() {
-    engine.update(60); // This needs to be updated to match current fps!!!
-    // renderer.renderEditor();
+let currentFrameRate = 0;
+let previousTimeStamp = 0;
+
+Client.prototype.gameLoop = function(currentTimeStamp) {
+    currentFrameRate = 1000 / (currentTimeStamp - previousTimeStamp);
+    previousTimeStamp = currentTimeStamp;
+    engine.update(currentFrameRate);
     renderer.renderMap();
     engine.removeSoundObjects();
-    window.requestAnimationFrame(client.animationLoop);
+    window.requestAnimationFrame(client.gameLoop);
 }
 
 Client.prototype.getPlayerId = function() {
