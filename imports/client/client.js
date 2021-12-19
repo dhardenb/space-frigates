@@ -7,7 +7,6 @@ import {Ship} from '../engine/ship.js';
 export class Client {
 
     constructor() {
-        window.localMode = false; // client
         window.engine = new Engine(); // 12 files
         window.keyboard = new Keyboard(); // client
         window.renderer = new Renderer(); // client
@@ -22,6 +21,8 @@ export class Client {
         window.playerName  = ""; // client, keyboard, renderer
         window.currentFrameRate = 0; // client
         window.previousTimeStamp = 0; // client
+
+        this.localMode = false;
     }
 
     init() {
@@ -39,7 +40,7 @@ export class Client {
         outputStream.on('output', function(serverUpdate) {
             serverUpdate = Utilities.unpackGameState(serverUpdate);
             
-            if (!localMode) {
+            if (!this.localMode) {
                 gameObjects = engine.convertObjects(gameObjects, serverUpdate.gameState);
             }  
 
@@ -83,7 +84,7 @@ export class Client {
             playerName = "GUEST";
             }
 
-        if (!localMode) {
+        if (!this.localMode) {
             Meteor.call('createNewPlayerShip', playerName, (err, res) => {
                 if (err) {
                     alert(err);
