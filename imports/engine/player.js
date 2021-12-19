@@ -8,7 +8,6 @@ export class Player {
         this.Id = id;
         this.Name = "";
         this.ShipId = 0;
-        this.LastSeqNum = 0;
         this.Kills = 0;
         this.Deaths = 0;
     }

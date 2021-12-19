@@ -14,7 +14,6 @@ Client = function Client() {
     commands = []; // 5 files
     gameObjectId = 0; // 8 files
     playerShipId = -1; // client, keyboard, renderer
-    seqNum = 0; // client, keyboard player, utilities
     mapRadius = Meteor.settings.public.mapRadius; // 6 files
     playerId = 0; // client, server, renderer
     gameMode = 'START_MODE'; // client, keyboard, renderer
@@ -107,5 +106,4 @@ Client.prototype.requestShip = function() {
 Client.prototype.commandHandler = function(input) {
     commands.push(input);
     inputStream.emit('input', input);
-    seqNum++;
 }

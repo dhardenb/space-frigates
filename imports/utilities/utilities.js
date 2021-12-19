@@ -56,7 +56,6 @@ export class Utilities {
                 packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
                 packedGameState[1][i].push(unpackedGameState.gameState[i].Name);
                 packedGameState[1][i].push(unpackedGameState.gameState[i].ShipId);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LastSeqNum);
                 packedGameState[1][i].push(unpackedGameState.gameState[i].Kills);
                 packedGameState[1][i].push(unpackedGameState.gameState[i].Deaths);
             }
@@ -173,9 +172,8 @@ export class Utilities {
                 unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
                 unpackedGameState.gameState[i].Name = packedGameState[1][i][2];
                 unpackedGameState.gameState[i].ShipId = packedGameState[1][i][3];
-                unpackedGameState.gameState[i].LastSeqNum = packedGameState[1][i][4];
-                unpackedGameState.gameState[i].Kills = packedGameState[1][i][5];
-                unpackedGameState.gameState[i].Deaths = packedGameState[1][i][6];
+                unpackedGameState.gameState[i].Kills = packedGameState[1][i][4];
+                unpackedGameState.gameState[i].Deaths = packedGameState[1][i][5];
             }
 
             if (packedGameState[1][i][1] == 'Human' ||
