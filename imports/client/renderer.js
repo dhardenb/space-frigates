@@ -21,6 +21,7 @@ export class Renderer {
         this.starField = {"upperLeft": {"x":0, "y":0}, "upperRight": {"x":0, "y":0}, "lowerLeft": {"x":0, "y":0}, "lowerRight": {"x":0, "y":0}};
         this.createBackground();
         this.playerId = 0;
+        this.playerName = "";
     }
 
     createBackground() {
@@ -198,9 +199,10 @@ export class Renderer {
         }
     }
 
-    renderMap(playerId) {
+    renderMap(playerId, playerName) {
 
         this.playerId = playerId;
+        this.playerName = playerName;
 
         var windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
@@ -560,16 +562,6 @@ export class Renderer {
         this.map.save();
 
         var nameToDraw = "";
-        var playerName = "";
-
-        for (var i=0, j=gameObjects.length; i<j; i++) {
-            if (gameObjects[i].Type == 'Player') {
-                if (gameObjects[i].ShipId == ship.Id) {
-                    playerName = gameObjects[i].Name;
-                    break;
-                }
-            }
-        }
 
         if (ship.Type != 'Human') {
 
@@ -577,13 +569,13 @@ export class Renderer {
 
         } else {
 
-            if (playerName == "") {
+            if (this.playerName == "") {
 
                 nameToDraw = "GUEST";
 
             } else {
 
-                nameToDraw = playerName;
+                nameToDraw = this.playerName;
 
             }
 
@@ -989,7 +981,7 @@ export class Renderer {
 
         let textToRender = "";
 
-        if (playerName == "") {
+        if (this.playerName == "") {
 
             textToRender = "GUEST";
 
@@ -999,7 +991,7 @@ export class Renderer {
 
         } else {
 
-            textToRender = playerName;
+            textToRender = this.playerName;
 
             this.map.fillStyle = "yellow";
 

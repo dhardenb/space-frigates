@@ -12,17 +12,16 @@ export class Client {
         window.commands = []; // 5 files
         window.gameObjectId = 0; // 8 files
         window.mapRadius = Meteor.settings.public.mapRadius; // 6 files
-        
-        this.playerId = 0;
         window.playerShipId = -1; // client, keyboard, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
-        window.playerName  = ""; // client, keyboard, renderer
         
         this.renderer = new Renderer();
         this.keyboard = new Keyboard();
         this.currentFrameRate = 0;
         this.previousTimeStamp = 0;
         this.localMode = false;
+        this.playerId = 0;
+        this.playerName = "";
     }
 
     init() {
@@ -64,7 +63,7 @@ export class Client {
         this.currentFrameRate = 1000 / (currentTimeStamp - this.previousTimeStamp);
         this.previousTimeStamp = currentTimeStamp;
         engine.update(this.currentFrameRate);
-        this.renderer.renderMap(this.playerId);
+        this.renderer.renderMap(this.playerId, this.playerName);
         engine.removeSoundObjects();
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
@@ -80,12 +79,12 @@ export class Client {
     }
 
     requestShip() {
-        if (playerName == "") {
-            playerName = "GUEST";
+        if (this.playerName == "") {
+            this.playerName = "GUEST";
             }
 
         if (!this.localMode) {
-            Meteor.call('createNewPlayerShip', playerName, (err, res) => {
+            Meteor.call('createNewPlayerShip', this.playerName, (err, res) => {
                 if (err) {
                     alert(err);
                 } else {
@@ -96,7 +95,7 @@ export class Client {
         } else {
             var playerShip = new Ship();
             playerShip.init('Human');
-            playerShip.Name = playerName;
+            playerShip.Name = this.playerName;
             playerShip.setStartingHumanPosition();
             gameObjects.push(playerShip);
             playerShipId = playerShip.Id;

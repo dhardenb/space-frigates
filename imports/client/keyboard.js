@@ -5,7 +5,7 @@ export class Keyboard {
         if (evt.keyCode == 8) {
             if (gameMode == 'START_MODE') {
                 evt.preventDefault();
-                playerName = playerName.slice(0, -1);   
+                client.playerName = client.playerName.slice(0, -1);   
             }
         }
         // ENTER - Start
@@ -61,8 +61,8 @@ export class Keyboard {
         else if(evt.keyCode == 65) {
             evt.preventDefault();
             if (gameMode == 'START_MODE') {
-                if (playerName.length < 8) {
-                    playerName = playerName + String.fromCharCode(evt.which);
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
                 client.commandHandler({command: 1, targetId: playerShipId});
@@ -72,8 +72,8 @@ export class Keyboard {
         else if(evt.keyCode == 68) {
             evt.preventDefault();
             if (gameMode == 'START_MODE') {
-                if (playerName.length < 8) {
-                    playerName = playerName + String.fromCharCode(evt.which);
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
                 client.commandHandler({command: 3, targetId: playerShipId});
@@ -83,8 +83,8 @@ export class Keyboard {
         else if(evt.keyCode == 83) {
             evt.preventDefault();
             if (gameMode == 'START_MODE') {
-                if (playerName.length < 8) {
-                    playerName = playerName + String.fromCharCode(evt.which);
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
                 client.commandHandler({command: 4, targetId: playerShipId});
@@ -94,8 +94,8 @@ export class Keyboard {
         else if(evt.keyCode == 87) {
             evt.preventDefault();
             if (gameMode == 'START_MODE') {
-                if (playerName.length < 8) {
-                    playerName = playerName + String.fromCharCode(evt.which);
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
                 client.commandHandler({command: 2, targetId: playerShipId});
@@ -105,8 +105,8 @@ export class Keyboard {
         else if (evt.keyCode >= 65 && evt.keyCode <=90) {
             if (gameMode == 'START_MODE') {
                 evt.preventDefault();
-                if (playerName.length < 8) {
-                    playerName = playerName + String.fromCharCode(evt.which);
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }  
             }
         }
