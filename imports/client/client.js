@@ -8,7 +8,6 @@ export class Client {
 
     constructor() {
         window.engine = new Engine(); // 12 files
-        window.renderer = new Renderer(); // client
         window.gameObjects = []; // 7 files
         window.deadObjects = []; // client, server, engine
         window.commands = []; // 5 files
@@ -19,6 +18,7 @@ export class Client {
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
         window.playerName  = ""; // client, keyboard, renderer
         
+        this.renderer = new Renderer();
         this.keyboard = new Keyboard();
         this.currentFrameRate = 0;
         this.previousTimeStamp = 0;
@@ -64,7 +64,7 @@ export class Client {
         this.currentFrameRate = 1000 / (currentTimeStamp - this.previousTimeStamp);
         this.previousTimeStamp = currentTimeStamp;
         engine.update(this.currentFrameRate);
-        renderer.renderMap();
+        this.renderer.renderMap();
         engine.removeSoundObjects();
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
