@@ -8,7 +8,6 @@ export class Client {
 
     constructor() {
         window.engine = new Engine(); // 12 files
-        window.keyboard = new Keyboard(); // client
         window.renderer = new Renderer(); // client
         window.gameObjects = []; // 7 files
         window.deadObjects = []; // client, server, engine
@@ -19,9 +18,10 @@ export class Client {
         window.playerId = 0; // client, server, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
         window.playerName  = ""; // client, keyboard, renderer
-        this.currentFrameRate = 0; // client
-        this.previousTimeStamp = 0; // client
-
+        
+        this.keyboard = new Keyboard();
+        this.currentFrameRate = 0;
+        this.previousTimeStamp = 0;
         this.localMode = false;
     }
 
@@ -33,7 +33,7 @@ export class Client {
     }
 
     setupEventHandlers() {
-        document.documentElement.addEventListener("keydown", keyboard.handleKeyPressEvents, false);
+        document.documentElement.addEventListener("keydown", this.keyboard.handleKeyPressEvents.bind(this), false);
     }
 
     setupStreamListeners() {
