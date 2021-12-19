@@ -5,19 +5,19 @@ import {Utilities} from '../utilities/utilities.js';
 import {Ship} from '../engine/ship.js';
 
 Client = function Client() {
-    localMode = false; // client
-    engine = new Engine(); // 12 files
-    keyboard = new Keyboard(); // client
-    renderer = new Renderer(); // client
-    gameObjects = []; // 7 files
-    deadObjects = []; // client, server, engine
-    commands = []; // 5 files
-    gameObjectId = 0; // 8 files
-    playerShipId = -1; // client, keyboard, renderer
-    mapRadius = Meteor.settings.public.mapRadius; // 6 files
-    playerId = 0; // client, server, renderer
-    gameMode = 'START_MODE'; // client, keyboard, renderer
-    playerName  = ""; // client, keyboard, renderer
+    window.localMode = false; // client
+    window.engine = new Engine(); // 12 files
+    window.keyboard = new Keyboard(); // client
+    window.renderer = new Renderer(); // client
+    window.gameObjects = []; // 7 files
+    window.deadObjects = []; // client, server, engine
+    window.commands = []; // 5 files
+    window.gameObjectId = 0; // 8 files
+    window.playerShipId = -1; // client, keyboard, renderer
+    window.mapRadius = Meteor.settings.public.mapRadius; // 6 files
+    window.playerId = 0; // client, server, renderer
+    window.gameMode = 'START_MODE'; // client, keyboard, renderer
+    window.playerName  = ""; // client, keyboard, renderer
 }
 
 Client.prototype.init = function() {
@@ -101,8 +101,6 @@ Client.prototype.requestShip = function() {
     }
 }
 
-// NOTE: I should really insert the sequence number here at not
-// in the KeyBoard Event handleKeyPressEvents
 Client.prototype.commandHandler = function(input) {
     commands.push(input);
     inputStream.emit('input', input);
