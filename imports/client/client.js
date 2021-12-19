@@ -19,8 +19,8 @@ export class Client {
         window.playerId = 0; // client, server, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
         window.playerName  = ""; // client, keyboard, renderer
-        window.currentFrameRate = 0; // client
-        window.previousTimeStamp = 0; // client
+        this.currentFrameRate = 0; // client
+        this.previousTimeStamp = 0; // client
 
         this.localMode = false;
     }
@@ -28,7 +28,7 @@ export class Client {
     init() {
         client.setupEventHandlers();
         client.setupStreamListeners();
-        window.requestAnimationFrame(client.gameLoop);
+        window.requestAnimationFrame(this.gameLoop.bind(this));
         client.getPlayerId();
     }
 
@@ -61,12 +61,12 @@ export class Client {
     }
 
     gameLoop(currentTimeStamp) {
-        currentFrameRate = 1000 / (currentTimeStamp - previousTimeStamp);
-        previousTimeStamp = currentTimeStamp;
-        engine.update(currentFrameRate);
+        this.currentFrameRate = 1000 / (currentTimeStamp - this.previousTimeStamp);
+        this.previousTimeStamp = currentTimeStamp;
+        engine.update(this.currentFrameRate);
         renderer.renderMap();
         engine.removeSoundObjects();
-        window.requestAnimationFrame(client.gameLoop);
+        window.requestAnimationFrame(this.gameLoop.bind(this));
     }
 
     getPlayerId() {
