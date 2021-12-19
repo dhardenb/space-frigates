@@ -9,7 +9,6 @@ Server = function Server() {
     updateId = 0;
     ai = new Ai();
     gameObjects = [];
-    deadObjects = [];
     commands = [];
     players = [];
     gameObjectId = 0;

@@ -10,6 +10,7 @@ import {Utilities} from '../utilities/utilities.js';
 export class Engine {
 
     constructor() {
+        this.deadObjects = [];
         this.mapRadius = Meteor.settings.public.mapRadius;
         this.explosionSize = 20;
     }
@@ -55,7 +56,7 @@ export class Engine {
                             if (solidObjects[k].HullStrength <= 0) {
                                 this.createDebris(solidObjects[k]);
                                 this.createExplosion(solidObjects[k]);
-                                deadObjects.push(solidObjects[k]);
+                                this.deadObjects.push(solidObjects[k]);
                                 this.scoreDeath(solidObjects[k].Id);
                                 this.scoreKill(solidObjects[i].Owner);
                             }
@@ -69,7 +70,7 @@ export class Engine {
                             break;
                         // debris hit by ship
                         } else if ((solidObjects[k].Type == "Debris") && (solidObjects[k].Type == "Human" || solidObjects[k].Type == "Alpha" || solidObjects[i].Type == "Bravo")) {
-                            deadObjects.push(solidObjects[k]);
+                            this.deadObjects.push(solidObjects[k]);
                             break;
                         // anything else hit by anything
                         } else {
@@ -81,7 +82,7 @@ export class Engine {
                             // I created this array of objects to remove because removing objects from
                             // an array while you are still iterating over the same array is generaly
                             // a bad thing!
-                            deadObjects.push(solidObjects[k]);
+                            this.deadObjects.push(solidObjects[k]);
                             // No use blowing this up twice!
                             break;
                         }
@@ -109,7 +110,7 @@ export class Engine {
     fuelDetection() {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].Fuel < 0) {
-                deadObjects.push(gameObjects[x]);
+                this.deadObjects.push(gameObjects[x]);
             }
         }
         this.removeDeadObjects();
@@ -134,17 +135,17 @@ export class Engine {
                 if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < this.mapRadius * this.mapRadius)) {
                     this.createExplosion(solidObjects[x]);
                     this.scoreDeath(solidObjects[x].Id);
-                    deadObjects.push(solidObjects[x]);
+                    this.deadObjects.push(solidObjects[x]);
                 }
             }
         this.removeDeadObjects();
     }
 
     removeDeadObjects() {
-        for (let x = 0, y = deadObjects.length; x < y; x++) {
+        for (let x = 0, y = this.deadObjects.length; x < y; x++) {
             let i = 0;
             for (let j = 0; j < gameObjects.length; j++) {
-                if (gameObjects[j].Id == deadObjects[x].Id) {
+                if (gameObjects[j].Id == this.deadObjects[x].Id) {
                     gameObjects.splice(i, 1);
                 }
                 else {
@@ -152,7 +153,7 @@ export class Engine {
                 }
             }
         }
-        deadObjects = [];
+        this.deadObjects = [];
     }
 
     removeSoundObjects() {

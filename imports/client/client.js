@@ -9,12 +9,12 @@ export class Client {
     constructor() {
         window.engine = new Engine(); // 12 files
         window.gameObjects = []; // 7 files
-        window.deadObjects = []; // client, server, engine
         window.commands = []; // 5 files
         window.gameObjectId = 0; // 8 files
-        window.playerShipId = -1; // client, keyboard, renderer
         window.mapRadius = Meteor.settings.public.mapRadius; // 6 files
+        
         window.playerId = 0; // client, server, renderer
+        window.playerShipId = -1; // client, keyboard, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
         window.playerName  = ""; // client, keyboard, renderer
         
