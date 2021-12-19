@@ -20,6 +20,7 @@ export class Renderer {
         this.background = document.getElementById("background").getContext('2d');
         this.starField = {"upperLeft": {"x":0, "y":0}, "upperRight": {"x":0, "y":0}, "lowerLeft": {"x":0, "y":0}, "lowerRight": {"x":0, "y":0}};
         this.createBackground();
+        this.playerId = 0;
     }
 
     createBackground() {
@@ -197,7 +198,9 @@ export class Renderer {
         }
     }
 
-    renderMap() {
+    renderMap(playerId) {
+
+        this.playerId = playerId;
 
         var windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
@@ -936,7 +939,7 @@ export class Renderer {
 
             this.map.translate(0, 25);
 
-            if (players[i].Id == playerId) {
+            if (players[i].Id == this.playerId) {
 
                 this.map.fillStyle = "rgba(255, 255, 0, 0.5)";
 

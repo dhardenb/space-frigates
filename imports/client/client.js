@@ -13,7 +13,7 @@ export class Client {
         window.gameObjectId = 0; // 8 files
         window.mapRadius = Meteor.settings.public.mapRadius; // 6 files
         
-        window.playerId = 0; // client, server, renderer
+        this.playerId = 0;
         window.playerShipId = -1; // client, keyboard, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
         window.playerName  = ""; // client, keyboard, renderer
@@ -26,10 +26,10 @@ export class Client {
     }
 
     init() {
-        client.setupEventHandlers();
-        client.setupStreamListeners();
+        this.getPlayerId();
+        this.setupEventHandlers();
+        this.setupStreamListeners();
         window.requestAnimationFrame(this.gameLoop.bind(this));
-        client.getPlayerId();
     }
 
     setupEventHandlers() {
@@ -64,7 +64,7 @@ export class Client {
         this.currentFrameRate = 1000 / (currentTimeStamp - this.previousTimeStamp);
         this.previousTimeStamp = currentTimeStamp;
         engine.update(this.currentFrameRate);
-        this.renderer.renderMap();
+        this.renderer.renderMap(this.playerId);
         engine.removeSoundObjects();
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
@@ -74,7 +74,7 @@ export class Client {
             if (err) {
                 alert(err);
             } else {
-                playerId = res;
+                this.playerId = res;
             }
         });
     }
