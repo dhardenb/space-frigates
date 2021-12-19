@@ -5,28 +5,20 @@ import {Utilities} from '../utilities/utilities.js';
 import {Ship} from '../engine/ship.js';
 
 Client = function Client() {
-    localMode = false;
-    engine = new Engine();
-    lastUpdateId = 0;
-    keyboard = new Keyboard();
-    renderer = new Renderer();
-    gameObjects = [];
-    deadObjects = [];
-    commands = [];
-    sentCommands = [];
-    gameObjectId = 0;
-    playerShipId = -1;
-    seqNum = 0;
-    mapRadius = Meteor.settings.public.mapRadius;
-    playerId = 0;
-    numberOfUpdates = 0;
-    totalSizeOfUpdates = 0;
-    smallestUpdate = 0;
-    largestUpdate = 0;
-    gameMode = 'START_MODE';
-    playerName = "";
-    lastTimeStamp = null;
-    lastUpdateCreatedAt = null;
+    localMode = false; // client
+    engine = new Engine(); // 12 files
+    keyboard = new Keyboard(); // client
+    renderer = new Renderer(); // client
+    gameObjects = []; // 7 files
+    deadObjects = []; // client, server, engine
+    commands = []; // 5 files
+    gameObjectId = 0; // 8 files
+    playerShipId = -1; // client, keyboard, renderer
+    seqNum = 0; // client, keyboard player, utilities
+    mapRadius = Meteor.settings.public.mapRadius; // 6 files
+    playerId = 0; // client, server, renderer
+    gameMode = 'START_MODE'; // client, keyboard, renderer
+    playerName  = ""; // client, keyboard, renderer
 }
 
 Client.prototype.init = function() {
@@ -61,8 +53,6 @@ Client.prototype.setupStreamListeners = function() {
         } else {
             gameMode = 'START_MODE';
         }
-        
-        lastUpdateId = serverUpdate.updateId;
     });
 }
 
@@ -116,7 +106,6 @@ Client.prototype.requestShip = function() {
 // in the KeyBoard Event handleKeyPressEvents
 Client.prototype.commandHandler = function(input) {
     commands.push(input);
-    sentCommands.push(input);
     inputStream.emit('input', input);
     seqNum++;
 }
