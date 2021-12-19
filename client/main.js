@@ -1,7 +1,6 @@
 
 import { Meteor } from 'meteor/meteor';
-
-import '../imports/client/client.js';
+import { Client } from '../imports/client/client.js';
 
 Meteor.startup(function () {
 
