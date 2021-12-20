@@ -98,7 +98,7 @@ export class Physics {
 
     static getXaxisComponent(Direction, Magnitude) {
     
-        var XaxisComponent = 0;
+        let XaxisComponent = 0;
 
         if (Direction == 0)
         {
@@ -138,7 +138,7 @@ export class Physics {
 
     static getYaxisComponent(Direction, Magnitude) {
     
-        var YaxisComponent = 0;
+        let YaxisComponent = 0;
 
         if (Direction == 0)
         {

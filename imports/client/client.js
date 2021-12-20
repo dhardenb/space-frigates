@@ -93,7 +93,7 @@ export class Client {
                 }
             });
         } else {
-            var playerShip = new Ship();
+            let playerShip = new Ship();
             playerShip.init('Human');
             playerShip.Name = this.playerName;
             playerShip.setStartingHumanPosition();

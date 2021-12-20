@@ -50,12 +50,12 @@ Server.prototype.startPhysicsLoop = function() {
 Meteor.methods({
     createNewPlayerShip: function(name) {
         
-        var playerShip = new Ship();
+        let playerShip = new Ship();
         playerShip.init('Human');
         playerShip.setStartingHumanPosition();
         gameObjects.push(playerShip);
 
-        for (var i=0, j=gameObjects.length; i<j; i++) {
+        for (let i=0, j=gameObjects.length; i<j; i++) {
             if (gameObjects[i].Type == 'Player') {
                 if (gameObjects[i].Id == this.connection.id) {
                     gameObjects[i].ShipId = playerShip.Id;

@@ -3,14 +3,14 @@ import {Ship} from '../engine/ship.js';
 export class Ai {
 
     createNewShip() {
-        var players = [];
-        for (var i=0, j=gameObjects.length; i<j; i++) {
+        let players = [];
+        for (let i=0, j=gameObjects.length; i<j; i++) {
             if (gameObjects[i].Type == 'Player') {
                 players.push(gameObjects[i]);
             }
         }
-        var numberOfPlayers = players.length;
-        var nextShipType = 0;
+        let numberOfPlayers = players.length;
+        let nextShipType = 0;
         if (numberOfPlayers == 0) {
             nextShipType = 0;
         } else if (numberOfPlayers == 1) {
@@ -22,7 +22,7 @@ export class Ai {
         } else {
             nextShipType = Math.floor((Math.random()*6400)+1);
         }
-        var newAiShip;
+        let newAiShip;
         if (nextShipType == 1) {
             newAiShip = new Ship();
             newAiShip.init('Alpha');
@@ -38,7 +38,7 @@ export class Ai {
     }       
 
     issueCommands() {
-        for (var x = 0, y = gameObjects.length; x < y; x++) {
+        for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].Type != 'Human') {
                 if (Math.floor((Math.random()*25)+1) == 1) {
                     this.think(gameObjects[x]);
@@ -48,7 +48,7 @@ export class Ai {
     }
 
     think(gameObject) {
-        var commandType = 0;
+        let commandType = 0;
         if (gameObject.Type == 'Alpha') {
             switch (Math.floor(Math.random()*11+1)) {
                 case 1:

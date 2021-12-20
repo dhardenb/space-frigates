@@ -27,7 +27,7 @@ export class Renderer {
     createBackground() {
 
         // This should be handled in a dedicated event handler...
-        var windowOffset = 22;
+        let windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
         this.availableHeight = window.innerHeight - windowOffset;
         this.availablePixels = this.availableHeight < this.availableWidth ? this.availableWidth : this.availableHeight;
@@ -40,8 +40,8 @@ export class Renderer {
         this.starFieldCanvas.height = this.availableHeight;
         this.starFieldContext = this.starFieldCanvas.getContext('2d');
 
-        for (var x = 0; x < this.availableWidth; x++) {
-            for (var y = 0; y < this.availableHeight; y++) {
+        for (let x = 0; x < this.availableWidth; x++) {
+            for (let y = 0; y < this.availableHeight; y++) {
                 if (Math.floor((Math.random()*1000)+1) == 1) {
                     this.starFieldContext.beginPath();
                     this.starFieldContext.arc(x, y, 1, 0, 2 * Math.PI);
@@ -192,7 +192,7 @@ export class Renderer {
     // is firts assigned a ship. It won't change after that until
     // the player dies and restarts
     updatePlayerShip() {
-        for (var i = 0, j = gameObjects.length; i < j; i++) {
+        for (let i = 0, j = gameObjects.length; i < j; i++) {
             if (gameObjects[i].Id == playerShipId) {
                 this.playerShip = gameObjects[i];
             }
@@ -204,7 +204,7 @@ export class Renderer {
         this.playerId = playerId;
         this.playerName = playerName;
 
-        var windowOffset = 22;
+        let windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
         this.availableHeight = window.innerHeight - windowOffset;
         this.availablePixels = this.availableHeight < this.availableWidth ? this.availableWidth : this.availableHeight;
@@ -364,7 +364,7 @@ export class Renderer {
 
         this.renderBoundry();
 
-        for (var i=0, j=gameObjects.length; i<j; i++) {
+        for (let i=0, j=gameObjects.length; i<j; i++) {
             if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
                 this.renderMiniShip(gameObjects[i]);
             }
@@ -561,7 +561,7 @@ export class Renderer {
 
         this.map.save();
 
-        var nameToDraw = "";
+        let nameToDraw = "";
 
         if (ship.Type != 'Human') {
 
@@ -763,9 +763,9 @@ export class Renderer {
 
         if (gameMode == 'PLAY_MODE') {
 
-            var distanceFromPlayersShip = 0;
+            let distanceFromPlayersShip = 0;
 
-            var soundVolume = 1.0;
+            let soundVolume = 1.0;
 
             if (this.playerShip != null) {
                 
@@ -791,7 +791,7 @@ export class Renderer {
 
             }
 
-            var howl = new Howl({
+            let howl = new Howl({
                     
                 src: [srcFile],
 
@@ -909,9 +909,9 @@ export class Renderer {
 
         this.map.restore();
 
-        var players = [];
+        let players = [];
 
-        for (var i=0, j=gameObjects.length; i<j; i++) {
+        for (let i=0, j=gameObjects.length; i<j; i++) {
 
             if (gameObjects[i].Type == 'Player') {
 
@@ -927,7 +927,7 @@ export class Renderer {
 
         players = this._.orderBy(players, 'Kills', 'desc');
 
-        for (var i=0, j=players.length; i<j; i++) {
+        for (let i=0, j=players.length; i<j; i++) {
 
             this.map.translate(0, 25);
 
