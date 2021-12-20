@@ -4,7 +4,6 @@ import {Meteor} from 'meteor/meteor';
 import {Ship} from '../engine/ship.js';
 import {Utilities} from '../utilities/utilities.js';
 
-
 export class Server {
 
     constructor() {
@@ -27,14 +26,14 @@ export class Server {
     }
 
     setupStreamPermissions() {
-        inputStream.allowRead('all');
-        inputStream.allowWrite('all');
-        outputStream.allowRead('all');
-        outputStream.allowWrite('all');
+        global.inputStream.allowRead('all');
+        global.inputStream.allowWrite('all');
+        global.outputStream.allowRead('all');
+        global.outputStream.allowWrite('all');
     }
 
     setupStreamListeners() {
-        inputStream.on('input', function(input) {
+        global.inputStream.on('input', function(input) {
             commands.push(input);
         });
     }
@@ -44,7 +43,7 @@ export class Server {
             ai.createNewShip();
             ai.issueCommands();
             engine.update(60);
-            outputStream.emit('output', Utilities.packGameState({updateId: updateId, gameState: gameObjects}));
+            global.outputStream.emit('output', Utilities.packGameState({updateId: updateId, gameState: gameObjects}));
             engine.removeSoundObjects();
             updateId++;
         }, frameRate);

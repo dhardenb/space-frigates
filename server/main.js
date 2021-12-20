@@ -3,6 +3,9 @@ import { Player } from '../imports/engine/player.js';
 import { Server } from '../imports/server/server.js';
 import { Utilities } from '../imports/utilities/utilities.js';
 
+global.inputStream = new Meteor.Streamer('input');
+global.outputStream = new Meteor.Streamer('output');
+
 Meteor.startup(() => {
     server = new Server();
     server.init();

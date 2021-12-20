@@ -36,7 +36,7 @@ export class Client {
     }
 
     setupStreamListeners() {
-        outputStream.on('output', function(serverUpdate) {
+        window.outputStream.on('output', function(serverUpdate) {
             serverUpdate = Utilities.unpackGameState(serverUpdate);
             
             if (!this.localMode) {
@@ -104,6 +104,6 @@ export class Client {
 
     commandHandler(input) {
         commands.push(input);
-        inputStream.emit('input', input);
+        window.inputStream.emit('input', input);
     }
 }
