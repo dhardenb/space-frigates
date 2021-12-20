@@ -4,47 +4,51 @@ import {Meteor} from 'meteor/meteor';
 import {Ship} from '../engine/ship.js';
 import {Utilities} from '../utilities/utilities.js';
 
-Server = function Server() {
-    engine = new Engine();
-    updateId = 0;
-    ai = new Ai();
-    gameObjects = [];
-    commands = [];
-    players = [];
-    gameObjectId = 0;
-    frameRate = Meteor.settings.private.frameRate;
-    messageOutputRate = Meteor.settings.private.messageOutputRate;
-    mapRadius = Meteor.settings.public.mapRadius;
-}
 
-Server.prototype.init = function() {
-    server.setupStreamPermissions();
-    server.setupStreamListeners();
-    server.startPhysicsLoop();
-}
+export class Server {
 
-Server.prototype.setupStreamPermissions = function() {
-    inputStream.allowRead('all');
-    inputStream.allowWrite('all');
-    outputStream.allowRead('all');
-    outputStream.allowWrite('all');
-}
+    constructor() {
+        global.engine = new Engine();
+        global.updateId = 0;
+        global.ai = new Ai();
+        global.gameObjects = [];
+        global.commands = [];
+        global.players = [];
+        global.gameObjectId = 0;
+        global.frameRate = Meteor.settings.private.frameRate;
+        global.messageOutputRate = Meteor.settings.private.messageOutputRate;
+        global.mapRadius = Meteor.settings.public.mapRadius;
+    }
 
-Server.prototype.setupStreamListeners = function() {
-    inputStream.on('input', function(input) {
-        commands.push(input);
-    });
-}
+    init() {
+        this.setupStreamPermissions();
+        this.setupStreamListeners();
+        this.startPhysicsLoop();
+    }
 
-Server.prototype.startPhysicsLoop = function() {
-    setInterval(function() {
-        ai.createNewShip();
-        ai.issueCommands();
-        engine.update(60);
-        outputStream.emit('output', Utilities.packGameState({updateId: updateId, gameState: gameObjects}));
-        engine.removeSoundObjects();
-        updateId++;
-    }, frameRate);
+    setupStreamPermissions() {
+        inputStream.allowRead('all');
+        inputStream.allowWrite('all');
+        outputStream.allowRead('all');
+        outputStream.allowWrite('all');
+    }
+
+    setupStreamListeners() {
+        inputStream.on('input', function(input) {
+            commands.push(input);
+        });
+    }
+
+    startPhysicsLoop() {
+        setInterval(function() {
+            ai.createNewShip();
+            ai.issueCommands();
+            engine.update(60);
+            outputStream.emit('output', Utilities.packGameState({updateId: updateId, gameState: gameObjects}));
+            engine.removeSoundObjects();
+            updateId++;
+        }, frameRate);
+    }
 }
 
 Meteor.methods({

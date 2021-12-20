@@ -1,7 +1,7 @@
-import {Meteor} from 'meteor/meteor';
-import {Player} from '../imports/engine/player.js';
-import '../imports/server/server.js';
-import {Utilities} from '../imports/utilities/utilities.js';
+import { Meteor } from 'meteor/meteor';
+import { Player } from '../imports/engine/player.js';
+import { Server } from '../imports/server/server.js';
+import { Utilities } from '../imports/utilities/utilities.js';
 
 Meteor.startup(() => {
     server = new Server();
