@@ -45,7 +45,7 @@ export class Renderer {
                 if (Math.floor((Math.random()*1000)+1) == 1) {
                     this.starFieldContext.beginPath();
                     this.starFieldContext.arc(x, y, 1, 0, 2 * Math.PI);
-                    this.starFieldContext.fillStyle = "rgba(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + "255, " + Math.random() + ")";
+                    this.starFieldContext.fillStyle = "rgba(100, 100, 255, " + Math.random() + ")";
                     this.starFieldContext.fill();
                 }
             }
