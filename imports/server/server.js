@@ -7,6 +7,7 @@ import {Utilities} from '../utilities/utilities.js';
 export class Server {
 
     constructor() {
+        global.outputStream = new Meteor.Streamer('output');
         global.engine = new Engine();
         global.updateId = 0;
         global.ai = new Ai();
@@ -17,6 +18,8 @@ export class Server {
         global.frameRate = Meteor.settings.private.frameRate;
         global.messageOutputRate = Meteor.settings.private.messageOutputRate;
         global.mapRadius = Meteor.settings.public.mapRadius;
+
+        this.inputStream = new Meteor.Streamer('input');
     }
 
     init() {
@@ -26,14 +29,14 @@ export class Server {
     }
 
     setupStreamPermissions() {
-        global.inputStream.allowRead('all');
-        global.inputStream.allowWrite('all');
+        this.inputStream.allowRead('all');
+        this.inputStream.allowWrite('all');
         global.outputStream.allowRead('all');
         global.outputStream.allowWrite('all');
     }
 
     setupStreamListeners() {
-        global.inputStream.on('input', function(input) {
+        this.inputStream.on('input', function(input) {
             commands.push(input);
         });
     }
