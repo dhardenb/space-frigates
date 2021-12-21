@@ -15,6 +15,8 @@ export class Client {
         window.playerShipId = -1; // client, keyboard, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
         
+        this.inputStream = new Meteor.Streamer('input');
+        this.outputStream = new Meteor.Streamer('output');
         this.renderer = new Renderer();
         this.keyboard = new Keyboard();
         this.currentFrameRate = 0;
@@ -36,7 +38,7 @@ export class Client {
     }
 
     setupStreamListeners() {
-        window.outputStream.on('output', function(serverUpdate) {
+        this.outputStream.on('output', function(serverUpdate) {
             serverUpdate = Utilities.unpackGameState(serverUpdate);
             
             if (!this.localMode) {
@@ -104,6 +106,6 @@ export class Client {
 
     commandHandler(input) {
         commands.push(input);
-        window.inputStream.emit('input', input);
+        this.inputStream.emit('input', input);
     }
 }

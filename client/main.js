@@ -2,9 +2,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Client } from '../imports/client/client.js';
 
-window.inputStream = new Meteor.Streamer('input');
-window.outputStream = new Meteor.Streamer('output');
-
 Meteor.startup(function () {
 
     if (Meteor.settings.public.environment == 'prod') {
