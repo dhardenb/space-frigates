@@ -7,9 +7,7 @@ import {Utilities} from '../utilities/utilities.js';
 export class Server {
 
     constructor() {
-        global.outputStream = new Meteor.Streamer('output');
         global.engine = new Engine();
-        global.updateId = 0;
         global.ai = new Ai();
         global.gameObjects = [];
         global.commands = [];
@@ -20,6 +18,8 @@ export class Server {
         global.mapRadius = Meteor.settings.public.mapRadius;
 
         this.inputStream = new Meteor.Streamer('input');
+        this.outputStream = new Meteor.Streamer('output');
+        this.updateId = 0;
     }
 
     init() {
@@ -31,8 +31,8 @@ export class Server {
     setupStreamPermissions() {
         this.inputStream.allowRead('all');
         this.inputStream.allowWrite('all');
-        global.outputStream.allowRead('all');
-        global.outputStream.allowWrite('all');
+        this.outputStream.allowRead('all');
+        this.outputStream.allowWrite('all');
     }
 
     setupStreamListeners() {
@@ -41,15 +41,17 @@ export class Server {
         });
     }
 
+    updateLoop() {
+        ai.createNewShip();
+        ai.issueCommands();
+        engine.update(60);
+        this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects}));
+        engine.removeSoundObjects();
+        this.updateId++;
+    }
+
     startPhysicsLoop() {
-        setInterval(function() {
-            ai.createNewShip();
-            ai.issueCommands();
-            engine.update(60);
-            global.outputStream.emit('output', Utilities.packGameState({updateId: updateId, gameState: gameObjects}));
-            engine.removeSoundObjects();
-            updateId++;
-        }, frameRate);
+        setInterval(this.updateLoop.bind(this), frameRate);
     }
 }
 
