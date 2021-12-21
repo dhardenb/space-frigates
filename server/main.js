@@ -4,7 +4,7 @@ import { Server } from '../imports/server/server.js';
 import { Utilities } from '../imports/utilities/utilities.js';
 
 Meteor.startup(() => {
-    server = new Server();
+    let server = new Server();
     server.init();
 });
 
