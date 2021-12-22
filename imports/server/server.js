@@ -12,7 +12,6 @@ export class Server {
         global.commands = [];
         global.players = [];
         global.gameObjectId = 0;
-        global.messageOutputRate = Meteor.settings.private.messageOutputRate;
         global.mapRadius = Meteor.settings.public.mapRadius;
 
         this.frameRate = Meteor.settings.private.frameRate;
@@ -44,7 +43,7 @@ export class Server {
     updateLoop() {
         this.ai.createNewShip();
         this.ai.issueCommands();
-        engine.update(60);
+        engine.update(1000 / this.frameRate);
         this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects}));
         engine.removeSoundObjects();
         this.updateId++;
