@@ -12,10 +12,10 @@ export class Server {
         global.commands = [];
         global.players = [];
         global.gameObjectId = 0;
-        global.frameRate = Meteor.settings.private.frameRate;
         global.messageOutputRate = Meteor.settings.private.messageOutputRate;
         global.mapRadius = Meteor.settings.public.mapRadius;
 
+        this.frameRate = Meteor.settings.private.frameRate;
         this.ai = new Ai();
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
@@ -51,7 +51,7 @@ export class Server {
     }
 
     startPhysicsLoop() {
-        setInterval(this.updateLoop.bind(this), frameRate);
+        setInterval(this.updateLoop.bind(this), this.frameRate);
     }
 }
 
