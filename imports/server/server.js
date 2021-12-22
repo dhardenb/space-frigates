@@ -8,7 +8,6 @@ export class Server {
 
     constructor() {
         global.engine = new Engine();
-        global.ai = new Ai();
         global.gameObjects = [];
         global.commands = [];
         global.players = [];
@@ -17,6 +16,7 @@ export class Server {
         global.messageOutputRate = Meteor.settings.private.messageOutputRate;
         global.mapRadius = Meteor.settings.public.mapRadius;
 
+        this.ai = new Ai();
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
         this.updateId = 0;
@@ -42,8 +42,8 @@ export class Server {
     }
 
     updateLoop() {
-        ai.createNewShip();
-        ai.issueCommands();
+        this.ai.createNewShip();
+        this.ai.issueCommands();
         engine.update(60);
         this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects}));
         engine.removeSoundObjects();
