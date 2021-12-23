@@ -1,7 +1,7 @@
 export class Keyboard {
 
     constructor() {
-        document.documentElement.addEventListener("keydown", this.handleKeyPressEvents.bind(this), false);
+        document.documentElement.addEventListener("keydown", this.handleKeyPressEvents, false);
     }
 
     handleKeyPressEvents(evt) {
