@@ -19,11 +19,11 @@ export class Client {
         this.localMode = false;
         this.playerId = 0;
         this.playerName = "";
+        this.playerShipId = -1;
 
         window.engine = new Engine(this.mapRadius); // 12 files
         window.gameObjects = []; // 7 files
         window.gameObjectId = 0; // 8 files
-        window.playerShipId = -1; // client, keyboard, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
     }
 
@@ -49,7 +49,7 @@ export class Client {
             let playerIsAlive = false;        
 
             for (let x = 0; x < gameObjects.length; x++) {
-                if (gameObjects[x].Id == playerShipId) {
+                if (gameObjects[x].Id == this.playerShipId) {
                     playerIsAlive = true;
                 }
             }
@@ -67,7 +67,7 @@ export class Client {
         this.previousTimeStamp = currentTimeStamp;
         engine.update(this.commands, this.currentFrameRate);
         this.commands = [];
-        this.renderer.renderMap(this.playerId, this.playerName);
+        this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
         engine.removeSoundObjects();
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
@@ -93,7 +93,7 @@ export class Client {
                     alert(err);
                 } else {
                     gameMode = 'PLAY_MODE';
-                    playerShipId = res;
+                    this.playerShipId = res;
                 }
             });
         } else {
@@ -102,12 +102,13 @@ export class Client {
             playerShip.Name = this.playerName;
             playerShip.setStartingHumanPosition(this.mapRadius);
             gameObjects.push(playerShip);
-            playerShipId = playerShip.Id;
+            this.playerShipId = playerShip.Id;
         }
     }
 
     commandHandler(input) {
         this.commands.push(input);
+        input.targetId = this.playerShipId;
         if (!this.localMode) this.inputStream.emit('input', input);
     }
 }

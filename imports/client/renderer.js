@@ -191,7 +191,7 @@ export class Renderer {
     // This is dumb, I should be able to set a pointer when the player
     // is firts assigned a ship. It won't change after that until
     // the player dies and restarts
-    updatePlayerShip() {
+    updatePlayerShip(playerShipId) {
         for (let i = 0, j = gameObjects.length; i < j; i++) {
             if (gameObjects[i].Id == playerShipId) {
                 this.playerShip = gameObjects[i];
@@ -199,7 +199,7 @@ export class Renderer {
         }
     }
 
-    renderMap(playerId, playerName) {
+    renderMap(playerId, playerName, playerShipId) {
 
         this.playerId = playerId;
         this.playerName = playerName;
@@ -212,7 +212,7 @@ export class Renderer {
         this.map.canvas.width = this.availableWidth;
         this.map.canvas.height = this.availableHeight;
 
-        this.updatePlayerShip();
+        this.updatePlayerShip(playerShipId);
         this.updateCamera();
         this.updateLocationOffset();
         this.scrollTheBackground();
@@ -268,7 +268,7 @@ export class Renderer {
 
         this.map.save();
 
-        this.renderMiniMap();
+        this.renderMiniMap(playerShipId);
 
         if (gameMode == 'START_MODE') {
 
@@ -326,7 +326,7 @@ export class Renderer {
 
     }
 
-    renderMiniMap() {
+    renderMiniMap(playerShipId) {
     
         this.map.save();
 
@@ -366,7 +366,7 @@ export class Renderer {
 
         for (let i=0, j=gameObjects.length; i<j; i++) {
             if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
-                this.renderMiniShip(gameObjects[i]);
+                this.renderMiniShip(gameObjects[i], playerShipId);
             }
         }
 
@@ -375,7 +375,7 @@ export class Renderer {
         this.map.restore();
     }
 
-    renderMiniShip(ship) {
+    renderMiniShip(ship, playerShipId) {
     
         this.map.save();
 

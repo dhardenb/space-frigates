@@ -19,42 +19,42 @@ export class Keyboard {
         else if(evt.keyCode==18) {
             evt.preventDefault();
             if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 5, targetId: playerShipId});
+                client.commandHandler({command: 5});
             }
         }
         // SPACE_BAR - Fire
         else if(evt.keyCode == 32) {
             evt.preventDefault();
             if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 0, targetId: playerShipId});
+                client.commandHandler({command: 0});
             }
         }
         // LEFT_ARROW - Rotate CounterClockwise
         else if(evt.keyCode == 37) {
             evt.preventDefault();
             if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 1, targetId: playerShipId});
+                client.commandHandler({command: 1});
             }
         }
         // UP_ARROW - Forward Thruster
         else if(evt.keyCode==38) {
             evt.preventDefault();
             if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 2, targetId: playerShipId});
+                client.commandHandler({command: 2});
             }
         }
         // RIGHT_ARROW - Rotate Clockwise
         else if(evt.keyCode==39) {
             evt.preventDefault();
             if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 3, targetId: playerShipId});
+                client.commandHandler({command: 3});
             }
         }
         // DOWN_ARROW - Stop
         else if(evt.keyCode==40) {
             evt.preventDefault();
             if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 4, targetId: playerShipId});
+                client.commandHandler({command: 4});
             }
         }
         // A
@@ -65,7 +65,7 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 1, targetId: playerShipId});
+                client.commandHandler({command: 1});
             }
         }
         // D
@@ -76,7 +76,7 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 3, targetId: playerShipId});
+                client.commandHandler({command: 3});
             }
         }
         // S
@@ -87,7 +87,7 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 4, targetId: playerShipId});
+                client.commandHandler({command: 4});
             }
         }
         // W
@@ -98,7 +98,7 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 2, targetId: playerShipId});
+                client.commandHandler({command: 2});
             }
         }
         // User typing in name
