@@ -12,5 +12,5 @@ export class Player {
         this.Deaths = 0;
     }
 
-    update(framesPerSecond) {}
+    update(commands, framesPerSecond) {}
 }

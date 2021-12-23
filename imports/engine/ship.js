@@ -31,7 +31,7 @@ export class Ship {
         this.Capacitor = 100;
     }
 
-    determineCurrentCommand() {
+    determineCurrentCommand(commands) {
         this.currentCommand = null;
         for(let x = 0, y = commands.length; x < y; x++) {
             if (commands[x].targetId == this.Id) {
@@ -297,8 +297,8 @@ export class Ship {
         Physics.moveObjectAlongVector(this);
     }
 
-    update(framesPerSecond) {
-        this.determineCurrentCommand();
+    update(commands, framesPerSecond) {
+        this.determineCurrentCommand(commands);
         this.updateRector(framesPerSecond);
         this.updateSolarPanels(framesPerSecond);
         this.updateBrakes();

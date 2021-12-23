@@ -10,5 +10,5 @@ export class Sound {
         this.LocationY = sourceObject.LocationY;
     }
 
-    update(framesPerSecond) {}
+    update(commnads, framesPerSecond) {}
 }

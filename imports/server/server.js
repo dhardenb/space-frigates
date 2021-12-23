@@ -9,11 +9,11 @@ export class Server {
     constructor() {
         global.engine = new Engine();
         global.gameObjects = [];
-        global.commands = [];
         global.players = [];
         global.gameObjectId = 0;
         global.mapRadius = Meteor.settings.public.mapRadius;
 
+        this.commands = [];
         this.frameRate = Meteor.settings.private.frameRate;
         this.ai = new Ai();
         this.inputStream = new Meteor.Streamer('input');
@@ -35,15 +35,14 @@ export class Server {
     }
 
     setupStreamListeners() {
-        this.inputStream.on('input', function(input) {
-            commands.push(input);
-        });
+        this.inputStream.on('input', (input) => {this.commands.push(input)});
     }
 
     updateLoop() {
-        this.ai.createNewShip();
-        this.ai.issueCommands();
-        engine.update(1000 / this.frameRate);
+        this.ai.createNewShip(); 
+        this.ai.issueCommands(this.commands);
+        engine.update(this.commands, 1000 / this.frameRate);
+        this.commands = [];
         this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects}));
         engine.removeSoundObjects();
         this.updateId++;

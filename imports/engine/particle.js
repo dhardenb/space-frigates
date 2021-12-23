@@ -18,7 +18,7 @@ export class Particle {
         this.Fuel = Math.random() * 0.5;
     }
 
-    update(framesPerSecond) {
+    update(commands, framesPerSecond) {
         this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
         Physics.moveObjectAlongVector(this);
     }

@@ -21,12 +21,11 @@ export class Engine {
         return nextGameObjectId;
     }
 
-    update(framesPerSecond) {
+    update(commands, framesPerSecond) {
         // Can't pre calculate the length of the array because some of the command create new objects
         for (let i = 0; i < gameObjects.length; i++) {
-            gameObjects[i].update(framesPerSecond);
+            gameObjects[i].update(commands, framesPerSecond);
         }
-        commands = [];
         this.collisionDetection();
         this.boundryChecking();
         this.fuelDetection();

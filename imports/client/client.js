@@ -7,14 +7,15 @@ import {Ship} from '../engine/ship.js';
 export class Client {
 
     constructor() {
+
         window.engine = new Engine(); // 12 files
         window.gameObjects = []; // 7 files
-        window.commands = []; // 5 files
         window.gameObjectId = 0; // 8 files
         window.mapRadius = Meteor.settings.public.mapRadius; // 6 files
         window.playerShipId = -1; // client, keyboard, renderer
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
         
+        this.commands = [];
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
         this.renderer = new Renderer();
@@ -38,7 +39,7 @@ export class Client {
     }
 
     setupStreamListeners() {
-        this.outputStream.on('output', function(serverUpdate) {
+        this.outputStream.on('output', (serverUpdate) => {
             serverUpdate = Utilities.unpackGameState(serverUpdate);
             
             if (!this.localMode) {
@@ -64,7 +65,8 @@ export class Client {
     gameLoop(currentTimeStamp) {
         this.currentFrameRate = 1000 / (currentTimeStamp - this.previousTimeStamp);
         this.previousTimeStamp = currentTimeStamp;
-        engine.update(this.currentFrameRate);
+        engine.update(this.commands, this.currentFrameRate);
+        this.commands = [];
         this.renderer.renderMap(this.playerId, this.playerName);
         engine.removeSoundObjects();
         window.requestAnimationFrame(this.gameLoop.bind(this));
@@ -105,7 +107,7 @@ export class Client {
     }
 
     commandHandler(input) {
-        commands.push(input);
-        this.inputStream.emit('input', input);
+        this.commands.push(input);
+        if (!this.localMode) this.inputStream.emit('input', input);
     }
 }

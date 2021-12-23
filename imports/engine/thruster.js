@@ -22,7 +22,7 @@ export class Thruster {
         Physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
     }
 
-    update(framesPerSecond) {
+    update(commands, framesPerSecond) {
         this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
 	    Physics.moveObjectAlongVector(this);
     }

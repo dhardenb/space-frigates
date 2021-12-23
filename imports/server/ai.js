@@ -37,17 +37,17 @@ export class Ai {
         }
     }       
 
-    issueCommands() {
+    issueCommands(commands) {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].Type != 'Human') {
                 if (Math.floor((Math.random()*25)+1) == 1) {
-                    this.think(gameObjects[x]);
+                    this.think(commands, gameObjects[x]);
                 }
             }
         }
     }
 
-    think(gameObject) {
+    think(commands, gameObject) {
         let commandType = 0;
         if (gameObject.Type == 'Alpha') {
             switch (Math.floor(Math.random()*11+1)) {
