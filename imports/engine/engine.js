@@ -9,10 +9,10 @@ import {Utilities} from '../utilities/utilities.js';
 
 export class Engine {
 
-    constructor() {
+    constructor(mapRadius) {
         this.deadObjects = [];
-        this.mapRadius = Meteor.settings.public.mapRadius;
         this.explosionSize = 20;
+        this.mapRadius = mapRadius;
     }
 
     getNextGameObjectId() {

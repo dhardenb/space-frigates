@@ -7,24 +7,24 @@ import {Ship} from '../engine/ship.js';
 export class Client {
 
     constructor() {
-
-        window.engine = new Engine(); // 12 files
-        window.gameObjects = []; // 7 files
-        window.gameObjectId = 0; // 8 files
-        window.mapRadius = Meteor.settings.public.mapRadius; // 6 files
-        window.playerShipId = -1; // client, keyboard, renderer
-        window.gameMode = 'START_MODE'; // client, keyboard, renderer
         
+        this.mapRadius = Meteor.settings.public.mapRadius;
         this.commands = [];
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
-        this.renderer = new Renderer();
+        this.renderer = new Renderer(this.mapRadius);
         this.keyboard = new Keyboard();
         this.currentFrameRate = 0;
         this.previousTimeStamp = 0;
         this.localMode = false;
         this.playerId = 0;
         this.playerName = "";
+
+        window.engine = new Engine(this.mapRadius); // 12 files
+        window.gameObjects = []; // 7 files
+        window.gameObjectId = 0; // 8 files
+        window.playerShipId = -1; // client, keyboard, renderer
+        window.gameMode = 'START_MODE'; // client, keyboard, renderer
     }
 
     init() {
@@ -88,7 +88,7 @@ export class Client {
             }
 
         if (!this.localMode) {
-            Meteor.call('createNewPlayerShip', this.playerName, (err, res) => {
+            Meteor.call('createNewPlayerShip', this.playerName, this.mapRadius, (err, res) => {
                 if (err) {
                     alert(err);
                 } else {
@@ -100,7 +100,7 @@ export class Client {
             let playerShip = new Ship();
             playerShip.init('Human');
             playerShip.Name = this.playerName;
-            playerShip.setStartingHumanPosition();
+            playerShip.setStartingHumanPosition(this.mapRadius);
             gameObjects.push(playerShip);
             playerShipId = playerShip.Id;
         }

@@ -7,18 +7,19 @@ import {Utilities} from '../utilities/utilities.js';
 export class Server {
 
     constructor() {
-        global.engine = new Engine();
-        global.gameObjects = [];
-        global.players = [];
-        global.gameObjectId = 0;
-        global.mapRadius = Meteor.settings.public.mapRadius;
-
+        
+        this.mapRadius = Meteor.settings.public.mapRadius;
         this.commands = [];
         this.frameRate = Meteor.settings.private.frameRate;
-        this.ai = new Ai();
+        this.ai = new Ai(this.mapRadius);
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
         this.updateId = 0;
+
+        global.engine = new Engine(this.mapRadius);
+        global.gameObjects = [];
+        global.players = [];
+        global.gameObjectId = 0;
     }
 
     init() {
@@ -54,11 +55,11 @@ export class Server {
 }
 
 Meteor.methods({
-    createNewPlayerShip: function(name) {
+    createNewPlayerShip: function(name, mapRadius) {
         
         let playerShip = new Ship();
         playerShip.init('Human');
-        playerShip.setStartingHumanPosition();
+        playerShip.setStartingHumanPosition(mapRadius);
         gameObjects.push(playerShip);
 
         for (let i=0, j=gameObjects.length; i<j; i++) {

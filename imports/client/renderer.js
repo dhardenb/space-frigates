@@ -1,7 +1,7 @@
 import {Howl} from 'howler';
 
 export class Renderer {
-    constructor() {
+    constructor(mapRadius) {
         this.visualRange = 150;
         this.audioRange = 50;
         this.pixelsPerMeter = 0;
@@ -10,7 +10,7 @@ export class Renderer {
         this.availableHeight = 0;
         this.version = Meteor.settings.public.version;
         this.gameVolume = Meteor.settings.public.gameVolume;
-        this.mapRadius = Meteor.settings.public.mapRadius
+        this.mapRadius = mapRadius;
         this._ = require('lodash');
         this.playerShip = {};
         this.focalX = 0;

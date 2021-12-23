@@ -2,6 +2,10 @@ import {Ship} from '../engine/ship.js';
 
 export class Ai {
 
+    constructor(mapRadius) {
+        this.mapRadius = mapRadius;
+    }
+
     createNewShip() {
         let players = [];
         for (let i=0, j=gameObjects.length; i<j; i++) {
@@ -26,13 +30,13 @@ export class Ai {
         if (nextShipType == 1) {
             newAiShip = new Ship();
             newAiShip.init('Alpha');
-            newAiShip.setStartingAiPosition();
+            newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }
         else if (nextShipType == 2) {
             newAiShip = new Ship();
             newAiShip.init('Bravo');
-            newAiShip.setStartingAiPosition();
+            newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }
     }       

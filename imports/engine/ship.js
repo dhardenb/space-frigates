@@ -313,7 +313,7 @@ export class Ship {
         this.updateLocation(); 
     }
 
-    setStartingHumanPosition() {
+    setStartingHumanPosition(mapRadius) {
         const angle = Math.floor(Math.random() * 360);
         const distanceFromCenter = mapRadius / 2;
         if (angle == 0) {
@@ -355,7 +355,7 @@ export class Ship {
     }
 
     // I'll have to modify this to take in the players starting position...
-    setStartingAiPosition() {
+    setStartingAiPosition(mapRadius) {
         const angle = Math.floor(Math.random() * 360);
         const distanceFromCenter = Math.floor(Math.random() * mapRadius);
         if (angle == 0) {
