@@ -1,5 +1,9 @@
 export class Keyboard {
 
+    constructor() {
+        document.documentElement.addEventListener("keydown", this.handleKeyPressEvents.bind(this), false);
+    }
+
     handleKeyPressEvents(evt) {
         // BACKSPACE
         if (evt.keyCode == 8) {

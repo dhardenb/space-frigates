@@ -29,13 +29,8 @@ export class Client {
 
     init() {
         this.getPlayerId();
-        this.setupEventHandlers();
         this.setupStreamListeners();
         window.requestAnimationFrame(this.gameLoop.bind(this));
-    }
-
-    setupEventHandlers() {
-        document.documentElement.addEventListener("keydown", this.keyboard.handleKeyPressEvents.bind(this), false);
     }
 
     setupStreamListeners() {
