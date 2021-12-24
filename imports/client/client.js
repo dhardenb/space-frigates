@@ -23,7 +23,6 @@ export class Client {
 
         window.engine = new Engine(this.mapRadius); // 12 files
         window.gameObjects = []; // 7 files
-        window.gameObjectId = 0; // 8 files
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
     }
 

@@ -13,12 +13,11 @@ export class Engine {
         this.deadObjects = [];
         this.explosionSize = 20;
         this.mapRadius = mapRadius;
+        this.gameObjectId = 0;
     }
 
     getNextGameObjectId() {
-        const nextGameObjectId = gameObjectId;
-        gameObjectId++;
-        return nextGameObjectId;
+        return ++this.gameObjectId;
     }
 
     update(commands, framesPerSecond) {
