@@ -18,7 +18,6 @@ export class Server {
 
         global.engine = new Engine(this.mapRadius);
         global.gameObjects = [];
-        global.players = [];
     }
 
     init() {
