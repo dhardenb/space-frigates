@@ -6,6 +6,8 @@ import {Ship} from '../engine/ship.js';
 
 export class Client {
 
+    static gameMode = 'START_MODE';
+
     constructor() {
         
         this.mapRadius = Meteor.settings.public.mapRadius;
@@ -23,7 +25,6 @@ export class Client {
         this.engine = new Engine(this.mapRadius);
         
         window.gameObjects = []; // 7 files
-        window.gameMode = 'START_MODE'; // client, keyboard, renderer
     }
 
     init() {
@@ -49,9 +50,9 @@ export class Client {
             }
 
             if (playerIsAlive) {
-                gameMode = 'PLAY_MODE';
+                Client.gameMode = 'PLAY_MODE';
             } else {
-                gameMode = 'START_MODE';
+                Client.gameMode = 'START_MODE';
             }
         });
     }
@@ -86,7 +87,7 @@ export class Client {
                 if (err) {
                     alert(err);
                 } else {
-                    gameMode = 'PLAY_MODE';
+                    Client.gameMode = 'PLAY_MODE';
                     this.playerShipId = res;
                 }
             });

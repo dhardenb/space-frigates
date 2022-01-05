@@ -1,4 +1,5 @@
 import {Howl} from 'howler';
+import {Client} from './client.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -270,7 +271,7 @@ export class Renderer {
 
         this.renderMiniMap(playerShipId);
 
-        if (gameMode == 'START_MODE') {
+        if (Client.gameMode == 'START_MODE') {
 
             this.renderLeaderboard();
 
@@ -294,7 +295,7 @@ export class Renderer {
 
             this.renderEnergyInstructions();
 
-        } else if (gameMode == 'PLAY_MODE') {
+        } else if (Client.gameMode == 'PLAY_MODE') {
 
             this.renderLeaderboard();
 
@@ -761,7 +762,7 @@ export class Renderer {
 
     renderSound(sound) {
 
-        if (gameMode == 'PLAY_MODE') {
+        if (Client.gameMode == 'PLAY_MODE') {
 
             let distanceFromPlayersShip = 0;
 
