@@ -1,3 +1,4 @@
+import {Engine} from '../engine/engine.js';
 import {Missile} from './missile.js';
 import {Physics} from './physics.js';
 import {Sound} from './sound.js';
@@ -5,7 +6,8 @@ import {Thruster} from './thruster.js';
 
 export class Ship {
 
-    constructor() {
+    constructor(id) {
+        this.Id = id;
         this.Size = 8.0;
         this.MaxHullStrength = 100;
         this.ThrusterStrength = 100;
@@ -15,7 +17,6 @@ export class Ship {
     }       
 
     init(shipType) {
-        this.Id = engine.getNextGameObjectId();
         this.Type = shipType;
         this.Fuel = 1000;
         this.LocationX = 0;
@@ -145,7 +146,7 @@ export class Ship {
                 activateMissile = false;
             }
             if (activateMissile) {
-                const newMissile = new Missile();
+                const newMissile = new Missile(Engine.getNextGameObjectId());
                 newMissile.init(this);
                 gameObjects.push(newMissile);
                 const newSound = new Sound();
@@ -169,7 +170,7 @@ export class Ship {
             }
             if (activateThruster) {
                 Physics.findNewVelocity(this, this.Facing, 20);
-                const newThruster = new Thruster();
+                const newThruster = new Thruster(Engine.getNextGameObjectId());
                 newThruster.init(this);
                 gameObjects.push(newThruster);
             }

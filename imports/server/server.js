@@ -15,8 +15,8 @@ export class Server {
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
         this.updateId = 0;
+        this.engine = new Engine(this.mapRadius);
 
-        global.engine = new Engine(this.mapRadius);
         global.gameObjects = [];
     }
 
@@ -40,10 +40,10 @@ export class Server {
     updateLoop() {
         this.ai.createNewShip(); 
         this.ai.issueCommands(this.commands);
-        engine.update(this.commands, 1000 / this.frameRate);
+        this.engine.update(this.commands, 1000 / this.frameRate);
         this.commands = [];
         this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects}));
-        engine.removeSoundObjects();
+        this.engine.removeSoundObjects();
         this.updateId++;
     }
 
@@ -55,7 +55,7 @@ export class Server {
 Meteor.methods({
     createNewPlayerShip: function(name, mapRadius) {
         
-        let playerShip = new Ship();
+        let playerShip = new Ship(Engine.getNextGameObjectId());
         playerShip.init('Human');
         playerShip.setStartingHumanPosition(mapRadius);
         gameObjects.push(playerShip);

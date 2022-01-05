@@ -9,15 +9,16 @@ import {Utilities} from '../utilities/utilities.js';
 
 export class Engine {
 
+    static gameObjectId = 0;
+
     constructor(mapRadius) {
         this.deadObjects = [];
         this.explosionSize = 20;
         this.mapRadius = mapRadius;
-        this.gameObjectId = 0;
     }
 
-    getNextGameObjectId() {
-        return ++this.gameObjectId;
+    static getNextGameObjectId() {
+        return ++Engine.gameObjectId;
     }
 
     update(commands, framesPerSecond) {
@@ -92,14 +93,14 @@ export class Engine {
     }
 
     createDebris(sourceGameObject) {
-        const newDebris = new Debris();
+        const newDebris = new Debris(Engine.getNextGameObjectId());
         newDebris.init(sourceGameObject);
         gameObjects.push(newDebris);
     }
 
     createExplosion(sourceGameObject) {
         for (let i = 0; i < this.explosionSize; i++) {
-            const newParticle = new Particle();
+            const newParticle = new Particle(Engine.getNextGameObjectId());
             newParticle.init(sourceGameObject);
             gameObjects.push(newParticle);
         }

@@ -3,21 +3,20 @@ import {Utilities} from '../utilities/utilities.js';
 
 export class Debris {
     
-    // Still hate that I have to maintain a defaul
+    // Still hate that I have to maintain a default
     // constructor and init function to handle obejcts
     // created from scratch and objects cloned from
     // another object
     //
     // Size should probbaly be configurable
-    constructor() {
+    constructor(id) {
+        this.Id = id;
         this.Size = 4.0;
     }
 
     // Variable names need to be changed but can't do it
     // until I chnage them for ALL classes which is going
     // to be a major effort!
-    //
-    // Engine is a global, need to fix that!
     //
     // Need to remove the type object and use instanceof 
     // instead. Will also need to be done across all
@@ -32,7 +31,6 @@ export class Debris {
     // class. Will require all classes to be updated, a
     // major undertaking
     init(sourceObject) {
-        this.Id = engine.getNextGameObjectId();
         this.Type = "Debris";
         this.Fuel = sourceObject.Fuel;
         this.LocationX = sourceObject.LocationX;

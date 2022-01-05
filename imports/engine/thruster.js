@@ -2,7 +2,8 @@ import {Physics} from './physics.js';
 
 export class Thruster {
 
-    constructor() {
+    constructor(id) {
+        this.Id = id;
         this.Type = "Thruster";
         this.Size = 6.0;
         this.ThrusterOffset = 2.0;
@@ -11,7 +12,6 @@ export class Thruster {
     }
 
     init(sourceObject) {
-        this.Id = engine.getNextGameObjectId;
         this.LocationX = sourceObject.LocationX;
         this.LocationY = sourceObject.LocationY;
         this.Facing = sourceObject.Facing;

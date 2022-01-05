@@ -1,3 +1,4 @@
+import {Engine} from '../engine/engine.js';
 import {Ship} from '../engine/ship.js';
 
 export class Ai {
@@ -28,13 +29,13 @@ export class Ai {
         }
         let newAiShip;
         if (nextShipType == 1) {
-            newAiShip = new Ship();
+            newAiShip = new Ship(Engine.getNextGameObjectId());
             newAiShip.init('Alpha');
             newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }
         else if (nextShipType == 2) {
-            newAiShip = new Ship();
+            newAiShip = new Ship(Engine.getNextGameObjectId());
             newAiShip.init('Bravo');
             newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);

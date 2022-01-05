@@ -20,8 +20,8 @@ export class Client {
         this.playerId = 0;
         this.playerName = "";
         this.playerShipId = -1;
-
-        window.engine = new Engine(this.mapRadius); // 12 files
+        this.engine = new Engine(this.mapRadius);
+        
         window.gameObjects = []; // 7 files
         window.gameMode = 'START_MODE'; // client, keyboard, renderer
     }
@@ -37,7 +37,7 @@ export class Client {
             serverUpdate = Utilities.unpackGameState(serverUpdate);
             
             if (!this.localMode) {
-                gameObjects = engine.convertObjects(gameObjects, serverUpdate.gameState);
+                gameObjects = this.engine.convertObjects(gameObjects, serverUpdate.gameState);
             }  
 
             let playerIsAlive = false;        
@@ -59,10 +59,10 @@ export class Client {
     gameLoop(currentTimeStamp) {
         this.currentFrameRate = 1000 / (currentTimeStamp - this.previousTimeStamp);
         this.previousTimeStamp = currentTimeStamp;
-        engine.update(this.commands, this.currentFrameRate);
+        this.engine.update(this.commands, this.currentFrameRate);
         this.commands = [];
         this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
-        engine.removeSoundObjects();
+        this.engine.removeSoundObjects();
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
 
@@ -91,7 +91,7 @@ export class Client {
                 }
             });
         } else {
-            let playerShip = new Ship();
+            let playerShip = new Ship(Engine.getNextGameObjectId());
             playerShip.init('Human');
             playerShip.Name = this.playerName;
             playerShip.setStartingHumanPosition(this.mapRadius);

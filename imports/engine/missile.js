@@ -2,7 +2,8 @@ import {Physics} from './physics.js';
 
 export class Missile {
 
-	constructor() {
+	constructor(id) {
+		this.Id = id;
 		this.Type = "Missile";
 		this.Size = 3.0;
 		this.MissileLaunchOffset = 1.0;
@@ -12,7 +13,6 @@ export class Missile {
 	}
 
 	init(sourceObject) {										
-		this.Id = engine.getNextGameObjectId();
 		this.LocationX = sourceObject.LocationX;
 		this.LocationY = sourceObject.LocationY;
 		this.Facing = sourceObject.Facing;
