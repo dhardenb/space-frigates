@@ -1,25 +1,17 @@
 {
-	"public":
+  "public": {
+    "mapRadius": "750",
 
-		{
-			"mapRadius" : "1000",
+    "environment": "local",
 
-			"environment" : "local",
+    "version": "1.0.1",
 
-			"version" : "1.0.1",
+    "gameVolume": "0.25"
+  },
 
-			"gameVolume": "0.25"
+  "private": {
+    "frameRate": "16.67",
 
-		},
-
-	"private":
-
-		{
-
-			"frameRate" : "16.67",
-
-			"messageOutputRate" : "16.67"
-
-		}
-
+    "messageOutputRate": "16.67"
+  }
 }
