@@ -10,7 +10,8 @@ export class Server {
         
         this.mapRadius = Meteor.settings.public.mapRadius;
         this.commands = [];
-        this.frameRate = Meteor.settings.private.frameRate;
+        this.frameRate = Number(Meteor.settings.private.frameRate) || 60;
+        this.tickIntervalMs = 1000 / this.frameRate;
         this.ai = new Ai(this.mapRadius);
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
@@ -40,7 +41,7 @@ export class Server {
     updateLoop() {
         this.ai.createNewShip(); 
         this.ai.issueCommands(this.commands);
-        this.engine.update(this.commands, 1000 / this.frameRate);
+        this.engine.update(this.commands, this.frameRate);
         this.commands = [];
         this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects}));
         this.engine.removeSoundObjects();
@@ -48,7 +49,7 @@ export class Server {
     }
 
     startPhysicsLoop() {
-        setInterval(this.updateLoop.bind(this), this.frameRate);
+        setInterval(this.updateLoop.bind(this), this.tickIntervalMs);
     }
 }
 
