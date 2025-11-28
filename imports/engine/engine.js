@@ -160,45 +160,74 @@ export class Engine {
     }
 
     convertObjects(localGameObjects, remoteGameObjects) {
-        // Should change this from a global to class property
-        let convertedObjects = [];
-        for (let x = 0, y = remoteGameObjects.length; x < y; x++) {
-            if (remoteGameObjects[x].Type == 'Player') {
-                const newPlayer = Object.assign(new Player, remoteGameObjects[x]);
-                convertedObjects.push(newPlayer);
+        // Reconcile remote snapshots into the existing array to avoid thrashing
+        const constructors = {
+            Player: Player,
+            Human: Ship,
+            Alpha: Ship,
+            Bravo: Ship,
+            Missile: Missile,
+            Debris: Debris,
+            Sound: Sound,
+            Thruster: Thruster
+        };
+
+        const managedTypes = new Set(Object.keys(constructors));
+        const existingById = new Map();
+        const preservedObjects = [];
+        for (let i = 0; i < localGameObjects.length; i++) {
+            const obj = localGameObjects[i];
+
+            if (!obj || !obj.Type) {
+                continue;
             }
-            else if (remoteGameObjects[x].Type == 'Human' || remoteGameObjects[x].Type == 'Alpha' || remoteGameObjects[x].Type == 'Bravo') {
-                const newShip = Object.assign(new Ship, remoteGameObjects[x]);
-                convertedObjects.push(newShip);
+
+            if (!managedTypes.has(obj.Type)) {
+                preservedObjects.push(obj);
+                continue;
             }
-            else if (remoteGameObjects[x].Type == 'Missile') {
-                const newMissile = Object.assign(new Missile, remoteGameObjects[x]);
-                convertedObjects.push(newMissile);
-            }
-            else if (remoteGameObjects[x].Type == 'Debris') {
-                const newDebris = Object.assign(new Debris, remoteGameObjects[x]);
-                convertedObjects.push(newDebris);
-            }
-            else if (remoteGameObjects[x].Type == 'Sound') {
-                const newSound = Object.assign(new Sound, remoteGameObjects[x]);
-                convertedObjects.push(newSound);
-            }
-            else if (remoteGameObjects[x].Type == 'Thruster') {
-                const newThruster = Object.assign(new Thruster, remoteGameObjects[x]);
-                convertedObjects.push(newThruster);
+
+            if (obj && typeof obj.Id !== 'undefined') {
+                existingById.set(obj.Id, obj);
             }
         }
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Player");
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Human");
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Alpha");
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Bravo");
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Missile");
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Debris");
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Sound");
-        localGameObjects = Utilities.removeByAttr(localGameObjects, "Type", "Thruster");
-        for (let i = 0; i < convertedObjects.length; i++) {
-            localGameObjects.push(convertedObjects[i]);
+
+        const mergedObjects = [];
+        for (let i = 0; i < remoteGameObjects.length; i++) {
+            const remoteObject = remoteGameObjects[i];
+            const ctor = constructors[remoteObject.Type];
+
+            if (!ctor) {
+                continue;
+            }
+
+            const hasStableId = typeof remoteObject.Id !== 'undefined';
+            let instance = null;
+
+            if (hasStableId && existingById.has(remoteObject.Id)) {
+                const candidate = existingById.get(remoteObject.Id);
+                if (candidate && candidate.Type === remoteObject.Type) {
+                    instance = candidate;
+                }
+            }
+
+            if (instance) {
+                Object.assign(instance, remoteObject);
+            } else {
+                instance = Object.assign(new ctor(), remoteObject);
+            }
+
+            mergedObjects.push(instance);
         }
+
+        localGameObjects.length = 0;
+        for (let i = 0; i < mergedObjects.length; i++) {
+            localGameObjects.push(mergedObjects[i]);
+        }
+        for (let i = 0; i < preservedObjects.length; i++) {
+            localGameObjects.push(preservedObjects[i]);
+        }
+
         return localGameObjects;
     }
 
