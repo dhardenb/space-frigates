@@ -88,3 +88,7 @@ Would be really nice to increase the decrese the volume of sound effects based o
 
 Woud be really nice to provide volume and mute controls to the GUI
 
+## Network Event Stream
+
+The snapshot sent from the server now carries a lightweight `events` array. Each entry describes a one-off action the client could not infer locally (currently `ShipDestroyed`). The server records these events while running the authoritative physics simulation and includes them in the packed payload; the client replays them right after reconciling the snapshot so visuals such as remote explosions still occur even when the responsible ship never existed locally.
+

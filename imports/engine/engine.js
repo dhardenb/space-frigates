@@ -15,6 +15,7 @@ export class Engine {
         this.deadObjects = [];
         this.explosionSize = 20;
         this.mapRadius = mapRadius;
+        this.eventRecorder = null;
     }
 
     static getNextGameObjectId() {
@@ -58,6 +59,7 @@ export class Engine {
                                 this.deadObjects.push(solidObjects[k]);
                                 this.scoreDeath(solidObjects[k].Id);
                                 this.scoreKill(solidObjects[i].Owner);
+                                this.recordShipDestroyed(solidObjects[k]);
                             }
                             break;
                             // Ship hit by debris
@@ -77,6 +79,7 @@ export class Engine {
                             if (solidObjects[k].Type != "Debris") {
                                 this.createExplosion(solidObjects[k]);
                                 this.scoreDeath(solidObjects[k].Id);
+                                this.recordShipDestroyed(solidObjects[k]);
                             }
                             // I created this array of objects to remove because removing objects from
                             // an array while you are still iterating over the same array is generaly
@@ -109,6 +112,7 @@ export class Engine {
     fuelDetection() {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].Fuel < 0) {
+                this.recordShipDestroyed(gameObjects[x]);
                 this.deadObjects.push(gameObjects[x]);
             }
         }
@@ -135,6 +139,7 @@ export class Engine {
                     this.createExplosion(solidObjects[x]);
                     this.scoreDeath(solidObjects[x].Id);
                     this.deadObjects.push(solidObjects[x]);
+                    this.recordShipDestroyed(solidObjects[x]);
                 }
             }
         this.removeDeadObjects();
@@ -229,6 +234,30 @@ export class Engine {
         }
 
         return localGameObjects;
+    }
+
+    setEventRecorder(recorder) {
+        this.eventRecorder = recorder;
+    }
+
+    recordEvent(event) {
+        if (typeof this.eventRecorder === 'function' && event) {
+            this.eventRecorder(event);
+        }
+    }
+
+    recordShipDestroyed(gameObject) {
+        if (!gameObject) {
+            return;
+        }
+        if (gameObject.Type == 'Human' || gameObject.Type == 'Alpha' || gameObject.Type == 'Bravo') {
+            this.recordEvent({
+                type: 'ShipDestroyed',
+                shipId: gameObject.Id,
+                locationX: gameObject.LocationX,
+                locationY: gameObject.LocationY
+            });
+        }
     }
 
     scoreKill(shipId) {

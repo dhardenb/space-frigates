@@ -133,6 +133,28 @@ export class Utilities {
 
         }
 
+        //////////////////
+        // Event Stream //
+        //////////////////
+
+        packedGameState.push([]);
+
+        if (unpackedGameState.events && unpackedGameState.events.length) {
+            for (let i = 0; i < unpackedGameState.events.length; i++) {
+                const event = unpackedGameState.events[i];
+                const packedEvent = [];
+                packedEvent.push(event.type);
+
+                if (event.type == 'ShipDestroyed') {
+                    packedEvent.push(event.shipId);
+                    packedEvent.push(event.locationX);
+                    packedEvent.push(event.locationY);
+                }
+
+                packedGameState[2].push(packedEvent);
+            }
+        }
+
         return packedGameState;
 
     }
@@ -247,6 +269,29 @@ export class Utilities {
 
             }
 
+        }
+
+        //////////////////
+        // Event Stream //
+        //////////////////
+
+        unpackedGameState.events = [];
+
+        if (packedGameState[2]) {
+            for (let i = 0; i < packedGameState[2].length; i++) {
+                const packedEvent = packedGameState[2][i];
+                const event = {};
+
+                event.type = packedEvent[0];
+
+                if (event.type == 'ShipDestroyed') {
+                    event.shipId = packedEvent[1];
+                    event.locationX = packedEvent[2];
+                    event.locationY = packedEvent[3];
+                }
+
+                unpackedGameState.events.push(event);
+            }
         }
 
         return unpackedGameState;

@@ -17,6 +17,8 @@ export class Server {
         this.outputStream = new Meteor.Streamer('output');
         this.updateId = 0;
         this.engine = new Engine(this.mapRadius);
+        this.pendingEvents = [];
+        this.engine.setEventRecorder(this.recordEvent.bind(this));
 
         global.gameObjects = [];
     }
@@ -38,12 +40,18 @@ export class Server {
         this.inputStream.on('input', (input) => {this.commands.push(input)});
     }
 
+    recordEvent(event) {
+        this.pendingEvents.push(event);
+    }
+
     updateLoop() {
         this.ai.createNewShip(); 
         this.ai.issueCommands(this.commands);
         this.engine.update(this.commands, this.frameRate);
         this.commands = [];
-        this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects}));
+        const eventsToSend = this.pendingEvents;
+        this.pendingEvents = [];
+        this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects, events: eventsToSend}));
         this.engine.removeSoundObjects();
         this.updateId++;
     }
