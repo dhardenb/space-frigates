@@ -120,6 +120,10 @@ adding the attributes via a style sheet.*/
 	color: #fff;
 }
 
+.debug-overlay__control input[type="range"] {
+	width: 100%;
+}
+
 .debug-overlay__actions {
 	display: flex;
 	gap: 8px;

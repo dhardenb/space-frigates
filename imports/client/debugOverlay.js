@@ -1,14 +1,19 @@
 export class DebugOverlay {
 
-    constructor({environment = 'prod', onApplyThrottle} = {}) {
+    constructor({environment = 'prod', onApplyThrottle, onZoomChange, initialZoom = 1, zoomBounds, onZoomDelta} = {}) {
         this.environment = environment;
         this.onApplyThrottle = onApplyThrottle;
+        this.onZoomChange = onZoomChange;
+        this.onZoomDelta = onZoomDelta;
+        this.zoomBounds = Object.assign({min: 0.5, max: 2.5}, zoomBounds);
+        this.zoomValue = Number.isFinite(initialZoom) ? initialZoom : 1;
         this.refreshCallback = null;
         this.visible = false;
         this.lastKnownThrottle = null;
         this.dom = this.getDomHandles();
         this.enabled = this.environment !== 'prod' && this.dom.overlay && this.dom.toggle;
         this.boundKeyHandler = this.handleKeyDown.bind(this);
+        this.boundWheelHandler = this.handleWheel.bind(this);
 
         if (!this.enabled) {
             this.teardownDom();
@@ -31,7 +36,10 @@ export class DebugOverlay {
             throttleInterval: document.getElementById('debug-throttle-interval'),
             apply: document.getElementById('debug-apply-throttle'),
             refresh: document.getElementById('debug-refresh-throttle'),
-            status: document.getElementById('debug-throttle-status')
+            status: document.getElementById('debug-throttle-status'),
+            zoomSlider: document.getElementById('debug-zoom'),
+            zoomValue: document.getElementById('debug-zoom-value'),
+            zoomReset: document.getElementById('debug-zoom-reset')
         };
     }
 
@@ -51,11 +59,14 @@ export class DebugOverlay {
         this.dom.apply.addEventListener('click', () => this.requestApply());
         this.dom.refresh.addEventListener('click', () => this.requestRefresh());
         document.addEventListener('keydown', this.boundKeyHandler);
+        window.addEventListener('wheel', this.boundWheelHandler, {passive: false});
+        this.initializeZoomControls();
         this.hide(); // ensure consistent initial state
     }
 
     destroy() {
         document.removeEventListener('keydown', this.boundKeyHandler);
+        window.removeEventListener('wheel', this.boundWheelHandler, {passive: false});
     }
 
     isAvailable() {
@@ -97,6 +108,33 @@ export class DebugOverlay {
         if (event.key === 'F2') {
             event.preventDefault();
             this.toggleVisibility();
+            return;
+        }
+        if (!this.enabled) {
+            return;
+        }
+        if (event.key === '+' || event.key === '=' || event.key === '-') {
+            event.preventDefault();
+            const delta = (event.key === '-' ? -1 : 1) * 0.15;
+            this.applyZoomDelta(delta);
+        }
+    }
+
+    handleWheel(event) {
+        if (!this.enabled) {
+            return;
+        }
+        if (!event.ctrlKey) {
+            return;
+        }
+        event.preventDefault();
+        const delta = event.deltaY > 0 ? -0.05 : 0.05;
+        this.applyZoomDelta(delta);
+    }
+
+    applyZoomDelta(delta) {
+        if (typeof this.onZoomDelta === 'function') {
+            this.onZoomDelta(delta);
         }
     }
 
@@ -119,6 +157,63 @@ export class DebugOverlay {
 
         this.setStatus('Applying throttle settings…', 'info');
         this.onApplyThrottle(payload);
+    }
+
+    initializeZoomControls() {
+        if (!this.dom.zoomSlider) {
+            return;
+        }
+
+        const minZoom = Number(this.zoomBounds.min) || 0.5;
+        const maxZoom = Number(this.zoomBounds.max) || 2.5;
+        this.dom.zoomSlider.min = minZoom;
+        this.dom.zoomSlider.max = maxZoom;
+        if (!this.dom.zoomSlider.step) {
+            this.dom.zoomSlider.step = 0.05;
+        }
+        this.dom.zoomSlider.value = this.clampZoom(this.zoomValue);
+        this.setZoomDisplay(this.zoomValue);
+
+        this.dom.zoomSlider.addEventListener('input', (event) => {
+            const parsed = Number(event.target.value);
+            if (!Number.isFinite(parsed)) {
+                return;
+            }
+            const clamped = this.clampZoom(parsed);
+            event.target.value = clamped;
+            this.setZoomDisplay(clamped);
+            if (typeof this.onZoomChange === 'function') {
+                this.onZoomChange(clamped);
+            }
+        });
+
+        if (this.dom.zoomReset) {
+            this.dom.zoomReset.addEventListener('click', () => {
+                const defaultZoom = 1;
+                this.dom.zoomSlider.value = this.clampZoom(defaultZoom);
+                this.setZoomDisplay(defaultZoom);
+                if (typeof this.onZoomChange === 'function') {
+                    this.onZoomChange(defaultZoom);
+                }
+            });
+        }
+    }
+
+    clampZoom(value) {
+        if (!Number.isFinite(value)) {
+            return this.zoomValue;
+        }
+        const minZoom = Number(this.zoomBounds.min) || 0.5;
+        const maxZoom = Number(this.zoomBounds.max) || 2.5;
+        const clamped = Math.min(maxZoom, Math.max(minZoom, value));
+        this.zoomValue = clamped;
+        return clamped;
+    }
+
+    setZoomDisplay(value) {
+        if (this.dom.zoomValue) {
+            this.dom.zoomValue.textContent = `${value.toFixed(2)}x`;
+        }
     }
 
     parseInterval(value) {

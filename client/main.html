@@ -50,6 +50,19 @@
             <p id="debug-throttle-status" class="debug-overlay__status" role="status"></p>
         </div>
 
+        <div class="debug-overlay__section">
+            <h3>Renderer</h3>
+            <label class="debug-overlay__control">
+                Zoom
+                <input type="range" id="debug-zoom" min="0.5" max="2.5" step="0.05">
+            </label>
+            <div class="debug-overlay__stat">Current: <span id="debug-zoom-value">1.00x</span></div>
+            <div class="debug-overlay__actions">
+                <button id="debug-zoom-reset" type="button">Reset</button>
+            </div>
+            <p class="debug-overlay__hint">Scroll or +/- to adjust zoom.</p>
+        </div>
+
         <p class="debug-overlay__hint">Press F2 or use the Debug button to toggle this panel.</p>
     </section>
 

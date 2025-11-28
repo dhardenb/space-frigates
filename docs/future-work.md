@@ -1,5 +1,19 @@
 ## Future Work Backlog
 
+### Renderer Optimizations
+
+1. **Cache procedural ship art**
+   - Render the animated human ship into an offscreen canvas (or `OffscreenCanvas`) at a canonical scale/rotation, then draw that bitmap with `drawImage` for each instance. This amortizes the cost of gradients, shadows, and path construction across frames, trading CPU paint work for cheap GPU blits.
+
+2. **Reduce expensive filters**
+   - Replace the blur-based ground shadow with a pre-rendered sprite or a simple alpha ellipse so the main render loop avoids `ctx.filter = "blur(...)"`, which forces extra GPU passes each frame.
+
+3. **Adaptive animation detail**
+   - Skip or throttle running-light/engine flicker updates for distant ships or every other frame, reducing the number of gradient/glow calculations when the ship occupies only a few screen pixels.
+
+4. **Reuse gradients and paths**
+   - Move static gradients (fuselage metal, canopy base colors) and frequently used `Path2D`s into cached objects so they aren’t recreated on every draw call, lowering garbage generation and JS execution time.
+
 ### Network Optimization
 
 1. **Client-side interpolation/extrapolation**

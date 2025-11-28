@@ -175,7 +175,11 @@ export class Client {
     setupDebugOverlay() {
         this.debugOverlay = new DebugOverlay({
             environment: Meteor.settings.public.environment,
-            onApplyThrottle: this.applyNetworkThrottle.bind(this)
+            onApplyThrottle: this.applyNetworkThrottle.bind(this),
+            onZoomChange: (value) => this.renderer.setZoomFactor(value),
+            onZoomDelta: (delta) => this.adjustZoom(delta),
+            initialZoom: this.renderer.getZoomFactor(),
+            zoomBounds: this.renderer.getZoomBounds()
         });
 
         if (!this.debugOverlay.isAvailable()) {
@@ -185,6 +189,20 @@ export class Client {
 
         this.debugOverlay.setRefreshCallback(() => this.fetchNetworkThrottleState());
         this.fetchNetworkThrottleState();
+    }
+
+    adjustZoom(delta) {
+        if (!Number.isFinite(delta) || delta === 0) {
+            return;
+        }
+        const current = this.renderer.getZoomFactor();
+        const next = current + delta;
+        this.renderer.setZoomFactor(next);
+        if (this.debugOverlay && this.debugOverlay.dom && this.debugOverlay.dom.zoomSlider) {
+            const clamped = this.renderer.getZoomFactor();
+            this.debugOverlay.dom.zoomSlider.value = clamped;
+            this.debugOverlay.setZoomDisplay(clamped);
+        }
     }
 
     fetchNetworkThrottleState() {
