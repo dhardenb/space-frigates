@@ -14,4 +14,41 @@
 
     <canvas id="background"></canvas>
 
+    <button id="debug-toggle" class="debug-toggle hidden" type="button" aria-controls="debug-overlay" aria-expanded="false">
+        Debug
+    </button>
+
+    <section id="debug-overlay" class="debug-overlay hidden" aria-live="polite">
+        <header class="debug-overlay__header">
+            <h2>Debug Tools</h2>
+            <button id="debug-close" class="debug-overlay__close" type="button" aria-label="Close debug overlay">
+                ×
+            </button>
+        </header>
+
+        <div class="debug-overlay__section">
+            <div class="debug-overlay__stat">FPS: <span id="debug-fps">0</span></div>
+            <div class="debug-overlay__stat">Last Server Update: <span id="debug-update-id">–</span></div>
+        </div>
+
+        <div class="debug-overlay__section">
+            <h3>Network Throttle</h3>
+            <label class="debug-overlay__control">
+                <input type="checkbox" id="debug-throttle-enabled">
+                <span>Enabled</span>
+            </label>
+            <label class="debug-overlay__control">
+                Interval (ms)
+                <input type="number" id="debug-throttle-interval" min="16" step="1" inputmode="numeric">
+            </label>
+            <div class="debug-overlay__actions">
+                <button id="debug-apply-throttle" type="button">Apply</button>
+                <button id="debug-refresh-throttle" type="button">Refresh</button>
+            </div>
+            <p id="debug-throttle-status" class="debug-overlay__status" role="status"></p>
+        </div>
+
+        <p class="debug-overlay__hint">Press F2 or use the Debug button to toggle this panel.</p>
+    </section>
+
 </body>

@@ -3,6 +3,7 @@ import {Keyboard} from './keyboard.js';
 import {Renderer} from './renderer.js';
 import {Utilities} from '../utilities/utilities.js';
 import {Ship} from '../engine/ship.js';
+import {DebugOverlay} from './debugOverlay.js';
 
 export class Client {
 
@@ -27,6 +28,8 @@ export class Client {
         this.playerName = "";
         this.playerShipId = -1;
         this.engine = new Engine(this.mapRadius);
+        this.debugOverlay = null;
+        this.lastServerUpdateId = null;
         
         window.gameObjects = []; // 7 files
     }
@@ -34,12 +37,14 @@ export class Client {
     init() {
         this.getPlayerId();
         this.setupStreamListeners();
+        this.setupDebugOverlay();
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
 
     setupStreamListeners() {
         this.outputStream.on('output', (serverUpdate) => {
             serverUpdate = Utilities.unpackGameState(serverUpdate);
+            this.lastServerUpdateId = serverUpdate.update && serverUpdate.update.id ? serverUpdate.update.id : null;
             
             if (!this.localMode) {
                 gameObjects = this.engine.convertObjects(gameObjects, serverUpdate.gameState);
@@ -88,6 +93,12 @@ export class Client {
         this.commands = [];
         this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
         this.engine.removeSoundObjects();
+        if (this.debugOverlay) {
+            this.debugOverlay.updateStats({
+                fps: this.currentFrameRate,
+                updateId: this.lastServerUpdateId
+            });
+        }
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
 
@@ -146,5 +157,60 @@ export class Client {
         this.commands.push(input);
         input.targetId = this.playerShipId;
         if (!this.localMode) this.inputStream.emit('input', input);
+    }
+
+    setupDebugOverlay() {
+        this.debugOverlay = new DebugOverlay({
+            environment: Meteor.settings.public.environment,
+            onApplyThrottle: this.applyNetworkThrottle.bind(this)
+        });
+
+        if (!this.debugOverlay.isAvailable()) {
+            this.debugOverlay = null;
+            return;
+        }
+
+        this.debugOverlay.setRefreshCallback(() => this.fetchNetworkThrottleState());
+        this.fetchNetworkThrottleState();
+    }
+
+    fetchNetworkThrottleState() {
+        if (!this.debugOverlay) {
+            return;
+        }
+
+        Meteor.call('getNetworkThrottle', (err, res) => {
+            if (err) {
+                this.debugOverlay.setStatus(err.message || 'Failed to load throttle state', 'error');
+            } else {
+                this.debugOverlay.setThrottleState(res);
+            }
+        });
+    }
+
+    applyNetworkThrottle(payload) {
+        if (!this.debugOverlay) {
+            return;
+        }
+
+        const request = {};
+        if (typeof payload.enabled === 'boolean') {
+            request.enabled = payload.enabled;
+        }
+
+        if (!Number.isFinite(payload.intervalMs) || payload.intervalMs <= 0) {
+            this.debugOverlay.setStatus('Enter a valid interval greater than 0 milliseconds.', 'error');
+            return;
+        }
+
+        request.intervalMs = payload.intervalMs;
+
+        Meteor.call('setNetworkThrottle', request, (err, res) => {
+            if (err) {
+                this.debugOverlay.setStatus(err.message || 'Throttle update failed', 'error');
+            } else {
+                this.debugOverlay.setThrottleState(res);
+            }
+        });
     }
 }

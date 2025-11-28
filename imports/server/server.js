@@ -6,6 +6,10 @@ import {Utilities} from '../utilities/utilities.js';
 
 export class Server {
 
+    static getInstance() {
+        return Server.instance;
+    }
+
     constructor() {
         
         this.mapRadius = Meteor.settings.public.mapRadius;
@@ -18,9 +22,22 @@ export class Server {
         this.updateId = 0;
         this.engine = new Engine(this.mapRadius);
         this.pendingEvents = [];
+        this.eventBuffer = [];
         this.engine.setEventRecorder(this.recordEvent.bind(this));
+        this.lastBroadcastAt = 0;
+
+        const configuredInterval = Number(Meteor.settings.private && Meteor.settings.private.messageOutputRate);
+        const hasCustomInterval = Number.isFinite(configuredInterval) && configuredInterval > 0;
+        const sanitizedInterval = hasCustomInterval ? Math.max(configuredInterval, this.tickIntervalMs) : this.tickIntervalMs;
+
+        this.defaultNetworkIntervalMs = sanitizedInterval;
+        this.networkThrottle = {
+            enabled: hasCustomInterval,
+            intervalMs: sanitizedInterval
+        };
 
         global.gameObjects = [];
+        Server.instance = this;
     }
 
     init() {
@@ -44,14 +61,70 @@ export class Server {
         this.pendingEvents.push(event);
     }
 
+    flushPendingEventsIntoBuffer() {
+        if (this.pendingEvents.length) {
+            Array.prototype.push.apply(this.eventBuffer, this.pendingEvents);
+        }
+        this.pendingEvents = [];
+    }
+
+    shouldEmitSnapshot(now) {
+        if (!this.networkThrottle.enabled) {
+            return true;
+        }
+        if (!this.lastBroadcastAt) {
+            return true;
+        }
+        return (now - this.lastBroadcastAt) >= this.networkThrottle.intervalMs;
+    }
+
+    getEffectiveNetworkInterval() {
+        return this.networkThrottle.enabled ? this.networkThrottle.intervalMs : this.tickIntervalMs;
+    }
+
+    getNetworkThrottleState() {
+        return {
+            enabled: this.networkThrottle.enabled,
+            intervalMs: this.networkThrottle.intervalMs,
+            effectiveIntervalMs: this.getEffectiveNetworkInterval(),
+            defaultIntervalMs: this.defaultNetworkIntervalMs,
+            tickIntervalMs: this.tickIntervalMs
+        };
+    }
+
+    setNetworkThrottleState(patch = {}) {
+        const nextState = {
+            enabled: this.networkThrottle.enabled,
+            intervalMs: this.networkThrottle.intervalMs
+        };
+
+        if (typeof patch.enabled === 'boolean') {
+            nextState.enabled = patch.enabled;
+        }
+
+        if (typeof patch.intervalMs === 'number' && Number.isFinite(patch.intervalMs) && patch.intervalMs > 0) {
+            nextState.intervalMs = Math.max(patch.intervalMs, this.tickIntervalMs);
+        }
+
+        this.networkThrottle = nextState;
+        return this.getNetworkThrottleState();
+    }
+
     updateLoop() {
         this.ai.createNewShip(); 
         this.ai.issueCommands(this.commands);
         this.engine.update(this.commands, this.frameRate);
         this.commands = [];
-        const eventsToSend = this.pendingEvents;
-        this.pendingEvents = [];
-        this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects, events: eventsToSend}));
+        this.flushPendingEventsIntoBuffer();
+
+        const now = Date.now();
+        if (this.shouldEmitSnapshot(now)) {
+            const eventsToSend = this.eventBuffer;
+            this.eventBuffer = [];
+            this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects, events: eventsToSend}));
+            this.lastBroadcastAt = now;
+        }
+
         this.engine.removeSoundObjects();
         this.updateId++;
     }
@@ -60,6 +133,8 @@ export class Server {
         setInterval(this.updateLoop.bind(this), this.tickIntervalMs);
     }
 }
+
+Server.instance = null;
 
 Meteor.methods({
     createNewPlayerShip: function(name, mapRadius) {
@@ -83,6 +158,42 @@ Meteor.methods({
 
     getPlayerId: function() {
         return this.connection.id;
+    },
+
+    getNetworkThrottle: function() {
+        const server = Server.getInstance();
+        if (!server) {
+            throw new Meteor.Error('server-unavailable', 'Server not initialized');
+        }
+
+        return server.getNetworkThrottleState();
+    },
+
+    setNetworkThrottle: function(options) {
+        const server = Server.getInstance();
+        if (!server) {
+            throw new Meteor.Error('server-unavailable', 'Server not initialized');
+        }
+
+        const environment = Meteor.settings.public && Meteor.settings.public.environment ? Meteor.settings.public.environment : 'prod';
+        if (environment === 'prod') {
+            throw new Meteor.Error('not-authorized', 'Network throttling controls are disabled in production.');
+        }
+
+        const sanitizedOptions = {};
+        if (options && typeof options.enabled !== 'undefined') {
+            sanitizedOptions.enabled = Boolean(options.enabled);
+        }
+
+        if (options && typeof options.intervalMs !== 'undefined') {
+            const interval = Number(options.intervalMs);
+            if (!Number.isFinite(interval) || interval <= 0) {
+                throw new Meteor.Error('invalid-input', 'intervalMs must be a number greater than 0.');
+            }
+            sanitizedOptions.intervalMs = interval;
+        }
+
+        return server.setNetworkThrottleState(sanitizedOptions);
     }
     
 });

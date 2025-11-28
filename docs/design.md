@@ -92,3 +92,9 @@ Woud be really nice to provide volume and mute controls to the GUI
 
 The snapshot sent from the server now carries a lightweight `events` array. Each entry describes a one-off action the client could not infer locally (currently `ShipDestroyed`). The server records these events while running the authoritative physics simulation and includes them in the packed payload; the client replays them right after reconciling the snapshot so visuals such as remote explosions still occur even when the responsible ship never existed locally.
 
+### Network Throttling
+
+- `Meteor.settings.private.messageOutputRate` is interpreted as the desired outbound snapshot interval in milliseconds. When omitted or invalid the system falls back to the physics tick interval (`1000 / frameRate`), effectively disabling throttling.
+- The physics loop never slows down; instead the server buffers authoritative events and only emits packed snapshots when the throttling interval has elapsed. Each physics tick still increments `updateId`, so clients may skip ids when throttling is active.
+- Outside of production you can toggle the new debug overlay (F2 or the **Debug** button) to enable/disable throttling at runtime or edit the interval without restarting the server. Runtime overrides are ephemeral and revert to the configured default when the server restarts.
+
