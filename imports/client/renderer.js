@@ -1,3 +1,154 @@
+const AI_BASE_LENGTH = 240;
+const AI_SHELL_POINTS = [];
+const AI_HEAD_POINTS = [];
+const AI_TAIL_POINTS = [];
+const AI_SCUTES = [];
+const AI_RIM_LIGHTS = [];
+const AI_SIDE_ROWS = [
+    {y: -70, x: 95, w: 70, h: 50},
+    {y: -28, x: 118, w: 76, h: 56},
+    {y: 18, x: 126, w: 78, h: 58},
+    {y: 66, x: 104, w: 72, h: 52}
+];
+
+function buildAiGeometry() {
+    AI_SHELL_POINTS.length = 0;
+    AI_HEAD_POINTS.length = 0;
+    AI_TAIL_POINTS.length = 0;
+    AI_SCUTES.length = 0;
+    AI_RIM_LIGHTS.length = 0;
+
+    const rnd = (seed => {
+        let s = seed >>> 0;
+        return () => {
+            s ^= (s << 13) >>> 0;
+            s ^= (s >>> 17) >>> 0;
+            s ^= (s << 5) >>> 0;
+            return (s >>> 0) / 4294967296;
+        };
+    })(0xB10BDA7A);
+
+    const N = 72;
+    const rx = 178;
+    const ry = 152;
+    for (let i = 0; i < N; i++) {
+        const a = (i / N) * Math.PI * 2;
+        let rX = rx;
+        let rY = ry;
+        const harm = Math.sin(a * 3.0 + 0.6) * 10 + Math.sin(a * 7.0 - 1.2) * 6;
+        const jitter = (rnd() - 0.5) * 10;
+        const spikeEvery = 5;
+        const isSpike = (i % spikeEvery === 0);
+        const spike = isSpike ? (16 + rnd() * 22) : (2 + rnd() * 6);
+        const side = Math.abs(Math.cos(a));
+        const sideBoost = Math.pow(side, 2.2) * (10 + rnd() * 10);
+        const topness = Math.max(0, Math.cos(a));
+        const bottomness = Math.max(0, -Math.cos(a));
+        const damp = 1 - 0.55 * topness - 0.25 * bottomness;
+        const out = (harm + jitter) + (spike + sideBoost) * damp;
+        const rawX = Math.sin(a) * (rX + out * 0.70);
+        const dir = Math.sign(Math.sin(a)) || (i < N / 2 ? 1 : -1);
+        const x = dir * Math.abs(rawX);
+        const y = Math.cos(a) * (rY + out * 0.60);
+        AI_SHELL_POINTS.push({x, y, spike: isSpike});
+    }
+
+    for (let i = 0; i < 52; i++) {
+        AI_RIM_LIGHTS.push({k: i / 52, j: (rnd() - 0.5) * 0.06});
+    }
+
+    const y0 = -152;
+    AI_HEAD_POINTS.push(
+        {x: -30, y: y0 - 4},
+        {x: -55, y: y0 - 28},
+        {x: -30, y: y0 - 62},
+        {x: -12, y: y0 - 78},
+        {x: 0, y: y0 - 92},
+        {x: 12, y: y0 - 78},
+        {x: 30, y: y0 - 62},
+        {x: 55, y: y0 - 28},
+        {x: 30, y: y0 - 4},
+        {x: 18, y: y0 - 18},
+        {x: 0, y: y0 - 8},
+        {x: -18, y: y0 - 18}
+    );
+
+    const by = 155;
+    AI_TAIL_POINTS.push(
+        {x: -22, y: by - 2},
+        {x: -8, y: by + 18},
+        {x: -18, y: by + 34},
+        {x: -2, y: by + 52},
+        {x: 0, y: by + 72},
+        {x: 2, y: by + 52},
+        {x: 18, y: by + 34},
+        {x: 8, y: by + 18},
+        {x: 22, y: by - 2}
+    );
+
+    const spineY = [-92, -56, -18, 22, 64, 106];
+    for (let i = 0; i < spineY.length; i++) {
+        const y = spineY[i];
+        const w = 60 + (i % 2 ? 10 : 0) + (rnd() - 0.5) * 10;
+        const h = 48 + (rnd() - 0.5) * 8;
+        AI_SCUTES.push({
+            pts: [
+                {x: 0, y: y - h * 0.70},
+                {x: w * 0.55, y: y - h * 0.20},
+                {x: w * 0.18, y: y + h * 0.62},
+                {x: 0, y: y + h * 0.78},
+                {x: -w * 0.18, y: y + h * 0.62},
+                {x: -w * 0.55, y: y - h * 0.20}
+            ],
+            idx: i,
+            stripe: i
+        });
+    }
+    for (let i = 0; i < AI_SIDE_ROWS.length; i++) {
+        const r = AI_SIDE_ROWS[i];
+        for (const s of [-1, 1]) {
+            const x0 = s * r.x;
+            const y0r = r.y;
+            const w = r.w + (rnd() - 0.5) * 10;
+            const h = r.h + (rnd() - 0.5) * 8;
+            const stripeIndex = spineY.length + i;
+            AI_SCUTES.push({
+                pts: [
+                    {x: x0, y: y0r - h * 0.72},
+                    {x: x0 + s * w * 0.62, y: y0r - h * 0.12},
+                    {x: x0 + s * w * 0.26, y: y0r + h * 0.70},
+                    {x: x0, y: y0r + h * 0.88},
+                    {x: x0 - s * w * 0.22, y: y0r + h * 0.62},
+                    {x: x0 - s * w * 0.40, y: y0r + h * 0.15}
+                ],
+                idx: 100 + i * 2 + (s > 0 ? 1 : 0),
+                side: s,
+                stripe: stripeIndex
+            });
+            const mirroredPts = [
+                {x: -x0, y: y0r - h * 0.72},
+                {x: -x0 + -s * w * 0.62, y: y0r - h * 0.12},
+                {x: -x0 + -s * w * 0.26, y: y0r + h * 0.70},
+                {x: -x0, y: y0r + h * 0.88},
+                {x: -x0 + s * w * 0.22, y: y0r + h * 0.62},
+                {x: -x0 + s * w * 0.40, y: y0r + h * 0.15}
+            ];
+            AI_SCUTES.push({
+                pts: mirroredPts,
+                idx: 100 + i * 2 + (s > 0 ? 0 : 1),
+                side: -s,
+                stripe: stripeIndex
+            });
+        }
+    }
+}
+
+function ensureAiGeometry() {
+    if (!AI_SHELL_POINTS.length) {
+        buildAiGeometry();
+    }
+}
+
 import {Howl} from 'howler';
 import {Client} from './client.js';
 
@@ -27,47 +178,16 @@ function roundRectPath(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-function metalGradient(ctx, x0, y0, x1, y1, strength = 1) {
-    const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
-    gradient.addColorStop(0.00, `rgba(25,28,36,${strength})`);
-    gradient.addColorStop(0.18, `rgba(95,102,116,${strength})`);
-    gradient.addColorStop(0.40, `rgba(42,46,58,${strength})`);
-    gradient.addColorStop(0.62, `rgba(150,155,168,${strength})`);
-    gradient.addColorStop(1.00, `rgba(35,38,49,${strength})`);
-    return gradient;
-}
-
-function paintPanelLines(ctx, cx, cy, scale = 1) {
-    ctx.save();
-    ctx.strokeStyle = "rgba(210,220,255,0.20)";
-    ctx.lineWidth = Math.max(1, 1.2 * scale);
-    for (let i = -2; i <= 2; i++) {
-        const x = cx + i * 10 * scale;
-        ctx.beginPath();
-        ctx.moveTo(x, cy - 155 * scale);
-        ctx.lineTo(x, cy + 135 * scale);
-        ctx.stroke();
-    }
-    const ribs = [-120,-90,-60,-30,0,30,60,90,120];
-    for (const r of ribs) {
-        ctx.beginPath();
-        ctx.moveTo(cx - 24 * scale, cy + r * scale);
-        ctx.lineTo(cx + 24 * scale, cy + r * scale);
-        ctx.stroke();
-    }
-    ctx.restore();
-}
-
 function drawFederationSymbol(ctx, x, y, r) {
     ctx.save();
     ctx.lineWidth = Math.max(1, r * 0.14);
-    ctx.strokeStyle = "rgba(170,220,255,0.85)";
-    ctx.fillStyle = "rgba(15,40,70,0.55)";
+    ctx.strokeStyle = "rgba(180,220,255,0.85)";
+    ctx.fillStyle = "rgba(18,35,60,0.7)";
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.strokeStyle = "rgba(210,245,255,0.9)";
+    ctx.strokeStyle = "rgba(220,245,255,0.9)";
     ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(x - r * 0.42, y);
@@ -75,68 +195,30 @@ function drawFederationSymbol(ctx, x, y, r) {
     ctx.moveTo(x, y - r * 0.42);
     ctx.lineTo(x, y + r * 0.42);
     ctx.stroke();
-    const hg = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, 0, x, y, r);
-    hg.addColorStop(0, "rgba(255,255,255,0.20)");
-    hg.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = hg;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
     ctx.restore();
 }
 
-function glowDot(ctx, x, y, r, color, alpha) {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, r);
-    gradient.addColorStop(0, color);
-    gradient.addColorStop(0.35, colorWithAlpha(color, 0.35));
-    gradient.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-}
-
-function drawRunningLights(ctx, timeSeconds) {
-    const pulseL = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(timeSeconds * 2.8));
-    const pulseR = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(timeSeconds * 2.8 + Math.PI));
-    glowDot(ctx, -125, 30, 18, "rgba(255,80,80,1)", 0.55 * pulseL);
-    glowDot(ctx, 125, 30, 18, "rgba(80,255,140,1)", 0.55 * pulseR);
-    const beacon = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(timeSeconds * 6.0));
-    glowDot(ctx, 0, -150, 12, "rgba(120,190,255,1)", 0.35 * beacon);
-    const startY = -110;
-    const endY = 120;
-    const phase = (timeSeconds * 0.55) % 1;
-    const y = startY + (endY - startY) * phase;
-    const intensity = 0.15 + 0.85 * (1 - Math.abs(phase - 0.5) * 2);
-    glowDot(ctx, 0, y, 22, "rgba(90,170,255,1)", 0.25 * intensity);
-    const nodes = [-80, -50, -20, 10, 40, 70, 100];
-    for (let i = 0; i < nodes.length; i++) {
-        const localPhase = (timeSeconds * 1.4 - i * 0.22);
-        const alpha = 0.12 + 0.28 * (0.5 + 0.5 * Math.sin(localPhase * 2.2));
-        glowDot(ctx, 0, nodes[i], 10, "rgba(120,210,255,1)", alpha);
-    }
-}
-
-function drawHumanShip(ctx, pixelScale, cockpitColor, timeSeconds = 0) {
+function drawHumanShip(ctx, pixelScale) {
     const scaleFactor = pixelScale / HUMAN_SHIP_BASE_LENGTH;
     ctx.save();
     ctx.scale(scaleFactor, scaleFactor);
+    const accentColor = "#1a67c9";
 
-    const bob = Math.sin(timeSeconds * 1.1) * 1.8;
-    ctx.translate(0, bob);
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "rgba(0,0,0,0.45)";
+    ctx.beginPath();
+    ctx.ellipse(0, 20, 80, 170, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
 
-    // main fuselage body
     roundRectPath(ctx, -26, -160, 52, 310, 18);
-    ctx.fillStyle = metalGradient(ctx, -26, -160, 26, 160);
+    ctx.fillStyle = "#3b4251";
     ctx.fill();
     ctx.strokeStyle = "rgba(10,12,16,0.65)";
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // nose cone
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(-22, -160);
@@ -144,44 +226,24 @@ function drawHumanShip(ctx, pixelScale, cockpitColor, timeSeconds = 0) {
     ctx.lineTo(22, -160);
     ctx.quadraticCurveTo(0, -148, -22, -160);
     ctx.closePath();
-    const ng = ctx.createLinearGradient(0, -200, 0, -150);
-    ng.addColorStop(0, "rgba(200,206,220,0.9)");
-    ng.addColorStop(1, "rgba(40,44,58,0.95)");
-    ctx.fillStyle = ng;
+    ctx.fillStyle = "#2a303d";
     ctx.fill();
     ctx.strokeStyle = "rgba(0,0,0,0.55)";
     ctx.stroke();
     ctx.restore();
 
-    // canopy glass + health tint overlay
     ctx.save();
     roundRectPath(ctx, -16, -128, 32, 58, 14);
-    const cg = ctx.createLinearGradient(-16, -128, 16, -70);
-    cg.addColorStop(0, "rgba(30,80,210,0.70)");
-    cg.addColorStop(0.5, "rgba(40,150,255,0.55)");
-    cg.addColorStop(1, "rgba(20,60,140,0.55)");
-    ctx.fillStyle = cg;
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = accentColor;
     ctx.fill();
-    ctx.strokeStyle = "rgba(180,220,255,0.28)";
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(210,230,255,0.2)";
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.fillStyle = "rgba(255,255,255,0.12)";
-    ctx.beginPath();
-    ctx.ellipse(-6, -110, 6, 16, 0.2, 0, Math.PI * 2);
-    ctx.fill();
     ctx.restore();
-
-    ctx.save();
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = cockpitColor;
-    roundRectPath(ctx, -16, -128, 32, 58, 14);
-    ctx.fill();
-    ctx.restore();
-
-    paintPanelLines(ctx, 0, 0, 1);
 
     function drawWing(sign) {
-        // swept wing plate with inset stripe and emblem
         ctx.save();
         ctx.translate(sign * 52, -5);
         ctx.beginPath();
@@ -191,51 +253,34 @@ function drawHumanShip(ctx, pixelScale, cockpitColor, timeSeconds = 0) {
         ctx.lineTo(0, 62);
         ctx.quadraticCurveTo(-8, 10, 0, -42);
         ctx.closePath();
-        const wg = ctx.createLinearGradient(0, -40, sign * 90, 70);
-        wg.addColorStop(0, "rgba(55,58,72,0.95)");
-        wg.addColorStop(0.35, "rgba(135,140,152,0.92)");
-        wg.addColorStop(1, "rgba(28,30,40,0.96)");
-        ctx.fillStyle = wg;
+        ctx.fillStyle = "#2c313c";
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.6)";
         ctx.lineWidth = 2;
         ctx.stroke();
+
         ctx.beginPath();
         ctx.moveTo(sign * 10, -30);
         ctx.lineTo(sign * 56, -16);
         ctx.lineTo(sign * 56, 34);
         ctx.lineTo(sign * 10, 44);
         ctx.closePath();
-        const bg = ctx.createLinearGradient(sign * 10, -30, sign * 60, 45);
-        bg.addColorStop(0, "rgba(15,60,140,0.85)");
-        bg.addColorStop(0.5, "rgba(35,120,220,0.70)");
-        bg.addColorStop(1, "rgba(10,40,110,0.85)");
-        ctx.fillStyle = bg;
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = accentColor;
         ctx.fill();
+        ctx.globalAlpha = 1;
         ctx.strokeStyle = "rgba(200,230,255,0.18)";
         ctx.lineWidth = 1.5;
         ctx.stroke();
-        if (sign < 0) {
-            drawFederationSymbol(ctx, sign * 28, 22, 14);
-        }
-        ctx.strokeStyle = "rgba(225,235,255,0.18)";
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(sign * 18, -6);
-        ctx.lineTo(sign * 60, 6);
-        ctx.moveTo(sign * 16, 52);
-        ctx.lineTo(sign * 56, 40);
-        ctx.stroke();
+
         ctx.restore();
     }
     drawWing(-1);
     drawWing(1);
 
-    // blended wing root
     ctx.save();
-    ctx.globalAlpha = 0.9;
-    ctx.fillStyle = metalGradient(ctx, -40, -30, 40, 30, 0.95);
     roundRectPath(ctx, -44, -30, 88, 80, 28);
+    ctx.fillStyle = "#2f353f";
     ctx.fill();
     ctx.strokeStyle = "rgba(0,0,0,0.55)";
     ctx.lineWidth = 2;
@@ -243,49 +288,24 @@ function drawHumanShip(ctx, pixelScale, cockpitColor, timeSeconds = 0) {
     ctx.restore();
 
     function drawEngine(sign) {
-        // engine pod, coil, and flickering exhaust
         ctx.save();
         ctx.translate(sign * 32, 118);
         roundRectPath(ctx, -18, -46, 36, 72, 16);
-        const eg = ctx.createLinearGradient(-18, -46, 18, 26);
-        eg.addColorStop(0, "rgba(65,68,82,0.96)");
-        eg.addColorStop(0.45, "rgba(155,160,174,0.92)");
-        eg.addColorStop(1, "rgba(30,32,44,0.97)");
-        ctx.fillStyle = eg;
+        ctx.fillStyle = "#2a2f39";
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.6)";
         ctx.lineWidth = 2;
         ctx.stroke();
         roundRectPath(ctx, -12, -22, 24, 36, 12);
-        const coil = ctx.createLinearGradient(-12, -22, 12, 14);
-        coil.addColorStop(0, "rgba(25,85,190,0.85)");
-        coil.addColorStop(0.5, "rgba(60,170,255,0.65)");
-        coil.addColorStop(1, "rgba(20,70,160,0.85)");
-        ctx.fillStyle = coil;
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = accentColor;
         ctx.fill();
-        const gx = 0;
-        const gy = 26;
-        const gr = 18;
-        const flicker = 0.75 + 0.25 * Math.sin(timeSeconds * 15.0 + sign * 1.3) + 0.08 * Math.sin(timeSeconds * 37.0 + sign * 2.2);
-        const glow = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
-        glow.addColorStop(0, `rgba(170,120,255,${0.55 * flicker})`);
-        glow.addColorStop(0.35, `rgba(110,170,255,${0.28 * flicker})`);
-        glow.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(gx, gy, gr, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "rgba(220,220,255,0.28)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 26, 10, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.globalAlpha = 1;
         ctx.restore();
     }
     drawEngine(-1);
     drawEngine(1);
 
-    // aft taper and center spine
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(-26, 150);
@@ -293,15 +313,12 @@ function drawHumanShip(ctx, pixelScale, cockpitColor, timeSeconds = 0) {
     ctx.lineTo(18, 184);
     ctx.lineTo(26, 150);
     ctx.closePath();
-    const ag = ctx.createLinearGradient(0, 150, 0, 190);
-    ag.addColorStop(0, "rgba(120,125,140,0.92)");
-    ag.addColorStop(1, "rgba(30,32,44,0.98)");
-    ctx.fillStyle = ag;
+    ctx.fillStyle = "#4e555f";
     ctx.fill();
     ctx.strokeStyle = "rgba(0,0,0,0.6)";
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.fillStyle = "rgba(15,70,160,0.65)";
+    ctx.fillStyle = accentColor;
     roundRectPath(ctx, -6, -12, 12, 150, 6);
     ctx.fill();
     ctx.strokeStyle = "rgba(210,240,255,0.20)";
@@ -309,11 +326,142 @@ function drawHumanShip(ctx, pixelScale, cockpitColor, timeSeconds = 0) {
     ctx.stroke();
     ctx.restore();
 
-    // animated running lights (nav + scanner)
-    drawRunningLights(ctx, timeSeconds);
+    ctx.restore();
+}
+
+function drawAiJaggedTurtle(ctx, pixelScale, shipType, timeSeconds = 0) {
+    ensureAiGeometry();
+    const scaleFactor = pixelScale / AI_BASE_LENGTH;
+    ctx.save();
+    ctx.scale(scaleFactor, scaleFactor);
+
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.beginPath();
+    ctx.ellipse(0, 90, 220, 140, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    for (const side of [-1, 1]) {
+        for (const front of [-1, 1]) {
+            drawAiLeg(ctx, side, front);
+        }
+    }
+
+    drawAiTail(ctx);
+    drawAiShell(ctx);
+    drawAiHead(ctx);
+    drawAiScutes(ctx);
 
     ctx.restore();
 }
+
+function drawAiLeg(ctx, side, front) {
+    const s = side;
+    const f = front;
+    const baseX = s * 170;
+    const baseY = f < 0 ? -48 : 88;
+    const rot = s * (f < 0 ? 0.55 : 0.35);
+
+    ctx.save();
+    ctx.translate(baseX, baseY);
+    ctx.rotate(rot);
+
+    const pts = [
+        {x: 0, y: -22},
+        {x: s * 28, y: -40},
+        {x: s * 62, y: -22},
+        {x: s * 78, y: 6},
+        {x: s * 72, y: 22},
+        {x: s * 82, y: 42},
+        {x: s * 62, y: 56},
+        {x: s * 40, y: 50},
+        {x: s * 18, y: 62},
+        {x: 0, y: 42},
+        {x: -s * 10, y: 22},
+        {x: -s * 8, y: -2}
+    ];
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = "#1f2f24";
+    ctx.strokeStyle = "rgba(0,0,0,0.66)";
+    ctx.lineWidth = 3;
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawAiTail(ctx) {
+    ctx.save();
+    ctx.translate(0, 155);
+    ctx.rotate(0);
+    ctx.beginPath();
+    ctx.moveTo(AI_TAIL_POINTS[0].x, AI_TAIL_POINTS[0].y - 155);
+    for (let i = 1; i < AI_TAIL_POINTS.length; i++) {
+        ctx.lineTo(AI_TAIL_POINTS[i].x, AI_TAIL_POINTS[i].y - 155);
+    }
+    ctx.closePath();
+    ctx.fillStyle = "#1f2f24";
+    ctx.strokeStyle = "rgba(0,0,0,0.66)";
+    ctx.lineWidth = 3;
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawAiShell(ctx) {
+    ctx.beginPath();
+    ctx.moveTo(AI_SHELL_POINTS[0].x, AI_SHELL_POINTS[0].y);
+    for (let i = 1; i < AI_SHELL_POINTS.length; i++) {
+        ctx.lineTo(AI_SHELL_POINTS[i].x, AI_SHELL_POINTS[i].y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = "#1a3b2b";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.72)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+}
+
+function drawAiHead(ctx) {
+    ctx.beginPath();
+    ctx.moveTo(AI_HEAD_POINTS[0].x, AI_HEAD_POINTS[0].y);
+    for (let i = 1; i < AI_HEAD_POINTS.length; i++) {
+        ctx.lineTo(AI_HEAD_POINTS[i].x, AI_HEAD_POINTS[i].y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = "#1f2f24";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.70)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+}
+
+function drawAiScutes(ctx) {
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    ctx.strokeStyle = "rgba(0,0,0,0.62)";
+    ctx.lineWidth = 2;
+    for (let idx = 0; idx < AI_SCUTES.length; idx++) {
+        const scute = AI_SCUTES[idx];
+        const pts = scute.pts;
+        const stripe = scute.stripe || 0;
+        ctx.fillStyle = stripe % 2 === 0 ? "#293c2d" : "#1e2f23";
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+
 
 export class Renderer {
     constructor(mapRadius) {
@@ -815,7 +963,9 @@ export class Renderer {
         }
 
         if (ship.Type == 'Human') {
-            drawHumanShip(this.map, shipScale, cockpitColor, this.renderTimeSeconds);
+            drawHumanShip(this.map, shipScale);
+        } else if (ship.Type == 'Alpha' || ship.Type == 'Bravo') {
+            drawAiJaggedTurtle(this.map, shipScale, ship.Type, this.renderTimeSeconds);
         } else {
             this.map.save();
             this.map.scale(shipScale, shipScale);
