@@ -33,6 +33,13 @@ export class Client {
         this.lastSnapshotSizeBytes = 0;
         this.snapshotSizeAvgBytes = 0;
         this.snapshotSizeSamples = 0;
+        this.playerWasAlive = false;
+        this.deathTransition = {
+            state: 'idle',
+            elapsedMs: 0,
+            holdDurationMs: 3000,
+            fadeDurationMs: 1500
+        };
         
         window.gameObjects = []; // 7 files
     }
@@ -71,10 +78,13 @@ export class Client {
                 }
             }
 
+            const wasAlive = this.playerWasAlive;
+            this.playerWasAlive = playerIsAlive;
+
             if (playerIsAlive) {
-                Client.gameMode = 'PLAY_MODE';
+                this.handlePlayerAliveState(wasAlive);
             } else {
-                Client.gameMode = 'START_MODE';
+                this.handlePlayerDeathState(wasAlive);
             }
         });
     }
@@ -98,6 +108,8 @@ export class Client {
             this.engine.update(this.commands, this.targetFrameRate);
             this.accumulatorMs -= this.fixedStepMs;
         }
+
+        this.updateDeathTransition(deltaMs);
 
         this.currentFrameRate = this.targetFrameRate;
         this.previousTimeStamp = currentTimeStamp;
@@ -258,4 +270,80 @@ export class Client {
             this.snapshotSizeAvgBytes = (1 - alpha) * this.snapshotSizeAvgBytes + alpha * snapshotBytes;
         }
     }
+
+    handlePlayerAliveState(wasAlive) {
+        if (!wasAlive || this.deathTransition.state !== 'idle') {
+            this.resetDeathTransition();
+        }
+        Client.gameMode = 'PLAY_MODE';
+    }
+
+    handlePlayerDeathState(wasAlive) {
+        if (wasAlive) {
+            this.startDeathTransition();
+        } else if (this.deathTransition.state === 'idle') {
+            Client.gameMode = 'START_MODE';
+            if (this.renderer && typeof this.renderer.setLandingOverlayAlpha === 'function') {
+                this.renderer.setLandingOverlayAlpha(0);
+            }
+        }
+    }
+
+    startDeathTransition() {
+        if (this.deathTransition.state === 'hold' || this.deathTransition.state === 'fade') {
+            return;
+        }
+        this.deathTransition.state = 'hold';
+        this.deathTransition.elapsedMs = 0;
+        if (this.renderer && typeof this.renderer.setLandingOverlayAlpha === 'function') {
+            this.renderer.setLandingOverlayAlpha(0);
+        }
+    }
+
+    resetDeathTransition() {
+        this.deathTransition.state = 'idle';
+        this.deathTransition.elapsedMs = 0;
+        if (this.renderer && typeof this.renderer.setLandingOverlayAlpha === 'function') {
+            this.renderer.setLandingOverlayAlpha(0);
+        }
+    }
+
+    updateDeathTransition(deltaMs) {
+        if (!Number.isFinite(deltaMs) || deltaMs <= 0) {
+            return;
+        }
+        const transition = this.deathTransition;
+        if (!transition || transition.state === 'idle') {
+            return;
+        }
+
+        if (transition.state === 'hold') {
+            transition.elapsedMs += deltaMs;
+            if (transition.elapsedMs >= transition.holdDurationMs) {
+                transition.state = 'fade';
+                transition.elapsedMs = 0;
+            }
+            Client.gameMode = 'PLAY_MODE';
+            if (this.renderer && typeof this.renderer.setLandingOverlayAlpha === 'function') {
+                this.renderer.setLandingOverlayAlpha(0);
+            }
+            return;
+        }
+
+        if (transition.state === 'fade') {
+            transition.elapsedMs += deltaMs;
+            const progress = Math.min(1, transition.elapsedMs / transition.fadeDurationMs);
+            if (this.renderer && typeof this.renderer.setLandingOverlayAlpha === 'function') {
+                this.renderer.setLandingOverlayAlpha(progress);
+            }
+            if (progress >= 1) {
+                transition.state = 'idle';
+                transition.elapsedMs = 0;
+                Client.gameMode = 'START_MODE';
+            } else {
+                Client.gameMode = 'PLAY_MODE';
+            }
+        }
+    }
+
 }

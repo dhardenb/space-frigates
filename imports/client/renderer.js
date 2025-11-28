@@ -490,6 +490,7 @@ export class Renderer {
         this.minZoomFactor = 0.5;
         this.maxZoomFactor = 2.5;
         this.renderTimeSeconds = 0;
+        this.landingOverlayAlpha = 0;
     }
 
     createBackground() {
@@ -546,6 +547,18 @@ export class Renderer {
 
     getZoomBounds() {
         return {min: this.minZoomFactor, max: this.maxZoomFactor};
+    }
+
+    setLandingOverlayAlpha(alpha) {
+        if (!Number.isFinite(alpha)) {
+            return;
+        }
+        const clamped = Math.min(1, Math.max(0, alpha));
+        this.landingOverlayAlpha = clamped;
+    }
+
+    getLandingOverlayAlpha() {
+        return this.landingOverlayAlpha;
     }
 
     determineIfObjectShouldBeRendered(objectToInspect) {
@@ -760,31 +773,10 @@ export class Renderer {
 
         this.renderMiniMap(playerShipId);
 
-        if (Client.gameMode == 'START_MODE') {
+        const landingOverlayAlpha = this.getLandingOverlayAlpha();
+        const overlayActive = landingOverlayAlpha > 0;
 
-            this.renderLeaderboard();
-
-            this.renderTitle();
-
-            this.renderVersion();
-
-            this.renderTwitter();
-
-            this.renderBlog();
-
-            this.renderEmail();
-
-            this.renderInstructions();
-
-            this.renderNameInputBox();
-
-            this.renderName();
-
-            this.renderStartInstructions();
-
-            this.renderEnergyInstructions();
-
-        } else if (Client.gameMode == 'PLAY_MODE') {
+        if (Client.gameMode == 'PLAY_MODE') {
 
             this.renderLeaderboard();
 
@@ -811,6 +803,45 @@ export class Renderer {
             // this.renderFireButton();
 
         }
+
+        if (Client.gameMode == 'START_MODE' || overlayActive) {
+            const landingOpacity = Client.gameMode == 'START_MODE' ? 1 : landingOverlayAlpha;
+            this.renderLandingScreen(landingOpacity);
+        }
+
+        this.map.restore();
+
+    }
+
+    renderLandingScreen(opacity = 1) {
+
+        const alpha = Math.min(1, Math.max(0, opacity));
+
+        this.map.save();
+
+        this.map.globalAlpha = alpha;
+
+        this.renderLeaderboard();
+
+        this.renderTitle();
+
+        this.renderVersion();
+
+        this.renderTwitter();
+
+        this.renderBlog();
+
+        this.renderEmail();
+
+        this.renderInstructions();
+
+        this.renderNameInputBox();
+
+        this.renderName();
+
+        this.renderStartInstructions();
+
+        this.renderEnergyInstructions();
 
         this.map.restore();
 
