@@ -17,7 +17,11 @@ export class Client {
         this.renderer = new Renderer(this.mapRadius);
         this.keyboard = new Keyboard();
         this.currentFrameRate = 0;
-        this.previousTimeStamp = 0;
+        this.previousTimeStamp = null;
+        this.fixedStepMs = 1000 / 60; // 60 Hz simulation
+        this.accumulatorMs = 0;
+        this.maxDeltaMs = 250; // prevent spiral of death after long pauses
+        this.targetFrameRate = 1000 / this.fixedStepMs;
         this.localMode = false;
         this.playerId = 0;
         this.playerName = "";
@@ -58,9 +62,27 @@ export class Client {
     }
 
     gameLoop(currentTimeStamp) {
-        this.currentFrameRate = 1000 / (currentTimeStamp - this.previousTimeStamp);
+        if (this.previousTimeStamp === null) {
+            this.previousTimeStamp = currentTimeStamp;
+        }
+
+        let deltaMs = currentTimeStamp - this.previousTimeStamp;
+        if (deltaMs < 0) {
+            deltaMs = 0;
+        }
+        if (deltaMs > this.maxDeltaMs) {
+            deltaMs = this.maxDeltaMs; // clamp long pauses/hitches
+        }
+
+        this.accumulatorMs += deltaMs;
+
+        while (this.accumulatorMs >= this.fixedStepMs) {
+            this.engine.update(this.commands, this.targetFrameRate);
+            this.accumulatorMs -= this.fixedStepMs;
+        }
+
+        this.currentFrameRate = this.targetFrameRate;
         this.previousTimeStamp = currentTimeStamp;
-        this.engine.update(this.commands, this.currentFrameRate);
         this.commands = [];
         this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
         this.engine.removeSoundObjects();
