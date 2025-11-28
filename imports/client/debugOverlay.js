@@ -25,6 +25,8 @@ export class DebugOverlay {
             close: document.getElementById('debug-close'),
             fps: document.getElementById('debug-fps'),
             updateId: document.getElementById('debug-update-id'),
+            snapshotSize: document.getElementById('debug-snapshot-size'),
+            snapshotAvg: document.getElementById('debug-snapshot-avg'),
             throttleEnabled: document.getElementById('debug-throttle-enabled'),
             throttleInterval: document.getElementById('debug-throttle-interval'),
             apply: document.getElementById('debug-apply-throttle'),
@@ -150,12 +152,18 @@ export class DebugOverlay {
         this.setStatus(lines.join(' • ') || 'Throttle idle', 'success');
     }
 
-    updateStats({fps, updateId} = {}) {
+    updateStats({fps, updateId, snapshotBytes, snapshotAvgBytes} = {}) {
         if (typeof fps === 'number' && this.dom.fps) {
             this.dom.fps.textContent = fps.toFixed(0);
         }
         if ((typeof updateId === 'number' || typeof updateId === 'string') && this.dom.updateId) {
             this.dom.updateId.textContent = updateId;
+        }
+        if (typeof snapshotBytes === 'number' && this.dom.snapshotSize) {
+            this.dom.snapshotSize.textContent = `${this.formatBytes(snapshotBytes)}`;
+        }
+        if (typeof snapshotAvgBytes === 'number' && this.dom.snapshotAvg) {
+            this.dom.snapshotAvg.textContent = `${this.formatBytes(snapshotAvgBytes)}`;
         }
     }
 
@@ -170,6 +178,19 @@ export class DebugOverlay {
         } else if (variant === 'success') {
             this.dom.status.classList.add('success');
         }
+    }
+
+    formatBytes(value) {
+        if (!Number.isFinite(value) || value <= 0) {
+            return '0 B';
+        }
+        if (value < 1024) {
+            return `${value.toFixed(0)} B`;
+        }
+        if (value < 1024 * 1024) {
+            return `${(value / 1024).toFixed(1)} KB`;
+        }
+        return `${(value / (1024 * 1024)).toFixed(1)} MB`;
     }
 }
 

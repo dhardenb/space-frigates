@@ -1,3 +1,42 @@
+const BINARY_MAGIC = 0x53464753; // 'SFGS'
+const BINARY_VERSION = 1;
+
+const TYPE_CODES = {
+    Player: 1,
+    Human: 2,
+    Alpha: 3,
+    Bravo: 4,
+    Debris: 5,
+    Missile: 6,
+    Sound: 7,
+    Thruster: 8
+};
+
+const TYPE_NAMES = Object.entries(TYPE_CODES).reduce((acc, [name, code]) => {
+    acc[code] = name;
+    return acc;
+}, {});
+
+const EVENT_CODES = {
+    ShipDestroyed: 1
+};
+
+const EVENT_NAMES = Object.entries(EVENT_CODES).reduce((acc, [name, code]) => {
+    acc[code] = name;
+    return acc;
+}, {});
+
+const textEncoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
+const textDecoder = typeof TextDecoder !== 'undefined' ? new TextDecoder() : null;
+
+const HEADER_SIZE =
+    /* magic */ 4 +
+    /* version */ 2 +
+    /* updateId */ 4 +
+    /* timestamp */ 8 +
+    /* objectCount */ 4 +
+    /* eventCount */ 4;
+
 export class Utilities {
 
     static removeByAttr(arr, attr, value) {
@@ -20,281 +59,496 @@ export class Utilities {
 
     static packGameState(unpackedGameState) {
 
-        //////////////////////////////////////////////////////
-        // Remove objects that we don't need to keep insync //
-        //////////////////////////////////////////////////////
-
         unpackedGameState.gameState = Utilities.removeByAttr(unpackedGameState.gameState, "Type", "Particle");
 
-        //////////
-        // ROOT //
-        //////////
-
-        let packedGameState = [];
-
-        /////////////////////
-        // Update Metadata //
-        /////////////////////
-
-        packedGameState.push([]);
-
-        packedGameState[0].push(unpackedGameState.updateId);
-        packedGameState[0].push(Date.now());
-
-        ///////////////
-        // GameState //
-        ///////////////
-
-        packedGameState.push([]);
-
+        const filteredGameState = [];
         for (let i = 0; i < unpackedGameState.gameState.length; i++) {
-
-            packedGameState[1].push([]);
-
-            if (unpackedGameState.gameState[i].Type == 'Player') {
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Name);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].ShipId);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Kills);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Deaths);
-            }
-
-            if (unpackedGameState.gameState[i].Type == 'Human' ||
-                unpackedGameState.gameState[i].Type == 'Alpha' ||
-                unpackedGameState.gameState[i].Type == 'Bravo') {
-
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].RotationDirection);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].RotationVelocity);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].ShieldOn);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].ShieldStatus);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].HullStrength);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Capacitor);
-            }
-
-            if (unpackedGameState.gameState[i].Type == 'Debris') {
-
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].RotationDirection);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].RotationVelocity);
-
-            }
-
-            if (unpackedGameState.gameState[i].Type == 'Missile') {
-
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Owner);
-
-            }
-
-            if (unpackedGameState.gameState[i].Type == 'Sound') {
-
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].SoundType);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-
-            }
-
-            if (unpackedGameState.gameState[i].Type == 'Thruster') {
-
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Id);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Type);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Fuel);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationX);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].LocationY);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Facing);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Heading);
-                packedGameState[1][i].push(unpackedGameState.gameState[i].Velocity);
-
-            }
-
-        }
-
-        //////////////////
-        // Event Stream //
-        //////////////////
-
-        packedGameState.push([]);
-
-        if (unpackedGameState.events && unpackedGameState.events.length) {
-            for (let i = 0; i < unpackedGameState.events.length; i++) {
-                const event = unpackedGameState.events[i];
-                const packedEvent = [];
-                packedEvent.push(event.type);
-
-                if (event.type == 'ShipDestroyed') {
-                    packedEvent.push(event.shipId);
-                    packedEvent.push(event.locationX);
-                    packedEvent.push(event.locationY);
-                }
-
-                packedGameState[2].push(packedEvent);
+            const typeCode = Utilities.getTypeCode(unpackedGameState.gameState[i].Type);
+            if (typeCode) {
+                filteredGameState.push(unpackedGameState.gameState[i]);
             }
         }
 
-        return packedGameState;
+        const candidateEvents = Array.isArray(unpackedGameState.events) ? unpackedGameState.events : [];
+        const filteredEvents = [];
+        for (let i = 0; i < candidateEvents.length; i++) {
+            if (EVENT_CODES[candidateEvents[i].type]) {
+                filteredEvents.push(candidateEvents[i]);
+            }
+        }
+        const header = {
+            updateId: Number(unpackedGameState.updateId) >>> 0,
+            timestamp: Date.now(),
+            objectCount: filteredGameState.length,
+            eventCount: filteredEvents.length
+        };
+
+        const totalBytes = Utilities.calculateBinarySize(filteredGameState, filteredEvents);
+        const buffer = new ArrayBuffer(totalBytes);
+        const view = new DataView(buffer);
+        let offset = 0;
+
+        offset = Utilities.writeHeader(view, offset, header);
+
+        for (let i = 0; i < filteredGameState.length; i++) {
+            offset = Utilities.writeGameObject(view, offset, filteredGameState[i]);
+        }
+
+        for (let i = 0; i < filteredEvents.length; i++) {
+            offset = Utilities.writeEvent(view, offset, filteredEvents[i]);
+        }
+
+        return new Uint8Array(buffer, 0, offset);
 
     }
 
     static unpackGameState(packedGameState) {
-
-        //////////
-        // ROOT //
-        //////////
-
-        let unpackedGameState = {};
-
-        /////////////////////
-        // Update Metadata //
-        /////////////////////
-
-        unpackedGameState.update = [];
-
-        unpackedGameState.update.push({});
-
-        unpackedGameState.update.id = packedGameState[0][0];
-
-        unpackedGameState.update.createdAt = packedGameState[0][1];
-
-        ///////////////
-        // GameState //
-        ///////////////
-
-        unpackedGameState.gameState = [];
-
-        for (let i = 0; i < packedGameState[1].length; i++) {
-
-            unpackedGameState.gameState.push({});
-
-            if (packedGameState[1][i][1] == 'Player') {
-                unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-                unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-                unpackedGameState.gameState[i].Name = packedGameState[1][i][2];
-                unpackedGameState.gameState[i].ShipId = packedGameState[1][i][3];
-                unpackedGameState.gameState[i].Kills = packedGameState[1][i][4];
-                unpackedGameState.gameState[i].Deaths = packedGameState[1][i][5];
-            }
-
-            if (packedGameState[1][i][1] == 'Human' ||
-                packedGameState[1][i][1] ==  'Alpha' ||
-                packedGameState[1][i][1] ==  'Bravo') {
-
-                unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-                unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-                unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
-                unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-                unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
-                unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
-                unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
-                unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
-                unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][8];
-                unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][9];
-                unpackedGameState.gameState[i].ShieldOn = packedGameState[1][i][10];
-                unpackedGameState.gameState[i].ShieldStatus = packedGameState[1][i][11];
-                unpackedGameState.gameState[i].HullStrength = packedGameState[1][i][12];
-                unpackedGameState.gameState[i].Capacitor = packedGameState[1][i][13];
-            }
-
-            if (packedGameState[1][i][1] == 'Debris') {
-
-                unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-                unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-                unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
-                unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-                unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
-                unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
-                unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
-                unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
-                unpackedGameState.gameState[i].RotationDirection = packedGameState[1][i][8];
-                unpackedGameState.gameState[i].RotationVelocity = packedGameState[1][i][9];
-
-            }
-
-            if (packedGameState[1][i][1] == 'Missile') {
-
-                unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-                unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-                unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
-                unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-                unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
-                unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
-                unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
-                unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
-                unpackedGameState.gameState[i].Owner = packedGameState[1][i][8];
-
-            }
-
-            if (packedGameState[1][i][0] == 'Sound') {
-
-                unpackedGameState.gameState[i].Type = packedGameState[1][i][0];
-                unpackedGameState.gameState[i].SoundType = packedGameState[1][i][1];
-                unpackedGameState.gameState[i].LocationX = packedGameState[1][i][2];
-                unpackedGameState.gameState[i].LocationY = packedGameState[1][i][3];
-
-            }
-
-            if (packedGameState[1][i][1] == 'Thruster') {
-
-                unpackedGameState.gameState[i].Id = packedGameState[1][i][0];
-                unpackedGameState.gameState[i].Type = packedGameState[1][i][1];
-                unpackedGameState.gameState[i].Fuel = packedGameState[1][i][2];
-                unpackedGameState.gameState[i].LocationX = packedGameState[1][i][3];
-                unpackedGameState.gameState[i].LocationY = packedGameState[1][i][4];
-                unpackedGameState.gameState[i].Facing = packedGameState[1][i][5];
-                unpackedGameState.gameState[i].Heading = packedGameState[1][i][6];
-                unpackedGameState.gameState[i].Velocity = packedGameState[1][i][7];
-
-            }
-
+        if (!packedGameState) {
+            throw new Error('Packed game state payload is empty');
         }
 
-        //////////////////
-        // Event Stream //
-        //////////////////
-
-        unpackedGameState.events = [];
-
-        if (packedGameState[2]) {
-            for (let i = 0; i < packedGameState[2].length; i++) {
-                const packedEvent = packedGameState[2][i];
-                const event = {};
-
-                event.type = packedEvent[0];
-
-                if (event.type == 'ShipDestroyed') {
-                    event.shipId = packedEvent[1];
-                    event.locationX = packedEvent[2];
-                    event.locationY = packedEvent[3];
-                }
-
-                unpackedGameState.events.push(event);
+        let view;
+        if (packedGameState instanceof ArrayBuffer) {
+            view = new DataView(packedGameState);
+        } else if (ArrayBuffer.isView(packedGameState)) {
+            view = new DataView(
+                packedGameState.buffer,
+                packedGameState.byteOffset,
+                packedGameState.byteLength
+            );
+        } else if (Array.isArray(packedGameState)) {
+            if (packedGameState.length && Array.isArray(packedGameState[0])) {
+                throw new Error('Legacy snapshot format is not supported by the binary decoder');
             }
+            const uint = Uint8Array.from(packedGameState);
+            view = new DataView(uint.buffer);
+        } else {
+            throw new Error('Packed game state must be an ArrayBuffer or TypedArray');
+        }
+
+        let offset = 0;
+
+        const magic = view.getUint32(offset, true); offset += 4;
+        if (magic !== BINARY_MAGIC) {
+            throw new Error('Unknown game state payload');
+        }
+
+        const version = view.getUint16(offset, true); offset += 2;
+        if (version !== BINARY_VERSION) {
+            throw new Error(`Unsupported game state version: ${version}`);
+        }
+
+        const updateId = view.getUint32(offset, true); offset += 4;
+        const timestamp = view.getFloat64(offset, true); offset += 8;
+        const objectCount = view.getUint32(offset, true); offset += 4;
+        const eventCount = view.getUint32(offset, true); offset += 4;
+
+        const unpackedGameState = {
+            update: {
+                id: updateId,
+                createdAt: timestamp
+            },
+            gameState: [],
+            events: []
+        };
+
+        for (let i = 0; i < objectCount; i++) {
+            const result = Utilities.readGameObject(view, offset);
+            unpackedGameState.gameState.push(result.object);
+            offset = result.offset;
+        }
+
+        for (let i = 0; i < eventCount; i++) {
+            const result = Utilities.readEvent(view, offset);
+            unpackedGameState.events.push(result.event);
+            offset = result.offset;
         }
 
         return unpackedGameState;
 
+    }
+
+    static getTypeCode(typeName) {
+        return TYPE_CODES[typeName] || null;
+    }
+
+    static encodeString(value = '') {
+        const encoder = textEncoder;
+        if (!encoder) {
+            throw new Error('TextEncoder is not available in this environment');
+        }
+        return encoder.encode(String(value));
+    }
+
+    static decodeString(buffer) {
+        const decoder = textDecoder;
+        if (!decoder) {
+            throw new Error('TextDecoder is not available in this environment');
+        }
+        return decoder.decode(buffer);
+    }
+
+    static getBinaryPayloadSize(payload) {
+        if (!payload) {
+            return 0;
+        }
+        if (typeof payload.byteLength === 'number') {
+            return payload.byteLength;
+        }
+        if (ArrayBuffer.isView(payload)) {
+            return payload.byteLength;
+        }
+        if (payload instanceof ArrayBuffer) {
+            return payload.byteLength;
+        }
+        if (Array.isArray(payload)) {
+            return payload.length;
+        }
+        return 0;
+    }
+
+    static calculateBinarySize(gameObjects, events) {
+        let size = HEADER_SIZE;
+
+        for (let i = 0; i < gameObjects.length; i++) {
+            size += Utilities.calculateObjectSize(gameObjects[i]);
+        }
+
+        for (let i = 0; i < events.length; i++) {
+            size += Utilities.calculateEventSize(events[i]);
+        }
+
+        return size;
+    }
+
+    static calculateObjectSize(gameObject) {
+        const typeCode = Utilities.getTypeCode(gameObject.Type);
+        if (!typeCode) {
+            return 0;
+        }
+
+        const BASE = 1; // type code
+
+        switch (typeCode) {
+            case TYPE_CODES.Player: {
+                const nameBytes = Utilities.encodeString(gameObject.Name || "");
+                const nameLength = Math.min(nameBytes.length, 255);
+                return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + 4 /* ShipId */ + 2 /* Kills */ + 2 /* Deaths */;
+            }
+            case TYPE_CODES.Human:
+            case TYPE_CODES.Alpha:
+            case TYPE_CODES.Bravo: {
+                return BASE + 4 /* Id */ + (4 * 11) /* numeric floats */ + 1 /* ShieldOn */;
+            }
+            case TYPE_CODES.Debris: {
+                return BASE + 4 /* Id */ + (4 * 8);
+            }
+            case TYPE_CODES.Missile: {
+                return BASE + 4 /* Id */ + (4 * 6) + 4 /* Owner */;
+            }
+            case TYPE_CODES.Sound: {
+                const soundBytes = Utilities.encodeString(gameObject.SoundType || "");
+                const soundLength = Math.min(soundBytes.length, 255);
+                return BASE + 1 /* sound len */ + soundLength + (4 * 2);
+            }
+            case TYPE_CODES.Thruster: {
+                return BASE + 4 /* Id */ + (4 * 6);
+            }
+            default:
+                return 0;
+        }
+    }
+
+    static calculateEventSize(event) {
+        const typeCode = EVENT_CODES[event.type];
+        if (!typeCode) {
+            return 0;
+        }
+
+        switch (typeCode) {
+            case EVENT_CODES.ShipDestroyed:
+                return 1 /* type */ + 4 /* shipId */ + 4 /* LocationX */ + 4 /* LocationY */;
+            default:
+                return 0;
+        }
+    }
+
+    static writeHeader(view, offset, header) {
+        view.setUint32(offset, BINARY_MAGIC, true); offset += 4;
+        view.setUint16(offset, BINARY_VERSION, true); offset += 2;
+        view.setUint32(offset, header.updateId >>> 0, true); offset += 4;
+        view.setFloat64(offset, Number(header.timestamp) || 0, true); offset += 8;
+        view.setUint32(offset, header.objectCount >>> 0, true); offset += 4;
+        view.setUint32(offset, header.eventCount >>> 0, true); offset += 4;
+        return offset;
+    }
+
+    static writeGameObject(view, offset, gameObject) {
+        const typeCode = Utilities.getTypeCode(gameObject.Type);
+        if (!typeCode) {
+            return offset;
+        }
+
+        view.setUint8(offset, typeCode); offset += 1;
+
+        switch (typeCode) {
+            case TYPE_CODES.Player:
+                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeShortString(view, offset, gameObject.Name || "");
+                view.setUint32(offset, (gameObject.ShipId >>> 0) || 0, true); offset += 4;
+                view.setUint16(offset, (gameObject.Kills >>> 0) || 0, true); offset += 2;
+                view.setUint16(offset, (gameObject.Deaths >>> 0) || 0, true); offset += 2;
+                break;
+            case TYPE_CODES.Human:
+            case TYPE_CODES.Alpha:
+            case TYPE_CODES.Bravo:
+                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.Fuel,
+                    gameObject.LocationX,
+                    gameObject.LocationY,
+                    gameObject.Facing,
+                    gameObject.Heading,
+                    gameObject.Velocity,
+                    gameObject.RotationDirection,
+                    gameObject.RotationVelocity,
+                    gameObject.ShieldStatus,
+                    gameObject.HullStrength,
+                    gameObject.Capacitor
+                ]);
+                view.setUint8(offset, gameObject.ShieldOn ? 1 : 0); offset += 1;
+                break;
+            case TYPE_CODES.Debris:
+                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.Fuel,
+                    gameObject.LocationX,
+                    gameObject.LocationY,
+                    gameObject.Facing,
+                    gameObject.Heading,
+                    gameObject.Velocity,
+                    gameObject.RotationDirection,
+                    gameObject.RotationVelocity
+                ]);
+                break;
+            case TYPE_CODES.Missile:
+                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.Fuel,
+                    gameObject.LocationX,
+                    gameObject.LocationY,
+                    gameObject.Facing,
+                    gameObject.Heading,
+                    gameObject.Velocity
+                ]);
+                view.setUint32(offset, (gameObject.Owner >>> 0) || 0, true); offset += 4;
+                break;
+            case TYPE_CODES.Sound:
+                offset = Utilities.writeShortString(view, offset, gameObject.SoundType || "");
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.LocationX,
+                    gameObject.LocationY
+                ]);
+                break;
+            case TYPE_CODES.Thruster:
+                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.Fuel,
+                    gameObject.LocationX,
+                    gameObject.LocationY,
+                    gameObject.Facing,
+                    gameObject.Heading,
+                    gameObject.Velocity
+                ]);
+                break;
+            default:
+                break;
+        }
+
+        return offset;
+    }
+
+    static writeEvent(view, offset, event) {
+        const typeCode = EVENT_CODES[event.type];
+        if (!typeCode) {
+            return offset;
+        }
+
+        view.setUint8(offset, typeCode); offset += 1;
+
+        switch (typeCode) {
+            case EVENT_CODES.ShipDestroyed:
+                view.setUint32(offset, (event.shipId >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeFloatFields(view, offset, [
+                    event.locationX,
+                    event.locationY
+                ]);
+                break;
+            default:
+                break;
+        }
+
+        return offset;
+    }
+
+    static readGameObject(view, offset) {
+        const typeCode = view.getUint8(offset); offset += 1;
+        const typeName = TYPE_NAMES[typeCode] || 'Unknown';
+
+        const object = { Type: typeName };
+
+        switch (typeCode) {
+            case TYPE_CODES.Player: {
+                object.Id = view.getUint32(offset, true); offset += 4;
+                const result = Utilities.readShortString(view, offset);
+                object.Name = result.value;
+                offset = result.offset;
+                object.ShipId = view.getUint32(offset, true); offset += 4;
+                object.Kills = view.getUint16(offset, true); offset += 2;
+                object.Deaths = view.getUint16(offset, true); offset += 2;
+                break;
+            }
+            case TYPE_CODES.Human:
+            case TYPE_CODES.Alpha:
+            case TYPE_CODES.Bravo: {
+                object.Id = view.getUint32(offset, true); offset += 4;
+                const values = Utilities.readFloatFields(view, offset, 11);
+                offset = values.offset;
+                [
+                    object.Fuel,
+                    object.LocationX,
+                    object.LocationY,
+                    object.Facing,
+                    object.Heading,
+                    object.Velocity,
+                    object.RotationDirection,
+                    object.RotationVelocity,
+                    object.ShieldStatus,
+                    object.HullStrength,
+                    object.Capacitor
+                ] = values.values;
+                object.ShieldOn = view.getUint8(offset) === 1; offset += 1;
+                break;
+            }
+            case TYPE_CODES.Debris: {
+                object.Id = view.getUint32(offset, true); offset += 4;
+                const values = Utilities.readFloatFields(view, offset, 8);
+                offset = values.offset;
+                [
+                    object.Fuel,
+                    object.LocationX,
+                    object.LocationY,
+                    object.Facing,
+                    object.Heading,
+                    object.Velocity,
+                    object.RotationDirection,
+                    object.RotationVelocity
+                ] = values.values;
+                break;
+            }
+            case TYPE_CODES.Missile: {
+                object.Id = view.getUint32(offset, true); offset += 4;
+                const values = Utilities.readFloatFields(view, offset, 6);
+                offset = values.offset;
+                [
+                    object.Fuel,
+                    object.LocationX,
+                    object.LocationY,
+                    object.Facing,
+                    object.Heading,
+                    object.Velocity
+                ] = values.values;
+                object.Owner = view.getUint32(offset, true); offset += 4;
+                break;
+            }
+            case TYPE_CODES.Sound: {
+                const result = Utilities.readShortString(view, offset);
+                object.SoundType = result.value;
+                offset = result.offset;
+                const values = Utilities.readFloatFields(view, offset, 2);
+                offset = values.offset;
+                [
+                    object.LocationX,
+                    object.LocationY
+                ] = values.values;
+                break;
+            }
+            case TYPE_CODES.Thruster: {
+                object.Id = view.getUint32(offset, true); offset += 4;
+                const values = Utilities.readFloatFields(view, offset, 6);
+                offset = values.offset;
+                [
+                    object.Fuel,
+                    object.LocationX,
+                    object.LocationY,
+                    object.Facing,
+                    object.Heading,
+                    object.Velocity
+                ] = values.values;
+                break;
+            }
+            default:
+                break;
+        }
+
+        return { object, offset };
+    }
+
+    static readEvent(view, offset) {
+        const typeCode = view.getUint8(offset); offset += 1;
+        const event = { type: EVENT_NAMES[typeCode] || 'Unknown' };
+
+        switch (typeCode) {
+            case EVENT_CODES.ShipDestroyed: {
+                event.shipId = view.getUint32(offset, true); offset += 4;
+                const values = Utilities.readFloatFields(view, offset, 2);
+                offset = values.offset;
+                [
+                    event.locationX,
+                    event.locationY
+                ] = values.values;
+                break;
+            }
+            default:
+                break;
+        }
+
+        return { event, offset };
+    }
+
+    static writeShortString(view, offset, value) {
+        const encoded = Utilities.encodeString(value);
+        const length = Math.min(encoded.length, 255);
+        view.setUint8(offset, length); offset += 1;
+        for (let i = 0; i < length; i++) {
+            view.setUint8(offset + i, encoded[i]);
+        }
+        offset += length;
+        return offset;
+    }
+
+    static readShortString(view, offset) {
+        const length = view.getUint8(offset); offset += 1;
+        const bytes = new Uint8Array(view.buffer, view.byteOffset + offset, length);
+        const value = Utilities.decodeString(bytes);
+        offset += length;
+        return { value, offset };
+    }
+
+    static writeFloatFields(view, offset, fields) {
+        for (let i = 0; i < fields.length; i++) {
+            view.setFloat32(offset, Number(fields[i]) || 0, true);
+            offset += 4;
+        }
+        return offset;
+    }
+
+    static readFloatFields(view, offset, count) {
+        const values = [];
+        for (let i = 0; i < count; i++) {
+            values.push(view.getFloat32(offset, true));
+            offset += 4;
+        }
+        return { values, offset };
     }
 }

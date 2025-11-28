@@ -30,6 +30,9 @@ export class Client {
         this.engine = new Engine(this.mapRadius);
         this.debugOverlay = null;
         this.lastServerUpdateId = null;
+        this.lastSnapshotSizeBytes = 0;
+        this.snapshotSizeAvgBytes = 0;
+        this.snapshotSizeSamples = 0;
         
         window.gameObjects = []; // 7 files
     }
@@ -43,8 +46,16 @@ export class Client {
 
     setupStreamListeners() {
         this.outputStream.on('output', (serverUpdate) => {
-            serverUpdate = Utilities.unpackGameState(serverUpdate);
+            let snapshotBytes = 0;
+            try {
+                snapshotBytes = Utilities.getBinaryPayloadSize(serverUpdate);
+                serverUpdate = Utilities.unpackGameState(serverUpdate);
+            } catch (err) {
+                console.error('Failed to unpack server snapshot', err);
+                return;
+            }
             this.lastServerUpdateId = serverUpdate.update && serverUpdate.update.id ? serverUpdate.update.id : null;
+            this.recordSnapshotSize(snapshotBytes);
             
             if (!this.localMode) {
                 gameObjects = this.engine.convertObjects(gameObjects, serverUpdate.gameState);
@@ -96,7 +107,9 @@ export class Client {
         if (this.debugOverlay) {
             this.debugOverlay.updateStats({
                 fps: this.currentFrameRate,
-                updateId: this.lastServerUpdateId
+                updateId: this.lastServerUpdateId,
+                snapshotBytes: this.lastSnapshotSizeBytes,
+                snapshotAvgBytes: this.snapshotSizeAvgBytes
             });
         }
         window.requestAnimationFrame(this.gameLoop.bind(this));
@@ -212,5 +225,19 @@ export class Client {
                 this.debugOverlay.setThrottleState(res);
             }
         });
+    }
+
+    recordSnapshotSize(snapshotBytes) {
+        if (!Number.isFinite(snapshotBytes) || snapshotBytes <= 0) {
+            return;
+        }
+        this.lastSnapshotSizeBytes = snapshotBytes;
+        this.snapshotSizeSamples += 1;
+        const alpha = Math.min(1, 2 / (this.snapshotSizeSamples + 1));
+        if (this.snapshotSizeSamples === 1) {
+            this.snapshotSizeAvgBytes = snapshotBytes;
+        } else {
+            this.snapshotSizeAvgBytes = (1 - alpha) * this.snapshotSizeAvgBytes + alpha * snapshotBytes;
+        }
     }
 }
