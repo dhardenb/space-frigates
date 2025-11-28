@@ -1430,15 +1430,38 @@ export class Renderer {
 
     }
 
+    getNameInputMetrics() {
+        const horizontalMargin = 40;
+        const usableWidth = Math.max(140, this.availableWidth - horizontalMargin);
+        let width = Math.min(320, Math.max(200, this.availableWidth * 0.35));
+        width = Math.min(width, usableWidth);
+        const height = 70;
+        const x = (this.availableWidth - width) / 2;
+        const y = this.availableHeight / 2 - height * 0.5;
+        const paddingX = 20;
+        const baselineY = y + height / 2;
+        const caretHeight = Math.max(16, Math.min(32, height - 16));
+        return {width, height, x, y, paddingX, baselineY, caretHeight};
+    }
+
     renderNameInputBox() {
 
         this.map.save();
 
-        this.map.translate(this.availableWidth / 2 - 100, this.availableHeight / 2);
+        const metrics = this.getNameInputMetrics();
+        const isActive = Client.gameMode == 'START_MODE';
 
-        this.map.strokeStyle = "yellow";
+        this.map.translate(metrics.x, metrics.y);
+        this.map.lineJoin = "round";
 
-        this.map.strokeRect(0, 0, 200, 50);
+        const edgeColor = isActive ? "rgba(255, 255, 0, 0.9)" : "rgba(200, 200, 200, 0.35)";
+        this.map.lineWidth = 2;
+        this.map.strokeStyle = edgeColor;
+        this.map.strokeRect(0, 0, metrics.width, metrics.height);
+
+        this.map.strokeStyle = "rgba(255, 255, 255, 0.12)";
+        this.map.lineWidth = 1;
+        this.map.strokeRect(1.5, 1.5, metrics.width - 3, metrics.height - 3);
 
         this.map.restore();
 
@@ -1448,29 +1471,47 @@ export class Renderer {
 
         this.map.save();
 
-        let textToRender = "";
+        const metrics = this.getNameInputMetrics();
+        const hasName = this.playerName !== "";
+        const isActive = Client.gameMode == 'START_MODE';
+        const textColor = hasName ? "rgba(255, 255, 128, 0.95)" : "rgba(200, 200, 200, 0.6)";
+        const fontStyle = hasName ? "20px Arial" : "italic 20px Arial";
 
-        if (this.playerName == "") {
+        this.map.font = fontStyle;
+        this.map.fillStyle = textColor;
+        this.map.textAlign = "left";
+        this.map.textBaseline = "middle";
 
-            textToRender = "GUEST";
+        const baselineY = metrics.baselineY;
+        const textStartX = metrics.x + metrics.paddingX;
 
-            this.map.fillStyle = "gray";
+        this.map.translate(textStartX, baselineY);
 
-            this.map.font = "italic 20px Arial";
-
+        if (hasName) {
+            this.map.fillText(this.playerName, 0, 0);
         } else {
-
-            textToRender = this.playerName;
-
-            this.map.fillStyle = "yellow";
-
-            this.map.font = "20px Arial";
-
+            this.map.globalAlpha = 0.65;
+            this.map.fillText("GUEST", 0, 0);
+            this.map.globalAlpha = 1;
         }
 
-        this.map.translate(this.availableWidth / 2 - this.map.measureText(textToRender).width / 2, this.availableHeight / 2 + 35);
+        const renderedText = hasName ? this.playerName : "";
+        const textMetrics = this.map.measureText(renderedText);
+        const caretOffset = hasName ? textMetrics.width : 0;
+        const caretColor = isActive ? "rgba(255, 255, 0, 0.9)" : "rgba(200, 200, 200, 0.35)";
+        const shouldShowCaret = isActive;
+        const caretBlinkOn = Math.floor(this.renderTimeSeconds * 2) % 2 === 0;
 
-        this.map.fillText(textToRender, 0, 0);
+        if (shouldShowCaret && caretBlinkOn) {
+            this.map.beginPath();
+            const caretHeight = metrics.caretHeight;
+            const halfCaret = caretHeight / 2;
+            this.map.moveTo(caretOffset + 2, -halfCaret);
+            this.map.lineTo(caretOffset + 2, halfCaret);
+            this.map.lineWidth = 2;
+            this.map.strokeStyle = caretColor;
+            this.map.stroke();
+        }
 
         this.map.restore();
 
