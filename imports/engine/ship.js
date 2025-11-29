@@ -5,6 +5,10 @@ import {Sound} from './sound.js';
 import {Thruster} from './thruster.js';
 import {SHIP_TYPES} from './shipTypes.js';
 
+const AUTO_PILOT_ANGLE_TOLERANCE_DEGREES = 3;
+const AUTO_PILOT_VELOCITY_THRESHOLD = 0.5;
+const AUTO_PILOT_ROTATION_THRESHOLD = 0.01;
+
 export class Ship {
 
     constructor(id) {
@@ -31,6 +35,8 @@ export class Ship {
         this.MaxShieldStrength = 100;
         this.ShieldRechargeRate = 0.25;
         this.ShieldDecayRate = 0.25;
+        this.autoPilotEngaged = false;
+        this.autoPilotFacingLocked = false;
     }       
 
     init({shipTypeId, pilotType = 'Human', aiProfile = null} = {}) {
@@ -58,6 +64,8 @@ export class Ship {
         this.ShieldStatus = 0;
         this.HullStrength = this.MaxHullStrength;
         this.Capacitor = this.MaxCapacitor;
+        this.autoPilotEngaged = false;
+        this.autoPilotFacingLocked = false;
     }
 
     applyShipTypeDefaults() {
@@ -92,12 +100,130 @@ export class Ship {
 
     determineCurrentCommand(commands) {
         this.currentCommand = null;
+        const cancelAutoPilotCommands = new Set([1, 2, 3, '1', '2', '3']);
         for(let x = 0, y = commands.length; x < y; x++) {
             if (commands[x].targetId == this.Id) {
-                this.currentCommand = commands[x].command;
+                const candidateCommand = commands[x].command;
+                if (candidateCommand === 'BRAKE_DOWN' || candidateCommand === 4 || candidateCommand === '4') {
+                    this.enableAutoPilot();
+                    continue;
+                }
+                if (cancelAutoPilotCommands.has(candidateCommand)) {
+                    this.disableAutoPilot();
+                }
+                this.currentCommand = candidateCommand;
                 break;
             }
         }
+    }
+
+    enableAutoPilot() {
+        if (!this.autoPilotEngaged) {
+            this.autoPilotEngaged = true;
+            this.autoPilotFacingLocked = false;
+        }
+    }
+
+    disableAutoPilot() {
+        if (this.autoPilotEngaged) {
+            this.autoPilotEngaged = false;
+            this.autoPilotFacingLocked = false;
+        }
+    }
+
+    isAutoPilotActive() {
+        return this.autoPilotEngaged === true;
+    }
+
+    updateAutoPilot() {
+        if (!this.isAutoPilotActive()) {
+            return;
+        }
+
+        const facing = Ship.normalizeAngle(Number.isFinite(this.Facing) ? this.Facing : 0);
+        const heading = Ship.normalizeAngle(Number.isFinite(this.Heading) ? this.Heading : 0);
+        const targetFacing = Ship.normalizeAngle(heading + 180);
+        const angleDelta = Ship.normalizeSignedAngle(targetFacing - facing);
+        const absAngleDelta = Math.abs(angleDelta);
+        const velocityMagnitude = Math.abs(Number(this.Velocity) || 0);
+        const rotationMagnitude = Math.abs(Number(this.RotationVelocity) || 0);
+        const rotationSpeedLevel = Math.abs(Number(this.RotationVelocity) || 0);
+
+        if (velocityMagnitude <= AUTO_PILOT_VELOCITY_THRESHOLD && rotationMagnitude <= AUTO_PILOT_ROTATION_THRESHOLD) {
+            this.disableAutoPilot();
+            return;
+        }
+
+        if (rotationSpeedLevel > 1) {
+            this.dampenRotation();
+            return;
+        }
+
+        if (velocityMagnitude > AUTO_PILOT_VELOCITY_THRESHOLD && !this.autoPilotFacingLocked && absAngleDelta > AUTO_PILOT_ANGLE_TOLERANCE_DEGREES) {
+            const desiredDirection = angleDelta > 0 ? 'CounterClockwise' : 'Clockwise';
+            const rotationDirection = this.RotationDirection || 'None';
+            const rotationVelocity = Number(this.RotationVelocity) || 0;
+            const needsKickstart = rotationDirection === 'None' || rotationVelocity <= AUTO_PILOT_ROTATION_THRESHOLD;
+            const rotatingSameWay = rotationDirection === desiredDirection;
+            if (needsKickstart || rotatingSameWay) {
+                this.applyRotationThrust(desiredDirection);
+            }
+            return;
+        }
+
+        if (!this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.RotationDirection !== 'None') {
+            this.dampenRotation();
+            return;
+        }
+
+        if (this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.RotationDirection !== 'None') {
+            this.dampenRotation();
+            return;
+        }
+
+        if (velocityMagnitude > AUTO_PILOT_VELOCITY_THRESHOLD) {
+            const previousVelocity = velocityMagnitude;
+            const fired = this.applyForwardThrust();
+            if (fired) {
+                if (!this.autoPilotFacingLocked) {
+                    this.autoPilotFacingLocked = true;
+                }
+                const newVelocityMagnitude = Math.abs(Number(this.Velocity) || 0);
+                if (newVelocityMagnitude >= previousVelocity) {
+                    this.Velocity = 0;
+                    this.Heading = this.Facing;
+                }
+            }
+            return;
+        }
+
+        if (rotationMagnitude <= AUTO_PILOT_ROTATION_THRESHOLD && velocityMagnitude <= AUTO_PILOT_VELOCITY_THRESHOLD) {
+            this.disableAutoPilot();
+        }
+    }
+
+    static normalizeAngle(angle) {
+        if (!Number.isFinite(angle)) {
+            return 0;
+        }
+        let normalized = angle % 360;
+        if (normalized < 0) {
+            normalized += 360;
+        }
+        return normalized;
+    }
+
+    static normalizeSignedAngle(angle) {
+        if (!Number.isFinite(angle)) {
+            return 0;
+        }
+        let normalized = angle % 360;
+        if (normalized > 180) {
+            normalized -= 360;
+        } else if (normalized < -180) {
+            normalized += 360;
+        }
+        return normalized;
     }
 
     updateRector(framesPerSecond) {
@@ -113,32 +239,6 @@ export class Ship {
         if (this.Capacitor < capacitorCapacity) {
             const regenAmount = reactorOutputPerSecond / framesPerSecond;
             this.Capacitor = Math.min(capacitorCapacity, this.Capacitor + regenAmount);
-        }
-    }
-
-    updateBrakes() {
-        if (this.currentCommand == 4) {
-            let activateBrakes;
-            if (this.Capacitor >= 5) {
-                this.Capacitor -= 5; // BAD! Should be with respect to time!!!
-                activateBrakes = true;
-            } else if (this.ShieldStatus >= 10) {
-                this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
-                activateBrakes = true;
-            } else {
-                activateBrakes = false;
-            }
-            if (activateBrakes) {
-                if (this.Velocity > 0) {
-                    this.Velocity = this.Velocity - 20; // BAD! Should be with respect to time!!!
-                }
-                if (this.RotationVelocity > 0) {
-                    this.RotationVelocity--; // BAD! Should be with respect to time!!!
-                    if (this.RotationVelocity == 0) {
-                        this.RotationDirection = 'None';
-                    }
-                }
-            }
         }
     }
 
@@ -238,11 +338,11 @@ export class Ship {
     update(commands, framesPerSecond) {
         this.determineCurrentCommand(commands);
         this.updateRector(framesPerSecond);
-        this.updateBrakes();
         this.fireLaser();
         this.updateThrusters();
         this.rotateLeft();
         this.rotateRight();
+        this.updateAutoPilot();
         this.updateShields();
         this.updateVelocity();
         this.updateFacing();

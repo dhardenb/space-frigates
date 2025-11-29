@@ -29,6 +29,7 @@ export class Client {
         this.playerShipId = -1;
         this.engine = new Engine(this.mapRadius);
         this.debugOverlay = null;
+        this.autopilotIndicator = document.getElementById('autopilot-indicator');
         this.lastServerUpdateId = null;
         this.lastSnapshotSizeBytes = 0;
         this.snapshotSizeAvgBytes = 0;
@@ -115,6 +116,7 @@ export class Client {
         this.previousTimeStamp = currentTimeStamp;
         this.commands = [];
         this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
+        const playerShip = this.getPlayerShip();
         this.engine.removeSoundObjects();
         if (this.debugOverlay) {
             this.debugOverlay.updateStats({
@@ -123,8 +125,9 @@ export class Client {
                 snapshotBytes: this.lastSnapshotSizeBytes,
                 snapshotAvgBytes: this.snapshotSizeAvgBytes
             });
-            this.debugOverlay.updateShipAttributes(this.getPlayerShip());
+            this.debugOverlay.updateShipAttributes(playerShip);
         }
+        this.updateAutoPilotIndicator(playerShip);
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
 
@@ -284,6 +287,23 @@ export class Client {
             }
         }
         return null;
+    }
+
+    updateAutoPilotIndicator(ship) {
+        if (!this.autopilotIndicator) {
+            this.autopilotIndicator = document.getElementById('autopilot-indicator');
+        }
+        if (!this.autopilotIndicator) {
+            return;
+        }
+        const engaged = !!(ship && ship.autoPilotEngaged);
+        if (engaged) {
+            this.autopilotIndicator.classList.add('is-active');
+            this.autopilotIndicator.classList.remove('hidden');
+        } else {
+            this.autopilotIndicator.classList.remove('is-active');
+            this.autopilotIndicator.classList.add('hidden');
+        }
     }
 
     applyShipAttributeOverrides(payload) {

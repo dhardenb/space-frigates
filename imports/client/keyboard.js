@@ -58,9 +58,12 @@ export class Keyboard {
         }
         // DOWN_ARROW - Stop
         else if(evt.keyCode==40) {
-            evt.preventDefault();
             if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 4});
+                evt.preventDefault();
+                if (evt.repeat) {
+                    return;
+                }
+                client.commandHandler({command: 'BRAKE_DOWN'});
             }
         }
         // A
@@ -93,7 +96,10 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 4});
+                if (evt.repeat) {
+                    return;
+                }
+                client.commandHandler({command: 'BRAKE_DOWN'});
             }
         }
         // W
@@ -135,4 +141,5 @@ export class Keyboard {
             }
         }
     }
+
 }

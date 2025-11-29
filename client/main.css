@@ -30,6 +30,28 @@ adding the attributes via a style sheet.*/
 	display: none !important;
 }
 
+.hud-indicator {
+	position: fixed;
+	left: 12px;
+	bottom: 150px;
+	z-index: 5;
+	padding: 6px 12px;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 200, 0, 0.8);
+	background: rgba(255, 200, 0, 0.2);
+	color: #fff4c4;
+	font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.hud-indicator.is-active {
+	background: rgba(255, 200, 0, 0.35);
+	border-color: rgba(255, 230, 0, 0.9);
+	color: #fffdf3;
+}
+
 .debug-toggle {
 	position: fixed;
 	top: 16px;

@@ -1,5 +1,5 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 2;
+const BINARY_VERSION = 3;
 
 const TYPE_CODES = {
     Player: 1,
@@ -254,7 +254,7 @@ export class Utilities {
                 return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + 4 /* ShipId */ + 2 /* Kills */ + 2 /* Deaths */;
             }
             case TYPE_CODES.Ship: {
-                return BASE + 4 /* Id */ + (4 * 10) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */;
+                return BASE + 4 /* Id */ + (4 * 10) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */ + 1 /* auto pilot */;
             }
             case TYPE_CODES.Debris: {
                 return BASE + 4 /* Id */ + (4 * 7);
@@ -332,6 +332,7 @@ export class Utilities {
                 view.setUint8(offset, gameObject.ShieldOn ? 1 : 0); offset += 1;
                 view.setUint8(offset, SHIP_TYPE_CODES[gameObject.shipTypeId] || 0); offset += 1;
                 view.setUint8(offset, PILOT_TYPE_CODES[gameObject.pilotType] || 0); offset += 1;
+                view.setUint8(offset, gameObject.autoPilotEngaged ? 1 : 0); offset += 1;
                 break;
             case TYPE_CODES.Debris:
                 view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
@@ -441,6 +442,7 @@ export class Utilities {
                 object.ShieldOn = view.getUint8(offset) === 1; offset += 1;
                 object.shipTypeId = SHIP_TYPE_NAMES[view.getUint8(offset)] || null; offset += 1;
                 object.pilotType = PILOT_TYPE_NAMES[view.getUint8(offset)] || 'Unknown'; offset += 1;
+                object.autoPilotEngaged = view.getUint8(offset) === 1; offset += 1;
                 break;
             }
             case TYPE_CODES.Debris: {

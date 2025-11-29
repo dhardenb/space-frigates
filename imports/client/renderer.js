@@ -1664,7 +1664,7 @@ export class Renderer {
 
         this.map.translate(0, 25);
 
-        this.map.fillText("S or DOWN ARROW => Stop", 0, 0);
+        this.map.fillText("S or DOWN ARROW => Auto Brake", 0, 0);
 
         this.map.translate(0, 25);
 
