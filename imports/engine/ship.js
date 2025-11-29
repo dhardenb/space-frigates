@@ -101,19 +101,27 @@ export class Ship {
     determineCurrentCommand(commands) {
         this.currentCommand = null;
         const cancelAutoPilotCommands = new Set([1, 2, 3, '1', '2', '3']);
+        let autoPilotRequested = false;
+        let autoPilotCancelled = false;
         for(let x = 0, y = commands.length; x < y; x++) {
             if (commands[x].targetId == this.Id) {
                 const candidateCommand = commands[x].command;
                 if (candidateCommand === 'BRAKE_DOWN' || candidateCommand === 4 || candidateCommand === '4') {
-                    this.enableAutoPilot();
+                    autoPilotRequested = true;
                     continue;
                 }
                 if (cancelAutoPilotCommands.has(candidateCommand)) {
                     this.disableAutoPilot();
+                    autoPilotCancelled = true;
                 }
-                this.currentCommand = candidateCommand;
-                break;
+                if (this.currentCommand === null) {
+                    this.currentCommand = candidateCommand;
+                }
             }
+        }
+
+        if (autoPilotRequested && !autoPilotCancelled) {
+            this.enableAutoPilot();
         }
     }
 
