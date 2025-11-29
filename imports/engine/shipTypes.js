@@ -10,8 +10,9 @@ export const SHIP_TYPES = Object.freeze({
         maxPlasmaCannonStrength: 100,
         maxCapacitor: 100,
         reactorOutputPerSecond: 10,
-        thrusterEnergyCost: 5,
+        thrusterEnergyPerSecond: 300,
         missileEnergyCost: 10,
+        rotationEnergyPerSecond: 300,
         thrusterForceProduced: 14400000,
         mass: 12000
     },
@@ -26,8 +27,9 @@ export const SHIP_TYPES = Object.freeze({
         maxPlasmaCannonStrength: 100,
         maxCapacitor: 100,
         reactorOutputPerSecond: 10,
-        thrusterEnergyCost: 5,
+        thrusterEnergyPerSecond: 300,
         missileEnergyCost: 10,
+        rotationEnergyPerSecond: 300,
         thrusterForceProduced: 14400000,
         mass: 12000
     }

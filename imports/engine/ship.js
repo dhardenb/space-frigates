@@ -22,8 +22,9 @@ export class Ship {
         this.MaxCapacitor = 0;
         this.Mass = 12000; // kilograms
         this.ReactorOutputPerSecond = 10;
-        this.ThrusterEnergyCost = 5;
+        this.ThrusterEnergyPerSecond = Physics.framesPerSecond * 5; // preserves 5J/frame
         this.MissileEnergyCost = 10;
+        this.RotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
         this.ThrusterForceProduced = this.Mass * 20 * Physics.framesPerSecond;
     }       
 
@@ -71,8 +72,9 @@ export class Ship {
         this.MaxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
         this.MaxCapacitor = definition.maxCapacitor;
         this.ReactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.ReactorOutputPerSecond;
-        this.ThrusterEnergyCost = definition.thrusterEnergyCost ?? this.ThrusterEnergyCost;
         this.MissileEnergyCost = definition.missileEnergyCost ?? this.MissileEnergyCost;
+        this.ThrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.ThrusterEnergyPerSecond;
+        this.RotationEnergyPerSecond = definition.rotationEnergyPerSecond ?? this.RotationEnergyPerSecond;
         this.Mass = definition.mass ?? this.Mass;
         const defaultThrusterForce = this.Mass * 20 * Physics.framesPerSecond;
         this.ThrusterForceProduced = definition.thrusterForceProduced ?? defaultThrusterForce;
@@ -155,90 +157,19 @@ export class Ship {
 
     updateThrusters() {
         if (this.currentCommand == 2) {
-            let activateThruster;
-            if (this.Capacitor >= this.ThrusterEnergyCost) {
-                this.Capacitor -= this.ThrusterEnergyCost; // BAD! Should be with respect to time!!!
-                activateThruster = true;
-            } else if (this.ShieldStatus >= 10) {
-                this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
-                activateThruster = true;
-            } else {
-                activateThruster = false;
-            }
-            if (activateThruster) {
-                const mass = this.Mass || 1;
-                const thrustForce = this.ThrusterForceProduced || 0;
-                const acceleration = thrustForce / mass;
-                const velocityBoost = acceleration / Physics.framesPerSecond;
-                Physics.findNewVelocity(this, this.Facing, velocityBoost);
-                const newThruster = new Thruster(Engine.getNextGameObjectId());
-                newThruster.init(this);
-                gameObjects.push(newThruster);
-            }
+            this.applyForwardThrust();
         }
     }
 
     rotateLeft() {
         if (this.currentCommand == 3) {
-            let activateRotateLeft;
-            if (this.Capacitor >= 5) {
-                this.Capacitor -= 5; // BAD! Should be with respect to time!!!
-                activateRotateLeft = true;
-            } else if (this.ShieldStatus >= 10) {
-                this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
-                activateRotateLeft = true;
-            } else {
-                activateRotateLeft = false;
-            }
-            if (activateRotateLeft) {
-                if (this.RotationDirection == 'None') {
-                    this.RotationDirection = 'Clockwise';
-                    this.RotationVelocity = this.RotationVelocity + 1; // BAD! Should be with respect to time!!!
-                }
-                else if (this.RotationDirection == 'Clockwise') {
-                    if (this.RotationVelocity < 3) {
-                        this.RotationVelocity = this.RotationVelocity + 1; // BAD! Should be with respect to time!!!
-                    }
-                }
-                else if (this.RotationDirection == 'CounterClockwise') {
-                    this.RotationVelocity = this.RotationVelocity - 1; // BAD! Should be with respect to time!!!
-                    if (this.RotationVelocity == 0) {
-                        this.RotationDirection = 'None';
-                    }
-                }
-            }
+            this.applyRotationThrust('Clockwise');
         }
     }
 
     rotateRight() {
         if (this.currentCommand == 1) {
-            let activateRotateRight;
-            if (this.Capacitor >= 5) {
-                this.Capacitor -= 5; // BAD! Should be with respect to time!!!
-                activateRotateRight = true;
-            } else if (this.ShieldStatus >= 10) {
-                this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
-                activateRotateRight = true;
-            } else {
-                activateRotateRight = false;
-            }
-            if (activateRotateRight) {
-                if (this.RotationDirection == 'None') {
-                    this.RotationDirection = 'CounterClockwise';
-                    this.RotationVelocity = this.RotationVelocity + 1; // BAD! Should be with respect to time!!!
-                }
-                else if (this.RotationDirection == 'CounterClockwise') {
-                    if (this.RotationVelocity < 3) {
-                        this.RotationVelocity = this.RotationVelocity + 1; // BAD! Should be with respect to time!!!
-                    }
-                }
-                else if (this.RotationDirection == 'Clockwise') {
-                    this.RotationVelocity = this.RotationVelocity - 1; // BAD! Should be with respect to time!!!
-                    if (this.RotationVelocity == 0) {
-                        this.RotationDirection = 'None';
-                    }
-                }
-            }
+            this.applyRotationThrust('CounterClockwise');
         }
     }
 
@@ -398,6 +329,78 @@ export class Ship {
         } else {
             this.ShieldStatus -= damage;
         }
+    }
+
+    applyForwardThrust() {
+        const energyPerFrame = this.ThrusterEnergyPerSecond / Physics.framesPerSecond;
+        let activateThruster = false;
+        if (this.Capacitor >= energyPerFrame) {
+            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+            activateThruster = true;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+            activateThruster = true;
+        }
+
+        if (!activateThruster) {
+            return false;
+        }
+
+        const mass = this.Mass || 1;
+        const thrustForce = this.ThrusterForceProduced || 0;
+        const acceleration = thrustForce / mass;
+        const velocityBoost = acceleration / Physics.framesPerSecond;
+        Physics.findNewVelocity(this, this.Facing, velocityBoost);
+        const newThruster = new Thruster(Engine.getNextGameObjectId());
+        newThruster.init(this);
+        gameObjects.push(newThruster);
+        return true;
+    }
+
+    applyRotationThrust(direction) {
+        const energyPerFrame = this.RotationEnergyPerSecond / Physics.framesPerSecond;
+        let activate = false;
+        if (this.Capacitor >= energyPerFrame) {
+            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+            activate = true;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+            activate = true;
+        }
+
+        if (!activate) {
+            return false;
+        }
+
+        if (this.RotationDirection == 'None') {
+            this.RotationDirection = direction;
+            this.RotationVelocity = 1;
+            return true;
+        }
+
+        if (this.RotationDirection == direction) {
+            if (this.RotationVelocity < 3) {
+                this.RotationVelocity = this.RotationVelocity + 1; // BAD! Should be with respect to time!!!
+            }
+            return true;
+        }
+
+        this.RotationVelocity = this.RotationVelocity - 1; // BAD! Should be with respect to time!!!
+        if (this.RotationVelocity <= 0) {
+            this.RotationVelocity = 0;
+            this.RotationDirection = 'None';
+        }
+        return true;
+    }
+
+    dampenRotation() {
+        if (this.RotationVelocity <= 0 || this.RotationDirection == 'None') {
+            this.RotationVelocity = 0;
+            this.RotationDirection = 'None';
+            return true;
+        }
+        const opposing = this.RotationDirection == 'Clockwise' ? 'CounterClockwise' : 'Clockwise';
+        return this.applyRotationThrust(opposing);
     }
 
     checkForComponentDamage() {
