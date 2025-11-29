@@ -1558,7 +1558,7 @@ export class Renderer {
 
         this.map.save();
 
-        this.map.translate(0, this.availableHeight - 125);
+        this.map.translate(0, this.availableHeight - 90);
 
         this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
 
@@ -1570,7 +1570,7 @@ export class Renderer {
 
         this.map.save();
 
-        this.map.translate(125, this.availableHeight - 144);
+        this.map.translate(125, this.availableHeight - 108);
 
         this.renderMeter(hullStrengthDisplayValue);
 
