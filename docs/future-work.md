@@ -24,6 +24,8 @@
    - Move missile starting fuel and burn rate out of hard-coded constants so different missile classes (or ship loadouts) can define their own endurance and damage profiles.
 4. **Autopilot braking**
    - Replace the arcade brake with an autopilot routine that computes retrograde thrust/rotation and executes coordinated burns to bring the ship to a stop, while still feeling friendly to players.
+5. **Rotation tuning**
+   - Introduce per-ship rotation acceleration/decay settings (or an advanced flight mode) so rotational thrusters can feel distinct without making new players spin uncontrollably.
 
 ### Network Optimization
 
