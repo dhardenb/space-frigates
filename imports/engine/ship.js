@@ -1,5 +1,5 @@
 import {Engine} from '../engine/engine.js';
-import {Missile} from './missile.js';
+import {Laser} from './laser.js';
 import {Physics} from './physics.js';
 import {Sound} from './sound.js';
 import {Thruster} from './thruster.js';
@@ -23,7 +23,7 @@ export class Ship {
         this.Mass = 12000; // kilograms
         this.ReactorOutputPerSecond = 10;
         this.ThrusterEnergyPerSecond = Physics.framesPerSecond * 5; // preserves 5J/frame
-        this.MissileEnergyCost = 10;
+        this.LaserEnergyCost = 10;
         this.RotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
         this.ThrusterForceProduced = this.Mass * 20 * Physics.framesPerSecond;
         this.MaxShieldStrength = 100;
@@ -78,7 +78,7 @@ export class Ship {
         this.ShieldRechargeRate = definition.shieldRechargeRate ?? this.ShieldRechargeRate;
         this.ShieldDecayRate = definition.shieldDecayRate ?? this.ShieldDecayRate;
         this.ReactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.ReactorOutputPerSecond;
-        this.MissileEnergyCost = definition.missileEnergyCost ?? this.MissileEnergyCost;
+        this.LaserEnergyCost = definition.laserEnergyCost ?? this.LaserEnergyCost;
         this.ThrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.ThrusterEnergyPerSecond;
         this.RotationEnergyPerSecond = definition.rotationEnergyPerSecond ?? this.RotationEnergyPerSecond;
         this.Mass = definition.mass ?? this.Mass;
@@ -138,24 +138,24 @@ export class Ship {
         }
     }
 
-    fireMissile() {
+    fireLaser() {
         if (this.currentCommand == 0) {
-            let activateMissile;
-            if (this.Capacitor >= this.MissileEnergyCost) {
-                this.Capacitor -= this.MissileEnergyCost; // BAD! Should be with respect to time!!!
-                activateMissile = true;
+            let activateLaser;
+            if (this.Capacitor >= this.LaserEnergyCost) {
+                this.Capacitor -= this.LaserEnergyCost; // BAD! Should be with respect to time!!!
+                activateLaser = true;
             } else if (this.ShieldStatus >= 20) {
                 this.ShieldStatus -= 20; // BAD! Should be with respect to time!!!
-                activateMissile = true;
+                activateLaser = true;
             } else {
-                activateMissile = false;
+                activateLaser = false;
             }
-            if (activateMissile) {
-                const newMissile = new Missile(Engine.getNextGameObjectId());
-                newMissile.init(this);
-                gameObjects.push(newMissile);
+            if (activateLaser) {
+                const newLaser = new Laser(Engine.getNextGameObjectId());
+                newLaser.init(this);
+                gameObjects.push(newLaser);
                 const newSound = new Sound();
-                newSound.init("MissileFired", this);
+                newSound.init("LaserFired", this);
                 gameObjects.push(newSound);
             }
         }
@@ -235,7 +235,7 @@ export class Ship {
         this.determineCurrentCommand(commands);
         this.updateRector(framesPerSecond);
         this.updateBrakes();
-        this.fireMissile();
+        this.fireLaser();
         this.updateThrusters();
         this.rotateLeft();
         this.rotateRight();

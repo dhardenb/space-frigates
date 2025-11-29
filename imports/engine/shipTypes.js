@@ -14,7 +14,7 @@ export const SHIP_TYPES = Object.freeze({
         shieldDecayRate: 0.25,
         reactorOutputPerSecond: 10,
         thrusterEnergyPerSecond: 300,
-        missileEnergyCost: 10,
+        laserEnergyCost: 10,
         rotationEnergyPerSecond: 300,
         thrusterForceProduced: 14400000,
         mass: 12000
@@ -34,7 +34,7 @@ export const SHIP_TYPES = Object.freeze({
         shieldDecayRate: 0.25,
         reactorOutputPerSecond: 10,
         thrusterEnergyPerSecond: 300,
-        missileEnergyCost: 10,
+        laserEnergyCost: 10,
         rotationEnergyPerSecond: 300,
         thrusterForceProduced: 14400000,
         mass: 12000

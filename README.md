@@ -10,7 +10,7 @@ framework, Canvas, and a home grown game engine.
 Button | Result
 ------ | ------
 ENTER | Start New Ship
-SPACE_BAR | Fire Missile
+SPACE_BAR | Fire Laser
 ALT | Toggle Shields
 UP_ARROW OR W | Thrust Forward
 LEFT_ARROW OR A | Thrust Counter Clockwise

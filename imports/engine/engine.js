@@ -1,5 +1,5 @@
 import {Player} from './player.js';
-import {Missile} from './missile.js';
+import {Laser} from './laser.js';
 import {Ship} from './ship.js';
 import {Particle} from './particle.js';
 import {Thruster} from './thruster.js';
@@ -44,12 +44,12 @@ export class Engine {
                 // Don't let objects colide with themselves!
                 if (i != k) {
                     if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size / 2 + solidObjects[k].Size / 2)) {
-                        // ship hit by missile
-                        if (isShip(solidObjects[k]) && (solidObjects[i].Type == "Missile")) {
-                            // The amount of damage that the missle does is determined by
+                        // ship hit by laser
+                        if (isShip(solidObjects[k]) && (solidObjects[i].Type == "Laser")) {
+                            // The amount of damage that the laser does is determined by
                             // the amount of fuel remaining. So, the amount of damage
-                            // done by the missile is reduced the further is travels.
-                            // NOTE: Once a missile runs of a fuel it dissapaears
+                            // done by the laser is reduced the farther it travels.
+                            // NOTE: Once a laser runs out of fuel it disappears
                             const damage = solidObjects[i].Fuel;
                             // Apply the damage to the taregt ship
                             solidObjects[k].takeDamage(damage);
@@ -169,7 +169,7 @@ export class Engine {
         const constructors = {
             Player: Player,
             Ship: Ship,
-            Missile: Missile,
+            Laser: Laser,
             Debris: Debris,
             Sound: Sound,
             Thruster: Thruster

@@ -747,9 +747,9 @@ export class Renderer {
 
                 }
 
-                else if (gameObjects[i].Type == 'Missile') {
+                else if (gameObjects[i].Type == 'Laser') {
 
-                    this.renderMissle(gameObjects[i]);
+                    this.renderLaser(gameObjects[i]);
 
                 }
 
@@ -1112,21 +1112,21 @@ export class Renderer {
 
     }
 
-    renderMissle(missile) {
+    renderLaser(laser) {
 
         this.map.save();
 
-        this.map.translate(missile.LocationX * this.worldPixelsPerMeter, missile.LocationY * this.worldPixelsPerMeter);
+        this.map.translate(laser.LocationX * this.worldPixelsPerMeter, laser.LocationY * this.worldPixelsPerMeter);
 
-        this.map.rotate(missile.Facing * Math.PI / 180);
+        this.map.rotate(laser.Facing * Math.PI / 180);
 
-        this.map.scale(missile.Size * this.worldPixelsPerMeter, missile.Size * this.worldPixelsPerMeter);
+        this.map.scale(laser.Size * this.worldPixelsPerMeter, laser.Size * this.worldPixelsPerMeter);
 
-        this.map.strokeStyle = "rgba(255, 255, 255, " + missile.Fuel / 60 + ")";
+        this.map.strokeStyle = "rgba(255, 255, 255, " + laser.Fuel / 60 + ")";
 
         this.map.lineWidth = 0.1;
 
-        this.map.fillStyle = "rgba(0, 255, 255, " + missile.Fuel / 60 + ")";
+        this.map.fillStyle = "rgba(0, 255, 255, " + laser.Fuel / 60 + ")";
 
         this.map.beginPath();
 
@@ -1248,7 +1248,7 @@ export class Renderer {
 
             let srcFile = '';
 
-            if (sound.SoundType == "MissileFired") {
+            if (sound.SoundType == "LaserFired") {
                 
                 soundVolume = soundVolume * 1.0;
                 

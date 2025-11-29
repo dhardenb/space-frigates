@@ -5,7 +5,7 @@ const TYPE_CODES = {
     Player: 1,
     Ship: 2,
     Debris: 3,
-    Missile: 4,
+    Laser: 4,
     Sound: 5,
     Thruster: 6
 };
@@ -259,7 +259,7 @@ export class Utilities {
             case TYPE_CODES.Debris: {
                 return BASE + 4 /* Id */ + (4 * 7);
             }
-            case TYPE_CODES.Missile: {
+            case TYPE_CODES.Laser: {
                 return BASE + 4 /* Id */ + (4 * 6) + 4 /* Owner */;
             }
             case TYPE_CODES.Sound: {
@@ -345,7 +345,7 @@ export class Utilities {
                     gameObject.RotationVelocity
                 ]);
                 break;
-            case TYPE_CODES.Missile:
+            case TYPE_CODES.Laser:
                 view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
                     gameObject.Fuel,
@@ -458,7 +458,7 @@ export class Utilities {
                 ] = values.values;
                 break;
             }
-            case TYPE_CODES.Missile: {
+            case TYPE_CODES.Laser: {
                 object.Id = view.getUint32(offset, true); offset += 4;
                 const values = Utilities.readFloatFields(view, offset, 6);
                 offset = values.offset;

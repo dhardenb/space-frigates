@@ -38,7 +38,7 @@ Right now, I am sizing all the objects based on diving the viewble area of the s
 
 So, what I tried to do is change the code such that the ship is defined from 0 to 1 and then scaled as neccisary to make it fill a certain percentage of the screen.
 
-However, when I did that I started ti have problems. The main problem being that there are a bunch of things hard coded in the physics engine that make size assumptions. For example, missiles should start X number of "points" from the front of the ship. And that X is relative to the deault size of the ship, which I assumed to be ten "points."
+However, when I did that I started ti have problems. The main problem being that there are a bunch of things hard coded in the physics engine that make size assumptions. For example, lasers should start X number of "points" from the front of the ship. And that X is relative to the deault size of the ship, which I assumed to be ten "points."
 
 #### Conclusion
 
@@ -101,7 +101,7 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 ### Binary Snapshot Format
 
 - Snapshots now travel as a binary `Uint8Array` with the following header: magic number `0x53464753` (“SFGS”), uint16 schema version, uint32 `updateId`, float64 `createdAt`, uint32 object count, uint32 event count.
-- Each entity is emitted with a one-byte type code (`Player`, `Human`, `Alpha`, `Bravo`, `Debris`, `Missile`, `Sound`, `Thruster`) followed by a fixed layout of primitive fields. Positions, headings, velocities, etc. are encoded as float32 values; identifiers use uint32. Player-only strings (name) and sound effect identifiers are stored as length-prefixed UTF-8 blobs (max 255 bytes).
+- Each entity is emitted with a one-byte type code (`Player`, `Human`, `Alpha`, `Bravo`, `Debris`, `Laser`, `Sound`, `Thruster`) followed by a fixed layout of primitive fields. Positions, headings, velocities, etc. are encoded as float32 values; identifiers use uint32. Player-only strings (name) and sound effect identifiers are stored as length-prefixed UTF-8 blobs (max 255 bytes).
 - Events are appended after the entity list. Right now only `ShipDestroyed` exists, encoded as `[type, shipId (uint32), locationX (float32), locationY (float32)]`.
 - The client receives the raw `Uint8Array`, validates the magic/version, then reconstructs plain JS objects so the rest of the engine continues to operate on the same structures as before the binary migration.
 

@@ -19,9 +19,9 @@
 1. **Realistic energy model**
    - Revisit capacitor capacities, reactor output, and weapon energy costs so they use plausible joule values (and possibly units) instead of the current game-only placeholders, then rebalance regen and consumption around the new scale.
 2. **Weapon & hull scaling**
-   - Support variable-strength weapons (missiles, future lasers) whose damage ties into physically meaningful metrics, and correlate hull durability to ship mass/structure so heavier ships naturally sustain more punishment.
-3. **Missile energy configurability**
-   - Move missile starting fuel and burn rate out of hard-coded constants so different missile classes (or ship loadouts) can define their own endurance and damage profiles.
+   - Support variable-strength weapons (lasers, future variations) whose damage ties into physically meaningful metrics, and correlate hull durability to ship mass/structure so heavier ships naturally sustain more punishment.
+3. **Laser energy configurability**
+   - Move laser starting fuel and burn rate out of hard-coded constants so different laser classes (or ship loadouts) can define their own endurance and damage profiles.
 4. **Autopilot braking**
    - Replace the arcade brake with an autopilot routine that computes retrograde thrust/rotation and executes coordinated burns to bring the ship to a stop, while still feeling friendly to players.
 5. **Rotation tuning**
