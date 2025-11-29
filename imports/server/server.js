@@ -16,7 +16,11 @@ export class Server {
         this.commands = [];
         this.frameRate = Number(Meteor.settings.private.frameRate) || 60;
         this.tickIntervalMs = 1000 / this.frameRate;
-        this.ai = new Ai(this.mapRadius);
+        this.spawnPreferences = {
+            human: 'Viper',
+            ai: 'Turtle'
+        };
+        this.ai = new Ai(this.mapRadius, {selectShipType: this.resolveAiShipType.bind(this)});
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
         this.updateId = 0;
@@ -92,6 +96,44 @@ export class Server {
         };
     }
 
+    getSpawnPreferences() {
+        return Object.assign({}, this.spawnPreferences);
+    }
+
+    setSpawnPreferences(patch = {}) {
+        const allowed = new Set(['Viper', 'Turtle', 'Random']);
+        const next = Object.assign({}, this.spawnPreferences);
+
+        if (typeof patch.human === 'string' && allowed.has(patch.human)) {
+            next.human = patch.human;
+        }
+        if (typeof patch.ai === 'string' && allowed.has(patch.ai)) {
+            next.ai = patch.ai;
+        }
+
+        this.spawnPreferences = next;
+        return this.getSpawnPreferences();
+    }
+
+    resolveHumanShipType() {
+        return this.resolveShipPreference(this.spawnPreferences.human, 'Viper');
+    }
+
+    resolveAiShipType() {
+        return this.resolveShipPreference(this.spawnPreferences.ai, 'Turtle');
+    }
+
+    resolveShipPreference(preference, fallback) {
+        const pref = typeof preference === 'string' ? preference : fallback;
+        if (pref === 'Random') {
+            return Math.random() < 0.5 ? 'Viper' : 'Turtle';
+        }
+        if (pref === 'Viper' || pref === 'Turtle') {
+            return pref;
+        }
+        return fallback;
+    }
+
     setNetworkThrottleState(patch = {}) {
         const nextState = {
             enabled: this.networkThrottle.enabled,
@@ -139,8 +181,11 @@ Server.instance = null;
 Meteor.methods({
     createNewPlayerShip: function(name, mapRadius) {
         
+        const server = Server.getInstance();
+        const shipTypeId = server ? server.resolveHumanShipType() : 'Viper';
         let playerShip = new Ship(Engine.getNextGameObjectId());
-        playerShip.init('Human');
+        playerShip.init({shipTypeId, pilotType: 'Human'});
+        playerShip.Name = name;
         playerShip.setStartingHumanPosition(mapRadius);
         gameObjects.push(playerShip);
 

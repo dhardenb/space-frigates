@@ -1,10 +1,13 @@
 import {Engine} from '../engine/engine.js';
 import {Ship} from '../engine/ship.js';
 
+const AI_PROFILES = ['Alpha', 'Bravo'];
+
 export class Ai {
 
-    constructor(mapRadius) {
+    constructor(mapRadius, options = {}) {
         this.mapRadius = mapRadius;
+        this.selectShipType = typeof options.selectShipType === 'function' ? options.selectShipType : (() => 'Turtle');
     }
 
     createNewShip() {
@@ -27,16 +30,11 @@ export class Ai {
         } else {
             nextShipType = Math.floor((Math.random()*6400)+1);
         }
-        let newAiShip;
-        if (nextShipType == 1) {
-            newAiShip = new Ship(Engine.getNextGameObjectId());
-            newAiShip.init('Alpha');
-            newAiShip.setStartingAiPosition(this.mapRadius);
-            gameObjects.push(newAiShip);
-        }
-        else if (nextShipType == 2) {
-            newAiShip = new Ship(Engine.getNextGameObjectId());
-            newAiShip.init('Bravo');
+        if (nextShipType == 1 || nextShipType == 2) {
+            const aiProfile = AI_PROFILES[nextShipType - 1];
+            const newAiShip = new Ship(Engine.getNextGameObjectId());
+            const shipTypeId = this.selectShipType();
+            newAiShip.init({shipTypeId, pilotType: 'Bot', aiProfile});
             newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }
@@ -44,9 +42,10 @@ export class Ai {
 
     issueCommands(commands) {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Type != 'Human') {
+            const gameObject = gameObjects[x];
+            if (gameObject.Type === 'Ship' && gameObject.pilotType === 'Bot') {
                 if (Math.floor((Math.random()*25)+1) == 1) {
-                    this.think(commands, gameObjects[x]);
+                    this.think(commands, gameObject);
                 }
             }
         }
@@ -54,7 +53,8 @@ export class Ai {
 
     think(commands, gameObject) {
         let commandType = 0;
-        if (gameObject.Type == 'Alpha') {
+        const profile = gameObject.aiProfile || 'Alpha';
+        if (profile == 'Alpha') {
             switch (Math.floor(Math.random()*11+1)) {
                 case 1:
                     commandType = 2;
@@ -79,7 +79,7 @@ export class Ai {
                     break;
             }
         }
-        else if (gameObject.Type == 'Bravo') {
+        else if (profile == 'Bravo') {
             switch (Math.floor(Math.random()*11+1)) {
                 case 1:
                     commandType = 2;

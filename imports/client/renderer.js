@@ -729,7 +729,7 @@ export class Renderer {
 
             if (this.determineIfObjectShouldBeRendered(gameObjects[i])) {
 
-                if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+                if (gameObjects[i].Type == 'Ship') {
 
                     this.renderShip(gameObjects[i]);
 
@@ -886,7 +886,7 @@ export class Renderer {
         this.renderBoundry();
 
         for (let i=0, j=gameObjects.length; i<j; i++) {
-            if (gameObjects[i].Type == 'Human' || gameObjects[i].Type == 'Alpha' || gameObjects[i].Type == 'Bravo') {
+            if (gameObjects[i].Type == 'Ship') {
                 this.renderMiniShip(gameObjects[i], playerShipId);
             }
         }
@@ -908,14 +908,12 @@ export class Renderer {
 
         this.map.arc(0, 0, 1.0, 0, 2 * Math.PI);
 
-        let fillStyle = "";
+        let fillStyle = "rgba(128, 128, 128, 1.0)";
 
         if (ship.Id == playerShipId) {
             fillStyle = "rgba(0, 128, 0, 1.0)";
-        } else if (ship.Type == "Human") {
+        } else if (ship.pilotType === "Human") {
             fillStyle = "rgba(255, 0, 0, 1.0)";
-        } else {
-            fillStyle = "rgba(128, 128, 128, 1.0)";
         }
 
         this.map.fillStyle = fillStyle;
@@ -993,10 +991,10 @@ export class Renderer {
             cockpitColor = "yellow";
         }
 
-        if (ship.Type == 'Human') {
+        if (ship.shipTypeId === 'Viper') {
             drawHumanShip(this.map, shipScale);
-        } else if (ship.Type == 'Alpha' || ship.Type == 'Bravo') {
-            drawAiJaggedTurtle(this.map, shipScale, ship.Type, this.renderTimeSeconds);
+        } else if (ship.shipTypeId === 'Turtle') {
+            drawAiJaggedTurtle(this.map, shipScale, ship.aiProfile, this.renderTimeSeconds);
         } else {
             this.map.save();
             this.map.scale(shipScale, shipScale);
@@ -1042,7 +1040,7 @@ export class Renderer {
 
         let nameToDraw = "";
 
-        if (ship.Type == 'Human') {
+        if (ship.Id === (this.playerShip && this.playerShip.Id) && ship.pilotType === 'Human') {
             if (this.playerName == "") {
                 nameToDraw = "GUEST";
             } else {

@@ -1,18 +1,36 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 1;
+const BINARY_VERSION = 2;
 
 const TYPE_CODES = {
     Player: 1,
-    Human: 2,
-    Alpha: 3,
-    Bravo: 4,
-    Debris: 5,
-    Missile: 6,
-    Sound: 7,
-    Thruster: 8
+    Ship: 2,
+    Debris: 3,
+    Missile: 4,
+    Sound: 5,
+    Thruster: 6
 };
 
 const TYPE_NAMES = Object.entries(TYPE_CODES).reduce((acc, [name, code]) => {
+    acc[code] = name;
+    return acc;
+}, {});
+
+const SHIP_TYPE_CODES = {
+    Viper: 1,
+    Turtle: 2
+};
+
+const SHIP_TYPE_NAMES = Object.entries(SHIP_TYPE_CODES).reduce((acc, [name, code]) => {
+    acc[code] = name;
+    return acc;
+}, {});
+
+const PILOT_TYPE_CODES = {
+    Human: 1,
+    Bot: 2
+};
+
+const PILOT_TYPE_NAMES = Object.entries(PILOT_TYPE_CODES).reduce((acc, [name, code]) => {
     acc[code] = name;
     return acc;
 }, {});
@@ -235,10 +253,8 @@ export class Utilities {
                 const nameLength = Math.min(nameBytes.length, 255);
                 return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + 4 /* ShipId */ + 2 /* Kills */ + 2 /* Deaths */;
             }
-            case TYPE_CODES.Human:
-            case TYPE_CODES.Alpha:
-            case TYPE_CODES.Bravo: {
-                return BASE + 4 /* Id */ + (4 * 11) /* numeric floats */ + 1 /* ShieldOn */;
+            case TYPE_CODES.Ship: {
+                return BASE + 4 /* Id */ + (4 * 11) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */;
             }
             case TYPE_CODES.Debris: {
                 return BASE + 4 /* Id */ + (4 * 8);
@@ -299,9 +315,7 @@ export class Utilities {
                 view.setUint16(offset, (gameObject.Kills >>> 0) || 0, true); offset += 2;
                 view.setUint16(offset, (gameObject.Deaths >>> 0) || 0, true); offset += 2;
                 break;
-            case TYPE_CODES.Human:
-            case TYPE_CODES.Alpha:
-            case TYPE_CODES.Bravo:
+            case TYPE_CODES.Ship:
                 view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
                     gameObject.Fuel,
@@ -317,6 +331,8 @@ export class Utilities {
                     gameObject.Capacitor
                 ]);
                 view.setUint8(offset, gameObject.ShieldOn ? 1 : 0); offset += 1;
+                view.setUint8(offset, SHIP_TYPE_CODES[gameObject.shipTypeId] || 0); offset += 1;
+                view.setUint8(offset, PILOT_TYPE_CODES[gameObject.pilotType] || 0); offset += 1;
                 break;
             case TYPE_CODES.Debris:
                 view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
@@ -408,9 +424,7 @@ export class Utilities {
                 object.Deaths = view.getUint16(offset, true); offset += 2;
                 break;
             }
-            case TYPE_CODES.Human:
-            case TYPE_CODES.Alpha:
-            case TYPE_CODES.Bravo: {
+            case TYPE_CODES.Ship: {
                 object.Id = view.getUint32(offset, true); offset += 4;
                 const values = Utilities.readFloatFields(view, offset, 11);
                 offset = values.offset;
@@ -428,6 +442,8 @@ export class Utilities {
                     object.Capacitor
                 ] = values.values;
                 object.ShieldOn = view.getUint8(offset) === 1; offset += 1;
+                object.shipTypeId = SHIP_TYPE_NAMES[view.getUint8(offset)] || null; offset += 1;
+                object.pilotType = PILOT_TYPE_NAMES[view.getUint8(offset)] || 'Unknown'; offset += 1;
                 break;
             }
             case TYPE_CODES.Debris: {

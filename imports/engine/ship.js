@@ -3,22 +3,41 @@ import {Missile} from './missile.js';
 import {Physics} from './physics.js';
 import {Sound} from './sound.js';
 import {Thruster} from './thruster.js';
+import {SHIP_TYPES} from './shipTypes.js';
 
 export class Ship {
 
     constructor(id) {
         this.Id = id;
-        this.Size = 8.0;
-        this.MaxHullStrength = 100;
-        this.ThrusterStrength = 100;
-        this.MaxThrusterStrength = 100;
-        this.PlasmaCannonStrength = 100;
-        this.MaxPlasmaCannonStrength = 100;
+        this.Type = 'Ship';
+        this.shipTypeId = null;
+        this.pilotType = 'Unknown';
+        this.aiProfile = null;
+        this.Size = 0;
+        this.MaxHullStrength = 0;
+        this.ThrusterStrength = 0;
+        this.MaxThrusterStrength = 0;
+        this.PlasmaCannonStrength = 0;
+        this.MaxPlasmaCannonStrength = 0;
+        this.MaxFuel = 0;
+        this.MaxCapacitor = 0;
     }       
 
-    init(shipType) {
-        this.Type = shipType;
-        this.Fuel = 1000;
+    init({shipTypeId, pilotType = 'Human', aiProfile = null} = {}) {
+        const definition = SHIP_TYPES[shipTypeId];
+        if (!definition) {
+            throw new Error(`Unknown ship type: ${shipTypeId}`);
+        }
+
+        this.Type = 'Ship';
+        this.shipTypeId = definition.id;
+        this.shipDisplayName = definition.displayName;
+        this.pilotType = pilotType;
+        this.aiProfile = aiProfile;
+
+        this.applyShipTypeDefaults();
+
+        this.Fuel = definition.startingFuel;
         this.LocationX = 0;
         this.LocationY = 0;
         this.Facing = 0;
@@ -28,8 +47,27 @@ export class Ship {
         this.RotationVelocity = 0;
         this.ShieldOn = 0;
         this.ShieldStatus = 0;
-        this.HullStrength = 100;
-        this.Capacitor = 100;
+        this.HullStrength = this.MaxHullStrength;
+        this.Capacitor = this.MaxCapacitor;
+    }
+
+    applyShipTypeDefaults() {
+        if (!this.shipTypeId) {
+            return;
+        }
+        const definition = SHIP_TYPES[this.shipTypeId];
+        if (!definition) {
+            return;
+        }
+        this.Size = definition.size;
+        this.shipDisplayName = this.shipDisplayName || definition.displayName;
+        this.MaxHullStrength = definition.maxHullStrength;
+        this.ThrusterStrength = definition.thrusterStrength;
+        this.MaxThrusterStrength = definition.maxThrusterStrength;
+        this.PlasmaCannonStrength = definition.plasmaCannonStrength;
+        this.MaxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
+        this.MaxFuel = definition.maxFuel;
+        this.MaxCapacitor = definition.maxCapacitor;
     }
 
     determineCurrentCommand(commands) {
@@ -77,7 +115,7 @@ export class Ship {
         // How many joules of energy each kilo of fuel creates
         const fuelPotential = 1.0;
         // Amount of jouels of energy the capacitor can hold    
-        const capacitorCapacity = 100;
+        const capacitorCapacity = this.MaxCapacitor || 100;
         if (this.Fuel >= reactorConversionRate / framesPerSecond) {
             if (this.Capacitor <= capacitorCapacity - reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond) {
                 this.Fuel -= reactorConversionRate / framesPerSecond;
@@ -101,7 +139,7 @@ export class Ship {
         // Percentage of maximum conversion rate possible
         const solarConversionEffeciancy = 1;
         // Amount of jouels of energy the capacitor can hold  
-        const capacitorCapacity = 100;
+        const capacitorCapacity = this.MaxCapacitor || 100;
         if (this.Capacitor <= capacitorCapacity - solarConversionRate * solarConversionEffeciancy / framesPerSecond) {
             this.Capacitor += solarConversionRate * solarConversionEffeciancy / framesPerSecond;
         }
@@ -285,8 +323,8 @@ export class Ship {
     }
 
     updateFuelTank() {
-        if (this.Fuel > 1000) {
-            this.Fuel = 1000;
+        if (this.MaxFuel && this.Fuel > this.MaxFuel) {
+            this.Fuel = this.MaxFuel;
         }
     }
 

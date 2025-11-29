@@ -35,6 +35,8 @@ export class Engine {
     collisionDetection() {
         const solidObjects = this.findSolidObjects();
         // Run colision detection for each solidObject
+        const isShip = (obj) => obj && obj.Type === 'Ship';
+
         for (let i = 0, j = solidObjects.length; i < j; i++) {
             // Find this distance between this and every other object in the game and check to see if it
             // is smaller than the combined radius of the two objects.
@@ -43,7 +45,7 @@ export class Engine {
                 if (i != k) {
                     if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size / 2 + solidObjects[k].Size / 2)) {
                         // ship hit by missile
-                        if ((solidObjects[k].Type == "Human" || solidObjects[k].Type == "Alpha" || solidObjects[k].Type == "Bravo") && (solidObjects[i].Type == "Missile")) {
+                        if (isShip(solidObjects[k]) && (solidObjects[i].Type == "Missile")) {
                             // The amount of damage that the missle does is determined by
                             // the amount of fuel remaining. So, the amount of damage
                             // done by the missile is reduced the further is travels.
@@ -63,14 +65,14 @@ export class Engine {
                             }
                             break;
                             // Ship hit by debris
-                        } else if ((solidObjects[k].Type == "Human" || solidObjects[k].Type == "Alpha" || solidObjects[k].Type == "Bravo") && (solidObjects[i].Type == "Debris")) {
+                        } else if (isShip(solidObjects[k]) && (solidObjects[i].Type == "Debris")) {
                             // If a ship colides with deris, it should "pick up" the energy
                             // from the deris and the debris should be removed from the
                             // game.
                             solidObjects[k].Fuel += solidObjects[i].Fuel;
                             break;
                         // debris hit by ship
-                        } else if ((solidObjects[k].Type == "Debris") && (solidObjects[k].Type == "Human" || solidObjects[k].Type == "Alpha" || solidObjects[i].Type == "Bravo")) {
+                        } else if ((solidObjects[k].Type == "Debris") && isShip(solidObjects[i])) {
                             this.deadObjects.push(solidObjects[k]);
                             break;
                         // anything else hit by anything
@@ -168,9 +170,7 @@ export class Engine {
         // Reconcile remote snapshots into the existing array to avoid thrashing
         const constructors = {
             Player: Player,
-            Human: Ship,
-            Alpha: Ship,
-            Bravo: Ship,
+            Ship: Ship,
             Missile: Missile,
             Debris: Debris,
             Sound: Sound,
@@ -222,6 +222,10 @@ export class Engine {
                 instance = Object.assign(new ctor(), remoteObject);
             }
 
+            if (instance instanceof Ship && typeof instance.applyShipTypeDefaults === 'function') {
+                instance.applyShipTypeDefaults();
+            }
+
             mergedObjects.push(instance);
         }
 
@@ -250,7 +254,7 @@ export class Engine {
         if (!gameObject) {
             return;
         }
-        if (gameObject.Type == 'Human' || gameObject.Type == 'Alpha' || gameObject.Type == 'Bravo') {
+        if (gameObject.Type == 'Ship') {
             this.recordEvent({
                 type: 'ShipDestroyed',
                 shipId: gameObject.Id,
