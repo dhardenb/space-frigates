@@ -26,6 +26,9 @@ export class Ship {
         this.MissileEnergyCost = 10;
         this.RotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
         this.ThrusterForceProduced = this.Mass * 20 * Physics.framesPerSecond;
+        this.MaxShieldStrength = 100;
+        this.ShieldRechargeRate = 0.25;
+        this.ShieldDecayRate = 0.25;
     }       
 
     init({shipTypeId, pilotType = 'Human', aiProfile = null} = {}) {
@@ -71,6 +74,9 @@ export class Ship {
         this.PlasmaCannonStrength = definition.plasmaCannonStrength;
         this.MaxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
         this.MaxCapacitor = definition.maxCapacitor;
+        this.MaxShieldStrength = definition.maxShieldStrength ?? this.MaxShieldStrength;
+        this.ShieldRechargeRate = definition.shieldRechargeRate ?? this.ShieldRechargeRate;
+        this.ShieldDecayRate = definition.shieldDecayRate ?? this.ShieldDecayRate;
         this.ReactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.ReactorOutputPerSecond;
         this.MissileEnergyCost = definition.missileEnergyCost ?? this.MissileEnergyCost;
         this.ThrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.ThrusterEnergyPerSecond;
@@ -181,30 +187,31 @@ export class Ship {
                 this.ShieldOn = 0;
             }
         }
+        const rechargeRate = this.ShieldRechargeRate;
+        const decayRate = this.ShieldDecayRate;
+        const maxShield = this.MaxShieldStrength;
         if (this.ShieldOn == 1) {
-            if (this.ShieldStatus <= 99.75 && this.Capacitor >= 0.25) {
-                this.ShieldStatus = this.ShieldStatus + 0.25; // BAD! Should be with respect to time!!!
-                this.Capacitor = this.Capacitor - 0.25; // BAD! Should be with respect to time!!!
-            } else if (this.ShieldStatus == 100 && this.Capacitor >= 0.125) {
-                this.Capacitor = this.Capacitor - 0.125; // BAD! Should be with respect to time!!!
-            } else if (this.ShieldStatus >= 0.25 && this.Capacitor < 0.25) {
-                this.ShieldStatus -= 0.25; // BAD! Should be with respect to time!!!
+            if (this.ShieldStatus < maxShield && this.Capacitor >= rechargeRate) {
+                this.ShieldStatus = this.ShieldStatus + rechargeRate; // BAD! Should be with respect to time!!!
+                this.Capacitor = this.Capacitor - rechargeRate; // BAD! Should be with respect to time!!!
+            } else if (this.ShieldStatus >= maxShield && this.Capacitor >= rechargeRate / 2) {
+                this.Capacitor = this.Capacitor - rechargeRate / 2; // BAD! Should be with respect to time!!!
+            } else if (this.ShieldStatus >= rechargeRate && this.Capacitor < rechargeRate) {
+                this.ShieldStatus -= rechargeRate; // BAD! Should be with respect to time!!!
             }
         }
         if (this.ShieldOn == 0) {
-            if (this.ShieldStatus >= 0.25) {
-                this.ShieldStatus = this.ShieldStatus - 0.25; // BAD! Should be with respect to time!!!
-                // As the shields disapate, energy is returned to the capacitor
-                // at half the rate.
-                if (this.Capacitor <= 99.88) {
-                    this.Capacitor += 0.12; // BAD! Should be with respect to time!!!
+            if (this.ShieldStatus >= decayRate) {
+                this.ShieldStatus = this.ShieldStatus - decayRate; // BAD! Should be with respect to time!!!
+                if (this.Capacitor <= this.MaxCapacitor - decayRate / 2) {
+                    this.Capacitor += decayRate / 2; // BAD! Should be with respect to time!!!
                 }
             } else {
                 this.ShieldStatus = 0;
             }
         }
-        if (this.ShieldStatus > 100) {
-            this.ShieldStatus = 100;
+        if (this.ShieldStatus > maxShield) {
+            this.ShieldStatus = maxShield;
         } else if (this.ShieldStatus < 0)  {
             this.ShieldStatus = 0
         }
