@@ -68,6 +68,43 @@ adding the attributes via a style sheet.*/
 	line-height: 1.4;
 }
 
+.debug-overlay__tabs {
+	display: flex;
+	gap: 6px;
+	margin-bottom: 10px;
+}
+
+.debug-overlay__tab {
+	flex: 1;
+	padding: 6px 0;
+	border-radius: 4px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: rgba(255, 255, 255, 0.08);
+	color: #fff;
+	text-transform: uppercase;
+	font-size: 11px;
+	cursor: pointer;
+}
+
+.debug-overlay__tab.is-active {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.debug-overlay__panels {
+	min-height: 200px;
+}
+
+.debug-overlay__panel {
+	display: none;
+	max-height: 60vh;
+	overflow-y: auto;
+	padding-right: 4px;
+}
+
+.debug-overlay__panel.is-active {
+	display: block;
+}
+
 .debug-overlay__header {
 	display: flex;
 	align-items: center;
@@ -164,4 +201,8 @@ adding the attributes via a style sheet.*/
 	margin: 4px 0 0;
 	font-size: 11px;
 	color: rgba(255, 255, 255, 0.6);
+}
+
+.debug-overlay__panel[hidden] {
+	display: none !important;
 }

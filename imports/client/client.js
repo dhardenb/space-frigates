@@ -123,6 +123,7 @@ export class Client {
                 snapshotBytes: this.lastSnapshotSizeBytes,
                 snapshotAvgBytes: this.snapshotSizeAvgBytes
             });
+            this.debugOverlay.updateShipAttributes(this.getPlayerShip());
         }
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
@@ -191,7 +192,8 @@ export class Client {
             onZoomChange: (value) => this.renderer.setZoomFactor(value),
             onZoomDelta: (delta) => this.adjustZoom(delta),
             initialZoom: this.renderer.getZoomFactor(),
-            zoomBounds: this.renderer.getZoomBounds()
+            zoomBounds: this.renderer.getZoomBounds(),
+            onApplyShipAttributes: this.applyShipAttributeOverrides.bind(this)
         });
 
         if (!this.debugOverlay.isAvailable()) {
@@ -269,6 +271,61 @@ export class Client {
         } else {
             this.snapshotSizeAvgBytes = (1 - alpha) * this.snapshotSizeAvgBytes + alpha * snapshotBytes;
         }
+    }
+
+    getPlayerShip() {
+        if (!this.playerShipId) {
+            return null;
+        }
+        for (let i = 0; i < gameObjects.length; i++) {
+            const obj = gameObjects[i];
+            if (obj && obj.Type === 'Ship' && obj.Id === this.playerShipId) {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    applyShipAttributeOverrides(payload) {
+        const ship = this.getPlayerShip();
+        if (!ship || !this.debugOverlay) {
+            if (this.debugOverlay) {
+                this.debugOverlay.setShipStatus('Player ship not available.', 'error');
+            }
+            return;
+        }
+
+        const mapping = {
+            mass: 'Mass',
+            maxCapacitor: 'MaxCapacitor',
+            reactorOutputPerSecond: 'ReactorOutputPerSecond',
+            thrusterEnergyPerSecond: 'ThrusterEnergyPerSecond',
+            thrusterForceProduced: 'ThrusterForceProduced',
+            rotationEnergyPerSecond: 'RotationEnergyPerSecond',
+            laserEnergyCost: 'LaserEnergyCost',
+            laserFuelCapacity: 'LaserFuelCapacity',
+            laserFuelConsumptionRate: 'LaserFuelConsumptionRate',
+            maxShieldStrength: 'MaxShieldStrength',
+            shieldRechargeRate: 'ShieldRechargeRate',
+            shieldDecayRate: 'ShieldDecayRate'
+        };
+
+        Object.entries(mapping).forEach(([payloadKey, shipProp]) => {
+            const value = Number(payload[payloadKey]);
+            if (Number.isFinite(value)) {
+                ship[shipProp] = value;
+            }
+        });
+
+        if (ship.Capacitor > ship.MaxCapacitor) {
+            ship.Capacitor = ship.MaxCapacitor;
+        }
+        if (ship.ShieldStatus > ship.MaxShieldStrength) {
+            ship.ShieldStatus = ship.MaxShieldStrength;
+        }
+
+        this.debugOverlay.setShipStatus('Ship attributes updated.', 'success');
+        this.debugOverlay.updateShipAttributes(ship);
     }
 
     handlePlayerAliveState(wasAlive) {

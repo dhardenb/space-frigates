@@ -9,15 +9,18 @@ export class Laser {
 		this.LaserLaunchOffset = 1.0;
 		this.initialVelocity = 100;
 		this.Velocity = 0;
-		this.fuelConsumptionRate = 60; // 60 per second!
+		this.fuelConsumptionRate = 60; // default, can be overridden
+		this.MaxFuel = 60;
 	}
 
-	init(sourceObject) {										
+	init(sourceObject) {
 		this.LocationX = sourceObject.LocationX;
 		this.LocationY = sourceObject.LocationY;
 		this.Facing = sourceObject.Facing;
 		this.Heading = sourceObject.Heading;
-		this.Fuel = 60;
+		this.MaxFuel = sourceObject.LaserFuelCapacity || this.MaxFuel;
+		this.fuelConsumptionRate = sourceObject.LaserFuelConsumptionRate || this.fuelConsumptionRate;
+		this.Fuel = this.MaxFuel;
 		this.Owner = sourceObject.Id;
 		this.calclulateInitialPosition(sourceObject);
 		Physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);

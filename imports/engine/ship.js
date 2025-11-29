@@ -24,6 +24,8 @@ export class Ship {
         this.ReactorOutputPerSecond = 10;
         this.ThrusterEnergyPerSecond = Physics.framesPerSecond * 5; // preserves 5J/frame
         this.LaserEnergyCost = 10;
+        this.LaserFuelCapacity = 60;
+        this.LaserFuelConsumptionRate = 60;
         this.RotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
         this.ThrusterForceProduced = this.Mass * 20 * Physics.framesPerSecond;
         this.MaxShieldStrength = 100;
@@ -79,6 +81,8 @@ export class Ship {
         this.ShieldDecayRate = definition.shieldDecayRate ?? this.ShieldDecayRate;
         this.ReactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.ReactorOutputPerSecond;
         this.LaserEnergyCost = definition.laserEnergyCost ?? this.LaserEnergyCost;
+        this.LaserFuelCapacity = definition.laserFuelCapacity ?? this.LaserFuelCapacity;
+        this.LaserFuelConsumptionRate = definition.laserFuelConsumptionRate ?? this.LaserFuelConsumptionRate;
         this.ThrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.ThrusterEnergyPerSecond;
         this.RotationEnergyPerSecond = definition.rotationEnergyPerSecond ?? this.RotationEnergyPerSecond;
         this.Mass = definition.mass ?? this.Mass;

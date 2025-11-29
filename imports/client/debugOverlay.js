@@ -1,15 +1,17 @@
 export class DebugOverlay {
 
-    constructor({environment = 'prod', onApplyThrottle, onZoomChange, initialZoom = 1, zoomBounds, onZoomDelta} = {}) {
+    constructor({environment = 'prod', onApplyThrottle, onZoomChange, initialZoom = 1, zoomBounds, onZoomDelta, onApplyShipAttributes} = {}) {
         this.environment = environment;
         this.onApplyThrottle = onApplyThrottle;
         this.onZoomChange = onZoomChange;
         this.onZoomDelta = onZoomDelta;
+        this.onApplyShipAttributes = onApplyShipAttributes;
         this.zoomBounds = Object.assign({min: 0.5, max: 2.5}, zoomBounds);
         this.zoomValue = Number.isFinite(initialZoom) ? initialZoom : 1;
         this.refreshCallback = null;
         this.visible = false;
         this.lastKnownThrottle = null;
+        this.lastShipAttributes = null;
         this.dom = this.getDomHandles();
         this.enabled = this.environment !== 'prod' && this.dom.overlay && this.dom.toggle;
         this.boundKeyHandler = this.handleKeyDown.bind(this);
@@ -28,6 +30,9 @@ export class DebugOverlay {
             overlay: document.getElementById('debug-overlay'),
             toggle: document.getElementById('debug-toggle'),
             close: document.getElementById('debug-close'),
+            tabs: document.querySelectorAll('[data-debug-tab]'),
+            panelSystem: document.getElementById('debug-panel-system'),
+            panelShip: document.getElementById('debug-panel-ship'),
             fps: document.getElementById('debug-fps'),
             updateId: document.getElementById('debug-update-id'),
             snapshotSize: document.getElementById('debug-snapshot-size'),
@@ -39,7 +44,24 @@ export class DebugOverlay {
             status: document.getElementById('debug-throttle-status'),
             zoomSlider: document.getElementById('debug-zoom'),
             zoomValue: document.getElementById('debug-zoom-value'),
-            zoomReset: document.getElementById('debug-zoom-reset')
+            zoomReset: document.getElementById('debug-zoom-reset'),
+            shipForm: document.getElementById('debug-ship-form'),
+            shipReset: document.getElementById('debug-ship-reset'),
+            shipStatus: document.getElementById('debug-ship-status'),
+            shipInputs: {
+                mass: document.getElementById('debug-ship-mass'),
+                maxCapacitor: document.getElementById('debug-ship-max-capacitor'),
+                reactor: document.getElementById('debug-ship-reactor'),
+                thrusterEnergy: document.getElementById('debug-ship-thruster-energy'),
+                thrusterForce: document.getElementById('debug-ship-thruster-force'),
+                rotationEnergy: document.getElementById('debug-ship-rotation-energy'),
+                laserCost: document.getElementById('debug-ship-laser-cost'),
+                laserFuel: document.getElementById('debug-ship-laser-fuel'),
+                laserConsumption: document.getElementById('debug-ship-laser-consumption'),
+                shieldMax: document.getElementById('debug-ship-shield-max'),
+                shieldRecharge: document.getElementById('debug-ship-shield-recharge'),
+                shieldDecay: document.getElementById('debug-ship-shield-decay')
+            }
         };
     }
 
@@ -61,6 +83,8 @@ export class DebugOverlay {
         document.addEventListener('keydown', this.boundKeyHandler);
         window.addEventListener('wheel', this.boundWheelHandler, {passive: false});
         this.initializeZoomControls();
+        this.initializeTabs();
+        this.initializeShipControls();
         this.hide(); // ensure consistent initial state
     }
 
@@ -213,6 +237,217 @@ export class DebugOverlay {
     setZoomDisplay(value) {
         if (this.dom.zoomValue) {
             this.dom.zoomValue.textContent = `${value.toFixed(2)}x`;
+        }
+    }
+
+    initializeTabs() {
+        if (!this.dom.tabs || this.dom.tabs.length === 0) {
+            return;
+        }
+        this.dom.tabs.forEach((button) => {
+            button.addEventListener('click', () => {
+                const tab = button.dataset.debugTab;
+                this.activateTab(tab);
+            });
+        });
+        this.activateTab('system');
+    }
+
+    activateTab(tabId) {
+        const panels = {
+            system: this.dom.panelSystem,
+            ship: this.dom.panelShip
+        };
+        if (!panels.system || !panels.ship) {
+            return;
+        }
+        this.dom.tabs.forEach((button) => {
+            const isActive = button.dataset.debugTab === tabId;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        Object.entries(panels).forEach(([id, panel]) => {
+            const isActive = id === tabId;
+            panel.classList.toggle('is-active', isActive);
+            if (isActive) {
+                panel.removeAttribute('hidden');
+            } else {
+                panel.setAttribute('hidden', 'hidden');
+            }
+        });
+    }
+
+    initializeShipControls() {
+        if (!this.dom.shipForm) {
+            return;
+        }
+        this.disableShipForm(true);
+        this.dom.shipForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const payload = this.collectShipFormValues();
+            if (!payload) {
+                this.setShipStatus('Enter valid numeric values for all fields.', 'error');
+                return;
+            }
+            if (typeof this.onApplyShipAttributes === 'function') {
+                this.onApplyShipAttributes(payload);
+            }
+        });
+        if (this.dom.shipReset) {
+            this.dom.shipReset.addEventListener('click', () => {
+                if (this.lastShipAttributes) {
+                    this.populateShipForm(this.lastShipAttributes);
+                    this.setShipStatus('Reset to last known ship values.', 'info');
+                } else {
+                    this.setShipStatus('No ship values available to reset.', 'error');
+                }
+            });
+        }
+    }
+
+    collectShipFormValues() {
+        if (!this.dom.shipInputs) {
+            return null;
+        }
+        const readNumber = (input) => {
+            if (!input) {
+                return null;
+            }
+            const parsed = Number(input.value);
+            if (!Number.isFinite(parsed)) {
+                return null;
+            }
+            return parsed;
+        };
+        const payload = {
+            mass: readNumber(this.dom.shipInputs.mass),
+            maxCapacitor: readNumber(this.dom.shipInputs.maxCapacitor),
+            reactorOutputPerSecond: readNumber(this.dom.shipInputs.reactor),
+            thrusterEnergyPerSecond: readNumber(this.dom.shipInputs.thrusterEnergy),
+            thrusterForceProduced: readNumber(this.dom.shipInputs.thrusterForce),
+            rotationEnergyPerSecond: readNumber(this.dom.shipInputs.rotationEnergy),
+            laserEnergyCost: readNumber(this.dom.shipInputs.laserCost),
+            laserFuelCapacity: readNumber(this.dom.shipInputs.laserFuel),
+            laserFuelConsumptionRate: readNumber(this.dom.shipInputs.laserConsumption),
+            maxShieldStrength: readNumber(this.dom.shipInputs.shieldMax),
+            shieldRechargeRate: readNumber(this.dom.shipInputs.shieldRecharge),
+            shieldDecayRate: readNumber(this.dom.shipInputs.shieldDecay)
+        };
+        const hasInvalid = Object.values(payload).some((value) => value === null || value < 0);
+        if (hasInvalid) {
+            return null;
+        }
+        return payload;
+    }
+
+    updateShipAttributes(ship) {
+        if (!this.dom.shipForm) {
+            return;
+        }
+        if (!ship) {
+            this.lastShipAttributes = null;
+            this.disableShipForm(true);
+            this.clearShipForm();
+            this.setShipStatus('No active ship detected.', 'error');
+            return;
+        }
+        const snapshot = this.extractShipAttributes(ship);
+        this.lastShipAttributes = snapshot;
+        this.populateShipForm(snapshot);
+        this.disableShipForm(false);
+        this.setShipStatus('Live ship values loaded.', 'success');
+    }
+
+    extractShipAttributes(ship) {
+        return {
+            mass: Number(ship.Mass) || 0,
+            maxCapacitor: Number(ship.MaxCapacitor) || 0,
+            reactorOutputPerSecond: Number(ship.ReactorOutputPerSecond) || 0,
+            thrusterEnergyPerSecond: Number(ship.ThrusterEnergyPerSecond) || 0,
+            thrusterForceProduced: Number(ship.ThrusterForceProduced) || 0,
+            rotationEnergyPerSecond: Number(ship.RotationEnergyPerSecond) || 0,
+            laserEnergyCost: Number(ship.LaserEnergyCost) || 0,
+            laserFuelCapacity: Number(ship.LaserFuelCapacity) || 0,
+            laserFuelConsumptionRate: Number(ship.LaserFuelConsumptionRate) || 0,
+            maxShieldStrength: Number(ship.MaxShieldStrength) || 0,
+            shieldRechargeRate: Number(ship.ShieldRechargeRate) || 0,
+            shieldDecayRate: Number(ship.ShieldDecayRate) || 0
+        };
+    }
+
+    populateShipForm(attrs) {
+        if (!this.dom.shipInputs || !attrs) {
+            return;
+        }
+        Object.entries(this.dom.shipInputs).forEach(([key, input]) => {
+            if (!input) {
+                return;
+            }
+            const value = attrs[this.mapShipInputKey(key)];
+            if (typeof value === 'number' && Number.isFinite(value)) {
+                input.value = value;
+            } else {
+                input.value = '';
+            }
+        });
+    }
+
+    clearShipForm() {
+        if (!this.dom.shipInputs) {
+            return;
+        }
+        Object.values(this.dom.shipInputs).forEach((input) => {
+            if (input) {
+                input.value = '';
+            }
+        });
+    }
+
+    mapShipInputKey(key) {
+        const mapping = {
+            mass: 'mass',
+            maxCapacitor: 'maxCapacitor',
+            reactor: 'reactorOutputPerSecond',
+            thrusterEnergy: 'thrusterEnergyPerSecond',
+            thrusterForce: 'thrusterForceProduced',
+            rotationEnergy: 'rotationEnergyPerSecond',
+            laserCost: 'laserEnergyCost',
+            laserFuel: 'laserFuelCapacity',
+            laserConsumption: 'laserFuelConsumptionRate',
+            shieldMax: 'maxShieldStrength',
+            shieldRecharge: 'shieldRechargeRate',
+            shieldDecay: 'shieldDecayRate'
+        };
+        return mapping[key] || key;
+    }
+
+    disableShipForm(disabled) {
+        if (!this.dom.shipForm || !this.dom.shipInputs) {
+            return;
+        }
+        Object.values(this.dom.shipInputs).forEach((input) => {
+            if (input) {
+                input.disabled = disabled;
+            }
+        });
+        if (this.dom.shipForm) {
+            const buttons = this.dom.shipForm.querySelectorAll('button');
+            buttons.forEach((button) => {
+                button.disabled = disabled;
+            });
+        }
+    }
+
+    setShipStatus(message, variant = 'info') {
+        if (!this.dom.shipStatus) {
+            return;
+        }
+        this.dom.shipStatus.textContent = message || '';
+        this.dom.shipStatus.classList.remove('error', 'success');
+        if (variant === 'error') {
+            this.dom.shipStatus.classList.add('error');
+        } else if (variant === 'success') {
+            this.dom.shipStatus.classList.add('success');
         }
     }
 

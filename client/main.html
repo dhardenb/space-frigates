@@ -26,44 +26,127 @@
             </button>
         </header>
 
-        <div class="debug-overlay__section">
-            <div class="debug-overlay__stat">FPS: <span id="debug-fps">0</span></div>
-            <div class="debug-overlay__stat">Last Server Update: <span id="debug-update-id">–</span></div>
-            <div class="debug-overlay__stat">Snapshot Size: <span id="debug-snapshot-size">0 B</span></div>
-            <div class="debug-overlay__stat">Avg Snapshot: <span id="debug-snapshot-avg">0 B</span></div>
+        <div class="debug-overlay__tabs" role="tablist">
+            <button id="debug-tab-system" class="debug-overlay__tab is-active" type="button" role="tab" aria-controls="debug-panel-system" aria-selected="true" data-debug-tab="system">
+                System
+            </button>
+            <button id="debug-tab-ship" class="debug-overlay__tab" type="button" role="tab" aria-controls="debug-panel-ship" aria-selected="false" data-debug-tab="ship">
+                Ship
+            </button>
         </div>
 
-        <div class="debug-overlay__section">
-            <h3>Network Throttle</h3>
-            <label class="debug-overlay__control">
-                <input type="checkbox" id="debug-throttle-enabled">
-                <span>Enabled</span>
-            </label>
-            <label class="debug-overlay__control">
-                Interval (ms)
-                <input type="number" id="debug-throttle-interval" min="16" step="1" inputmode="numeric">
-            </label>
-            <div class="debug-overlay__actions">
-                <button id="debug-apply-throttle" type="button">Apply</button>
-                <button id="debug-refresh-throttle" type="button">Refresh</button>
+        <div class="debug-overlay__panels">
+            <div id="debug-panel-system" class="debug-overlay__panel is-active" role="tabpanel" aria-labelledby="debug-tab-system">
+                <div class="debug-overlay__section">
+                    <div class="debug-overlay__stat">FPS: <span id="debug-fps">0</span></div>
+                    <div class="debug-overlay__stat">Last Server Update: <span id="debug-update-id">–</span></div>
+                    <div class="debug-overlay__stat">Snapshot Size: <span id="debug-snapshot-size">0 B</span></div>
+                    <div class="debug-overlay__stat">Avg Snapshot: <span id="debug-snapshot-avg">0 B</span></div>
+                </div>
+
+                <div class="debug-overlay__section">
+                    <h3>Network Throttle</h3>
+                    <label class="debug-overlay__control">
+                        <input type="checkbox" id="debug-throttle-enabled">
+                        <span>Enabled</span>
+                    </label>
+                    <label class="debug-overlay__control">
+                        Interval (ms)
+                        <input type="number" id="debug-throttle-interval" min="16" step="1" inputmode="numeric">
+                    </label>
+                    <div class="debug-overlay__actions">
+                        <button id="debug-apply-throttle" type="button">Apply</button>
+                        <button id="debug-refresh-throttle" type="button">Refresh</button>
+                    </div>
+                    <p id="debug-throttle-status" class="debug-overlay__status" role="status"></p>
+                </div>
+
+                <div class="debug-overlay__section">
+                    <h3>Renderer</h3>
+                    <label class="debug-overlay__control">
+                        Zoom
+                        <input type="range" id="debug-zoom" min="0.5" max="2.5" step="0.05">
+                    </label>
+                    <div class="debug-overlay__stat">Current: <span id="debug-zoom-value">1.00x</span></div>
+                    <div class="debug-overlay__actions">
+                        <button id="debug-zoom-reset" type="button">Reset</button>
+                    </div>
+                    <p class="debug-overlay__hint">Scroll or +/- to adjust zoom.</p>
+                </div>
+
+                <p class="debug-overlay__hint">Press F2 or use the Debug button to toggle this panel.</p>
             </div>
-            <p id="debug-throttle-status" class="debug-overlay__status" role="status"></p>
-        </div>
 
-        <div class="debug-overlay__section">
-            <h3>Renderer</h3>
-            <label class="debug-overlay__control">
-                Zoom
-                <input type="range" id="debug-zoom" min="0.5" max="2.5" step="0.05">
-            </label>
-            <div class="debug-overlay__stat">Current: <span id="debug-zoom-value">1.00x</span></div>
-            <div class="debug-overlay__actions">
-                <button id="debug-zoom-reset" type="button">Reset</button>
+            <div id="debug-panel-ship" class="debug-overlay__panel" role="tabpanel" aria-labelledby="debug-tab-ship" hidden>
+                <form id="debug-ship-form">
+                    <div class="debug-overlay__section">
+                        <h3>Ship Attributes</h3>
+                        <label class="debug-overlay__control">
+                            Mass (kg)
+                            <input type="number" id="debug-ship-mass" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Capacitor Capacity
+                            <input type="number" id="debug-ship-max-capacitor" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Reactor Output (J/s)
+                            <input type="number" id="debug-ship-reactor" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Thruster Energy (J/s)
+                            <input type="number" id="debug-ship-thruster-energy" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Thruster Force
+                            <input type="number" id="debug-ship-thruster-force" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Rotation Energy (J/s)
+                            <input type="number" id="debug-ship-rotation-energy" step="1" min="0">
+                        </label>
+                    </div>
+
+                    <div class="debug-overlay__section">
+                        <h3>Lasers</h3>
+                        <label class="debug-overlay__control">
+                            Energy Per Shot
+                            <input type="number" id="debug-ship-laser-cost" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Fuel Capacity
+                            <input type="number" id="debug-ship-laser-fuel" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Fuel Consumption (per s)
+                            <input type="number" id="debug-ship-laser-consumption" step="1" min="0">
+                        </label>
+                    </div>
+
+                    <div class="debug-overlay__section">
+                        <h3>Shields</h3>
+                        <label class="debug-overlay__control">
+                            Max Shield Strength
+                            <input type="number" id="debug-ship-shield-max" step="1" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Recharge Rate (per tick)
+                            <input type="number" id="debug-ship-shield-recharge" step="0.01" min="0">
+                        </label>
+                        <label class="debug-overlay__control">
+                            Decay Rate (per tick)
+                            <input type="number" id="debug-ship-shield-decay" step="0.01" min="0">
+                        </label>
+                    </div>
+
+                    <div class="debug-overlay__actions">
+                        <button type="submit">Apply</button>
+                        <button type="button" id="debug-ship-reset">Reset</button>
+                    </div>
+                    <p id="debug-ship-status" class="debug-overlay__status" role="status"></p>
+                </form>
             </div>
-            <p class="debug-overlay__hint">Scroll or +/- to adjust zoom.</p>
         </div>
-
-        <p class="debug-overlay__hint">Press F2 or use the Debug button to toggle this panel.</p>
     </section>
 
 </body>
