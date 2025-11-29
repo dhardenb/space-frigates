@@ -8,9 +8,12 @@ export const SHIP_TYPES = Object.freeze({
         maxThrusterStrength: 100,
         plasmaCannonStrength: 100,
         maxPlasmaCannonStrength: 100,
-        startingFuel: 1000,
-        maxFuel: 1000,
-        maxCapacitor: 100
+        maxCapacitor: 100,
+        reactorOutputPerSecond: 10,
+        thrusterEnergyCost: 5,
+        missileEnergyCost: 10,
+        thrusterForceProduced: 14400000,
+        mass: 12000
     },
     Turtle: {
         id: 'Turtle',
@@ -21,9 +24,12 @@ export const SHIP_TYPES = Object.freeze({
         maxThrusterStrength: 100,
         plasmaCannonStrength: 100,
         maxPlasmaCannonStrength: 100,
-        startingFuel: 1000,
-        maxFuel: 1000,
-        maxCapacitor: 100
+        maxCapacitor: 100,
+        reactorOutputPerSecond: 10,
+        thrusterEnergyCost: 5,
+        missileEnergyCost: 10,
+        thrusterForceProduced: 14400000,
+        mass: 12000
     }
 });
 

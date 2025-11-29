@@ -19,8 +19,12 @@ export class Ship {
         this.MaxThrusterStrength = 0;
         this.PlasmaCannonStrength = 0;
         this.MaxPlasmaCannonStrength = 0;
-        this.MaxFuel = 0;
         this.MaxCapacitor = 0;
+        this.Mass = 12000; // kilograms
+        this.ReactorOutputPerSecond = 10;
+        this.ThrusterEnergyCost = 5;
+        this.MissileEnergyCost = 10;
+        this.ThrusterForceProduced = this.Mass * 20 * Physics.framesPerSecond;
     }       
 
     init({shipTypeId, pilotType = 'Human', aiProfile = null} = {}) {
@@ -37,7 +41,6 @@ export class Ship {
 
         this.applyShipTypeDefaults();
 
-        this.Fuel = definition.startingFuel;
         this.LocationX = 0;
         this.LocationY = 0;
         this.Facing = 0;
@@ -66,8 +69,13 @@ export class Ship {
         this.MaxThrusterStrength = definition.maxThrusterStrength;
         this.PlasmaCannonStrength = definition.plasmaCannonStrength;
         this.MaxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
-        this.MaxFuel = definition.maxFuel;
         this.MaxCapacitor = definition.maxCapacitor;
+        this.ReactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.ReactorOutputPerSecond;
+        this.ThrusterEnergyCost = definition.thrusterEnergyCost ?? this.ThrusterEnergyCost;
+        this.MissileEnergyCost = definition.missileEnergyCost ?? this.MissileEnergyCost;
+        this.Mass = definition.mass ?? this.Mass;
+        const defaultThrusterForce = this.Mass * 20 * Physics.framesPerSecond;
+        this.ThrusterForceProduced = definition.thrusterForceProduced ?? defaultThrusterForce;
     }
 
     determineCurrentCommand(commands) {
@@ -84,64 +92,15 @@ export class Ship {
         ///////////////////////////////////////////////////////////////////////////
         // Reactor
         //
-        // The Reactor is responsible for converting fuel into energy.
-        //
-        // The primary attribute is how many kilos of fuel the plant
-        // can convert to joules per second.
-        //
-        // Secondary attributes will be: cost, weight, and effeiceny.
-        //
-        // The tradition conversion rate has been 15 kilos of fuel per second
-        // The traditional fuel potential as been 1 joule of energy per 1 kilo
-        //    of fuel
-        // The traditional effeciancy has been 100%
-        // The traditional capacity of the capacitor has been 100 joules
-        // The tradition amount of fuel carried by a Viper class ship is 1000 kilos
-        // The tradition cost is N/A
-        // The tradition weight is N/A
-        //
-        // Future potential features:
-        //     -) reactor effecincy reduced with damage
-        //     -) the ability to set run rate (right now it is always 100%)
-        //     -) ability to put reactor into overdrive, which gives risk of 
-        //     -) the ability to track use for maintenance purposes
-        //     -) the amount of "noise" the unit gives off, making the ship 
-        //        easier or harder to track
+        // The Reactor is responsible for converting mass into energy, but for
+        // now we assume infinite fuel so it simply tops off the capacitor at a
+        // fixed joules-per-second rate.
         ///////////////////////////////////////////////////////////////////////////
-        // Kilograms of fuel the reactor consumes per second
-        const reactorConversionRate = 15;
-        // Perctage of kilos of fuel turned into joules of energy
-        const reactorConversionEffeciancy = 1.0;
-        // How many joules of energy each kilo of fuel creates
-        const fuelPotential = 1.0;
-        // Amount of jouels of energy the capacitor can hold    
+        const reactorOutputPerSecond = this.ReactorOutputPerSecond || 10;
         const capacitorCapacity = this.MaxCapacitor || 100;
-        if (this.Fuel >= reactorConversionRate / framesPerSecond) {
-            if (this.Capacitor <= capacitorCapacity - reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond) {
-                this.Fuel -= reactorConversionRate / framesPerSecond;
-                this.Capacitor += reactorConversionRate * fuelPotential * reactorConversionEffeciancy / framesPerSecond;
-            }
-        }
-    }
-
-    updateSolarPanels(framesPerSecond) {
-        ///////////////////////////////////////////////////////////////////////////
-        // Solar Panels 
-        //
-        // In addition to the ship's reactor, energy is also produced by the
-        //      ships solor panels. Although the joules of energy generated in this 
-        //      way is much smaller than the reactor, it serves as a backup system
-        //      in case the ship runs out of fuel or the reactor is damaged.
-        //
-        ///////////////////////////////////////////////////////////////////////////
-        // Joules generated per second
-        const solarConversionRate = 3;
-        // Percentage of maximum conversion rate possible
-        const solarConversionEffeciancy = 1;
-        // Amount of jouels of energy the capacitor can hold  
-        const capacitorCapacity = this.MaxCapacitor || 100;
-        if (this.Capacitor <= capacitorCapacity - solarConversionRate * solarConversionEffeciancy / framesPerSecond) {
-            this.Capacitor += solarConversionRate * solarConversionEffeciancy / framesPerSecond;
+        if (this.Capacitor < capacitorCapacity) {
+            const regenAmount = reactorOutputPerSecond / framesPerSecond;
+            this.Capacitor = Math.min(capacitorCapacity, this.Capacitor + regenAmount);
         }
     }
 
@@ -174,8 +133,8 @@ export class Ship {
     fireMissile() {
         if (this.currentCommand == 0) {
             let activateMissile;
-            if (this.Capacitor >= 10) {
-                this.Capacitor -= 10; // BAD! Should be with respect to time!!!
+            if (this.Capacitor >= this.MissileEnergyCost) {
+                this.Capacitor -= this.MissileEnergyCost; // BAD! Should be with respect to time!!!
                 activateMissile = true;
             } else if (this.ShieldStatus >= 20) {
                 this.ShieldStatus -= 20; // BAD! Should be with respect to time!!!
@@ -197,8 +156,8 @@ export class Ship {
     updateThrusters() {
         if (this.currentCommand == 2) {
             let activateThruster;
-            if (this.Capacitor >= 5) {
-                this.Capacitor -=5; // BAD! Should be with respect to time!!!
+            if (this.Capacitor >= this.ThrusterEnergyCost) {
+                this.Capacitor -= this.ThrusterEnergyCost; // BAD! Should be with respect to time!!!
                 activateThruster = true;
             } else if (this.ShieldStatus >= 10) {
                 this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
@@ -207,7 +166,11 @@ export class Ship {
                 activateThruster = false;
             }
             if (activateThruster) {
-                Physics.findNewVelocity(this, this.Facing, 20);
+                const mass = this.Mass || 1;
+                const thrustForce = this.ThrusterForceProduced || 0;
+                const acceleration = thrustForce / mass;
+                const velocityBoost = acceleration / Physics.framesPerSecond;
+                Physics.findNewVelocity(this, this.Facing, velocityBoost);
                 const newThruster = new Thruster(Engine.getNextGameObjectId());
                 newThruster.init(this);
                 gameObjects.push(newThruster);
@@ -322,12 +285,6 @@ export class Ship {
         }
     }
 
-    updateFuelTank() {
-        if (this.MaxFuel && this.Fuel > this.MaxFuel) {
-            this.Fuel = this.MaxFuel;
-        }
-    }
-
     updateFacing() {
         Physics.findNewFacing(this);
     }
@@ -339,7 +296,6 @@ export class Ship {
     update(commands, framesPerSecond) {
         this.determineCurrentCommand(commands);
         this.updateRector(framesPerSecond);
-        this.updateSolarPanels(framesPerSecond);
         this.updateBrakes();
         this.fireMissile();
         this.updateThrusters();
@@ -347,7 +303,6 @@ export class Ship {
         this.rotateRight();
         this.updateShields();
         this.updateVelocity();
-        this.updateFuelTank();
         this.updateFacing();
         this.updateLocation(); 
     }

@@ -32,7 +32,6 @@ export class Debris {
     // major undertaking
     init(sourceObject) {
         this.Type = "Debris";
-        this.Fuel = sourceObject.Fuel;
         this.LocationX = sourceObject.LocationX;
         this.LocationY = sourceObject.LocationY;
         this.Facing = sourceObject.Facing;

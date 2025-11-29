@@ -254,10 +254,10 @@ export class Utilities {
                 return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + 4 /* ShipId */ + 2 /* Kills */ + 2 /* Deaths */;
             }
             case TYPE_CODES.Ship: {
-                return BASE + 4 /* Id */ + (4 * 11) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */;
+                return BASE + 4 /* Id */ + (4 * 10) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */;
             }
             case TYPE_CODES.Debris: {
-                return BASE + 4 /* Id */ + (4 * 8);
+                return BASE + 4 /* Id */ + (4 * 7);
             }
             case TYPE_CODES.Missile: {
                 return BASE + 4 /* Id */ + (4 * 6) + 4 /* Owner */;
@@ -318,7 +318,6 @@ export class Utilities {
             case TYPE_CODES.Ship:
                 view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
-                    gameObject.Fuel,
                     gameObject.LocationX,
                     gameObject.LocationY,
                     gameObject.Facing,
@@ -337,7 +336,6 @@ export class Utilities {
             case TYPE_CODES.Debris:
                 view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
-                    gameObject.Fuel,
                     gameObject.LocationX,
                     gameObject.LocationY,
                     gameObject.Facing,
@@ -426,10 +424,9 @@ export class Utilities {
             }
             case TYPE_CODES.Ship: {
                 object.Id = view.getUint32(offset, true); offset += 4;
-                const values = Utilities.readFloatFields(view, offset, 11);
+                const values = Utilities.readFloatFields(view, offset, 10);
                 offset = values.offset;
                 [
-                    object.Fuel,
                     object.LocationX,
                     object.LocationY,
                     object.Facing,
@@ -448,10 +445,9 @@ export class Utilities {
             }
             case TYPE_CODES.Debris: {
                 object.Id = view.getUint32(offset, true); offset += 4;
-                const values = Utilities.readFloatFields(view, offset, 8);
+                const values = Utilities.readFloatFields(view, offset, 7);
                 offset = values.offset;
                 [
-                    object.Fuel,
                     object.LocationX,
                     object.LocationY,
                     object.Facing,

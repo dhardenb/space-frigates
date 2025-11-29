@@ -66,10 +66,8 @@ export class Engine {
                             break;
                             // Ship hit by debris
                         } else if (isShip(solidObjects[k]) && (solidObjects[i].Type == "Debris")) {
-                            // If a ship colides with deris, it should "pick up" the energy
-                            // from the deris and the debris should be removed from the
-                            // game.
-                            solidObjects[k].Fuel += solidObjects[i].Fuel;
+                            // Ships no longer harvest debris; just clear it.
+                            this.deadObjects.push(solidObjects[i]);
                             break;
                         // debris hit by ship
                         } else if ((solidObjects[k].Type == "Debris") && isShip(solidObjects[i])) {

@@ -781,8 +781,6 @@ export class Renderer {
             this.renderLeaderboard();
 
             this.renderHullStrength();
-
-            this.renderFuelStatus();
         
             this.renderCapacitorStatus();
         
@@ -1575,32 +1573,6 @@ export class Renderer {
         this.map.translate(125, this.availableHeight - 144);
 
         this.renderMeter(hullStrengthDisplayValue);
-
-        this.map.restore();
-
-    }
-
-    renderFuelStatus() {
-
-        let fuelDisplayValue = Math.floor(this.playerShip.Fuel);
-
-        this.map.save();
-
-        this.map.translate(0, this.availableHeight - 90);
-
-        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-        this.map.font = "20px Arial";
-
-        this.map.fillText("FUEL ", 0, 0);
-
-        this.map.restore();
-
-        this.map.save();
-
-        this.map.translate(125, this.availableHeight - 108);
-
-        this.renderMeter(fuelDisplayValue / 1000 * 100);
 
         this.map.restore();
 
