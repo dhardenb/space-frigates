@@ -98,15 +98,25 @@ export class Keyboard {
         }
         // Q - Lateral thrust (left-side thrusters)
         else if(evt.keyCode == 81) {
-            evt.preventDefault();
-            if (Client.gameMode == 'PLAY_MODE') {
+            if (Client.gameMode == 'START_MODE') {
+                evt.preventDefault();
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
+                }
+            } else if (Client.gameMode == 'PLAY_MODE') {
+                evt.preventDefault();
                 client.commandHandler({command: 'LATERAL_THRUST_LEFT'});
             }
         }
         // E - Lateral thrust (right-side thrusters)
         else if(evt.keyCode == 69) {
-            evt.preventDefault();
-            if (Client.gameMode == 'PLAY_MODE') {
+            if (Client.gameMode == 'START_MODE') {
+                evt.preventDefault();
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
+                }
+            } else if (Client.gameMode == 'PLAY_MODE') {
+                evt.preventDefault();
                 client.commandHandler({command: 'LATERAL_THRUST_RIGHT'});
             }
         }
