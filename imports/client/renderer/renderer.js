@@ -1,5 +1,6 @@
 import {Howl} from 'howler';
 import {Client} from '../client.js';
+import {renderLandingScreen} from './landingUi.js';
 import {renderMiniMap} from './miniMap.js';
 import {renderDebris} from './worldObjects/debris.js';
 import {renderLaser} from './worldObjects/laser.js';
@@ -365,42 +366,17 @@ export class Renderer {
 
         if (Client.gameMode == 'START_MODE' || overlayActive) {
             const landingOpacity = Client.gameMode == 'START_MODE' ? 1 : landingOverlayAlpha;
-            this.renderLandingScreen(landingOpacity);
+            renderLandingScreen(this.map, {
+                alpha: landingOpacity,
+                availableWidth: this.availableWidth,
+                availableHeight: this.availableHeight,
+                version: this.version,
+                playerName: this.playerName,
+                renderTimeSeconds: this.renderTimeSeconds,
+                gameMode: Client.gameMode,
+                renderLeaderboard: () => this.renderLeaderboard(),
+            });
         }
-
-        this.map.restore();
-
-    }
-
-    renderLandingScreen(opacity = 1) {
-
-        const alpha = Math.min(1, Math.max(0, opacity));
-
-        this.map.save();
-
-        this.map.globalAlpha = alpha;
-
-        this.renderLeaderboard();
-
-        this.renderTitle();
-
-        this.renderVersion();
-
-        this.renderTwitter();
-
-        this.renderBlog();
-
-        this.renderEmail();
-
-        this.renderInstructions();
-
-        this.renderNameInputBox();
-
-        this.renderName();
-
-        this.renderStartInstructions();
-
-        this.renderEnergyInstructions();
 
         this.map.restore();
 
@@ -489,86 +465,6 @@ export class Renderer {
 
     }
 
-    renderTitle() {
-
-        this.map.save();
-
-        this.map.strokeStyle = "yellow";
-
-        this.map.font = "60px Arial";
-
-        this.map.translate(this.availableWidth / 2 - this.map.measureText("Space Frigates").width / 2, 50);
-
-        this.map.strokeText("Space Frigates", 0, 0);
-
-        this.map.restore();
-
-    }
-
-    renderVersion() {
-
-        this.map.save();
-
-        this.map.fillStyle = "yellow";
-
-        this.map.font = "20px Arial";
-
-        this.map.translate(this.availableWidth / 2 - this.map.measureText("PUBLIC ALPHA - " + this.version).width / 2, 90);
-
-        this.map.fillText("PUBLIC ALPHA - " + this.version, 0, 0);
-
-        this.map.restore();
-
-    }
-
-    renderTwitter() {
-
-        this.map.save();
-
-        this.map.fillStyle = "yellow";
-
-        this.map.font = "20px Arial";
-
-        this.map.translate(this.availableWidth / 2 - this.map.measureText("TWITTER: @spacefrigates").width / 2, 130);
-
-        this.map.fillText("TWITTER: @spacefrigates", 0, 0);
-
-        this.map.restore();
-
-    }
-
-    renderBlog() {
-
-        this.map.save();
-
-        this.map.fillStyle = "yellow";
-
-        this.map.font = "20px Arial";
-
-        this.map.translate(this.availableWidth / 2 - this.map.measureText("BLOG: blog.spacefrigates.com").width / 2, 170);
-
-        this.map.fillText("BLOG: blog.spacefrigates.com", 0, 0);
-
-        this.map.restore();
-
-    }
-
-    renderEmail() {
-
-        this.map.save();
-
-        this.map.fillStyle = "yellow";
-
-        this.map.font = "20px Arial";
-
-        this.map.translate(this.availableWidth / 2 - this.map.measureText("EMAIL: davehardenbrook@yahoo.com").width / 2, 210);
-
-        this.map.fillText("EMAIL: davehardenbrook@yahoo.com", 0, 0);
-
-        this.map.restore();
-
-    }
-
     renderLeaderboard() {
 
         this.map.save();
@@ -645,128 +541,6 @@ export class Renderer {
 
     }
 
-    getNameInputMetrics() {
-        const horizontalMargin = 40;
-        const usableWidth = Math.max(140, this.availableWidth - horizontalMargin);
-        let width = Math.min(320, Math.max(200, this.availableWidth * 0.35));
-        width = Math.min(width, usableWidth);
-        const height = 70;
-        const x = (this.availableWidth - width) / 2;
-        const y = this.availableHeight / 2 - height * 0.5;
-        const paddingX = 20;
-        const baselineY = y + height / 2;
-        const caretHeight = Math.max(16, Math.min(32, height - 16));
-        return {width, height, x, y, paddingX, baselineY, caretHeight};
-    }
-
-    renderNameInputBox() {
-
-        this.map.save();
-
-        const metrics = this.getNameInputMetrics();
-        const isActive = Client.gameMode == 'START_MODE';
-
-        this.map.translate(metrics.x, metrics.y);
-        this.map.lineJoin = "round";
-
-        const edgeColor = isActive ? "rgba(255, 255, 0, 0.9)" : "rgba(200, 200, 200, 0.35)";
-        this.map.lineWidth = 2;
-        this.map.strokeStyle = edgeColor;
-        this.map.strokeRect(0, 0, metrics.width, metrics.height);
-
-        this.map.strokeStyle = "rgba(255, 255, 255, 0.12)";
-        this.map.lineWidth = 1;
-        this.map.strokeRect(1.5, 1.5, metrics.width - 3, metrics.height - 3);
-
-        this.map.restore();
-
-    }
-
-    renderName() {
-
-        this.map.save();
-
-        const metrics = this.getNameInputMetrics();
-        const hasName = this.playerName !== "";
-        const isActive = Client.gameMode == 'START_MODE';
-        const textColor = hasName ? "rgba(255, 255, 128, 0.95)" : "rgba(200, 200, 200, 0.6)";
-        const fontStyle = hasName ? "20px Arial" : "italic 20px Arial";
-
-        this.map.font = fontStyle;
-        this.map.fillStyle = textColor;
-        this.map.textAlign = "left";
-        this.map.textBaseline = "middle";
-
-        const baselineY = metrics.baselineY;
-        const textStartX = metrics.x + metrics.paddingX;
-
-        this.map.translate(textStartX, baselineY);
-
-        if (hasName) {
-            this.map.fillText(this.playerName, 0, 0);
-        } else {
-            this.map.globalAlpha = 0.65;
-            this.map.fillText("GUEST", 0, 0);
-            this.map.globalAlpha = 1;
-        }
-
-        const renderedText = hasName ? this.playerName : "";
-        const textMetrics = this.map.measureText(renderedText);
-        const caretOffset = hasName ? textMetrics.width : 0;
-        const caretColor = isActive ? "rgba(255, 255, 0, 0.9)" : "rgba(200, 200, 200, 0.35)";
-        const shouldShowCaret = isActive;
-        const caretBlinkOn = Math.floor(this.renderTimeSeconds * 2) % 2 === 0;
-
-        if (shouldShowCaret && caretBlinkOn) {
-            this.map.beginPath();
-            const caretHeight = metrics.caretHeight;
-            const halfCaret = caretHeight / 2;
-            this.map.moveTo(caretOffset + 2, -halfCaret);
-            this.map.lineTo(caretOffset + 2, halfCaret);
-            this.map.lineWidth = 2;
-            this.map.strokeStyle = caretColor;
-            this.map.stroke();
-        }
-
-        this.map.restore();
-
-    }
-
-    renderStartInstructions() {
-
-        this.map.save();
-
-        let textToRender = "PRESS ENTER TO START";
-
-        this.map.fillStyle = "yellow";
-
-        this.map.font = "20px Arial";
-
-        this.map.translate(this.availableWidth / 2 - this.map.measureText(textToRender).width / 2, this.availableHeight / 2 + 95);
-
-        this.map.fillText(textToRender, 0, 0);
-
-        this.map.restore();
-
-    }
-
-    renderEnergyInstructions() {
-
-        this.map.save();
-
-        let textToRender = "COLLECT DEBRIS TO INCREASE ENERGY";
-
-        this.map.fillStyle = "yellow";
-
-        this.map.font = "20px Arial";
-
-        this.map.translate(this.availableWidth / 2 - this.map.measureText(textToRender).width / 2, this.availableHeight / 2 + 155);
-
-        this.map.fillText(textToRender, 0, 0);
-
-        this.map.restore();
-
-    }
 
     renderHullStrength() {
 
@@ -852,46 +626,6 @@ export class Renderer {
         }
 
         this.renderMeter(shieldDisplayValue);
-
-        this.map.restore();
-
-    }
-
-    renderInstructions() {
-
-        this.map.save();
-
-        this.map.fillStyle = "yellow";
-
-        this.map.font = "20px Arial";
-
-        this.map.translate(0, this.availableHeight - 160);
-
-        this.map.fillText("ENTER => New Ship", 0, 0);
-
-        this.map.translate(0, 25);
-
-        this.map.fillText("W or UP ARROW => Thrust", 0, 0);
-
-        this.map.translate(0, 25);
-
-        this.map.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
-
-        this.map.translate(0, 25);
-
-        this.map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
-
-        this.map.translate(0, 25);
-
-        this.map.fillText("S or DOWN ARROW => Auto Brake", 0, 0);
-
-        this.map.translate(0, 25);
-
-        this.map.fillText("ALT => Toggle Shields", 0, 0);
-
-        this.map.translate(0, 25);
-
-        this.map.fillText("SPACEBAR => Fire", 0, 0);
 
         this.map.restore();
 
