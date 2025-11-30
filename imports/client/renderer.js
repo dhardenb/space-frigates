@@ -1,6 +1,7 @@
 import {Howl} from 'howler';
 import {Client} from './client.js';
-import {drawAiJaggedTurtle, drawHumanShip} from './renderer/ships.js';
+import {drawAiJaggedTurtle} from './renderer/aiShip.js';
+import {drawHumanShip} from './renderer/humanShip.js';
 
 export class Renderer {
     constructor(mapRadius) {
