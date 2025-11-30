@@ -111,4 +111,5 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 - Hull damage is derived from impact energy: reduced mass is multiplied by the square of the normal-relative speed, halved, then scaled down by a constant to keep damage reasonable. Each participant receives damage proportional to the other object’s mass (heavier objects punish lighter ones more).
 - Impact points spawn explosions sized to the larger collider. Any ship destroyed by the collision still spawns its own explosion, debris, and scoring updates as usual.
 - Mass values now influence both physics and damage. Ships rely on their defined masses, debris inherits 10% of its source ship’s mass (with a minimum of 1), and lasers carry zero mass so they bypass momentum exchange while still dealing fuel-based damage through the existing laser logic.
+- Debris participates in the same collision pipeline as ships rather than being silently removed on contact, so impacts with debris exchange momentum, trigger the shared impact explosion, and can damage hull-bearing participants.
 

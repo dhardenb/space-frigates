@@ -64,16 +64,6 @@ export class Engine {
             return true;
         }
 
-        // Ship colliding with debris still clears debris without further effects
-        if (isShip(objectA) && objectB.Type === 'Debris') {
-            this.deadObjects.push(objectB);
-            return true;
-        }
-        if (isShip(objectB) && objectA.Type === 'Debris') {
-            this.deadObjects.push(objectA);
-            return true;
-        }
-
         return false;
     }
 
