@@ -536,7 +536,7 @@ export class Ship {
     spawnRotationThrusters(clockwise = true) {
         const forwardOffset = this.Size / 2;
         const sideOffset = this.Size / 2;
-        const thrusterSize = Thruster.DEFAULT_SIZE / 2;
+        const thrusterSize = Thruster.DEFAULT_SIZE / 3;
 
         const positions = clockwise ? [
             {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: (this.Facing - 90 + 360) % 360},
