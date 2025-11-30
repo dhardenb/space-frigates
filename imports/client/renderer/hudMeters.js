@@ -43,7 +43,7 @@ export function renderShieldStatus(map, {availableHeight, shieldStatus, shieldOn
     map.save();
     map.translate(125, availableHeight - 37);
 
-    const colorOverride = shieldOn === 0 ? "gray" : undefined;
+    const colorOverride = shieldOn ? undefined : "gray";
 
     renderMeter(map, shieldDisplayValue, colorOverride);
     map.restore();
