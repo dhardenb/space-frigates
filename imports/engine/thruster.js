@@ -1,25 +1,32 @@
 import {Physics} from './physics.js';
 
 export class Thruster {
+    static DEFAULT_SIZE = 6.0;
 
-    constructor(id) {
+    constructor(id, size = Thruster.DEFAULT_SIZE) {
         this.Id = id;
         this.Type = "Thruster";
-        this.Size = 6.0;
+        this.Size = size;
         this.ThrusterOffset = 2.0;
         this.initialVelocity = 0;
         this.fuelConsumptionRate = 1;
     }
 
-    init(sourceObject) {
+    init(sourceObject, options = {}) {
         this.LocationX = sourceObject.LocationX;
         this.LocationY = sourceObject.LocationY;
-        this.Facing = sourceObject.Facing;
+        this.Facing = typeof options.facing === 'number' ? options.facing : sourceObject.Facing;
         this.Heading = sourceObject.Heading;
         this.Velocity = sourceObject.Velocity;
+        this.Size = typeof options.size === 'number' ? options.size : this.Size;
         this.Fuel = 0.1;
-        this.calclulateInitialPosition(sourceObject);
-        Physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
+        if (options.offset) {
+            this.LocationX += options.offset.x;
+            this.LocationY += options.offset.y;
+        } else {
+            this.calclulateInitialPosition(sourceObject);
+        }
+        Physics.findNewVelocity(this, this.Facing, this.initialVelocity);
     }
 
     update(commands, framesPerSecond) {
