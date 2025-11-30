@@ -1,5 +1,5 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 3;
+const BINARY_VERSION = 4;
 
 const TYPE_CODES = {
     Player: 1,
@@ -268,7 +268,7 @@ export class Utilities {
                 return BASE + 1 /* sound len */ + soundLength + (4 * 2);
             }
             case TYPE_CODES.Thruster: {
-                return BASE + 4 /* Id */ + (4 * 6);
+                return BASE + 4 /* Id */ + (4 * 7);
             }
             default:
                 return 0;
@@ -373,7 +373,8 @@ export class Utilities {
                     gameObject.LocationY,
                     gameObject.Facing,
                     gameObject.Heading,
-                    gameObject.Velocity
+                    gameObject.Velocity,
+                    gameObject.Size
                 ]);
                 break;
             default:
@@ -489,7 +490,7 @@ export class Utilities {
             }
             case TYPE_CODES.Thruster: {
                 object.Id = view.getUint32(offset, true); offset += 4;
-                const values = Utilities.readFloatFields(view, offset, 6);
+                const values = Utilities.readFloatFields(view, offset, 7);
                 offset = values.offset;
                 [
                     object.Fuel,
@@ -497,7 +498,8 @@ export class Utilities {
                     object.LocationY,
                     object.Facing,
                     object.Heading,
-                    object.Velocity
+                    object.Velocity,
+                    object.Size
                 ] = values.values;
                 break;
             }

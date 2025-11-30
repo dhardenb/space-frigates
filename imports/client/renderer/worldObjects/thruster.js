@@ -1,3 +1,5 @@
+const DEFAULT_THRUSTER_SIZE = 6;
+
 export function renderThruster(map, thruster, worldPixelsPerMeter) {
     map.save();
 
@@ -5,7 +7,8 @@ export function renderThruster(map, thruster, worldPixelsPerMeter) {
 
     map.rotate(thruster.Facing * Math.PI / 180);
 
-    map.scale(thruster.Size * worldPixelsPerMeter, thruster.Size * worldPixelsPerMeter);
+    const size = typeof thruster.Size === 'number' ? thruster.Size : DEFAULT_THRUSTER_SIZE;
+    map.scale(size * worldPixelsPerMeter, size * worldPixelsPerMeter);
 
     map.strokeStyle = 'rgba(255, 0, 0, 1)';
 
@@ -17,11 +20,11 @@ export function renderThruster(map, thruster, worldPixelsPerMeter) {
 
     map.beginPath();
 
-    map.moveTo(-0.2, -0.5);
+    map.moveTo(-0.2, 0.5);
 
-    map.lineTo(0.2, -0.5);
+    map.lineTo(0.2, 0.5);
 
-    map.lineTo(0.0, 0.5);
+    map.lineTo(0.0, -0.5);
 
     map.closePath();
 

@@ -471,7 +471,8 @@ export class Ship {
         const velocityBoost = acceleration / Physics.framesPerSecond;
         Physics.findNewVelocity(this, this.Facing, velocityBoost);
         const newThruster = new Thruster(Engine.getNextGameObjectId());
-        newThruster.init(this);
+        const facing = (this.Facing + 180) % 360;
+        newThruster.init(this, {facing});
         gameObjects.push(newThruster);
         return true;
     }
@@ -490,26 +491,63 @@ export class Ship {
         if (!activate) {
             return false;
         }
-
         if (this.RotationDirection == 'None') {
             this.RotationDirection = direction;
             this.RotationVelocity = 1;
-            return true;
-        }
-
-        if (this.RotationDirection == direction) {
+        } else if (this.RotationDirection == direction) {
             if (this.RotationVelocity < 3) {
                 this.RotationVelocity = this.RotationVelocity + 1; // BAD! Should be with respect to time!!!
             }
-            return true;
+        } else {
+            this.RotationVelocity = this.RotationVelocity - 1; // BAD! Should be with respect to time!!!
+            if (this.RotationVelocity <= 0) {
+                this.RotationVelocity = 0;
+                this.RotationDirection = 'None';
+            }
         }
 
-        this.RotationVelocity = this.RotationVelocity - 1; // BAD! Should be with respect to time!!!
-        if (this.RotationVelocity <= 0) {
-            this.RotationVelocity = 0;
-            this.RotationDirection = 'None';
+        if (direction === 'Clockwise') {
+            this.spawnRotationThrusters(true);
+        } else if (direction === 'CounterClockwise') {
+            this.spawnRotationThrusters(false);
         }
+
         return true;
+    }
+
+    calculateOffsetFromShip(forwardOffset, rightOffset) {
+        const facingRadians = this.Facing * 0.0174532925;
+        const forwardX = Math.sin(facingRadians);
+        const forwardY = -Math.cos(facingRadians);
+        const rightX = Math.cos(facingRadians);
+        const rightY = Math.sin(facingRadians);
+
+        return {
+            x: forwardX * forwardOffset + rightX * rightOffset,
+            y: forwardY * forwardOffset + rightY * rightOffset,
+        };
+    }
+
+    spawnThrusterAt(offset, facing, size) {
+        const thruster = new Thruster(Engine.getNextGameObjectId(), size);
+        thruster.init(this, {offset, facing, size});
+        gameObjects.push(thruster);
+    }
+
+    spawnRotationThrusters(clockwise = true) {
+        const forwardOffset = this.Size * 0.5;
+        const sideOffset = this.Size * 0.35;
+        const thrusterSize = Thruster.DEFAULT_SIZE / 3;
+
+        const positions = clockwise ? [
+            {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: (this.Facing - 90 + 360) % 360},
+            {offset: this.calculateOffsetFromShip(-forwardOffset, sideOffset), facing: (this.Facing + 90) % 360},
+        ] : [
+            {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: (this.Facing + 90) % 360},
+            {offset: this.calculateOffsetFromShip(-forwardOffset, -sideOffset), facing: (this.Facing - 90 + 360) % 360},
+        ];
+
+        positions.forEach(({offset, facing}) => this.spawnThrusterAt(offset, facing, thrusterSize));
     }
 
     dampenRotation() {
