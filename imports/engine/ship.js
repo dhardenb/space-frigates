@@ -583,9 +583,9 @@ export class Ship {
     }
 
     spawnRetrogradeThrusters() {
-        const forwardOffset = this.Size * 0.15;
         const sideOffset = this.Size * 0.3;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
+        const forwardOffset = this.Size * 0.15 + thrusterSize * 0.75;
 
         const retroThrusterFacing = this.Facing;
         const positions = [
