@@ -2,15 +2,16 @@ import {Physics} from './physics.js';
 
 export class Laser {
 
-	constructor(id) {
-		this.Id = id;
-		this.Type = "Laser";
-		this.Size = 3.0;
-		this.LaserLaunchOffset = 1.0;
-		this.initialVelocity = 100;
-		this.Velocity = 0;
-		this.fuelConsumptionRate = 60; // default, can be overridden
-		this.MaxFuel = 60;
+        constructor(id) {
+                this.Id = id;
+                this.Type = "Laser";
+                this.Size = 3.0;
+                this.Mass = 0;
+                this.LaserLaunchOffset = 1.0;
+                this.initialVelocity = 100;
+                this.Velocity = 0;
+                this.fuelConsumptionRate = 60; // default, can be overridden
+                this.MaxFuel = 60;
 	}
 
 	init(sourceObject) {
