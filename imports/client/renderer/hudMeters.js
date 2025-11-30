@@ -31,7 +31,7 @@ export function renderCapacitorStatus(map, {availableHeight, capacitor}) {
 }
 
 export function renderShieldStatus(map, {availableHeight, shieldStatus, shieldOn}) {
-    let shieldDisplayValue = Math.floor(shieldStatus);
+    const shieldDisplayValue = Math.floor(shieldStatus);
 
     map.save();
     map.translate(0, availableHeight - 20);
@@ -43,11 +43,9 @@ export function renderShieldStatus(map, {availableHeight, shieldStatus, shieldOn
     map.save();
     map.translate(125, availableHeight - 37);
 
-    if (shieldOn === 0 && shieldDisplayValue === 0) {
-        shieldDisplayValue = -1;
-    }
+    const colorOverride = shieldOn ? undefined : "gray";
 
-    renderMeter(map, shieldDisplayValue);
+    renderMeter(map, shieldDisplayValue, colorOverride);
     map.restore();
 }
 
@@ -72,11 +70,13 @@ export function renderInstructions(map, availableHeight) {
     map.restore();
 }
 
-function renderMeter(map, percentage) {
+function renderMeter(map, percentage, colorOverride) {
     map.save();
     let color = "";
 
-    if (percentage === -1) {
+    if (colorOverride) {
+        color = colorOverride;
+    } else if (percentage === -1) {
         color = "gray";
     } else if (percentage <= 33) {
         color = "red";
