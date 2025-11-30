@@ -1,16 +1,3 @@
-export function colorWithAlpha(color, alpha) {
-    if (typeof color !== 'string') {
-        return color;
-    }
-    if (color.startsWith('rgba')) {
-        return color.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/, (match, r, g, b) => `rgba(${r},${g},${b},${alpha})`);
-    }
-    if (color.startsWith('rgb')) {
-        return color.replace(/rgb\(([^,]+),([^,]+),([^,]+)\)/, (match, r, g, b) => `rgba(${r},${g},${b},${alpha})`);
-    }
-    return color;
-}
-
 export function roundRectPath(ctx, x, y, w, h, r) {
     const radius = Math.min(r, w * 0.5, h * 0.5);
     ctx.beginPath();
