@@ -100,7 +100,17 @@ export class Ship {
 
     determineCurrentCommand(commands) {
         this.currentCommand = null;
-        const cancelAutoPilotCommands = new Set([1, 2, 3, '1', '2', '3', 'RETRO_THRUST']);
+        const cancelAutoPilotCommands = new Set([
+            1,
+            2,
+            3,
+            '1',
+            '2',
+            '3',
+            'RETRO_THRUST',
+            'LATERAL_THRUST_LEFT',
+            'LATERAL_THRUST_RIGHT'
+        ]);
         let autoPilotRequested = false;
         let autoPilotCancelled = false;
         for(let x = 0, y = commands.length; x < y; x++) {
@@ -285,6 +295,14 @@ export class Ship {
         }
     }
 
+    updateLateralThrusters() {
+        if (this.currentCommand === 'LATERAL_THRUST_LEFT') {
+            this.applyLateralThrust('Left');
+        } else if (this.currentCommand === 'LATERAL_THRUST_RIGHT') {
+            this.applyLateralThrust('Right');
+        }
+    }
+
     rotateLeft() {
         if (this.currentCommand == 3) {
             this.applyRotationThrust('Clockwise');
@@ -355,6 +373,7 @@ export class Ship {
         this.fireLaser();
         this.updateThrusters();
         this.updateRetroThrusters();
+        this.updateLateralThrusters();
         this.rotateLeft();
         this.rotateRight();
         this.updateAutoPilot();
@@ -521,6 +540,32 @@ export class Ship {
         return true;
     }
 
+    applyLateralThrust(direction) {
+        const energyPerFrame = this.ThrusterEnergyPerSecond / 2 / Physics.framesPerSecond;
+        let activateThruster = false;
+        if (this.Capacitor >= energyPerFrame) {
+            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+            activateThruster = true;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+            activateThruster = true;
+        }
+
+        if (!activateThruster) {
+            return false;
+        }
+
+        const mass = this.Mass || 1;
+        const thrustForce = (this.ThrusterForceProduced || 0) / 2;
+        const acceleration = thrustForce / mass;
+        const velocityBoost = acceleration / Physics.framesPerSecond;
+        const angleOffset = direction === 'Left' ? 90 : -90;
+        const lateralFacing = Ship.normalizeAngle(this.Facing + angleOffset);
+        Physics.findNewVelocity(this, lateralFacing, velocityBoost);
+        this.spawnLateralThrusters(direction, lateralFacing);
+        return true;
+    }
+
     applyRotationThrust(direction) {
         const energyPerFrame = this.RotationEnergyPerSecond / Physics.framesPerSecond;
         let activate = false;
@@ -603,6 +648,21 @@ export class Ship {
         const positions = [
             {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: retroThrusterFacing},
             {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: retroThrusterFacing},
+        ];
+
+        positions.forEach(({offset, facing}) => this.spawnThrusterAt(offset, facing, thrusterSize));
+    }
+
+    spawnLateralThrusters(direction, thrustFacing) {
+        const sideOffsetMagnitude = this.Size * 0.35;
+        const sideOffset = direction === 'Left' ? -sideOffsetMagnitude : sideOffsetMagnitude;
+        const thrusterSize = Thruster.DEFAULT_SIZE / 3;
+        const forwardOffset = this.Size * 0.2 + thrusterSize * 0.5;
+        const thrusterFacing = Ship.normalizeAngle(thrustFacing + 180);
+
+        const positions = [
+            {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: thrusterFacing},
+            {offset: this.calculateOffsetFromShip(-forwardOffset, sideOffset), facing: thrusterFacing},
         ];
 
         positions.forEach(({offset, facing}) => this.spawnThrusterAt(offset, facing, thrusterSize));
