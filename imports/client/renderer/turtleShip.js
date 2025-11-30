@@ -149,7 +149,7 @@ function ensureAiGeometry() {
     }
 }
 
-export function drawAiJaggedTurtle(ctx, pixelScale, shipType, timeSeconds = 0) {
+export function drawTurtleShip(ctx, pixelScale, shipType, timeSeconds = 0) {
     ensureAiGeometry();
     const scaleFactor = pixelScale / AI_BASE_LENGTH;
     ctx.save();
