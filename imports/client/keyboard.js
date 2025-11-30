@@ -66,7 +66,7 @@ export class Keyboard {
                 client.commandHandler({command: 'RETRO_THRUST'});
             }
         }
-        // A
+        // A - Rotate CounterClockwise
         else if(evt.keyCode == 65) {
             evt.preventDefault();
             if (Client.gameMode == 'START_MODE') {
@@ -74,10 +74,7 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
-                if (evt.repeat) {
-                    return;
-                }
-                client.commandHandler({command: 'BRAKE_DOWN'});
+                client.commandHandler({command: 1});
             }
         }
         // D
@@ -103,6 +100,20 @@ export class Keyboard {
                     return;
                 }
                 client.commandHandler({command: 'RETRO_THRUST'});
+            }
+        }
+        // Z - Autopilot Brake
+        else if(evt.keyCode == 90) {
+            evt.preventDefault();
+            if (Client.gameMode == 'START_MODE') {
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
+                }
+            } else if (Client.gameMode == 'PLAY_MODE') {
+                if (evt.repeat) {
+                    return;
+                }
+                client.commandHandler({command: 'BRAKE_DOWN'});
             }
         }
         // W
