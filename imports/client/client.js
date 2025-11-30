@@ -1,9 +1,9 @@
 import {Engine} from '../engine/engine.js';
 import {Keyboard} from './keyboard.js';
-import {Renderer} from './renderer.js';
+import {Renderer} from './renderer/renderer.js';
 import {Utilities} from '../utilities/utilities.js';
 import {Ship} from '../engine/ship.js';
-import {DebugOverlay} from './debugOverlay.js';
+import {DebugOverlay} from './renderer/debugOverlay.js';
 
 export class Client {
 

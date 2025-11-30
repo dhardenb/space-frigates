@@ -1,7 +1,7 @@
 import {Howl} from 'howler';
-import {Client} from './client.js';
-import {drawTurtleShip} from './renderer/turtleShip.js';
-import {drawViperShip} from './renderer/viperShip.js';
+import {Client} from '../client.js';
+import {drawTurtleShip} from './turtleShip.js';
+import {drawViperShip} from './viperShip.js';
 
 export class Renderer {
     constructor(mapRadius) {
