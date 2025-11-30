@@ -587,9 +587,10 @@ export class Ship {
         const sideOffset = this.Size * 0.3;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
 
+        const retroThrusterFacing = this.Facing;
         const positions = [
-            {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: (this.Facing + 90) % 360},
-            {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: (this.Facing + 270) % 360},
+            {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: retroThrusterFacing},
+            {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: retroThrusterFacing},
         ];
 
         positions.forEach(({offset, facing}) => this.spawnThrusterAt(offset, facing, thrusterSize));
