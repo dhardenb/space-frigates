@@ -2,6 +2,7 @@ import {Howl} from 'howler';
 import {Client} from '../client.js';
 import {renderLandingScreen} from './landingUi.js';
 import {renderMiniMap} from './miniMap.js';
+import {renderLeaderboard} from './leaderboard.js';
 import {renderDebris} from './worldObjects/debris.js';
 import {renderLaser} from './worldObjects/laser.js';
 import {renderParticle} from './worldObjects/particle.js';
@@ -23,7 +24,6 @@ export class Renderer {
         this.version = Meteor.settings.public.version;
         this.gameVolume = Meteor.settings.public.gameVolume;
         this.mapRadius = mapRadius;
-        this._ = require('lodash');
         this.playerShip = {};
         this.focalX = 0;
         this.focalY = 0;
@@ -343,7 +343,10 @@ export class Renderer {
 
         if (Client.gameMode == 'PLAY_MODE') {
 
-            this.renderLeaderboard();
+            renderLeaderboard(this.map, {
+                gameObjects,
+                playerId: this.playerId,
+            });
 
             renderHullStrength(this.map, {
                 availableHeight: this.availableHeight,
@@ -390,7 +393,10 @@ export class Renderer {
                 playerName: this.playerName,
                 renderTimeSeconds: this.renderTimeSeconds,
                 gameMode: Client.gameMode,
-                renderLeaderboard: () => this.renderLeaderboard(),
+                renderLeaderboard: () => renderLeaderboard(this.map, {
+                    gameObjects,
+                    playerId: this.playerId,
+                }),
             });
         }
 
@@ -480,83 +486,6 @@ export class Renderer {
         }
 
     }
-
-    renderLeaderboard() {
-
-        this.map.save();
-
-        this.map.translate(10, 25);
-
-        this.map.font = "20px Arial";
-
-        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-        this.map.fillText("PILOT", 0, 0);
-
-        this.map.save();
-
-        this.map.translate(155, 0);
-
-        this.map.fillText("K", 0, 0);
-
-        this.map.translate(40, 0);
-
-        this.map.fillText("D", 0, 0);
-
-        this.map.restore();
-
-        let players = [];
-
-        for (let i=0, j=gameObjects.length; i<j; i++) {
-
-            if (gameObjects[i].Type == 'Player') {
-
-                if (gameObjects[i].Name != "") {
-
-                    players.push(gameObjects[i]);
-
-                }
-
-            }
-
-        }
-
-        players = this._.orderBy(players, 'Kills', 'desc');
-
-        for (let i=0, j=players.length; i<j; i++) {
-
-            this.map.translate(0, 25);
-
-            if (players[i].Id == this.playerId) {
-
-                this.map.fillStyle = "rgba(255, 255, 0, 0.5)";
-
-            } else {
-
-                this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-            }
-
-            this.map.fillText(players[i].Name, 0, 0);
-
-            this.map.save();
-
-            this.map.translate(155, 0);
-
-            this.map.fillText(players[i].Kills, 0, 0);
-
-            this.map.translate(40, 0);
-
-            this.map.fillText(players[i].Deaths, 0, 0);
-
-            this.map.restore();
-
-        }
-
-        this.map.restore();
-
-    }
-
 
 
 }
