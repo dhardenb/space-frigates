@@ -5,6 +5,7 @@ import {Particle} from './particle.js';
 import {Thruster} from './thruster.js';
 import {Debris} from './debris.js';
 import {Sound} from './sound.js';
+import {Physics} from './physics.js';
 import {Utilities} from '../utilities/utilities.js';
 
 export class Engine {
