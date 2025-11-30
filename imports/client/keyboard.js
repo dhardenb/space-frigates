@@ -60,9 +60,6 @@ export class Keyboard {
         else if(evt.keyCode==40) {
             if (Client.gameMode == 'PLAY_MODE') {
                 evt.preventDefault();
-                if (evt.repeat) {
-                    return;
-                }
                 client.commandHandler({command: 'RETRO_THRUST'});
             }
         }
@@ -96,9 +93,6 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
-                if (evt.repeat) {
-                    return;
-                }
                 client.commandHandler({command: 'RETRO_THRUST'});
             }
         }
