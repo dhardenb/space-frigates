@@ -2,6 +2,7 @@ import {Howl} from 'howler';
 import {Client} from '../client.js';
 import {drawTurtleShip} from './turtleShip.js';
 import {drawViperShip} from './viperShip.js';
+import {renderMiniMap} from './miniMap.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -311,7 +312,18 @@ export class Renderer {
 
         this.map.save();
 
-        this.renderMiniMap(playerShipId);
+        renderMiniMap(this.map, {
+            availableWidth: this.availableWidth,
+            availablePixels: this.availablePixels,
+            miniMapZoomLevel: this.miniMapZoomLevel,
+            focalX: this.focalX,
+            focalY: this.focalY,
+            worldPixelsPerMeter: this.worldPixelsPerMeter,
+            pixelsPerMeter: this.pixelsPerMeter,
+            mapRadius: this.mapRadius,
+            gameObjects,
+            playerShipId,
+        });
 
         const landingOverlayAlpha = this.getLandingOverlayAlpha();
         const overlayActive = landingOverlayAlpha > 0;
@@ -380,83 +392,6 @@ export class Renderer {
         this.renderStartInstructions();
 
         this.renderEnergyInstructions();
-
-        this.map.restore();
-
-    }
-
-    renderMiniMap(playerShipId) {
-    
-        this.map.save();
-
-        this.map.translate(this.availableWidth - this.availablePixels / 12 - 20, this.availablePixels / 12 + 20);
-
-        /////////////////////////////////
-        // Render Background and Bezel //
-        /////////////////////////////////
-
-        this.map.save();
-
-        this.map.beginPath();
-
-        this.map.arc(0, 0, this.availablePixels / 12, 0, 2 * Math.PI);
-
-        this.map.strokeStyle = "rgba(50, 50, 50, 1.0)";
-
-        this.map.fillStyle = "rgba(0, 0, 0, 1.0)"
-
-        this.map.lineWidth = 5;
-
-        this.map.fill();
-
-        this.map.stroke();
-
-        this.map.clip()
-
-        //////////////////////////////
-        // Render ships and boundry //
-        //////////////////////////////
-
-        this.map.scale(this.miniMapZoomLevel, this.miniMapZoomLevel);
-
-        this.map.translate(this.focalX, this.focalY);
-
-        this.renderBoundry();
-
-        for (let i=0, j=gameObjects.length; i<j; i++) {
-            if (gameObjects[i].Type == 'Ship') {
-                this.renderMiniShip(gameObjects[i], playerShipId);
-            }
-        }
-
-        this.map.restore();
-
-        this.map.restore();
-    }
-
-    renderMiniShip(ship, playerShipId) {
-    
-        this.map.save();
-
-        this.map.translate(ship.LocationX * this.worldPixelsPerMeter, ship.LocationY * this.worldPixelsPerMeter);
-
-        this.map.scale(ship.Size * this.pixelsPerMeter, ship.Size * this.pixelsPerMeter);
-
-        this.map.beginPath();
-
-        this.map.arc(0, 0, 1.0, 0, 2 * Math.PI);
-
-        let fillStyle = "rgba(128, 128, 128, 1.0)";
-
-        if (ship.Id == playerShipId) {
-            fillStyle = "rgba(0, 128, 0, 1.0)";
-        } else if (ship.pilotType === "Human") {
-            fillStyle = "rgba(255, 0, 0, 1.0)";
-        }
-
-        this.map.fillStyle = fillStyle;
-
-        this.map.fill();
 
         this.map.restore();
 
