@@ -448,12 +448,13 @@ export class Ship {
     }
 
     takeDamage(damage) {
-        if (this.ShieldStatus < damage) {
-            this.ShieldStatus = 0;
-            this.HullStrength -= damage - this.ShieldStatus;
+        const shieldAbsorbed = Math.min(this.ShieldStatus, damage);
+        this.ShieldStatus -= shieldAbsorbed;
+
+        const hullDamage = damage - shieldAbsorbed;
+        if (hullDamage > 0) {
+            this.HullStrength -= hullDamage;
             this.checkForComponentDamage();
-        } else {
-            this.ShieldStatus -= damage;
         }
     }
 
