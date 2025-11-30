@@ -12,6 +12,7 @@ export class Debris {
     constructor(id) {
         this.Id = id;
         this.Size = 4.0;
+        this.Mass = 10; // default placeholder, overwritten during init
     }
 
     // Variable names need to be changed but can't do it
@@ -39,6 +40,7 @@ export class Debris {
         this.Velocity = sourceObject.Velocity;
         this.RotationDirection = Debris.setIntitialRotationDirection();
         this.RotationVelocity = Debris.setInitialRotationVelocity();
+        this.Mass = Math.max((sourceObject.Mass || 0) * 0.1, 1);
     }
 
     // physics is a gloabl, need to fix that!

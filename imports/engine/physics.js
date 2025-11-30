@@ -176,6 +176,60 @@ export class Physics {
         return YaxisComponent;
     }
 
+    static vectorToHeadingAndVelocity(xComponent, yComponent) {
+
+        const headingVelocity = {
+            heading: 0,
+            velocity: 0
+        };
+
+        if (xComponent === 0 && yComponent === 0) {
+            return headingVelocity;
+        }
+        else if (xComponent === 0 && yComponent < 0)
+        {
+            headingVelocity.heading = 0;
+            headingVelocity.velocity = Math.abs(yComponent);
+        }
+        else if (xComponent > 0 && yComponent === 0)
+        {
+            headingVelocity.heading = 90;
+            headingVelocity.velocity = Math.abs(xComponent);
+        }
+        else if (xComponent === 0 && yComponent > 0)
+        {
+            headingVelocity.heading = 180;
+            headingVelocity.velocity = Math.abs(yComponent);
+        }
+        else if (xComponent < 0 && yComponent === 0)
+        {
+            headingVelocity.heading = 270;
+            headingVelocity.velocity = Math.abs(xComponent);
+        }
+        else if (xComponent < 0 && yComponent < 0)
+        {
+            headingVelocity.velocity = Math.sqrt(xComponent * xComponent + yComponent * yComponent);
+            headingVelocity.heading = 360 - Math.atan(xComponent / yComponent) / 0.0174532925;
+        }
+        else if (xComponent < 0 && yComponent > 0)
+        {
+            headingVelocity.velocity = Math.sqrt(xComponent * xComponent + yComponent * yComponent);
+            headingVelocity.heading = (Math.atan(Math.abs(xComponent) / yComponent) / 0.0174532925) - 180;
+        }
+        else if (xComponent > 0 && yComponent < 0)
+        {
+            headingVelocity.velocity = Math.sqrt(xComponent * xComponent + yComponent * yComponent);
+            headingVelocity.heading = Math.atan(xComponent / Math.abs(yComponent)) / 0.0174532925;
+        }
+        else if (xComponent > 0 && yComponent > 0)
+        {
+            headingVelocity.velocity = Math.sqrt(xComponent * xComponent + yComponent * yComponent);
+            headingVelocity.heading = 180 - Math.atan(xComponent / yComponent) / 0.0174532925;
+        }
+
+        return headingVelocity;
+    }
+
     static findNewFacing(GameObject) {
 
         if (GameObject.RotationVelocity > 0) {

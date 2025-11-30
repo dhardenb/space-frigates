@@ -38,61 +38,167 @@ export class Engine {
         const isShip = (obj) => obj && obj.Type === 'Ship';
 
         for (let i = 0, j = solidObjects.length; i < j; i++) {
-            // Find this distance between this and every other object in the game and check to see if it
-            // is smaller than the combined radius of the two objects.
-            for (let k = 0, l = solidObjects.length; k < l; k++) {
-                // Don't let objects colide with themselves!
-                if (i != k) {
-                    if (Math.sqrt((solidObjects[i].LocationX - solidObjects[k].LocationX) * (solidObjects[i].LocationX - solidObjects[k].LocationX) + (solidObjects[i].LocationY - solidObjects[k].LocationY) * (solidObjects[i].LocationY - solidObjects[k].LocationY)) < (solidObjects[i].Size / 2 + solidObjects[k].Size / 2)) {
-                        // ship hit by laser
-                        if (isShip(solidObjects[k]) && (solidObjects[i].Type == "Laser")) {
-                            // The amount of damage that the laser does is determined by
-                            // the amount of fuel remaining. So, the amount of damage
-                            // done by the laser is reduced the farther it travels.
-                            // NOTE: Once a laser runs out of fuel it disappears
-                            const damage = solidObjects[i].Fuel;
-                            // Apply the damage to the taregt ship
-                            solidObjects[k].takeDamage(damage);
-                            // If the struck ship has less than zero hull points then
-                            // it explodes and is destroyed!
-                            if (solidObjects[k].HullStrength <= 0) {
-                                this.createDebris(solidObjects[k]);
-                                this.createExplosion(solidObjects[k]);
-                                this.deadObjects.push(solidObjects[k]);
-                                this.scoreDeath(solidObjects[k].Id);
-                                this.scoreKill(solidObjects[i].Owner);
-                                this.recordShipDestroyed(solidObjects[k]);
-                            }
-                            break;
-                            // Ship hit by debris
-                        } else if (isShip(solidObjects[k]) && (solidObjects[i].Type == "Debris")) {
-                            // Ships no longer harvest debris; just clear it.
-                            this.deadObjects.push(solidObjects[i]);
-                            break;
-                        // debris hit by ship
-                        } else if ((solidObjects[k].Type == "Debris") && isShip(solidObjects[i])) {
-                            this.deadObjects.push(solidObjects[k]);
-                            break;
-                        // anything else hit by anything
-                        } else {
-                            // This object has collided with something so we get to blow it up!!!
-                            if (solidObjects[k].Type != "Debris") {
-                                this.createExplosion(solidObjects[k]);
-                                this.scoreDeath(solidObjects[k].Id);
-                                this.recordShipDestroyed(solidObjects[k]);
-                            }
-                            // I created this array of objects to remove because removing objects from
-                            // an array while you are still iterating over the same array is generaly
-                            // a bad thing!
-                            this.deadObjects.push(solidObjects[k]);
-                            // No use blowing this up twice!
-                            break;
-                        }
+            for (let k = i + 1, l = solidObjects.length; k < l; k++) {
+                if (this.objectsCollide(solidObjects[i], solidObjects[k])) {
+                    const handled = this.handleSpecialCollisionCases(solidObjects[i], solidObjects[k], isShip);
+                    if (!handled) {
+                        this.resolveInelasticCollision(solidObjects[i], solidObjects[k]);
                     }
                 }
             }
         }
         this.removeDeadObjects();
+    }
+
+    objectsCollide(objectA, objectB) {
+        const deltaX = objectA.LocationX - objectB.LocationX;
+        const deltaY = objectA.LocationY - objectB.LocationY;
+        const radiusSum = objectA.Size / 2 + objectB.Size / 2;
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY) < radiusSum;
+    }
+
+    handleSpecialCollisionCases(objectA, objectB, isShip) {
+        // ship hit by laser (any orientation of inputs)
+        if (this.isLaserShipCollision(objectA, objectB, isShip)) {
+            return true;
+        }
+
+        // Ship colliding with debris still clears debris without further effects
+        if (isShip(objectA) && objectB.Type === 'Debris') {
+            this.deadObjects.push(objectB);
+            return true;
+        }
+        if (isShip(objectB) && objectA.Type === 'Debris') {
+            this.deadObjects.push(objectA);
+            return true;
+        }
+
+        return false;
+    }
+
+    isLaserShipCollision(objectA, objectB, isShip) {
+        const laserHitsShip = (laser, ship) => {
+            // The amount of damage that the laser does is determined by
+            // the amount of fuel remaining. So, the amount of damage
+            // done by the laser is reduced the farther it travels.
+            // NOTE: Once a laser runs out of fuel it disappears
+            const damage = laser.Fuel;
+            ship.takeDamage(damage);
+            if (ship.HullStrength <= 0) {
+                this.createDebris(ship);
+                this.createExplosion(ship);
+                this.deadObjects.push(ship);
+                this.scoreDeath(ship.Id);
+                this.scoreKill(laser.Owner);
+                this.recordShipDestroyed(ship);
+            }
+            return true;
+        };
+
+        if (objectA.Type === 'Laser' && isShip(objectB)) {
+            return laserHitsShip(objectA, objectB);
+        }
+        if (objectB.Type === 'Laser' && isShip(objectA)) {
+            return laserHitsShip(objectB, objectA);
+        }
+        return false;
+    }
+
+    resolveInelasticCollision(objectA, objectB) {
+        if (!objectA || !objectB) {
+            return;
+        }
+        if (!objectA.Mass || !objectB.Mass) {
+            return;
+        }
+
+        const normalX = objectB.LocationX - objectA.LocationX;
+        const normalY = objectB.LocationY - objectA.LocationY;
+        const normalMagnitude = Math.sqrt(normalX * normalX + normalY * normalY) || 1;
+        const unitNormalX = normalX / normalMagnitude;
+        const unitNormalY = normalY / normalMagnitude;
+
+        const velocityAX = Physics.getXaxisComponent(objectA.Heading, objectA.Velocity);
+        const velocityAY = Physics.getYaxisComponent(objectA.Heading, objectA.Velocity);
+        const velocityBX = Physics.getXaxisComponent(objectB.Heading, objectB.Velocity);
+        const velocityBY = Physics.getYaxisComponent(objectB.Heading, objectB.Velocity);
+
+        const relativeVelocityX = velocityAX - velocityBX;
+        const relativeVelocityY = velocityAY - velocityBY;
+        const relativeVelocityAlongNormal = relativeVelocityX * unitNormalX + relativeVelocityY * unitNormalY;
+
+        // If objects are already moving apart, no need to resolve
+        if (relativeVelocityAlongNormal <= 0) {
+            return;
+        }
+
+        const restitution = 0.2; // low bounce to avoid ships ricocheting around
+        const inverseMassA = 1 / objectA.Mass;
+        const inverseMassB = 1 / objectB.Mass;
+        const impulseScalar = -(1 + restitution) * relativeVelocityAlongNormal / (inverseMassA + inverseMassB);
+
+        const impulseX = impulseScalar * unitNormalX;
+        const impulseY = impulseScalar * unitNormalY;
+
+        const newVelocityAX = velocityAX + impulseX * inverseMassA;
+        const newVelocityAY = velocityAY + impulseY * inverseMassA;
+        const newVelocityBX = velocityBX - impulseX * inverseMassB;
+        const newVelocityBY = velocityBY - impulseY * inverseMassB;
+
+        const headingVelocityA = Physics.vectorToHeadingAndVelocity(newVelocityAX, newVelocityAY);
+        objectA.Heading = headingVelocityA.heading;
+        objectA.Velocity = headingVelocityA.velocity;
+
+        const headingVelocityB = Physics.vectorToHeadingAndVelocity(newVelocityBX, newVelocityBY);
+        objectB.Heading = headingVelocityB.heading;
+        objectB.Velocity = headingVelocityB.velocity;
+
+        this.applyCollisionDamage(objectA, objectB, relativeVelocityAlongNormal);
+        this.createImpactExplosion(objectA, objectB);
+    }
+
+    applyCollisionDamage(objectA, objectB, relativeVelocityAlongNormal) {
+        const reducedMass = (objectA.Mass * objectB.Mass) / (objectA.Mass + objectB.Mass);
+        const impactSpeed = Math.abs(relativeVelocityAlongNormal);
+        const impactEnergy = 0.5 * reducedMass * impactSpeed * impactSpeed;
+        const damageScale = 5000;
+        const damage = impactEnergy / damageScale;
+
+        const totalMass = objectA.Mass + objectB.Mass;
+        const damageToA = damage * (objectB.Mass / totalMass);
+        const damageToB = damage * (objectA.Mass / totalMass);
+
+        if (objectA.HullStrength !== undefined) {
+            objectA.takeDamage(damageToA);
+        }
+        if (objectB.HullStrength !== undefined) {
+            objectB.takeDamage(damageToB);
+        }
+
+        this.handleDestroyedObject(objectA, objectB);
+        this.handleDestroyedObject(objectB, objectA);
+    }
+
+    handleDestroyedObject(targetObject, sourceObject) {
+        if (targetObject.HullStrength !== undefined && targetObject.HullStrength <= 0) {
+            this.createDebris(targetObject);
+            this.createExplosion(targetObject);
+            this.deadObjects.push(targetObject);
+            this.scoreDeath(targetObject.Id);
+            this.recordShipDestroyed(targetObject);
+            if (sourceObject && sourceObject.Id) {
+                this.scoreKill(sourceObject.Id);
+            }
+        }
+    }
+
+    createImpactExplosion(objectA, objectB) {
+        const impactPoint = {
+            LocationX: (objectA.LocationX + objectB.LocationX) / 2,
+            LocationY: (objectA.LocationY + objectB.LocationY) / 2,
+            Size: Math.max(objectA.Size, objectB.Size)
+        };
+        this.createExplosion(impactPoint);
     }
 
     createDebris(sourceGameObject) {
