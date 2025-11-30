@@ -1,8 +1,11 @@
 import {Howl} from 'howler';
 import {Client} from '../client.js';
-import {drawTurtleShip} from './turtleShip.js';
-import {drawViperShip} from './viperShip.js';
 import {renderMiniMap} from './miniMap.js';
+import {renderDebris} from './worldObjects/debris.js';
+import {renderLaser} from './worldObjects/laser.js';
+import {renderParticle} from './worldObjects/particle.js';
+import {renderShip} from './worldObjects/ship.js';
+import {renderThruster} from './worldObjects/thruster.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -272,31 +275,37 @@ export class Renderer {
 
                 if (gameObjects[i].Type == 'Ship') {
 
-                    this.renderShip(gameObjects[i]);
+                    renderShip(this.map, gameObjects[i], {
+                        pixelsPerMeter: this.pixelsPerMeter,
+                        worldPixelsPerMeter: this.worldPixelsPerMeter,
+                        renderTimeSeconds: this.renderTimeSeconds,
+                        playerShip: this.playerShip,
+                        playerName: this.playerName
+                    });
 
                 }
 
                 else if (gameObjects[i].Type == 'Particle') {
 
-                    this.renderParticle(gameObjects[i]);
+                    renderParticle(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
                 else if (gameObjects[i].Type == 'Thruster') {
 
-                    this.renderThruster(gameObjects[i]);
+                    renderThruster(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
                 else if (gameObjects[i].Type == 'Laser') {
 
-                    this.renderLaser(gameObjects[i]);
+                    renderLaser(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
                 else if (gameObjects[i].Type == 'Debris') {
 
-                    this.renderDebris(gameObjects[i]);
+                    renderDebris(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
@@ -429,271 +438,6 @@ export class Renderer {
         this.map.lineWidth = 5;
 
         this.map.stroke();
-
-        this.map.restore();
-
-    }
-
-    renderShip(ship) {
-
-        this.map.save();
-
-        this.map.translate(ship.LocationX * this.pixelsPerMeter, ship.LocationY * this.pixelsPerMeter);
-
-        this.map.rotate(ship.Facing * Math.PI / 180);
-
-        const shipScale = ship.Size * this.worldPixelsPerMeter;
-
-        if (ship.ShieldStatus > 0) {
-            this.map.save();
-            this.map.scale(shipScale, shipScale);
-            this.map.beginPath();
-            this.map.arc(0, 0, 1, 0, 2 * Math.PI);
-            this.map.lineWidth =  0.05;
-            this.map.strokeStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/150 + ")";
-            this.map.stroke();
-            this.map.fillStyle = "rgba(100, 200, 255, " + ship.ShieldStatus/300 + ")";
-            this.map.fill();
-            this.map.restore();
-        }
-
-        let cockpitColor = "red";
-        if (ship.HullStrength >= 66) {
-            cockpitColor = "green";
-        } else if (ship.HullStrength >= 33) {
-            cockpitColor = "yellow";
-        }
-
-        if (ship.shipTypeId === 'Viper') {
-            drawViperShip(this.map, shipScale);
-        } else if (ship.shipTypeId === 'Turtle') {
-            drawTurtleShip(this.map, shipScale, ship.aiProfile, this.renderTimeSeconds);
-        } else {
-            this.map.save();
-            this.map.scale(shipScale, shipScale);
-            this.map.strokeStyle = "rgba(50, 50, 50, 1.0)";
-            this.map.lineWidth =  0.1;
-            this.map.lineJoin = "round";
-            this.map.fillStyle = "rgba(100, 100, 100, 1.0)";
-            this.map.beginPath();
-            this.map.moveTo(-0.05, -0.5);
-            this.map.lineTo(0.05, -0.5);
-            this.map.lineTo(0.1, -0.2);
-            this.map.lineTo(0.2, -0.1);
-            this.map.lineTo(0.2, 0.1);
-            this.map.lineTo(0.4, 0.3);
-            this.map.lineTo(0.4, 0.4);
-            this.map.lineTo(0.2, 0.4);
-            this.map.lineTo(0.2, 0.5);
-            this.map.lineTo(-0.2, 0.5);
-            this.map.lineTo(-0.2, 0.4);
-            this.map.lineTo(-0.4, 0.4);
-            this.map.lineTo(-0.4, 0.3);
-            this.map.lineTo(-0.2, 0.1);
-            this.map.lineTo(-0.2, -0.1);
-            this.map.lineTo(-0.1, -0.2);
-            this.map.closePath();
-            this.map.stroke();
-            this.map.fill();
-            this.map.fillStyle = cockpitColor;
-            this.map.lineWidth =  0.05;
-            this.map.beginPath();
-            this.map.moveTo(0.0, -0.1);
-            this.map.lineTo(-0.1, 0.3);
-            this.map.lineTo(0.1, 0.3);
-            this.map.closePath();
-            this.map.stroke();
-            this.map.fill();
-            this.map.restore();
-        }
-
-        this.map.restore();
-
-        this.map.save();
-
-        let nameToDraw = "";
-
-        if (ship.Id === (this.playerShip && this.playerShip.Id) && ship.pilotType === 'Human') {
-            if (this.playerName == "") {
-                nameToDraw = "GUEST";
-            } else {
-                nameToDraw = this.playerName;
-            }
-        }
-
-        this.map.fillStyle = "gray";
-
-        this.map.font = "12px Arial";
-
-        this.map.translate(ship.LocationX * this.worldPixelsPerMeter - this.map.measureText(nameToDraw).width / 2, ship.LocationY * this.worldPixelsPerMeter + ship.Size * this.worldPixelsPerMeter * 1.5);
-
-        this.map.fillText(nameToDraw, 0, 0);
-
-        this.map.restore();
-
-    }
-
-    renderParticle(particle) {
-
-        this.map.save();
-
-        this.map.translate(particle.LocationX * this.worldPixelsPerMeter, particle.LocationY * this.worldPixelsPerMeter);
-
-        this.map.beginPath();
-
-        this.map.arc(0, 0, particle.Size * 0.5 * this.worldPixelsPerMeter, 0, 2 * Math.PI);
-
-        this.map.fillStyle = "rgba(255," + Math.floor(Math.random() * 255) + ", 0," + Math.random() + ")";
-
-        this.map.fill();
-
-        this.map.restore();
-
-    }
-
-    renderThruster(thruster) {
-
-        this.map.save();
-
-        this.map.translate(thruster.LocationX * this.worldPixelsPerMeter, thruster.LocationY * this.worldPixelsPerMeter);
-
-        this.map.rotate(thruster.Facing * Math.PI / 180);
-
-        this.map.scale(thruster.Size * this.worldPixelsPerMeter, thruster.Size * this.worldPixelsPerMeter);
-
-        this.map.strokeStyle = "rgba(255, 0, 0, 1)";
-
-        this.map.lineWidth = 0.1;
-
-        this.map.lineJoin = "round";
-
-        this.map.fillStyle = "rgba(255, 255, 0, 1)";
-
-        this.map.beginPath();
-
-        this.map.moveTo(-0.2, -0.5);
-
-        this.map.lineTo(0.2, -0.5);
-
-        this.map.lineTo(0.0, 0.5);
-
-        this.map.closePath();
-
-        this.map.stroke();
-
-        this.map.fill();
-
-        this.map.restore();
-
-    }
-
-    renderLaser(laser) {
-
-        this.map.save();
-
-        this.map.translate(laser.LocationX * this.worldPixelsPerMeter, laser.LocationY * this.worldPixelsPerMeter);
-
-        this.map.rotate(laser.Facing * Math.PI / 180);
-
-        this.map.scale(laser.Size * this.worldPixelsPerMeter, laser.Size * this.worldPixelsPerMeter);
-
-        this.map.strokeStyle = "rgba(255, 255, 255, " + laser.Fuel / 60 + ")";
-
-        this.map.lineWidth = 0.1;
-
-        this.map.fillStyle = "rgba(0, 255, 255, " + laser.Fuel / 60 + ")";
-
-        this.map.beginPath();
-
-        this.map.moveTo(-0.1, -0.5);
-
-        this.map.lineTo(0.1, -0.5);
-
-        this.map.lineTo(0.1, 0.5);
-
-        this.map.lineTo(-0.1, 0.5);
-
-        this.map.closePath();
-
-        this.map.stroke();
-
-        this.map.fill();
-
-        this.map.restore();
-
-    }
-
-    renderDebris(debris) {
-
-        this.map.save();
-
-        this.map.translate(debris.LocationX * this.worldPixelsPerMeter, debris.LocationY * this.worldPixelsPerMeter);
-
-        this.map.rotate(debris.Facing * Math.PI / 180);
-
-        this.map.scale(debris.Size * this.worldPixelsPerMeter, debris.Size * this.worldPixelsPerMeter);
-
-        this.map.strokeStyle = "rgba(50, 50, 50, 1)";
-
-        this.map.lineWidth = 0.1;
-
-        this.map.lineJoin = "round";
-
-        this.map.fillStyle = "rgba(100, 100, 100, 1)";
-
-        this.map.beginPath();
-
-        this.map.moveTo(-0.8, 0.0);
-
-        this.map.lineTo(-0.4, 0.6);
-
-        this.map.lineTo(-0.2, 0.2);
-
-        this.map.lineTo(0.2, 0.8);
-
-        this.map.lineTo(0.6, 0.2);
-
-        this.map.lineTo(0.2, 0.2);
-
-        this.map.lineTo(0.0, -0.4);
-
-        this.map.lineTo(-0.8, 0.0);
-
-        this.map.closePath();
-
-        this.map.moveTo(0.4, 0.0);
-
-        this.map.lineTo(0.8, -0.4);
-
-        this.map.lineTo(0.6, -0.8);
-
-        this.map.lineTo(0.4, -0.6);
-
-        this.map.lineTo(0.2, -0.8);
-
-        this.map.lineTo(0.2, -0.6);
-
-        this.map.lineTo(0.4, 0.0);
-
-        this.map.closePath();
-
-        this.map.moveTo(-0.8, -0.2);
-
-        this.map.lineTo(-0.4, -0.2);
-
-        this.map.lineTo(0.0, -0.6);
-
-        this.map.lineTo(-0.4, -0.8);
-
-        this.map.lineTo(-0.6, -0.4);
-
-        this.map.lineTo(-0.8, -0.6);
-
-        this.map.closePath();
-        
-        this.map.stroke();
-        
-        this.map.fill();
 
         this.map.restore();
 
