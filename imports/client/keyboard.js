@@ -63,7 +63,7 @@ export class Keyboard {
                 if (evt.repeat) {
                     return;
                 }
-                client.commandHandler({command: 'BRAKE_DOWN'});
+                client.commandHandler({command: 'RETRO_THRUST'});
             }
         }
         // A
@@ -74,7 +74,10 @@ export class Keyboard {
                     client.playerName = client.playerName + String.fromCharCode(evt.which);
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 1});
+                if (evt.repeat) {
+                    return;
+                }
+                client.commandHandler({command: 'BRAKE_DOWN'});
             }
         }
         // D
@@ -99,7 +102,7 @@ export class Keyboard {
                 if (evt.repeat) {
                     return;
                 }
-                client.commandHandler({command: 'BRAKE_DOWN'});
+                client.commandHandler({command: 'RETRO_THRUST'});
             }
         }
         // W
