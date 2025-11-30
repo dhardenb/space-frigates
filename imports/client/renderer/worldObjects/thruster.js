@@ -20,11 +20,11 @@ export function renderThruster(map, thruster, worldPixelsPerMeter) {
 
     map.beginPath();
 
-    map.moveTo(-0.2, -0.5);
+    map.moveTo(-0.2, 0.5);
 
-    map.lineTo(0.2, -0.5);
+    map.lineTo(0.2, 0.5);
 
-    map.lineTo(0.0, 0.5);
+    map.lineTo(0.0, -0.5);
 
     map.closePath();
 
