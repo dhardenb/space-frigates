@@ -8,6 +8,7 @@ import {renderParticle} from './worldObjects/particle.js';
 import {renderShip} from './worldObjects/ship.js';
 import {renderThruster} from './worldObjects/thruster.js';
 import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
+import {renderControlButtons} from './controlButtons.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -361,17 +362,15 @@ export class Renderer {
 
             this.renderDamgeIndicator();
 
-            // this.renderRotateLeftButton();
+            const showControlButtons = false;
 
-            // this.renderRotateRightButton();
-
-            // this.renderThrustButton();
-
-            // this.renderBrakeButton();
-
-            // this.renderShieldButton();
-
-            // this.renderFireButton();
+            if (showControlButtons) {
+                renderControlButtons(this.map, {
+                    availableHeight: this.availableHeight,
+                    availablePixels: this.availablePixels,
+                    availableWidth: this.availableWidth,
+                });
+            }
 
         }
 
@@ -553,95 +552,6 @@ export class Renderer {
     }
 
 
-
-    renderRotateLeftButton() {
-
-        this.map.save();
-
-        this.map.translate(0 + this.availablePixels * 0.1, this.availableHeight - this.availablePixels * 0.2);
-
-        this.renderButton();
-
-        this.map.restore();
-
-    }
-
-    renderRotateRightButton() {
-
-        this.map.save();
-
-        this.map.translate(0 + this.availablePixels * 0.25, this.availableHeight - this.availablePixels * 0.2);
-
-        this.renderButton();
-
-        this.map.restore();
-
-    }
-
-    renderThrustButton() {
-
-        this.map.save();
-
-        this.map.translate(0 + this.availablePixels * 0.175, this.availableHeight - this.availablePixels * 0.3);
-
-        this.renderButton();
-
-        this.map.restore();
-
-    }
-
-    renderBrakeButton() {
-
-        this.map.save();
-
-        this.map.translate(0 + this.availablePixels * 0.175, this.availableHeight - this.availablePixels * 0.1);
-
-        this.renderButton();
-
-        this.map.restore();
-
-    }
-
-    renderShieldButton() {
-
-        this.map.save();
-
-        this.map.translate(this.availableWidth - this.availablePixels * 0.25, this.availableHeight - this.availablePixels * 0.1);
-
-        this.renderButton();
-
-        this.map.restore();
-
-    }
-
-    renderFireButton() {
-
-        this.map.save();
-
-        this.map.translate(this.availableWidth - this.availablePixels * 0.1, this.availableHeight - this.availablePixels * 0.1);
-
-        this.renderButton();
-
-        this.map.restore();
-    }
-
-    renderButton() {
-
-        this.map.save();
-
-        this.map.strokeStyle = "rgba(128, 128, 128, 0.5)";
-
-        this.map.lineWidth = availablePixels * 0.005;
-        
-        this.map.beginPath();
-        
-        this.map.arc(0, 0, this.availablePixels * 0.05, 0, 2 * Math.PI);
-
-        this.map.stroke();
-
-        this.map.restore();
-
-    }
 
     renderDamgeIndicator() {
 
