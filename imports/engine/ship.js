@@ -471,7 +471,8 @@ export class Ship {
         const velocityBoost = acceleration / Physics.framesPerSecond;
         Physics.findNewVelocity(this, this.Facing, velocityBoost);
         const newThruster = new Thruster(Engine.getNextGameObjectId());
-        newThruster.init(this);
+        const facing = (this.Facing + 180) % 360;
+        newThruster.init(this, {facing});
         gameObjects.push(newThruster);
         return true;
     }
@@ -534,7 +535,7 @@ export class Ship {
     }
 
     spawnRotationThrusters(clockwise = true) {
-        const forwardOffset = this.Size * 0.35;
+        const forwardOffset = this.Size * 0.5;
         const sideOffset = this.Size * 0.35;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
 
