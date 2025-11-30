@@ -68,29 +68,39 @@ export class Engine {
     }
 
     isLaserShipCollision(objectA, objectB, isShip) {
-        const laserHitsShip = (laser, ship) => {
+        const laserHitsTarget = (laser, target) => {
             // The amount of damage that the laser does is determined by
             // the amount of fuel remaining. So, the amount of damage
             // done by the laser is reduced the farther it travels.
             // NOTE: Once a laser runs out of fuel it disappears
             const damage = laser.Fuel;
-            ship.takeDamage(damage);
-            if (ship.HullStrength <= 0) {
-                this.createDebris(ship);
-                this.createExplosion(ship);
-                this.deadObjects.push(ship);
-                this.scoreDeath(ship.Id);
-                this.scoreKill(laser.Owner);
-                this.recordShipDestroyed(ship);
+            target.takeDamage(damage);
+            if (target.HullStrength <= 0) {
+                if (target.Type !== 'Debris') {
+                    this.createDebris(target);
+                }
+                this.createExplosion(target);
+                this.deadObjects.push(target);
+                if (target.Type === 'Ship') {
+                    this.scoreDeath(target.Id);
+                    this.scoreKill(laser.Owner);
+                    this.recordShipDestroyed(target);
+                }
             }
             return true;
         };
 
         if (objectA.Type === 'Laser' && isShip(objectB)) {
-            return laserHitsShip(objectA, objectB);
+            return laserHitsTarget(objectA, objectB);
         }
         if (objectB.Type === 'Laser' && isShip(objectA)) {
-            return laserHitsShip(objectB, objectA);
+            return laserHitsTarget(objectB, objectA);
+        }
+        if (objectA.Type === 'Laser' && objectB.Type === 'Debris') {
+            return laserHitsTarget(objectA, objectB);
+        }
+        if (objectB.Type === 'Laser' && objectA.Type === 'Debris') {
+            return laserHitsTarget(objectB, objectA);
         }
         return false;
     }
@@ -172,13 +182,17 @@ export class Engine {
 
     handleDestroyedObject(targetObject, sourceObject) {
         if (targetObject.HullStrength !== undefined && targetObject.HullStrength <= 0) {
-            this.createDebris(targetObject);
+            if (targetObject.Type !== 'Debris') {
+                this.createDebris(targetObject);
+            }
             this.createExplosion(targetObject);
             this.deadObjects.push(targetObject);
-            this.scoreDeath(targetObject.Id);
-            this.recordShipDestroyed(targetObject);
-            if (sourceObject && sourceObject.Id) {
-                this.scoreKill(sourceObject.Id);
+            if (targetObject.Type === 'Ship') {
+                this.scoreDeath(targetObject.Id);
+                this.recordShipDestroyed(targetObject);
+                if (sourceObject && sourceObject.Id) {
+                    this.scoreKill(sourceObject.Id);
+                }
             }
         }
     }

@@ -13,6 +13,8 @@ export class Debris {
         this.Id = id;
         this.Size = 4.0;
         this.Mass = 10; // default placeholder, overwritten during init
+        this.MaxHullStrength = 1;
+        this.HullStrength = this.MaxHullStrength;
     }
 
     // Variable names need to be changed but can't do it
@@ -41,6 +43,8 @@ export class Debris {
         this.RotationDirection = Debris.setIntitialRotationDirection();
         this.RotationVelocity = Debris.setInitialRotationVelocity();
         this.Mass = Math.max((sourceObject.Mass || 0) * 0.1, 1);
+        this.MaxHullStrength = Math.max((sourceObject.MaxHullStrength || 0) * 0.1, 1);
+        this.HullStrength = this.MaxHullStrength;
     }
 
     // physics is a gloabl, need to fix that!
@@ -48,7 +52,14 @@ export class Debris {
     // I think passing self by reference here is okay?
     update(commands, framesPerSecond) {
         Physics.findNewFacing(this);
-	    Physics.moveObjectAlongVector(this);
+            Physics.moveObjectAlongVector(this);
+    }
+
+    takeDamage(damage) {
+        this.HullStrength -= damage;
+        if (this.HullStrength < 0) {
+            this.HullStrength = 0;
+        }
     }
 
     // I have a feeling that the is a better way to express
