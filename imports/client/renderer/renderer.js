@@ -7,6 +7,7 @@ import {renderLaser} from './worldObjects/laser.js';
 import {renderParticle} from './worldObjects/particle.js';
 import {renderShip} from './worldObjects/ship.js';
 import {renderThruster} from './worldObjects/thruster.js';
+import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -342,11 +343,21 @@ export class Renderer {
 
             this.renderLeaderboard();
 
-            this.renderHullStrength();
-        
-            this.renderCapacitorStatus();
-        
-            this.renderShieldStatus();
+            renderHullStrength(this.map, {
+                availableHeight: this.availableHeight,
+                hullStrength: this.playerShip.HullStrength,
+            });
+
+            renderCapacitorStatus(this.map, {
+                availableHeight: this.availableHeight,
+                capacitor: this.playerShip.Capacitor,
+            });
+
+            renderShieldStatus(this.map, {
+                availableHeight: this.availableHeight,
+                shieldStatus: this.playerShip.ShieldStatus,
+                shieldOn: this.playerShip.ShieldOn,
+            });
 
             this.renderDamgeIndicator();
 
@@ -542,209 +553,6 @@ export class Renderer {
     }
 
 
-    renderHullStrength() {
-
-        let ship = {};
-        let hullStrengthDisplayValue;
-
-        hullStrengthDisplayValue = Math.floor(this.playerShip.HullStrength);
-
-        this.map.save();
-
-        this.map.translate(0, this.availableHeight - 90);
-
-        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-        this.map.font = "20px Arial";
-
-        this.map.fillText("HULL ", 0, 0);
-
-        this.map.restore();
-
-        this.map.save();
-
-        this.map.translate(125, this.availableHeight - 108);
-
-        this.renderMeter(hullStrengthDisplayValue);
-
-        this.map.restore();
-
-    }
-
-    renderCapacitorStatus() {
-
-        let capacitorDisplayValue = Math.floor(this.playerShip.Capacitor);
-
-        this.map.save();
-
-        this.map.translate(0, this.availableHeight - 55);
-
-        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-        this.map.font = "20px Arial";
-
-        this.map.fillText("CAPACITOR ", 0, 0);
-
-        this.map.restore();
-
-        this.map.save();
-
-        this.map.translate(125, this.availableHeight - 72);
-
-        this.renderMeter(capacitorDisplayValue);
-
-        this.map.restore();
-
-    }
-
-    renderShieldStatus() {
-
-        let shieldDisplayValue;
-
-        shieldDisplayValue = Math.floor(this.playerShip.ShieldStatus);
-
-        this.map.save();
-
-        this.map.translate(0, this.availableHeight - 20);
-
-        this.map.fillStyle = "rgba(128, 128, 128, 0.5)";
-
-        this.map.font = "20px Arial";
-
-        this.map.fillText("SHIELDS ", 0, 0);
-
-        this.map.restore();
-
-        this.map.save();
-
-        this.map.translate(125, this.availableHeight - 37);
-
-        if (this.playerShip.ShieldOn == 0 && shieldDisplayValue == 0) {
-
-            shieldDisplayValue = -1;
-
-        }
-
-        this.renderMeter(shieldDisplayValue);
-
-        this.map.restore();
-
-    }
-
-    renderMeter(percentage) {
-    
-        this.map.save();
-
-        let color = "";
-
-        if (percentage == -1) {
-            color = "gray";
-        } else if (percentage <= 33) {
-            color = "red";
-        } else if (percentage <= 66) {
-            color = "yellow";
-        } else {
-            color = "green";
-        }
-        
-        if (percentage <= 0) {
-            this.renderMeterBar(0, 0, false, color);
-        } else {
-            this.renderMeterBar(0, 0, true, color);
-        }
-
-        if (percentage < 11) {
-            this.renderMeterBar(20, 0, false, color);
-        } else {
-            this.renderMeterBar(20, 0, true, color);
-        }
-
-        if (percentage < 21) {
-            this.renderMeterBar(40, 0, false, color);
-        } else {
-            this.renderMeterBar(40, 0, true, color);
-        }
-
-        if (percentage < 31) {
-            this.renderMeterBar(60, 0, false, color);
-        } else {
-            this.renderMeterBar(60, 0, true, color);
-        }
-
-        if (percentage < 41) {
-            this.renderMeterBar(80, 0, false, color);
-        } else {
-            this.renderMeterBar(80, 0, true, color);
-        }
-
-        if (percentage < 51) {
-            this.renderMeterBar(100, 0, false, color);
-        } else {
-            this.renderMeterBar(100, 0, true, color);
-        }
-
-        if (percentage < 61) {
-            this.renderMeterBar(120, 0, false, color);
-        } else {
-            this.renderMeterBar(120, 0, true, color);
-        }
-
-        if (percentage < 71) {
-            this.renderMeterBar(140, 0, false, color);
-        } else {
-            this.renderMeterBar(140, 0, true, color);
-        }
-
-        if (percentage < 81) {
-            this.renderMeterBar(160, 0, false, color);
-        } else {
-            this.renderMeterBar(160, 0, true, color);
-        }
-
-        if (percentage < 91) {
-            this.renderMeterBar(180, 0, false, color);
-        } else {
-            this.renderMeterBar(180, 0, true, color);
-        }
-
-        this.map.restore();
-    }
-
-    renderMeterBar(x, y, filled, color) {
-    
-        this.map.save();
-
-        let fillColor = "";
-        let strokeColor = color;
-        
-        if (filled) {
-            if (color == "gray") {
-                fillColor = "rgba(128, 128, 128, 0.25)";
-            } else if (color == "green") {
-                fillColor = "rgba(0, 128, 0, 0.25)";
-            } else if (color == "yellow") {
-                fillColor = "rgba(255, 255, 0, 0.25)";
-            } else if (color == "red") {
-                fillColor = "rgba(255, 0, 0, 0.25)";
-            }
-        } else {
-            fillColor = "rgba(0,0,0,0.5)";
-        }
-
-        this.map.fillStyle = fillColor;
-
-        this.map.strokeStyle = strokeColor;
-        
-        this.map.beginPath();
-        
-        this.map.rect(x, y, 10, 20);
-        
-        this.map.fill();
-
-        this.map.stroke();
-
-        this.map.restore();
-    }
 
     renderRotateLeftButton() {
 

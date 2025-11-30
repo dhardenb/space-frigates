@@ -1,3 +1,5 @@
+import {renderInstructions} from './hudMeters.js';
+
 export function renderLandingScreen(map, {
     alpha = 1,
     availableWidth,
@@ -73,27 +75,6 @@ function renderEmail(map, availableWidth) {
     map.font = "20px Arial";
     map.translate(availableWidth / 2 - map.measureText("EMAIL: davehardenbrook@yahoo.com").width / 2, 210);
     map.fillText("EMAIL: davehardenbrook@yahoo.com", 0, 0);
-    map.restore();
-}
-
-function renderInstructions(map, availableHeight) {
-    map.save();
-    map.fillStyle = "yellow";
-    map.font = "20px Arial";
-    map.translate(0, availableHeight - 160);
-    map.fillText("ENTER => New Ship", 0, 0);
-    map.translate(0, 25);
-    map.fillText("W or UP ARROW => Thrust", 0, 0);
-    map.translate(0, 25);
-    map.fillText("A or LEFT ARROW => Rotate Left", 0, 0);
-    map.translate(0, 25);
-    map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
-    map.translate(0, 25);
-    map.fillText("S or DOWN ARROW => Auto Brake", 0, 0);
-    map.translate(0, 25);
-    map.fillText("ALT => Toggle Shields", 0, 0);
-    map.translate(0, 25);
-    map.fillText("SPACEBAR => Fire", 0, 0);
     map.restore();
 }
 
