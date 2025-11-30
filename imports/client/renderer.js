@@ -1,7 +1,7 @@
 import {Howl} from 'howler';
 import {Client} from './client.js';
 import {drawTurtleShip} from './renderer/turtleShip.js';
-import {drawHumanShip} from './renderer/humanShip.js';
+import {drawViperShip} from './renderer/viperShip.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -530,7 +530,7 @@ export class Renderer {
         }
 
         if (ship.shipTypeId === 'Viper') {
-            drawHumanShip(this.map, shipScale);
+            drawViperShip(this.map, shipScale);
         } else if (ship.shipTypeId === 'Turtle') {
             drawTurtleShip(this.map, shipScale, ship.aiProfile, this.renderTimeSeconds);
         } else {

@@ -2,7 +2,7 @@ import {roundRectPath} from './drawHelpers.js';
 
 export const HUMAN_SHIP_BASE_LENGTH = 208;
 
-export function drawHumanShip(ctx, pixelScale) {
+export function drawViperShip(ctx, pixelScale) {
     const scaleFactor = pixelScale / HUMAN_SHIP_BASE_LENGTH;
     ctx.save();
     ctx.scale(scaleFactor, scaleFactor);
