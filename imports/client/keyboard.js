@@ -60,13 +60,10 @@ export class Keyboard {
         else if(evt.keyCode==40) {
             if (Client.gameMode == 'PLAY_MODE') {
                 evt.preventDefault();
-                if (evt.repeat) {
-                    return;
-                }
-                client.commandHandler({command: 'BRAKE_DOWN'});
+                client.commandHandler({command: 'RETRO_THRUST'});
             }
         }
-        // A
+        // A - Rotate CounterClockwise
         else if(evt.keyCode == 65) {
             evt.preventDefault();
             if (Client.gameMode == 'START_MODE') {
@@ -90,6 +87,17 @@ export class Keyboard {
         }
         // S
         else if(evt.keyCode == 83) {
+            evt.preventDefault();
+            if (Client.gameMode == 'START_MODE') {
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
+                }
+            } else if (Client.gameMode == 'PLAY_MODE') {
+                client.commandHandler({command: 'RETRO_THRUST'});
+            }
+        }
+        // Z - Autopilot Brake
+        else if(evt.keyCode == 90) {
             evt.preventDefault();
             if (Client.gameMode == 'START_MODE') {
                 if (client.playerName.length < 8) {

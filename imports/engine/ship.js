@@ -100,7 +100,7 @@ export class Ship {
 
     determineCurrentCommand(commands) {
         this.currentCommand = null;
-        const cancelAutoPilotCommands = new Set([1, 2, 3, '1', '2', '3']);
+        const cancelAutoPilotCommands = new Set([1, 2, 3, '1', '2', '3', 'RETRO_THRUST']);
         let autoPilotRequested = false;
         let autoPilotCancelled = false;
         for(let x = 0, y = commands.length; x < y; x++) {
@@ -279,6 +279,12 @@ export class Ship {
         }
     }
 
+    updateRetroThrusters() {
+        if (this.currentCommand === 'RETRO_THRUST') {
+            this.applyRetrogradeThrust();
+        }
+    }
+
     rotateLeft() {
         if (this.currentCommand == 3) {
             this.applyRotationThrust('Clockwise');
@@ -348,6 +354,7 @@ export class Ship {
         this.updateRector(framesPerSecond);
         this.fireLaser();
         this.updateThrusters();
+        this.updateRetroThrusters();
         this.rotateLeft();
         this.rotateRight();
         this.updateAutoPilot();
@@ -477,6 +484,31 @@ export class Ship {
         return true;
     }
 
+    applyRetrogradeThrust() {
+        const energyPerFrame = this.ThrusterEnergyPerSecond / 2 / Physics.framesPerSecond;
+        let activateThruster = false;
+        if (this.Capacitor >= energyPerFrame) {
+            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+            activateThruster = true;
+        } else if (this.ShieldStatus >= 10) {
+            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+            activateThruster = true;
+        }
+
+        if (!activateThruster) {
+            return false;
+        }
+
+        const mass = this.Mass || 1;
+        const thrustForce = (this.ThrusterForceProduced || 0) / 2;
+        const acceleration = thrustForce / mass;
+        const velocityBoost = acceleration / Physics.framesPerSecond;
+        const retroFacing = (this.Facing + 180) % 360;
+        Physics.findNewVelocity(this, retroFacing, velocityBoost);
+        this.spawnRetrogradeThrusters();
+        return true;
+    }
+
     applyRotationThrust(direction) {
         const energyPerFrame = this.RotationEnergyPerSecond / Physics.framesPerSecond;
         let activate = false;
@@ -545,6 +577,20 @@ export class Ship {
         ] : [
             {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: (this.Facing + 90) % 360},
             {offset: this.calculateOffsetFromShip(-forwardOffset, -sideOffset), facing: (this.Facing - 90 + 360) % 360},
+        ];
+
+        positions.forEach(({offset, facing}) => this.spawnThrusterAt(offset, facing, thrusterSize));
+    }
+
+    spawnRetrogradeThrusters() {
+        const sideOffset = this.Size * 0.3;
+        const thrusterSize = Thruster.DEFAULT_SIZE / 3;
+        const forwardOffset = this.Size * 0.15 + thrusterSize * 0.75;
+
+        const retroThrusterFacing = this.Facing;
+        const positions = [
+            {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: retroThrusterFacing},
+            {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: retroThrusterFacing},
         ];
 
         positions.forEach(({offset, facing}) => this.spawnThrusterAt(offset, facing, thrusterSize));
