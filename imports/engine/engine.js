@@ -162,7 +162,7 @@ export class Engine {
         const reducedMass = (objectA.Mass * objectB.Mass) / (objectA.Mass + objectB.Mass);
         const impactSpeed = Math.abs(relativeVelocityAlongNormal);
         const impactEnergy = 0.5 * reducedMass * impactSpeed * impactSpeed;
-        const damageScale = 5000;
+        const damageScale = 10000;
         const damage = impactEnergy / damageScale;
 
         const totalMass = objectA.Mass + objectB.Mass;

@@ -108,7 +108,7 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 ## Collision Handling
 
 - Collisions between solid entities are resolved as lightly inelastic impacts to prevent “bumper car” ricochets. A restitution of `0.2` is applied to the relative velocity along the collision normal before converting the resulting vectors back into heading/velocity pairs.
-- Hull damage is derived from impact energy: reduced mass is multiplied by the square of the normal-relative speed, halved, then scaled down by a constant to keep damage reasonable. Each participant receives damage proportional to the other object’s mass (heavier objects punish lighter ones more).
+- Hull damage is derived from impact energy: reduced mass is multiplied by the square of the normal-relative speed, halved, then scaled down by a constant (currently `10000` to temper lethality) to keep damage reasonable. Each participant receives damage proportional to the other object’s mass (heavier objects punish lighter ones more).
 - Impact points spawn explosions sized to the larger collider. Any ship destroyed by the collision still spawns its own explosion, debris, and scoring updates as usual.
 - Mass values now influence both physics and damage. Ships rely on their defined masses, debris inherits 10% of its source ship’s mass (with a minimum of 1), and lasers carry zero mass so they bypass momentum exchange while still dealing fuel-based damage through the existing laser logic.
 - Debris now also carries hull integrity equal to 10% of the source ship’s maximum hull (minimum 1) so collisions and lasers can chip away at debris just like ships. Destroyed debris creates an explosion but no further debris fragments.
