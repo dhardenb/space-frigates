@@ -1,5 +1,5 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 3;
+const BINARY_VERSION = 4;
 
 const TYPE_CODES = {
     Player: 1,
