@@ -7,6 +7,7 @@ export class Ai {
         this.mapRadius = mapRadius;
         this.selectShipType = typeof options.selectShipType === 'function' ? options.selectShipType : (() => 'Turtle');
         this.scanIntervalMs = Number.isFinite(options.scanIntervalMs) && options.scanIntervalMs > 0 ? options.scanIntervalMs : 1000;
+        this.attackScanIntervalMs = Number.isFinite(options.attackScanIntervalMs) && options.attackScanIntervalMs > 0 ? options.attackScanIntervalMs : 200;
         this.energyFullTolerance = 0.25;
         this.patrolCapacitorThreshold = 0.66;
         this.sensorRangeScale = Number.isFinite(options.sensorRangeScale) && options.sensorRangeScale > 0 ? options.sensorRangeScale : 40;
@@ -49,7 +50,8 @@ export class Ai {
             if (gameObject.Type === 'Ship' && gameObject.pilotType === 'Bot') {
                 if (!Number.isFinite(gameObject.nextScanAt) || now >= gameObject.nextScanAt) {
                     this.think(commands, gameObject);
-                    gameObject.nextScanAt = now + this.scanIntervalMs;
+                    const nextInterval = Number.isFinite(gameObject.activeScanIntervalMs) ? gameObject.activeScanIntervalMs : this.scanIntervalMs;
+                    gameObject.nextScanAt = now + nextInterval;
                 }
             }
         }
@@ -166,6 +168,7 @@ export class Ai {
         const previousMode = gameObject.aiMode;
         const modeContext = this.determineMode(gameObject, previousMode);
         gameObject.aiMode = modeContext.mode;
+        gameObject.activeScanIntervalMs = this.getScanIntervalForMode(modeContext.mode);
         if (modeContext.mode) {
             gameObject.Name = modeContext.mode;
         }
@@ -304,5 +307,12 @@ export class Ai {
         }
 
         commands.push({command: 0, targetId: gameObject.Id});
+    }
+
+    getScanIntervalForMode(mode) {
+        if (mode === 'attack') {
+            return this.attackScanIntervalMs;
+        }
+        return this.scanIntervalMs;
     }
 }
