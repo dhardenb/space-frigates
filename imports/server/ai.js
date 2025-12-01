@@ -303,7 +303,7 @@ export class Ai {
         const facing = Ship.normalizeAngle(Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
         const desiredFacing = Ship.normalizeAngle(target.bearingDegrees);
         const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
-        const angleTolerance = 1;
+        const angleTolerance = 10;
         const rotationVelocity = Math.abs(Number(gameObject.RotationVelocity) || 0);
         const rotationDirection = gameObject.RotationDirection || 'None';
         const rotationStopThreshold = 0.1;
