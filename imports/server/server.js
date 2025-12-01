@@ -183,6 +183,7 @@ Meteor.methods({
         
         const server = Server.getInstance();
         const shipTypeId = server ? server.resolveHumanShipType() : 'Viper';
+        const playerId = Utilities.hashStringToUint32(this.connection.id);
         let playerShip = new Ship(Engine.getNextGameObjectId());
         playerShip.init({shipTypeId, pilotType: 'Human'});
         playerShip.Name = name;
@@ -191,7 +192,7 @@ Meteor.methods({
 
         for (let i=0, j=gameObjects.length; i<j; i++) {
             if (gameObjects[i].Type == 'Player') {
-                if (gameObjects[i].Id == this.connection.id) {
+                if (gameObjects[i].Id == playerId) {
                     gameObjects[i].ShipId = playerShip.Id;
                     gameObjects[i].Name = name;
                 }
@@ -202,7 +203,7 @@ Meteor.methods({
     },
 
     getPlayerId: function() {
-        return this.connection.id;
+        return Utilities.hashStringToUint32(this.connection.id);
     },
 
     getNetworkThrottle: function() {
