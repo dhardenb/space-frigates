@@ -332,11 +332,26 @@ export class Engine {
             Size: Math.max(objectA.Size, objectB.Size)
         };
         if (useLaserParticles) {
+            const laserFuel = this.sumLaserFuel(objectA, objectB);
+            if (laserFuel.maxFuel > 0) {
+                impactPoint.Fuel = laserFuel.remainingFuel;
+                impactPoint.MaxFuel = laserFuel.maxFuel;
+            }
             this.createLaserExplosion(impactPoint);
         }
         else {
             this.createExplosion(impactPoint);
         }
+    }
+
+    sumLaserFuel(...objects) {
+        return objects.reduce((totals, object) => {
+            if (object && object.Type === 'Laser') {
+                totals.remainingFuel += Math.max(0, object.Fuel || 0);
+                totals.maxFuel += Math.max(0, object.MaxFuel || 0);
+            }
+            return totals;
+        }, {remainingFuel: 0, maxFuel: 0});
     }
 
     createDebris(sourceGameObject) {
@@ -354,7 +369,14 @@ export class Engine {
     }
 
     createLaserExplosion(sourceGameObject) {
-        for (let i = 0; i < this.explosionSize; i++) {
+        const fuelRatio = sourceGameObject && sourceGameObject.MaxFuel
+            ? Math.max(0, Math.min(1, (sourceGameObject.Fuel || 0) / sourceGameObject.MaxFuel))
+            : null;
+        const sparksToSpawn = fuelRatio === null
+            ? this.explosionSize
+            : Math.max(1, Math.round(this.explosionSize * fuelRatio));
+
+        for (let i = 0; i < sparksToSpawn; i++) {
             const newParticle = new LaserParticle(Engine.getNextGameObjectId());
             newParticle.init(sourceGameObject);
             gameObjects.push(newParticle);
