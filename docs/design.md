@@ -101,7 +101,7 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 ### Binary Snapshot Format
 
 - Snapshots now travel as a binary `Uint8Array` with the following header: magic number `0x53464753` (“SFGS”), uint16 schema version, uint32 `updateId`, float64 `createdAt`, uint32 object count, uint32 event count.
-- Each entity is emitted with a one-byte type code (`Player`, `Human`, `Alpha`, `Bravo`, `Debris`, `Laser`, `Sound`, `Thruster`) followed by a fixed layout of primitive fields. Positions, headings, velocities, etc. are encoded as float32 values; identifiers use uint32. Player-only strings (name) and sound effect identifiers are stored as length-prefixed UTF-8 blobs (max 255 bytes).
+- Each entity is emitted with a one-byte type code (`Player`, `Human`, `Bot`, `Debris`, `Laser`, `Sound`, `Thruster`) followed by a fixed layout of primitive fields. Positions, headings, velocities, etc. are encoded as float32 values; identifiers use uint32. Player-only strings (name) and sound effect identifiers are stored as length-prefixed UTF-8 blobs (max 255 bytes).
 - Events are appended after the entity list. Right now only `ShipDestroyed` exists, encoded as `[type, shipId (uint32), locationX (float32), locationY (float32)]`.
 - The client receives the raw `Uint8Array`, validates the magic/version, then reconstructs plain JS objects so the rest of the engine continues to operate on the same structures as before the binary migration.
 

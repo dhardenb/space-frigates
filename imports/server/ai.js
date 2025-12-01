@@ -1,8 +1,6 @@
 import {Engine} from '../engine/engine.js';
 import {Ship} from '../engine/ship.js';
 
-const AI_PROFILES = ['Alpha', 'Bravo'];
-
 export class Ai {
 
     constructor(mapRadius, options = {}) {
@@ -31,7 +29,7 @@ export class Ai {
             nextShipType = Math.floor((Math.random()*6400)+1);
         }
         if (nextShipType == 1 || nextShipType == 2) {
-            const aiProfile = AI_PROFILES[nextShipType - 1];
+            const aiProfile = 'bot';
             const newAiShip = new Ship(Engine.getNextGameObjectId());
             const shipTypeId = this.selectShipType();
             newAiShip.init({shipTypeId, pilotType: 'Bot', aiProfile});
@@ -53,8 +51,8 @@ export class Ai {
 
     think(commands, gameObject) {
         let commandType = 0;
-        const profile = gameObject.aiProfile || 'Alpha';
-        if (profile == 'Alpha') {
+        const profile = gameObject.aiProfile || 'bot';
+        if (profile == 'bot') {
             switch (Math.floor(Math.random()*11+1)) {
                 case 1:
                     commandType = 2;
@@ -75,31 +73,6 @@ export class Ai {
                     break;
                 case 2:
                 case 5:
-                    commandType = 4;
-                    break;
-            }
-        }
-        else if (profile == 'Bravo') {
-            switch (Math.floor(Math.random()*11+1)) {
-                case 1:
-                    commandType = 2;
-                    break;
-                case 3:
-                case 4:
-                case 11:
-                    commandType = 0;
-                    break;
-                case 6:
-                case 7:
-                    commandType = 1;
-                    break;
-                case 8:
-                case 9:
-                    commandType = 3;
-                    break;
-                case 2:
-                case 5:
-                case 10:
                     commandType = 4;
                     break;
             }
