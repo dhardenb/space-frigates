@@ -303,8 +303,16 @@ export class Ai {
         const rotationDirection = gameObject.RotationDirection || 'None';
         const rotationStopThreshold = 0.1;
 
+        const desiredRotation = angleDelta > 0 ? 'CounterClockwise' : 'Clockwise';
+
+        if (rotationDirection !== 'None' && rotationDirection !== desiredRotation && rotationVelocity > rotationStopThreshold) {
+            const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
+            commands.push({command: dampenCommand, targetId: gameObject.Id});
+            return;
+        }
+
         if (Math.abs(angleDelta) > angleTolerance) {
-            const rotateCommand = angleDelta > 0 ? 1 : 3;
+            const rotateCommand = desiredRotation === 'CounterClockwise' ? 1 : 3;
             commands.push({command: rotateCommand, targetId: gameObject.Id});
             return;
         }
