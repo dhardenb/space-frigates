@@ -6,6 +6,7 @@ import {renderLeaderboard} from './leaderboard.js';
 import {renderDebris} from './worldObjects/debris.js';
 import {renderLaser} from './worldObjects/laser.js';
 import {renderParticle} from './worldObjects/particle.js';
+import {renderLaserParticle} from './worldObjects/laserParticle.js';
 import {renderShip} from './worldObjects/ship.js';
 import {renderThruster} from './worldObjects/thruster.js';
 import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
@@ -325,6 +326,12 @@ export class Renderer {
                 else if (gameObjects[i].Type == 'Particle') {
 
                     renderParticle(this.map, gameObjects[i], this.worldPixelsPerMeter);
+
+                }
+
+                else if (gameObjects[i].Type == 'LaserParticle') {
+
+                    renderLaserParticle(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
