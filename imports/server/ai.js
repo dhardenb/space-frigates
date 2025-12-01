@@ -8,6 +8,7 @@ export class Ai {
         this.selectShipType = typeof options.selectShipType === 'function' ? options.selectShipType : (() => 'Turtle');
         this.scanIntervalMs = Number.isFinite(options.scanIntervalMs) && options.scanIntervalMs > 0 ? options.scanIntervalMs : 1000;
         this.energyFullTolerance = 0.25;
+        this.patrolCapacitorThreshold = 0.66;
     }
 
     createNewShip() {
@@ -178,14 +179,13 @@ export class Ai {
     determineMode(gameObject) {
         const scan = gameObject.lastScan || {contacts: []};
         const humanContacts = scan.contacts.filter(contact => contact && contact.pilotType === 'Human');
-        const capacitorFull = this.isCapacitorFull(gameObject);
-        const shieldFull = this.isShieldFull(gameObject);
+        const capacitorRatio = this.getCapacitorRatio(gameObject);
 
         if (humanContacts.length > 0) {
             return {mode: 'attack', target: humanContacts[0]};
         }
 
-        if ((!capacitorFull || !shieldFull) && humanContacts.length === 0) {
+        if (humanContacts.length === 0 && capacitorRatio < this.patrolCapacitorThreshold) {
             return {mode: 'recharge'};
         }
 
@@ -210,14 +210,28 @@ export class Ai {
         return gameObject.ShieldStatus >= maxShield - tolerance;
     }
 
+    getCapacitorRatio(gameObject) {
+        const capacitor = Number.isFinite(gameObject?.Capacitor) ? gameObject.Capacitor : 0;
+        const maxCapacitor = Number.isFinite(gameObject?.MaxCapacitor) ? gameObject.MaxCapacitor : capacitor;
+        if (maxCapacitor <= 0) {
+            return 0;
+        }
+        return capacitor / maxCapacitor;
+    }
+
     recharge(gameObject, commands) {
         commands.push({command: 4, targetId: gameObject.Id});
-        if (gameObject.ShieldOn !== 1) {
+        if (gameObject.ShieldOn === 1) {
             commands.push({command: 5, targetId: gameObject.Id});
         }
     }
 
     patrol(gameObject, commands) {
+        const capacitorRatio = this.getCapacitorRatio(gameObject);
+        if (capacitorRatio < this.patrolCapacitorThreshold) {
+            return;
+        }
+
         if (!gameObject.patrolState || typeof gameObject.patrolState !== 'object') {
             gameObject.patrolState = {
                 rotationDirection: Math.random() < 0.5 ? 'Clockwise' : 'CounterClockwise',

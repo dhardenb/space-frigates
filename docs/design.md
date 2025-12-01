@@ -112,7 +112,7 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 
 ## Bot Modes
 
-- Bots pick a mode every time they think based on their latest scan and current status. If no humans are detected and energy or shields aren’t topped off, they switch to **recharge**, braking to a stop and raising shields. Detecting any human ship moves the bot into **attack** mode, where it aligns with the closest target and fires as soon as it is facing them. In all other cases the bot **patrols**, thrusting gently while periodically rotating to trace a slow outward spiral.
+- Bots pick a mode every time they think based on their latest scan and current status. Detecting any human ship moves the bot into **attack** mode, where it aligns with the closest target and fires as soon as it is facing them. If no humans are detected and the capacitor is below roughly two-thirds full, the bot enters **recharge**, braking to a stop and shutting shields off to conserve energy. Once the capacitor passes that two-thirds mark with no humans around, the bot **patrols**, rotating periodically and nudging forward while there is enough capacitor to avoid dipping back under that threshold.
 
 ## Collision Handling
 
