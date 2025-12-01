@@ -11,8 +11,8 @@ export class Laser {
                 this.LaserLaunchOffset = 1.0;
                 this.initialVelocity = 100;
                 this.Velocity = 0;
-                this.fuelConsumptionRate = 60; // default, can be overridden
-                this.MaxFuel = 60;
+                this.fuelConsumptionRate = 30; // default, can be overridden
+                this.MaxFuel = 30;
 		const laserCollisionSpec = COLLISION_DIMENSIONS.Laser;
 		// Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
 		this.collisionLengthMeters = laserCollisionSpec.length;
