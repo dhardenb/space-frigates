@@ -110,6 +110,10 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 - Bot-controlled ships periodically sweep their surroundings for any observable entity within ten times their own radius. Each contact stores positional data (distance, bearing, heading), motion (velocity), size, and ship status (hull, capacitor, shield). When the pilot’s record is known, the scan also captures the number of confirmed kills for that ship so future AI behaviors can consider an opponent’s track record.
 - Scans currently run once per second per bot by default. The interval is configurable so the cadence can be tuned without code changes.
 
+## Bot Modes
+
+- Bots pick a mode every time they think based on their latest scan and current status. If no humans are detected and energy or shields aren’t topped off, they switch to **recharge**, braking to a stop and raising shields. Detecting any human ship moves the bot into **attack** mode, where it aligns with the closest target and fires as soon as it is facing them. In all other cases the bot **patrols**, thrusting gently while periodically rotating to trace a slow outward spiral.
+
 ## Collision Handling
 
 - Collisions between solid entities are resolved as lightly inelastic impacts to prevent “bumper car” ricochets. A restitution of `0.2` is applied to the relative velocity along the collision normal before converting the resulting vectors back into heading/velocity pairs.

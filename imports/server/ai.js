@@ -148,34 +148,105 @@ export class Ai {
     }
 
     think(commands, gameObject) {
-        let commandType = 0;
         const profile = gameObject.aiProfile || 'bot';
         gameObject.lastScan = this.scanForNearbyObjects(gameObject);
-        if (profile == 'bot') {
-            switch (Math.floor(Math.random()*11+1)) {
-                case 1:
-                    commandType = 2;
-                    break;
-                case 3:
-                case 4:
-                case 11:
-                case 10:
-                    commandType = 0;
-                    break;
-                case 6:
-                case 7:
-                    commandType = 1;
-                    break;
-                case 8:
-                case 9:
-                    commandType = 3;
-                    break;
-                case 2:
-                case 5:
-                    commandType = 4;
-                    break;
-            }
+        if (profile !== 'bot') {
+            return;
         }
-        commands.push({command: commandType, targetId: gameObject.Id});
+
+        const modeContext = this.determineMode(gameObject);
+        gameObject.aiMode = modeContext.mode;
+
+        switch (modeContext.mode) {
+            case 'recharge':
+                this.recharge(gameObject, commands);
+                break;
+            case 'attack':
+                this.attack(gameObject, modeContext, commands);
+                break;
+            case 'patrol':
+            default:
+                this.patrol(gameObject, commands);
+                break;
+        }
+    }
+
+    determineMode(gameObject) {
+        const scan = gameObject.lastScan || {contacts: []};
+        const humanContacts = scan.contacts.filter(contact => contact && contact.pilotType === 'Human');
+        const capacitorFull = this.isCapacitorFull(gameObject);
+        const shieldFull = this.isShieldFull(gameObject);
+
+        if (humanContacts.length > 0) {
+            return {mode: 'attack', target: humanContacts[0]};
+        }
+
+        if ((!capacitorFull || !shieldFull) && humanContacts.length === 0) {
+            return {mode: 'recharge'};
+        }
+
+        return {mode: 'patrol'};
+    }
+
+    isCapacitorFull(gameObject) {
+        if (!Number.isFinite(gameObject?.Capacitor)) {
+            return false;
+        }
+        const maxCapacitor = Number.isFinite(gameObject?.MaxCapacitor) ? gameObject.MaxCapacitor : gameObject.Capacitor;
+        return gameObject.Capacitor >= maxCapacitor;
+    }
+
+    isShieldFull(gameObject) {
+        if (!Number.isFinite(gameObject?.ShieldStatus)) {
+            return false;
+        }
+        const maxShield = Number.isFinite(gameObject?.MaxShieldStrength) ? gameObject.MaxShieldStrength : gameObject.ShieldStatus;
+        return gameObject.ShieldStatus >= maxShield;
+    }
+
+    recharge(gameObject, commands) {
+        commands.push({command: 4, targetId: gameObject.Id});
+        if (gameObject.ShieldOn !== 1) {
+            commands.push({command: 5, targetId: gameObject.Id});
+        }
+    }
+
+    patrol(gameObject, commands) {
+        if (!gameObject.patrolState || typeof gameObject.patrolState !== 'object') {
+            gameObject.patrolState = {
+                rotationDirection: Math.random() < 0.5 ? 'Clockwise' : 'CounterClockwise',
+                step: 0
+            };
+        }
+
+        const rotationCommand = gameObject.patrolState.rotationDirection === 'Clockwise' ? 3 : 1;
+        const shouldRotate = gameObject.patrolState.step % 3 === 0;
+
+        commands.push({
+            command: shouldRotate ? rotationCommand : 2,
+            targetId: gameObject.Id
+        });
+
+        gameObject.patrolState.step += 1;
+    }
+
+    attack(gameObject, modeContext, commands) {
+        const target = modeContext.target;
+        if (!target) {
+            return;
+        }
+
+        const facing = Ship.normalizeAngle(Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
+        const desiredFacing = Ship.normalizeAngle(target.bearingDegrees);
+        const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
+        const angleTolerance = 5;
+
+        if (Math.abs(angleDelta) > angleTolerance) {
+            const rotateCommand = angleDelta > 0 ? 1 : 3;
+            commands.push({command: rotateCommand, targetId: gameObject.Id});
+            return;
+        }
+
+        commands.push({command: 0, targetId: gameObject.Id});
     }
 }
