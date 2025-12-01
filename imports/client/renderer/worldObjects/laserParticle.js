@@ -2,7 +2,7 @@ export function renderLaserParticle(map, particle, worldPixelsPerMeter) {
     map.save();
 
     map.translate(particle.LocationX * worldPixelsPerMeter, particle.LocationY * worldPixelsPerMeter);
-    map.rotate(particle.Heading * Math.PI / 180);
+    map.rotate((particle.Heading + 90) * Math.PI / 180);
 
     const alpha = Math.random() * 0.5 + 0.25;
     const red = 150 + Math.floor(Math.random() * 70);

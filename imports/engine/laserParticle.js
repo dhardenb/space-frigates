@@ -12,12 +12,17 @@ export class LaserParticle extends Particle {
     }
 
     init(sourceObject) {
-        this.LocationX = sourceObject.LocationX;
-        this.LocationY = sourceObject.LocationY;
-        this.Heading = Math.random() * 360;
-        this.Velocity = 150 + Math.random() * 150;
-        this.Fuel = 0.2 + Math.random() * 0.3;
+        const directionDeg = Math.random() * 360;
+        const speed = 120 + Math.random() * 200;
+        const lifetimeSeconds = 0.15 + Math.random() * 0.65;
+
+        this.LocationX = sourceObject.LocationX + (Math.random() - 0.5) * 0.2;
+        this.LocationY = sourceObject.LocationY + (Math.random() - 0.5) * 0.2;
+        this.Heading = directionDeg;
+        this.Velocity = speed;
+        this.Fuel = lifetimeSeconds;
         this.sparkLength = 0.5 + Math.random();
+        this.fuelConsumptionRate = 1 + Math.random() * 0.8;
     }
 
     update(commands, framesPerSecond) {
