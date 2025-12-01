@@ -96,6 +96,9 @@ export function renderShip(map, ship, {
             const candidateName = shipNamesById?.get(ship.Id) || ship.Name;
             nameToDraw = candidateName && candidateName !== '' ? candidateName : 'GUEST';
         }
+    } else if (ship.pilotType === 'Bot') {
+        const candidateName = shipNamesById?.get(ship.Id) || ship.Name || ship.aiProfile;
+        nameToDraw = candidateName && candidateName !== '' ? candidateName : '';
     }
 
     map.fillStyle = 'gray';

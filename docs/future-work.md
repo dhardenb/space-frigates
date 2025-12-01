@@ -42,6 +42,35 @@
    - Requires new data structures for diffing packed states, client-side patch application logic, and resilience mechanisms (full-state resyncs, checksum validation) to recover from missed deltas.
 
 4. **Schema-based binary protocol**
-   - Move the ad-hoc DataView layout to a formal schema (e.g., FlatBuffers, protobuf, Cap’n Proto) so field changes are versioned automatically and tooling can generate encoders/decoders for other runtimes.
+   - Move the ad-hoc DataView layout to a formal schema (e.g., FlatBuffers, protobuf, Cap'n Proto) so field changes are versioned automatically and tooling can generate encoders/decoders for other runtimes.
    - Adds room for richer validation (checksums, signatures) and could unlock streaming partial updates once the delta system is in place.
+
+### Bot AI Improvements
+
+1. **Lead targeting (predictive aiming)**
+   - Instead of aiming at where the target IS, aim where it WILL BE when the laser arrives. Calculate time-to-target based on distance and laser speed (100 units), then predict the target's future position using their heading and velocity. This significantly improves hit rate against moving targets.
+
+2. **Tighter angle tolerance**
+   - Reduce firing angle tolerance from 10° to 5° for more accurate shots. Trade-off is slightly longer time to align before firing.
+
+3. **Enable shields during combat**
+   - Automatically activate shields when entering attack mode (if capacitor > 30). Provides defensive capability while engaging targets.
+
+4. **Opportunistic firing while rotating**
+   - Fire when rotation velocity < 1 instead of waiting for complete stop. Gets more shots off while tracking moving targets, accepting slightly reduced accuracy for higher volume of fire.
+
+5. **Close distance while attacking**
+   - After firing, if target is > 50 units away, also thrust forward to close the gap. Shorter range means higher hit probability and more damage (lasers lose fuel/damage over distance).
+
+6. **Faster attack scan rate**
+   - Reduce attack scan interval from 200ms to 100ms for more responsive target tracking. Trade-off is slightly higher server CPU usage per bot.
+
+7. **Target prioritization**
+   - Currently targets closest human. Could factor in: target health (finish wounded targets), threat level (kill count), whether target is facing the bot (prioritize distracted targets), or target velocity (easier to hit slow targets).
+
+8. **Evasive maneuvers**
+   - Add lateral thrust or rotation while attacking to make bots harder to hit. Could trigger when detecting incoming fire or when target is also facing the bot.
+
+9. **Energy management**
+   - Monitor capacitor levels and temporarily disengage (stop firing, disable shields) to recharge if energy gets critically low, rather than draining shields for weapons.
 

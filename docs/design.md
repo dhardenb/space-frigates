@@ -101,9 +101,18 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 ### Binary Snapshot Format
 
 - Snapshots now travel as a binary `Uint8Array` with the following header: magic number `0x53464753` (“SFGS”), uint16 schema version, uint32 `updateId`, float64 `createdAt`, uint32 object count, uint32 event count.
-- Each entity is emitted with a one-byte type code (`Player`, `Human`, `Alpha`, `Bravo`, `Debris`, `Laser`, `Sound`, `Thruster`) followed by a fixed layout of primitive fields. Positions, headings, velocities, etc. are encoded as float32 values; identifiers use uint32. Player-only strings (name) and sound effect identifiers are stored as length-prefixed UTF-8 blobs (max 255 bytes).
+- Each entity is emitted with a one-byte type code (`Player`, `Human`, `Bot`, `Debris`, `Laser`, `Sound`, `Thruster`) followed by a fixed layout of primitive fields. Positions, headings, velocities, etc. are encoded as float32 values; identifiers use uint32. Player-only strings (name) and sound effect identifiers are stored as length-prefixed UTF-8 blobs (max 255 bytes).
 - Events are appended after the entity list. Right now only `ShipDestroyed` exists, encoded as `[type, shipId (uint32), locationX (float32), locationY (float32)]`.
 - The client receives the raw `Uint8Array`, validates the magic/version, then reconstructs plain JS objects so the rest of the engine continues to operate on the same structures as before the binary migration.
+
+## Bot Sensor Scans
+
+- Bot-controlled ships periodically sweep their surroundings for any observable entity within a range scaled to their size (`size / 2 * sensorRangeScale`, default 40x radius) to better match the on-screen distances where ships appear. Each contact stores positional data (distance, bearing, heading), motion (velocity), size, and ship status (hull, capacitor, shield). When the pilot’s record is known, the scan also captures the number of confirmed kills for that ship so future AI behaviors can consider an opponent’s track record.
+- Scans currently run once per second per bot by default. Attack mode tightens this to 200ms to keep target bearings fresh while maneuvering, and both cadences are configurable so the rhythm can be tuned without code changes.
+
+## Bot Modes
+
+- Bots pick a mode every time they think based on their latest scan and current status. Detecting any human ship moves the bot into **attack** mode, where it aligns with the closest target and fires as soon as it is facing them. If no humans are detected and the capacitor is below roughly two-thirds full, the bot enters **recharge**, braking to a stop and shutting shields off to conserve energy. Once the capacitor passes that two-thirds mark with no humans around, the bot **patrols**, rotating periodically and nudging forward while there is enough capacitor to avoid dipping back under that threshold.
 
 ## Collision Handling
 
