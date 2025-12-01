@@ -7,6 +7,12 @@ import {Debris} from './debris.js';
 import {Sound} from './sound.js';
 import {Physics} from './physics.js';
 import {Utilities} from '../utilities/utilities.js';
+import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
+
+// IMPORTANT: COLLISION_DIMENSIONS drives both the per-object metadata
+// (collisionLengthMeters/collisionWidthMeters) and these engine-level
+// fallbacks. Update the shared configuration before relying on new sizes.
+const COLLISION_BOX_SPECS = COLLISION_DIMENSIONS;
 
 export class Engine {
 
@@ -52,10 +58,116 @@ export class Engine {
     }
 
     objectsCollide(objectA, objectB) {
-        const deltaX = objectA.LocationX - objectB.LocationX;
-        const deltaY = objectA.LocationY - objectB.LocationY;
-        const radiusSum = objectA.Size / 2 + objectB.Size / 2;
+        const boxA = this.buildBoundingBox(objectA);
+        const boxB = this.buildBoundingBox(objectB);
+
+        if (boxA && boxB) {
+            return this.boxesOverlap(boxA, boxB);
+        }
+
+        // Fallback to legacy radius check if bounding box data is unavailable
+        const deltaX = (objectA.LocationX || 0) - (objectB.LocationX || 0);
+        const deltaY = (objectA.LocationY || 0) - (objectB.LocationY || 0);
+        const radiusSum = (objectA.Size || 0) / 2 + (objectB.Size || 0) / 2;
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY) < radiusSum;
+    }
+
+    buildBoundingBox(gameObject) {
+        if (!gameObject) {
+            return null;
+        }
+        const spec = this.getBoundingBoxSpec(gameObject);
+        const centerX = Number(gameObject.LocationX);
+        const centerY = Number(gameObject.LocationY);
+        if (!Number.isFinite(centerX) || !Number.isFinite(centerY)) {
+            return null;
+        }
+
+        const headingDegrees = Number.isFinite(gameObject.Heading)
+            ? gameObject.Heading
+            : (Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
+        const headingRadians = headingDegrees * Math.PI / 180;
+
+        const axisLength = this.normalizeAxis({
+            x: Math.sin(headingRadians),
+            y: -Math.cos(headingRadians)
+        });
+        const axisWidth = this.normalizeAxis({
+            x: Math.cos(headingRadians),
+            y: Math.sin(headingRadians)
+        });
+
+        return {
+            center: {x: centerX, y: centerY},
+            halfLength: spec.length / 2,
+            halfWidth: spec.width / 2,
+            axisLength,
+            axisWidth
+        };
+    }
+
+    getBoundingBoxSpec(gameObject) {
+        if (!gameObject) {
+            return {length: 1, width: 1};
+        }
+
+        const objectLength = Number(gameObject.collisionLengthMeters);
+        const objectWidth = Number(gameObject.collisionWidthMeters);
+        if (objectLength > 0 && objectWidth > 0) {
+            return {length: objectLength, width: objectWidth};
+        }
+
+        const explicitSpec = COLLISION_BOX_SPECS[gameObject.Type];
+        if (explicitSpec) {
+            return explicitSpec;
+        }
+
+        const fallbackSize = Number(gameObject.Size) || 1;
+        return {length: fallbackSize, width: fallbackSize};
+    }
+
+    normalizeAxis(axis) {
+        const magnitude = Math.sqrt(axis.x * axis.x + axis.y * axis.y) || 1;
+        return {
+            x: axis.x / magnitude,
+            y: axis.y / magnitude
+        };
+    }
+
+    projectBoxOntoAxis(box, axis) {
+        const normalizedAxis = this.normalizeAxis(axis);
+        const centerProjection = box.center.x * normalizedAxis.x + box.center.y * normalizedAxis.y;
+        const lengthContribution = box.halfLength * Math.abs(box.axisLength.x * normalizedAxis.x + box.axisLength.y * normalizedAxis.y);
+        const widthContribution = box.halfWidth * Math.abs(box.axisWidth.x * normalizedAxis.x + box.axisWidth.y * normalizedAxis.y);
+        const radius = lengthContribution + widthContribution;
+        return {
+            min: centerProjection - radius,
+            max: centerProjection + radius
+        };
+    }
+
+    boxesOverlap(boxA, boxB) {
+        const axes = [
+            boxA.axisLength,
+            boxA.axisWidth,
+            boxB.axisLength,
+            boxB.axisWidth
+        ];
+
+        for (let i = 0; i < axes.length; i++) {
+            const axis = axes[i];
+            if (!axis) {
+                continue;
+            }
+            const projectionA = this.projectBoxOntoAxis(boxA, axis);
+            const projectionB = this.projectBoxOntoAxis(boxB, axis);
+
+            if (projectionA.max < projectionB.min || projectionB.max < projectionA.min) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     handleSpecialCollisionCases(objectA, objectB, isShip) {

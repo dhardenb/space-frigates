@@ -1,4 +1,5 @@
 import {Physics} from './physics.js';
+import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
 
 export class Laser {
 
@@ -12,6 +13,10 @@ export class Laser {
                 this.Velocity = 0;
                 this.fuelConsumptionRate = 60; // default, can be overridden
                 this.MaxFuel = 60;
+		const laserCollisionSpec = COLLISION_DIMENSIONS.Laser;
+		// Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
+		this.collisionLengthMeters = laserCollisionSpec.length;
+		this.collisionWidthMeters = laserCollisionSpec.width;
 	}
 
 	init(sourceObject) {

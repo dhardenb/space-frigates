@@ -196,7 +196,9 @@ export class Client {
             onZoomDelta: (delta) => this.adjustZoom(delta),
             initialZoom: this.renderer.getZoomFactor(),
             zoomBounds: this.renderer.getZoomBounds(),
-            onApplyShipAttributes: this.applyShipAttributeOverrides.bind(this)
+            onApplyShipAttributes: this.applyShipAttributeOverrides.bind(this),
+            onToggleBoundingBoxes: (enabled) => this.renderer.setShowBoundingBoxes(Boolean(enabled)),
+            initialBoundingBoxesVisible: this.renderer.getShowBoundingBoxes()
         });
 
         if (!this.debugOverlay.isAvailable()) {

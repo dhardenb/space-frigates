@@ -4,6 +4,7 @@ import {Physics} from './physics.js';
 import {Sound} from './sound.js';
 import {Thruster} from './thruster.js';
 import {SHIP_TYPES} from './shipTypes.js';
+import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
 
 const AUTO_PILOT_ANGLE_TOLERANCE_DEGREES = 3;
 const AUTO_PILOT_VELOCITY_THRESHOLD = 0.5;
@@ -37,6 +38,10 @@ export class Ship {
         this.ShieldDecayRate = 0.25;
         this.autoPilotEngaged = false;
         this.autoPilotFacingLocked = false;
+        const shipCollisionSpec = COLLISION_DIMENSIONS.Ship;
+        // Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
+        this.collisionLengthMeters = shipCollisionSpec.length;
+        this.collisionWidthMeters = shipCollisionSpec.width;
     }       
 
     init({shipTypeId, pilotType = 'Human', aiProfile = null} = {}) {
