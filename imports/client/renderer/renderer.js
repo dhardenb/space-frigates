@@ -11,6 +11,7 @@ import {renderThruster} from './worldObjects/thruster.js';
 import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
 import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
+import {COLLISION_DIMENSIONS} from '../../engine/config/collisionDimensions.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -39,6 +40,7 @@ export class Renderer {
         this.maxZoomFactor = 2.5;
         this.renderTimeSeconds = 0;
         this.landingOverlayAlpha = 0;
+        this.showBoundingBoxes = true;
     }
 
     createBackground() {
@@ -107,6 +109,17 @@ export class Renderer {
 
     getLandingOverlayAlpha() {
         return this.landingOverlayAlpha;
+    }
+
+    setShowBoundingBoxes(enabled) {
+        if (typeof enabled !== 'boolean') {
+            return;
+        }
+        this.showBoundingBoxes = enabled;
+    }
+
+    getShowBoundingBoxes() {
+        return this.showBoundingBoxes;
     }
 
     determineIfObjectShouldBeRendered(objectToInspect) {
@@ -305,6 +318,7 @@ export class Renderer {
                         playerName: this.playerName,
                         shipNamesById
                     });
+                    this.renderBoundingBox(gameObjects[i]);
 
                 }
 
@@ -323,12 +337,14 @@ export class Renderer {
                 else if (gameObjects[i].Type == 'Laser') {
 
                     renderLaser(this.map, gameObjects[i], this.worldPixelsPerMeter);
+                    this.renderBoundingBox(gameObjects[i]);
 
                 }
 
                 else if (gameObjects[i].Type == 'Debris') {
 
                     renderDebris(this.map, gameObjects[i], this.worldPixelsPerMeter);
+                    this.renderBoundingBox(gameObjects[i]);
 
                 }
 
@@ -506,5 +522,120 @@ export class Renderer {
 
     }
 
+    renderBoundingBox(gameObject) {
+        if (!this.showBoundingBoxes) {
+            return;
+        }
+        if (!gameObject || !BOUNDING_BOX_RENDER_TYPES.has(gameObject.Type)) {
+            return;
+        }
+        const box = buildBoundingBoxForRender(gameObject);
+        if (!box) {
+            return;
+        }
+        const corners = getBoundingBoxCorners(box);
+        if (!corners || corners.length !== 4) {
+            return;
+        }
+        const ppm = this.worldPixelsPerMeter;
+        this.map.save();
+        this.map.beginPath();
+        this.map.moveTo(corners[0].x * ppm, corners[0].y * ppm);
+        for (let i = 1; i < corners.length; i++) {
+            this.map.lineTo(corners[i].x * ppm, corners[i].y * ppm);
+        }
+        this.map.closePath();
+        this.map.strokeStyle = 'rgba(255, 255, 0, 0.9)';
+        this.map.lineWidth = Math.max(1 / Math.max(this.zoomFactor, 0.001), 0.5);
+        this.map.stroke();
+        this.map.restore();
+    }
 
+    }
+
+const BOUNDING_BOX_RENDER_TYPES = new Set(['Ship', 'Debris', 'Laser']);
+
+function buildBoundingBoxForRender(gameObject) {
+    if (!gameObject) {
+        return null;
+    }
+    const spec = getBoundingBoxSpec(gameObject);
+    const centerX = Number(gameObject.LocationX);
+    const centerY = Number(gameObject.LocationY);
+    if (!Number.isFinite(centerX) || !Number.isFinite(centerY)) {
+        return null;
+    }
+    const orientationDegrees = Number.isFinite(gameObject.Facing)
+        ? gameObject.Facing
+        : (Number.isFinite(gameObject.Heading) ? gameObject.Heading : 0);
+    const orientationRadians = orientationDegrees * Math.PI / 180;
+    const axisLength = normalizeAxis({
+        x: Math.sin(orientationRadians),
+        y: -Math.cos(orientationRadians)
+    });
+    const axisWidth = normalizeAxis({
+        x: Math.cos(orientationRadians),
+        y: Math.sin(orientationRadians)
+    });
+    return {
+        center: {x: centerX, y: centerY},
+        halfLength: spec.length / 2,
+        halfWidth: spec.width / 2,
+        axisLength,
+        axisWidth
+    };
+}
+
+function getBoundingBoxSpec(gameObject) {
+    const objectLength = Number(gameObject.collisionLengthMeters);
+    const objectWidth = Number(gameObject.collisionWidthMeters);
+    if (objectLength > 0 && objectWidth > 0) {
+        return {length: objectLength, width: objectWidth};
+    }
+    const explicitSpec = COLLISION_DIMENSIONS[gameObject.Type];
+    if (explicitSpec) {
+        return explicitSpec;
+    }
+    const fallbackSize = Number(gameObject.Size) || 1;
+    return {length: fallbackSize, width: fallbackSize};
+}
+
+function normalizeAxis(axis) {
+    const magnitude = Math.sqrt(axis.x * axis.x + axis.y * axis.y) || 1;
+    return {
+        x: axis.x / magnitude,
+        y: axis.y / magnitude
+    };
+}
+
+function getBoundingBoxCorners(box) {
+    if (!box) {
+        return [];
+    }
+    const lengthVector = {
+        x: box.axisLength.x * box.halfLength,
+        y: box.axisLength.y * box.halfLength
+    };
+    const widthVector = {
+        x: box.axisWidth.x * box.halfWidth,
+        y: box.axisWidth.y * box.halfWidth
+    };
+    return [
+        {
+            x: box.center.x + lengthVector.x + widthVector.x,
+            y: box.center.y + lengthVector.y + widthVector.y
+        },
+        {
+            x: box.center.x - lengthVector.x + widthVector.x,
+            y: box.center.y - lengthVector.y + widthVector.y
+        },
+        {
+            x: box.center.x - lengthVector.x - widthVector.x,
+            y: box.center.y - lengthVector.y - widthVector.y
+        },
+        {
+            x: box.center.x + lengthVector.x - widthVector.x,
+            y: box.center.y + lengthVector.y - widthVector.y
+        }
+    ];
 }

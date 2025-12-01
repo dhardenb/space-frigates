@@ -1,13 +1,15 @@
 export class DebugOverlay {
 
-    constructor({environment = 'prod', onApplyThrottle, onZoomChange, initialZoom = 1, zoomBounds, onZoomDelta, onApplyShipAttributes} = {}) {
+    constructor({environment = 'prod', onApplyThrottle, onZoomChange, initialZoom = 1, zoomBounds, onZoomDelta, onApplyShipAttributes, onToggleBoundingBoxes, initialBoundingBoxesVisible = true} = {}) {
         this.environment = environment;
         this.onApplyThrottle = onApplyThrottle;
         this.onZoomChange = onZoomChange;
         this.onZoomDelta = onZoomDelta;
         this.onApplyShipAttributes = onApplyShipAttributes;
+        this.onToggleBoundingBoxes = onToggleBoundingBoxes;
         this.zoomBounds = Object.assign({min: 0.5, max: 2.5}, zoomBounds);
         this.zoomValue = Number.isFinite(initialZoom) ? initialZoom : 1;
+        this.boundingBoxesVisible = Boolean(initialBoundingBoxesVisible);
         this.refreshCallback = null;
         this.visible = false;
         this.lastKnownThrottle = null;
@@ -45,6 +47,7 @@ export class DebugOverlay {
             zoomSlider: document.getElementById('debug-zoom'),
             zoomValue: document.getElementById('debug-zoom-value'),
             zoomReset: document.getElementById('debug-zoom-reset'),
+            boundingBoxesToggle: document.getElementById('debug-show-bounding-boxes'),
             shipForm: document.getElementById('debug-ship-form'),
             shipReset: document.getElementById('debug-ship-reset'),
             shipStatus: document.getElementById('debug-ship-status'),
@@ -83,6 +86,7 @@ export class DebugOverlay {
         document.addEventListener('keydown', this.boundKeyHandler);
         window.addEventListener('wheel', this.boundWheelHandler, {passive: false});
         this.initializeZoomControls();
+        this.initializeBoundingBoxControl();
         this.initializeTabs();
         this.initializeShipControls();
         this.hide(); // ensure consistent initial state
@@ -221,6 +225,21 @@ export class DebugOverlay {
                 }
             });
         }
+    }
+
+    initializeBoundingBoxControl() {
+        const toggle = this.dom.boundingBoxesToggle;
+        if (!toggle) {
+            return;
+        }
+        toggle.checked = this.boundingBoxesVisible;
+        toggle.addEventListener('change', (event) => {
+            const checked = Boolean(event.target.checked);
+            this.boundingBoxesVisible = checked;
+            if (typeof this.onToggleBoundingBoxes === 'function') {
+                this.onToggleBoundingBoxes(checked);
+            }
+        });
     }
 
     clampZoom(value) {
