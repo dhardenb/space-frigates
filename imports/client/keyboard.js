@@ -96,6 +96,30 @@ export class Keyboard {
                 client.commandHandler({command: 'RETRO_THRUST'});
             }
         }
+        // Q - Lateral thrust (left-side thrusters)
+        else if(evt.keyCode == 81) {
+            if (Client.gameMode == 'START_MODE') {
+                evt.preventDefault();
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
+                }
+            } else if (Client.gameMode == 'PLAY_MODE') {
+                evt.preventDefault();
+                client.commandHandler({command: 'LATERAL_THRUST_LEFT'});
+            }
+        }
+        // E - Lateral thrust (right-side thrusters)
+        else if(evt.keyCode == 69) {
+            if (Client.gameMode == 'START_MODE') {
+                evt.preventDefault();
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
+                }
+            } else if (Client.gameMode == 'PLAY_MODE') {
+                evt.preventDefault();
+                client.commandHandler({command: 'LATERAL_THRUST_RIGHT'});
+            }
+        }
         // Z - Autopilot Brake
         else if(evt.keyCode == 90) {
             evt.preventDefault();
