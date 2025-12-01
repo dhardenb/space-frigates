@@ -6,7 +6,8 @@ export function renderShip(map, ship, {
     worldPixelsPerMeter,
     renderTimeSeconds,
     playerShip,
-    playerName
+    playerName,
+    shipNamesById
 }) {
     map.save();
 
@@ -82,13 +83,18 @@ export function renderShip(map, ship, {
 
     map.save();
 
+    const isPlayersShip = ship.Id === (playerShip && playerShip.Id);
+    const isHumanPilot = ship.pilotType === 'Human';
+
     let nameToDraw = '';
 
-    if (ship.Id === (playerShip && playerShip.Id) && ship.pilotType === 'Human') {
-        if (playerName === '') {
-            nameToDraw = 'GUEST';
+    if (isHumanPilot) {
+        if (isPlayersShip) {
+            const candidateName = playerName || shipNamesById?.get(ship.Id) || ship.Name;
+            nameToDraw = candidateName && candidateName !== '' ? candidateName : 'GUEST';
         } else {
-            nameToDraw = playerName;
+            const candidateName = shipNamesById?.get(ship.Id) || ship.Name;
+            nameToDraw = candidateName && candidateName !== '' ? candidateName : 'GUEST';
         }
     }
 

@@ -10,6 +10,7 @@ Meteor.startup(() => {
 
 Meteor.onConnection(function(connection) {
 
+    const playerId = Utilities.hashStringToUint32(connection.id);
     let newPlayer = new Player();
     newPlayer.init(connection.id);
     gameObjects.push(newPlayer);
@@ -20,7 +21,7 @@ Meteor.onConnection(function(connection) {
 
         for (let i=0, j=gameObjects.length; i<j; i++) {
             if (gameObjects[i].Type == 'Player') {
-                if (gameObjects[i].Id == connection.id) {
+                if (gameObjects[i].Id == playerId) {
                     shipIdToRemove = gameObjects[i].ShipId;
                 }
             }
@@ -30,8 +31,8 @@ Meteor.onConnection(function(connection) {
         gameObjects = Utilities.removeByAttr(gameObjects, "Id", shipIdToRemove);
 
         // Remove player
-        gameObjects = Utilities.removeByAttr(gameObjects, "Id", connection.id);
-        
+        gameObjects = Utilities.removeByAttr(gameObjects, "Id", playerId);
+
     });
     
 });

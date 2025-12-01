@@ -1,5 +1,3 @@
-import orderBy from 'lodash/orderBy';
-
 export function renderLeaderboard(map, {gameObjects, playerId}) {
     map.save();
 
@@ -16,17 +14,24 @@ export function renderLeaderboard(map, {gameObjects, playerId}) {
     map.fillText("D", 0, 0);
     map.restore();
 
-    let players = [];
+    const players = [];
 
     for (let i = 0, j = gameObjects.length; i < j; i++) {
-        if (gameObjects[i].Type == 'Player') {
-            if (gameObjects[i].Name != "") {
-                players.push(gameObjects[i]);
-            }
+        const gameObject = gameObjects[i];
+        if (gameObject.Type === 'Player' && gameObject.Name !== "") {
+            players.push(gameObject);
         }
     }
 
-    players = orderBy(players, 'Kills', 'desc');
+    players.sort((a, b) => {
+        if (a.Kills !== b.Kills) {
+            return b.Kills - a.Kills;
+        }
+        if (a.Deaths !== b.Deaths) {
+            return a.Deaths - b.Deaths;
+        }
+        return a.Id - b.Id;
+    });
 
     for (let i = 0, j = players.length; i < j; i++) {
         map.translate(0, 25);
