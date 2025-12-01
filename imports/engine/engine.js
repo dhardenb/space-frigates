@@ -2,6 +2,7 @@ import {Player} from './player.js';
 import {Laser} from './laser.js';
 import {Ship} from './ship.js';
 import {Particle} from './particle.js';
+import {LaserParticle} from './laserParticle.js';
 import {Thruster} from './thruster.js';
 import {Debris} from './debris.js';
 import {Sound} from './sound.js';
@@ -191,7 +192,7 @@ export class Engine {
             // NOTE: Once a laser runs out of fuel it disappears
             const damage = laser.Fuel;
             target.takeDamage(damage);
-            this.createExplosion(laser);
+            this.createLaserExplosion(laser);
             if (target.HullStrength <= 0) {
                 if (target.Type !== 'Debris') {
                     this.createDebris(target);
@@ -227,7 +228,7 @@ export class Engine {
             return false;
         }
 
-        this.createImpactExplosion(objectA, objectB);
+        this.createImpactExplosion(objectA, objectB, true);
         this.deadObjects.push(objectA, objectB);
         return true;
     }
@@ -324,13 +325,33 @@ export class Engine {
         }
     }
 
-    createImpactExplosion(objectA, objectB) {
+    createImpactExplosion(objectA, objectB, useLaserParticles = false) {
         const impactPoint = {
             LocationX: (objectA.LocationX + objectB.LocationX) / 2,
             LocationY: (objectA.LocationY + objectB.LocationY) / 2,
             Size: Math.max(objectA.Size, objectB.Size)
         };
-        this.createExplosion(impactPoint);
+        if (useLaserParticles) {
+            const laserFuel = this.sumLaserFuel(objectA, objectB);
+            if (laserFuel.maxFuel > 0) {
+                impactPoint.Fuel = laserFuel.remainingFuel;
+                impactPoint.MaxFuel = laserFuel.maxFuel;
+            }
+            this.createLaserExplosion(impactPoint);
+        }
+        else {
+            this.createExplosion(impactPoint);
+        }
+    }
+
+    sumLaserFuel(...objects) {
+        return objects.reduce((totals, object) => {
+            if (object && object.Type === 'Laser') {
+                totals.remainingFuel += Math.max(0, object.Fuel || 0);
+                totals.maxFuel += Math.max(0, object.MaxFuel || 0);
+            }
+            return totals;
+        }, {remainingFuel: 0, maxFuel: 0});
     }
 
     createDebris(sourceGameObject) {
@@ -342,6 +363,21 @@ export class Engine {
     createExplosion(sourceGameObject) {
         for (let i = 0; i < this.explosionSize; i++) {
             const newParticle = new Particle(Engine.getNextGameObjectId());
+            newParticle.init(sourceGameObject);
+            gameObjects.push(newParticle);
+        }
+    }
+
+    createLaserExplosion(sourceGameObject) {
+        const fuelRatio = sourceGameObject && sourceGameObject.MaxFuel
+            ? Math.max(0, Math.min(1, (sourceGameObject.Fuel || 0) / sourceGameObject.MaxFuel))
+            : null;
+        const sparksToSpawn = fuelRatio === null
+            ? this.explosionSize
+            : Math.max(1, Math.round(this.explosionSize * fuelRatio));
+
+        for (let i = 0; i < sparksToSpawn; i++) {
+            const newParticle = new LaserParticle(Engine.getNextGameObjectId());
             newParticle.init(sourceGameObject);
             gameObjects.push(newParticle);
         }
@@ -360,7 +396,7 @@ export class Engine {
     findSolidObjects() {
         const solidObjects = [];
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'Thruster' && gameObjects[x].Type != 'Player' && gameObjects[x].Type != 'Sound') {
+            if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'LaserParticle' && gameObjects[x].Type != 'Thruster' && gameObjects[x].Type != 'Player' && gameObjects[x].Type != 'Sound') {
                 solidObjects.push(gameObjects[x])
             }
         }
@@ -369,17 +405,22 @@ export class Engine {
 
     boundryChecking() {
         const solidObjects = this.findSolidObjects();
-            for (let x = 0, y = solidObjects.length; x < y; x++) {
-                // Check to see if GameObject has flown past the border. I do this by measuring the distance
-                // from the Game Object to the center of the screen and making sure the distance is smaller
-                // than the radius of the screen.
-                if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < this.mapRadius * this.mapRadius)) {
-                    this.createExplosion(solidObjects[x]);
-                    this.scoreDeath(solidObjects[x].Id);
-                    this.deadObjects.push(solidObjects[x]);
-                    this.recordShipDestroyed(solidObjects[x]);
+        for (let x = 0, y = solidObjects.length; x < y; x++) {
+            // Check to see if GameObject has flown past the border. I do this by measuring the distance
+            // from the Game Object to the center of the screen and making sure the distance is smaller
+            // than the radius of the screen.
+            if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < this.mapRadius * this.mapRadius)) {
+                if (solidObjects[x].Type === 'Laser') {
+                    this.createLaserExplosion(solidObjects[x]);
                 }
+                else {
+                    this.createExplosion(solidObjects[x]);
+                }
+                this.scoreDeath(solidObjects[x].Id);
+                this.deadObjects.push(solidObjects[x]);
+                this.recordShipDestroyed(solidObjects[x]);
             }
+        }
         this.removeDeadObjects();
     }
 
