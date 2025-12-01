@@ -1,5 +1,5 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 4;
+const BINARY_VERSION = 5;
 
 const TYPE_CODES = {
     Player: 1,
@@ -269,7 +269,9 @@ export class Utilities {
                 return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + 4 /* ShipId */ + 2 /* Kills */ + 2 /* Deaths */;
             }
             case TYPE_CODES.Ship: {
-                return BASE + 4 /* Id */ + (4 * 10) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */ + 1 /* auto pilot */;
+                const nameBytes = Utilities.encodeString(gameObject.Name || "");
+                const nameLength = Math.min(nameBytes.length, 255);
+                return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + (4 * 10) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */ + 1 /* auto pilot */;
             }
             case TYPE_CODES.Debris: {
                 return BASE + 4 /* Id */ + (4 * 7);
@@ -332,6 +334,7 @@ export class Utilities {
                 break;
             case TYPE_CODES.Ship:
                 view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeShortString(view, offset, gameObject.Name || "");
                 offset = Utilities.writeFloatFields(view, offset, [
                     gameObject.LocationX,
                     gameObject.LocationY,
@@ -441,6 +444,9 @@ export class Utilities {
             }
             case TYPE_CODES.Ship: {
                 object.Id = view.getUint32(offset, true); offset += 4;
+                const result = Utilities.readShortString(view, offset);
+                object.Name = result.value;
+                offset = result.offset;
                 const values = Utilities.readFloatFields(view, offset, 10);
                 offset = values.offset;
                 [
