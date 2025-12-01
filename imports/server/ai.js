@@ -156,6 +156,9 @@ export class Ai {
 
         const modeContext = this.determineMode(gameObject);
         gameObject.aiMode = modeContext.mode;
+        if (modeContext.mode) {
+            gameObject.Name = modeContext.mode;
+        }
 
         switch (modeContext.mode) {
             case 'recharge':
