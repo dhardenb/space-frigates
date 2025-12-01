@@ -3,23 +3,17 @@ import {Utilities} from '../utilities/utilities.js';
 import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
 
 export class Debris {
-    
-    // Still hate that I have to maintain a default
-    // constructor and init function to handle obejcts
-    // created from scratch and objects cloned from
-    // another object
-    //
+
     // Size should probbaly be configurable
-    constructor(id) {
+    constructor(id, sourceObject = null) {
         this.Id = id;
-        this.Size = 4.0;
-        this.Mass = 10; // default placeholder, overwritten during init
-        this.MaxHullStrength = 1;
-        this.HullStrength = this.MaxHullStrength;
+        this.Type = "Debris";
         const debrisCollisionSpec = COLLISION_DIMENSIONS.Debris;
         // Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
         this.collisionLengthMeters = debrisCollisionSpec.length;
         this.collisionWidthMeters = debrisCollisionSpec.width;
+
+        this.setFromSource(sourceObject);
     }
 
     // Variable names need to be changed but can't do it
@@ -39,16 +33,29 @@ export class Debris {
     // class. Will require all classes to be updated, a
     // major undertaking
     init(sourceObject) {
-        this.Type = "Debris";
-        this.LocationX = sourceObject.LocationX;
-        this.LocationY = sourceObject.LocationY;
-        this.Facing = sourceObject.Facing;
-        this.Heading = sourceObject.Heading;
-        this.Velocity = sourceObject.Velocity;
-        this.RotationDirection = Debris.setIntitialRotationDirection();
-        this.RotationVelocity = Debris.setInitialRotationVelocity();
-        this.Mass = Math.max((sourceObject.Mass || 0) * 0.1, 1);
-        this.MaxHullStrength = Math.max((sourceObject.MaxHullStrength || 0) * 0.1, 1);
+        this.setFromSource(sourceObject);
+    }
+
+    setFromSource(sourceObject = null) {
+        const source = sourceObject || {};
+
+        this.Size = 4.0;
+        this.LocationX = source.LocationX ?? 0;
+        this.LocationY = source.LocationY ?? 0;
+        this.Facing = source.Facing ?? 0;
+        this.Heading = source.Heading ?? this.Facing;
+        this.Velocity = source.Velocity ?? 0;
+        this.RotationDirection = source.RotationDirection || Debris.setIntitialRotationDirection();
+        this.RotationVelocity = source.RotationVelocity || Debris.setInitialRotationVelocity();
+
+        if (sourceObject) {
+            this.Mass = Math.max((source.Mass || 0) * 0.1, 1);
+            this.MaxHullStrength = Math.max((source.MaxHullStrength || 0) * 0.1, 1);
+        } else {
+            this.Mass = 10;
+            this.MaxHullStrength = 1;
+        }
+
         this.HullStrength = this.MaxHullStrength;
     }
 
