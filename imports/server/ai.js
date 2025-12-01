@@ -6,6 +6,7 @@ export class Ai {
     constructor(mapRadius, options = {}) {
         this.mapRadius = mapRadius;
         this.selectShipType = typeof options.selectShipType === 'function' ? options.selectShipType : (() => 'Turtle');
+        this.scanIntervalMs = Number.isFinite(options.scanIntervalMs) && options.scanIntervalMs > 0 ? options.scanIntervalMs : 1000;
     }
 
     createNewShip() {
@@ -39,11 +40,13 @@ export class Ai {
     }       
 
     issueCommands(commands) {
+        const now = Date.now();
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             const gameObject = gameObjects[x];
             if (gameObject.Type === 'Ship' && gameObject.pilotType === 'Bot') {
-                if (Math.floor((Math.random()*25)+1) == 1) {
+                if (!Number.isFinite(gameObject.nextScanAt) || now >= gameObject.nextScanAt) {
                     this.think(commands, gameObject);
+                    gameObject.nextScanAt = now + this.scanIntervalMs;
                 }
             }
         }
