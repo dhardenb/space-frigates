@@ -48,11 +48,14 @@ export class Ai {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             const gameObject = gameObjects[x];
             if (gameObject.Type === 'Ship' && gameObject.pilotType === 'Bot') {
-                if (!Number.isFinite(gameObject.nextScanAt) || now >= gameObject.nextScanAt) {
-                    this.think(commands, gameObject);
+                const shouldScan = !Number.isFinite(gameObject.nextScanAt) || now >= gameObject.nextScanAt;
+                if (shouldScan) {
+                    gameObject.lastScan = this.scanForNearbyObjects(gameObject);
                     const nextInterval = Number.isFinite(gameObject.activeScanIntervalMs) ? gameObject.activeScanIntervalMs : this.scanIntervalMs;
                     gameObject.nextScanAt = now + nextInterval;
                 }
+
+                this.think(commands, gameObject);
             }
         }
     }
@@ -160,7 +163,9 @@ export class Ai {
 
     think(commands, gameObject) {
         const profile = gameObject.aiProfile || 'bot';
-        gameObject.lastScan = this.scanForNearbyObjects(gameObject);
+        if (!gameObject.lastScan) {
+            gameObject.lastScan = this.scanForNearbyObjects(gameObject);
+        }
         if (profile !== 'bot') {
             return;
         }
