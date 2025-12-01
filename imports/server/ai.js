@@ -163,10 +163,17 @@ export class Ai {
             return;
         }
 
-        const modeContext = this.determineMode(gameObject);
+        const previousMode = gameObject.aiMode;
+        const modeContext = this.determineMode(gameObject, previousMode);
         gameObject.aiMode = modeContext.mode;
         if (modeContext.mode) {
             gameObject.Name = modeContext.mode;
+        }
+
+        if (modeContext.mode === 'attack' && modeContext.target) {
+            gameObject.attackTargetId = modeContext.target.id;
+        } else {
+            gameObject.attackTargetId = undefined;
         }
 
         switch (modeContext.mode) {
@@ -183,13 +190,14 @@ export class Ai {
         }
     }
 
-    determineMode(gameObject) {
+    determineMode(gameObject, previousMode) {
         const scan = gameObject.lastScan || {contacts: []};
         const humanContacts = scan.contacts.filter(contact => contact && contact.pilotType === 'Human');
         const capacitorRatio = this.getCapacitorRatio(gameObject);
 
         if (humanContacts.length > 0) {
-            return {mode: 'attack', target: humanContacts[0]};
+            const target = this.selectAttackTarget(gameObject, humanContacts, previousMode);
+            return {mode: 'attack', target};
         }
 
         if (humanContacts.length === 0 && capacitorRatio < this.patrolCapacitorThreshold) {
@@ -197,6 +205,27 @@ export class Ai {
         }
 
         return {mode: 'patrol'};
+    }
+
+    selectAttackTarget(gameObject, humanContacts, previousMode) {
+        if (previousMode === 'attack' && Number.isFinite(gameObject.attackTargetId)) {
+            const existingTarget = humanContacts.find(contact => contact.id === gameObject.attackTargetId);
+            if (existingTarget) {
+                return existingTarget;
+            }
+        }
+
+        if (humanContacts.length === 0) {
+            return undefined;
+        }
+
+        let closest = humanContacts[0];
+        for (let i = 1; i < humanContacts.length; i++) {
+            if (humanContacts[i].distance < closest.distance) {
+                closest = humanContacts[i];
+            }
+        }
+        return closest;
     }
 
     isCapacitorFull(gameObject) {
@@ -266,7 +295,7 @@ export class Ai {
         const facing = Ship.normalizeAngle(Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
         const desiredFacing = Ship.normalizeAngle(target.bearingDegrees);
         const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
-        const angleTolerance = 5;
+        const angleTolerance = 1;
 
         if (Math.abs(angleDelta) > angleTolerance) {
             const rotateCommand = angleDelta > 0 ? 1 : 3;
