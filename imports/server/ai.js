@@ -7,6 +7,7 @@ export class Ai {
         this.mapRadius = mapRadius;
         this.selectShipType = typeof options.selectShipType === 'function' ? options.selectShipType : (() => 'Turtle');
         this.scanIntervalMs = Number.isFinite(options.scanIntervalMs) && options.scanIntervalMs > 0 ? options.scanIntervalMs : 1000;
+        this.energyFullTolerance = 0.25;
     }
 
     createNewShip() {
@@ -196,7 +197,8 @@ export class Ai {
             return false;
         }
         const maxCapacitor = Number.isFinite(gameObject?.MaxCapacitor) ? gameObject.MaxCapacitor : gameObject.Capacitor;
-        return gameObject.Capacitor >= maxCapacitor;
+        const tolerance = Number.isFinite(this.energyFullTolerance) ? this.energyFullTolerance : 0;
+        return gameObject.Capacitor >= maxCapacitor - tolerance;
     }
 
     isShieldFull(gameObject) {
@@ -204,7 +206,8 @@ export class Ai {
             return false;
         }
         const maxShield = Number.isFinite(gameObject?.MaxShieldStrength) ? gameObject.MaxShieldStrength : gameObject.ShieldStatus;
-        return gameObject.ShieldStatus >= maxShield;
+        const tolerance = Number.isFinite(this.energyFullTolerance) ? this.energyFullTolerance : 0;
+        return gameObject.ShieldStatus >= maxShield - tolerance;
     }
 
     recharge(gameObject, commands) {
