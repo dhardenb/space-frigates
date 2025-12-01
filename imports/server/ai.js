@@ -99,6 +99,9 @@ export class Ai {
     describeObservation(candidate, dx, dy, distanceSquared) {
         const distance = Math.sqrt(distanceSquared);
         const bearingRadians = Math.atan2(dy, dx);
+        const hullStrength = Number.isFinite(candidate.HullStrength) ? candidate.HullStrength : undefined;
+        const capacitor = Number.isFinite(candidate.Capacitor) ? candidate.Capacitor : undefined;
+        const shieldStatus = Number.isFinite(candidate.ShieldStatus) ? candidate.ShieldStatus : undefined;
         return {
             id: candidate.Id,
             type: candidate.Type,
@@ -114,7 +117,10 @@ export class Ai {
             velocity: candidate.Velocity,
             heading: candidate.Heading,
             facing: candidate.Facing,
-            size: candidate.Size
+            size: candidate.Size,
+            hullStrength,
+            capacitor,
+            shieldStatus
         };
     }
 
