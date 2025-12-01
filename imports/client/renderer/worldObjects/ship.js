@@ -82,13 +82,16 @@ export function renderShip(map, ship, {
 
     map.save();
 
+    const isPlayersShip = ship.Id === (playerShip && playerShip.Id);
+    const isHumanPilot = ship.pilotType === 'Human';
+
     let nameToDraw = '';
 
-    if (ship.Id === (playerShip && playerShip.Id) && ship.pilotType === 'Human') {
-        if (playerName === '') {
-            nameToDraw = 'GUEST';
+    if (isHumanPilot) {
+        if (isPlayersShip) {
+            nameToDraw = playerName === '' ? 'GUEST' : playerName;
         } else {
-            nameToDraw = playerName;
+            nameToDraw = ship.Name && ship.Name !== '' ? ship.Name : 'GUEST';
         }
     }
 
