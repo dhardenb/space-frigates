@@ -299,10 +299,19 @@ export class Ai {
         const desiredFacing = Ship.normalizeAngle(target.bearingDegrees);
         const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
         const angleTolerance = 1;
+        const rotationVelocity = Math.abs(Number(gameObject.RotationVelocity) || 0);
+        const rotationDirection = gameObject.RotationDirection || 'None';
+        const rotationStopThreshold = 0.1;
 
         if (Math.abs(angleDelta) > angleTolerance) {
             const rotateCommand = angleDelta > 0 ? 1 : 3;
             commands.push({command: rotateCommand, targetId: gameObject.Id});
+            return;
+        }
+
+        if (rotationVelocity > rotationStopThreshold && rotationDirection !== 'None') {
+            const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
+            commands.push({command: dampenCommand, targetId: gameObject.Id});
             return;
         }
 
