@@ -7,11 +7,13 @@ export function renderLaser(map, laser, worldPixelsPerMeter) {
 
     map.scale(laser.Size * worldPixelsPerMeter, laser.Size * worldPixelsPerMeter);
 
-    map.strokeStyle = `rgba(255, 255, 255, ${laser.Fuel / 60})`;
+    const maxFuel = laser.MaxFuel || 1;
+
+    map.strokeStyle = `rgba(255, 255, 255, ${laser.Fuel / maxFuel})`;
 
     map.lineWidth = 0.1;
 
-    map.fillStyle = `rgba(0, 255, 255, ${laser.Fuel / 60})`;
+    map.fillStyle = `rgba(0, 255, 255, ${laser.Fuel / maxFuel})`;
 
     map.beginPath();
 

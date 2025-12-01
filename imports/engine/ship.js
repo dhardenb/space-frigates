@@ -29,8 +29,8 @@ export class Ship {
         this.ReactorOutputPerSecond = 10;
         this.ThrusterEnergyPerSecond = Physics.framesPerSecond * 5; // preserves 5J/frame
         this.LaserEnergyCost = 10;
-        this.LaserFuelCapacity = 60;
-        this.LaserFuelConsumptionRate = 60;
+        this.LaserFuelCapacity = 30;
+        this.LaserFuelConsumptionRate = 30;
         this.RotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
         this.ThrusterForceProduced = this.Mass * 20 * Physics.framesPerSecond;
         this.MaxShieldStrength = 100;

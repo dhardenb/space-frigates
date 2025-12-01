@@ -15,8 +15,8 @@ export const SHIP_TYPES = Object.freeze({
         reactorOutputPerSecond: 10,
         thrusterEnergyPerSecond: 300,
         laserEnergyCost: 10,
-        laserFuelCapacity: 60,
-        laserFuelConsumptionRate: 60,
+        laserFuelCapacity: 30,
+        laserFuelConsumptionRate: 30,
         rotationEnergyPerSecond: 300,
         thrusterForceProduced: 14400000,
         mass: 12000
@@ -37,8 +37,8 @@ export const SHIP_TYPES = Object.freeze({
         reactorOutputPerSecond: 10,
         thrusterEnergyPerSecond: 300,
         laserEnergyCost: 10,
-        laserFuelCapacity: 60,
-        laserFuelConsumptionRate: 60,
+        laserFuelCapacity: 30,
+        laserFuelConsumptionRate: 30,
         rotationEnergyPerSecond: 300,
         thrusterForceProduced: 14400000,
         mass: 12000
