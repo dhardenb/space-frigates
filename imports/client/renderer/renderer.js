@@ -266,6 +266,24 @@ export class Renderer {
         this.updateLocationOffset();
         this.scrollTheBackground();
 
+        const shipNamesById = new Map();
+        for (let i = 0; i < gameObjects.length; i++) {
+            const gameObject = gameObjects[i];
+            const name = (gameObject && typeof gameObject.Name === 'string') ? gameObject.Name.trim() : '';
+
+            if (name === '') {
+                continue;
+            }
+
+            if (gameObject.Type === 'Player' && typeof gameObject.ShipId !== 'undefined') {
+                shipNamesById.set(gameObject.ShipId, name);
+            }
+
+            if (gameObject.Type === 'Ship' && typeof gameObject.Id !== 'undefined') {
+                shipNamesById.set(gameObject.Id, name);
+            }
+        }
+
         this.map.clearRect(0, 0, this.availableWidth, this.availableHeight);
         this.map.save();
         this.map.translate(this.availableWidth / 2, this.availableHeight / 2);
@@ -284,7 +302,8 @@ export class Renderer {
                         worldPixelsPerMeter: this.worldPixelsPerMeter,
                         renderTimeSeconds: this.renderTimeSeconds,
                         playerShip: this.playerShip,
-                        playerName: this.playerName
+                        playerName: this.playerName,
+                        shipNamesById
                     });
 
                 }

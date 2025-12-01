@@ -6,7 +6,8 @@ export function renderShip(map, ship, {
     worldPixelsPerMeter,
     renderTimeSeconds,
     playerShip,
-    playerName
+    playerName,
+    shipNamesById
 }) {
     map.save();
 
@@ -89,9 +90,11 @@ export function renderShip(map, ship, {
 
     if (isHumanPilot) {
         if (isPlayersShip) {
-            nameToDraw = playerName === '' ? 'GUEST' : playerName;
+            const candidateName = playerName || shipNamesById?.get(ship.Id) || ship.Name;
+            nameToDraw = candidateName && candidateName !== '' ? candidateName : 'GUEST';
         } else {
-            nameToDraw = ship.Name && ship.Name !== '' ? ship.Name : 'GUEST';
+            const candidateName = shipNamesById?.get(ship.Id) || ship.Name;
+            nameToDraw = candidateName && candidateName !== '' ? candidateName : 'GUEST';
         }
     }
 
