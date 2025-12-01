@@ -74,6 +74,10 @@ export class Ai {
             if (!candidate || candidate.Id === origin.Id) {
                 continue;
             }
+            // Only scan Ship objects - other objects (Debris, Laser, etc.) should not be targeted
+            if (candidate.Type !== 'Ship') {
+                continue;
+            }
             if (!this.isObservable(candidate)) {
                 continue;
             }
@@ -116,7 +120,7 @@ export class Ai {
 
     describeObservation(candidate, dx, dy, distanceSquared, pilotKillsByShipId) {
         const distance = Math.sqrt(distanceSquared);
-        const bearingRadians = Math.atan2(dy, dx);
+        const bearingRadians = Math.atan2(dx, -dy);
         const hullStrength = Number.isFinite(candidate.HullStrength) ? candidate.HullStrength : undefined;
         const capacitor = Number.isFinite(candidate.Capacitor) ? candidate.Capacitor : undefined;
         const shieldStatus = Number.isFinite(candidate.ShieldStatus) ? candidate.ShieldStatus : undefined;
@@ -300,35 +304,122 @@ export class Ai {
             return;
         }
 
+        // Find the target ship in gameObjects to get its current live position
+        let targetShip = null;
+        if (Number.isFinite(gameObject.attackTargetId)) {
+            for (let i = 0; i < gameObjects.length; i++) {
+                const candidate = gameObjects[i];
+                // Verify it's the correct ID, is a Ship, and is a human-controlled ship
+                if (candidate && candidate.Id === gameObject.attackTargetId && candidate.Type === 'Ship' && candidate.pilotType === 'Human') {
+                    targetShip = candidate;
+                    break;
+                }
+            }
+        }
+
+        // If target ship not found, fall back to scan data
+        if (!targetShip || !Number.isFinite(targetShip.LocationX) || !Number.isFinite(targetShip.LocationY)) {
+            // Use scan data as fallback
+            const facing = Ship.normalizeAngle(Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
+            const desiredFacing = Ship.normalizeAngle(target.bearingDegrees);
+            const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
+            const angleTolerance = 10;
+            const rotationVelocity = Math.abs(Number(gameObject.RotationVelocity) || 0);
+            const rotationDirection = gameObject.RotationDirection || 'None';
+            const rotationStopThreshold = 0.1;
+
+            const desiredRotation = angleDelta > 0 ? 'Clockwise' : 'CounterClockwise';
+
+            if (rotationDirection !== 'None' && rotationDirection !== desiredRotation && rotationVelocity > rotationStopThreshold) {
+                const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
+                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                return;
+            }
+
+            if (Math.abs(angleDelta) > angleTolerance) {
+                const rotateCommand = desiredRotation === 'Clockwise' ? 3 : 1;
+                commands.push({command: rotateCommand, targetId: gameObject.Id});
+                return;
+            }
+
+            if (rotationVelocity > rotationStopThreshold && rotationDirection !== 'None') {
+                const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
+                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                return;
+            }
+
+            commands.push({command: 0, targetId: gameObject.Id});
+            return;
+        }
+
+        // Calculate bearing from bot's current position to target's current position
+        const dx = targetShip.LocationX - gameObject.LocationX;
+        const dy = targetShip.LocationY - gameObject.LocationY;
+        const bearingRadians = Math.atan2(dx, -dy);
+        const bearingDegrees = bearingRadians * 180 / Math.PI;
+
         const facing = Ship.normalizeAngle(Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
-        const desiredFacing = Ship.normalizeAngle(target.bearingDegrees);
+        const desiredFacing = Ship.normalizeAngle(bearingDegrees);
         const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
         const angleTolerance = 10;
         const rotationVelocity = Math.abs(Number(gameObject.RotationVelocity) || 0);
         const rotationDirection = gameObject.RotationDirection || 'None';
         const rotationStopThreshold = 0.1;
 
-        const desiredRotation = angleDelta > 0 ? 'CounterClockwise' : 'Clockwise';
+        const desiredRotation = angleDelta > 0 ? 'Clockwise' : 'CounterClockwise';
 
+        // If rotating in wrong direction, dampen immediately
         if (rotationDirection !== 'None' && rotationDirection !== desiredRotation && rotationVelocity > rotationStopThreshold) {
             const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
             commands.push({command: dampenCommand, targetId: gameObject.Id});
             return;
         }
 
-        if (Math.abs(angleDelta) > angleTolerance) {
-            const rotateCommand = desiredRotation === 'CounterClockwise' ? 1 : 3;
-            commands.push({command: rotateCommand, targetId: gameObject.Id});
+        // If aligned (within tolerance), stop rotation if still rotating
+        if (Math.abs(angleDelta) <= angleTolerance) {
+            // Always try to stop rotation when aligned, even if velocity is low
+            if (rotationDirection !== 'None' && rotationVelocity > 0) {
+                const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
+                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                return;
+            }
+            // Aligned and stopped (rotationDirection is 'None' or velocity is 0), fire laser
+            commands.push({command: 0, targetId: gameObject.Id});
             return;
         }
 
-        if (rotationVelocity > rotationStopThreshold && rotationDirection !== 'None') {
+        // Not aligned, rotate towards target
+        // If already rotating in correct direction, check if we should start dampening early
+        if (rotationDirection === desiredRotation) {
+            // Estimate if we'll overshoot: if rotation velocity is high and we're close to alignment,
+            // start dampening to prevent overshooting
+            // Rotation formula from Physics.findNewFacing: rotationVelocity * 90 / framesPerSecond degrees per frame
+            const framesPerSecond = 60; // Physics.framesPerSecond constant
+            const estimatedRotationPerFrame = rotationVelocity * 90 / framesPerSecond;
+            const framesToAlign = estimatedRotationPerFrame > 0 ? Math.abs(angleDelta) / estimatedRotationPerFrame : Infinity;
+            // If we're close to alignment (within a few degrees) or will overshoot soon, start dampening
+            // Also dampen if rotation velocity is already high (>= 2) to prevent excessive spinning
+            if ((framesToAlign < 3 && rotationVelocity > 1) || rotationVelocity >= 2) {
+                const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
+                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                return;
+            }
+            // Otherwise continue rotating (but only if velocity isn't too high)
+            if (rotationVelocity < 2) {
+                const rotateCommand = desiredRotation === 'Clockwise' ? 3 : 1;
+                commands.push({command: rotateCommand, targetId: gameObject.Id});
+                return;
+            }
+            // Velocity is high but we're not close enough to dampen yet - don't issue command to let it coast
+            // Actually, we should still dampen to prevent excessive velocity
             const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
             commands.push({command: dampenCommand, targetId: gameObject.Id});
             return;
         }
 
-        commands.push({command: 0, targetId: gameObject.Id});
+        // Not rotating or rotating in wrong direction, start rotating
+        const rotateCommand = desiredRotation === 'Clockwise' ? 3 : 1;
+        commands.push({command: rotateCommand, targetId: gameObject.Id});
     }
 
     getScanIntervalForMode(mode) {
