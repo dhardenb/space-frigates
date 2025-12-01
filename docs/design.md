@@ -105,6 +105,10 @@ The snapshot sent from the server now carries a lightweight `events` array. Each
 - Events are appended after the entity list. Right now only `ShipDestroyed` exists, encoded as `[type, shipId (uint32), locationX (float32), locationY (float32)]`.
 - The client receives the raw `Uint8Array`, validates the magic/version, then reconstructs plain JS objects so the rest of the engine continues to operate on the same structures as before the binary migration.
 
+## Bot Sensor Scans
+
+- Bot-controlled ships periodically sweep their surroundings for any observable entity within ten times their own radius. Each contact stores positional data (distance, bearing, heading), motion (velocity), size, and ship status (hull, capacitor, shield). When the pilot’s record is known, the scan also captures the number of confirmed kills for that ship so future AI behaviors can consider an opponent’s track record.
+
 ## Collision Handling
 
 - Collisions between solid entities are resolved as lightly inelastic impacts to prevent “bumper car” ricochets. A restitution of `0.2` is applied to the relative velocity along the collision normal before converting the resulting vectors back into heading/velocity pairs.

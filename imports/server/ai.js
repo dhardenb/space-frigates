@@ -56,6 +56,7 @@ export class Ai {
         }
 
         const radiusSquared = sensorRadius * sensorRadius;
+        const pilotKillsByShipId = this.getPilotKillsByShipId();
         const contacts = [];
         for (let i = 0; i < gameObjects.length; i++) {
             const candidate = gameObjects[i];
@@ -72,7 +73,7 @@ export class Ai {
                 continue;
             }
 
-            contacts.push(this.describeObservation(candidate, dx, dy, distanceSquared));
+            contacts.push(this.describeObservation(candidate, dx, dy, distanceSquared, pilotKillsByShipId));
         }
 
         contacts.sort((a, b) => a.distance - b.distance);
@@ -96,12 +97,14 @@ export class Ai {
         return candidate && Number.isFinite(candidate.LocationX) && Number.isFinite(candidate.LocationY);
     }
 
-    describeObservation(candidate, dx, dy, distanceSquared) {
+    describeObservation(candidate, dx, dy, distanceSquared, pilotKillsByShipId) {
         const distance = Math.sqrt(distanceSquared);
         const bearingRadians = Math.atan2(dy, dx);
         const hullStrength = Number.isFinite(candidate.HullStrength) ? candidate.HullStrength : undefined;
         const capacitor = Number.isFinite(candidate.Capacitor) ? candidate.Capacitor : undefined;
         const shieldStatus = Number.isFinite(candidate.ShieldStatus) ? candidate.ShieldStatus : undefined;
+        const kills = pilotKillsByShipId?.get(candidate.Id);
+        const killCount = Number.isFinite(kills) ? kills : undefined;
         return {
             id: candidate.Id,
             type: candidate.Type,
@@ -120,8 +123,25 @@ export class Ai {
             size: candidate.Size,
             hullStrength,
             capacitor,
-            shieldStatus
+            shieldStatus,
+            kills: killCount
         };
+    }
+
+    getPilotKillsByShipId() {
+        const killsByShipId = new Map();
+        for (let i = 0; i < gameObjects.length; i++) {
+            const pilot = gameObjects[i];
+            if (!pilot || pilot.Type !== 'Player') {
+                continue;
+            }
+            if (!Number.isFinite(pilot.ShipId)) {
+                continue;
+            }
+            const kills = Number.isFinite(pilot.Kills) ? pilot.Kills : undefined;
+            killsByShipId.set(pilot.ShipId, kills);
+        }
+        return killsByShipId;
     }
 
     think(commands, gameObject) {
