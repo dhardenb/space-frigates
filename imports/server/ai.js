@@ -49,9 +49,79 @@ export class Ai {
         }
     }
 
+    scanForNearbyObjects(origin) {
+        const sensorRadius = this.getSensorRadius(origin);
+        if (!sensorRadius) {
+            return {radius: 0, contacts: [], timestamp: Date.now()};
+        }
+
+        const radiusSquared = sensorRadius * sensorRadius;
+        const contacts = [];
+        for (let i = 0; i < gameObjects.length; i++) {
+            const candidate = gameObjects[i];
+            if (!candidate || candidate.Id === origin.Id) {
+                continue;
+            }
+            if (!this.isObservable(candidate)) {
+                continue;
+            }
+            const dx = candidate.LocationX - origin.LocationX;
+            const dy = candidate.LocationY - origin.LocationY;
+            const distanceSquared = dx * dx + dy * dy;
+            if (distanceSquared > radiusSquared) {
+                continue;
+            }
+
+            contacts.push(this.describeObservation(candidate, dx, dy, distanceSquared));
+        }
+
+        contacts.sort((a, b) => a.distance - b.distance);
+
+        return {
+            radius: sensorRadius,
+            contacts,
+            timestamp: Date.now()
+        };
+    }
+
+    getSensorRadius(origin) {
+        if (!origin || !Number.isFinite(origin.Size)) {
+            return 0;
+        }
+        const radius = origin.Size / 2;
+        return radius > 0 ? radius * 10 : 0;
+    }
+
+    isObservable(candidate) {
+        return candidate && Number.isFinite(candidate.LocationX) && Number.isFinite(candidate.LocationY);
+    }
+
+    describeObservation(candidate, dx, dy, distanceSquared) {
+        const distance = Math.sqrt(distanceSquared);
+        const bearingRadians = Math.atan2(dy, dx);
+        return {
+            id: candidate.Id,
+            type: candidate.Type,
+            shipTypeId: candidate.shipTypeId,
+            pilotType: candidate.pilotType,
+            distance,
+            bearingRadians,
+            bearingDegrees: bearingRadians * 180 / Math.PI,
+            location: {
+                x: candidate.LocationX,
+                y: candidate.LocationY
+            },
+            velocity: candidate.Velocity,
+            heading: candidate.Heading,
+            facing: candidate.Facing,
+            size: candidate.Size
+        };
+    }
+
     think(commands, gameObject) {
         let commandType = 0;
         const profile = gameObject.aiProfile || 'bot';
+        gameObject.lastScan = this.scanForNearbyObjects(gameObject);
         if (profile == 'bot') {
             switch (Math.floor(Math.random()*11+1)) {
                 case 1:
