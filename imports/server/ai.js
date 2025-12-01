@@ -9,7 +9,7 @@ export class Ai {
         this.scanIntervalMs = Number.isFinite(options.scanIntervalMs) && options.scanIntervalMs > 0 ? options.scanIntervalMs : 1000;
         this.energyFullTolerance = 0.25;
         this.patrolCapacitorThreshold = 0.66;
-        this.sensorRangeScale = Number.isFinite(options.sensorRangeScale) && options.sensorRangeScale > 0 ? options.sensorRangeScale : 20;
+        this.sensorRangeScale = Number.isFinite(options.sensorRangeScale) && options.sensorRangeScale > 0 ? options.sensorRangeScale : 40;
     }
 
     createNewShip() {
