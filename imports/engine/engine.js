@@ -176,6 +176,10 @@ export class Engine {
             return true;
         }
 
+        if (this.isLaserLaserCollision(objectA, objectB)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -187,6 +191,7 @@ export class Engine {
             // NOTE: Once a laser runs out of fuel it disappears
             const damage = laser.Fuel;
             target.takeDamage(damage);
+            this.createExplosion(laser);
             if (target.HullStrength <= 0) {
                 if (target.Type !== 'Debris') {
                     this.createDebris(target);
@@ -215,6 +220,16 @@ export class Engine {
             return laserHitsTarget(objectB, objectA);
         }
         return false;
+    }
+
+    isLaserLaserCollision(objectA, objectB) {
+        if (objectA.Type !== 'Laser' || objectB.Type !== 'Laser') {
+            return false;
+        }
+
+        this.createImpactExplosion(objectA, objectB);
+        this.deadObjects.push(objectA, objectB);
+        return true;
     }
 
     resolveInelasticCollision(objectA, objectB) {
