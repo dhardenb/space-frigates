@@ -5,7 +5,7 @@ export function renderLaser(map, laser, worldPixelsPerMeter) {
 
     map.rotate(laser.facing * Math.PI / 180);
 
-    map.scale(laser.size * worldPixelsPerMeter, laser.size * worldPixelsPerMeter);
+    map.scale(laser.lengthInMeters * worldPixelsPerMeter, laser.lengthInMeters * worldPixelsPerMeter);
 
     const maxFuel = laser.maxFuel || 1;
 

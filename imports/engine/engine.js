@@ -10,12 +10,6 @@ import {Debris} from './debris.js';
 import {Sound} from './sound.js';
 import {Physics} from './physics.js';
 import {Utilities} from '../utilities/utilities.js';
-import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
-
-// IMPORTANT: COLLISION_DIMENSIONS drives both the per-object metadata
-// (collisionLengthMeters/collisionWidthMeters) and these engine-level
-// fallbacks. Update the shared configuration before relying on new sizes.
-const COLLISION_BOX_SPECS = COLLISION_DIMENSIONS;
 
 export class Engine {
 
@@ -114,19 +108,14 @@ export class Engine {
             return {length: 1, width: 1};
         }
 
-        const objectLength = Number(gameObject.collisionLengthMeters);
-        const objectWidth = Number(gameObject.collisionWidthMeters);
+        const objectLength = Number(gameObject.lengthInMeters);
+        const objectWidth = Number(gameObject.widthInMeters);
         if (objectLength > 0 && objectWidth > 0) {
             return {length: objectLength, width: objectWidth};
         }
 
-        const explicitSpec = COLLISION_BOX_SPECS[gameObject.type];
-        if (explicitSpec) {
-            return explicitSpec;
-        }
-
-        const fallbackSize = Number(gameObject.size) || 1;
-        return {length: fallbackSize, width: fallbackSize};
+        // Fallback: return default dimensions if lengthInMeters/widthInMeters not set
+        return {length: 1, width: 1};
     }
 
     normalizeAxis(axis) {

@@ -8,7 +8,6 @@ export class TurtleShip extends Ship {
         
         this.shipTypeId = 'Turtle';
         this.shipDisplayName = 'Turtle';
-        this.size = 8.0;
         this.maxHullStrength = 100;
         this.thrusterStrength = 100;
         this.maxThrusterStrength = 100;

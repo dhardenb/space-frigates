@@ -357,8 +357,7 @@ export class Utilities {
                     gameObject.rotationVelocity,
                     gameObject.shieldStatus,
                     gameObject.hullStrength,
-                    gameObject.capacitor,
-                    gameObject.size
+                    gameObject.capacitor
                 ]);
                 view.setUint8(offset, gameObject.shieldOn ? 1 : 0); offset += 1;
                 view.setUint8(offset, SHIP_TYPE_CODES[gameObject.shipTypeId] || 0); offset += 1;
@@ -461,7 +460,7 @@ export class Utilities {
                 const result = Utilities.readShortString(view, offset);
                 object.Name = result.value;
                 offset = result.offset;
-                const values = Utilities.readFloatFields(view, offset, 11);
+                const values = Utilities.readFloatFields(view, offset, 10);
                 offset = values.offset;
                 let rotationDirectionCode;
                 [
@@ -474,8 +473,7 @@ export class Utilities {
                     object.rotationVelocity,
                     object.shieldStatus,
                     object.hullStrength,
-                    object.capacitor,
-                    object.size
+                    object.capacitor
                 ] = values.values;
                 // Convert rotationDirection from code to string
                 object.rotationDirection = ROTATION_DIRECTION_NAMES[Math.round(rotationDirectionCode)] || 'None';

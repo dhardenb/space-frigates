@@ -3,7 +3,6 @@ import {Laser} from './laser.js';
 import {Physics} from './physics.js';
 import {Sound} from './sound.js';
 import {Thruster} from './thruster.js';
-import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
 
 const AUTO_PILOT_ANGLE_TOLERANCE_DEGREES = 3;
 const AUTO_PILOT_VELOCITY_THRESHOLD = 0.5;
@@ -18,7 +17,6 @@ export class Ship {
         this.shipDisplayName = null;
         this.pilotType = pilotType;
         this.aiProfile = aiProfile;
-        this.size = 0;
         this.maxHullStrength = 0;
         this.thrusterStrength = 0;
         this.maxThrusterStrength = 0;
@@ -38,10 +36,8 @@ export class Ship {
         this.shieldDecayRate = 0.25;
         this.autoPilotEngaged = false;
         this.autoPilotFacingLocked = false;
-        const shipCollisionSpec = COLLISION_DIMENSIONS.Ship;
-        // Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
-        this.collisionLengthMeters = shipCollisionSpec.length;
-        this.collisionWidthMeters = shipCollisionSpec.width;
+        this.lengthInMeters = 8;
+        this.widthInMeters = 4;
 
         // Initialize runtime state if requested (default true, false for deserialization)
         if (initializeState) {
@@ -587,8 +583,8 @@ export class Ship {
     }
 
     spawnRotationThrusters(clockwise = true) {
-        const forwardOffset = this.size * 0.5;
-        const sideOffset = this.size * 0.35;
+        const forwardOffset = this.lengthInMeters * 0.5;
+        const sideOffset = this.lengthInMeters * 0.35;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
 
         const positions = clockwise ? [
@@ -603,9 +599,9 @@ export class Ship {
     }
 
     spawnRetrogradeThrusters() {
-        const sideOffset = this.size * 0.3;
+        const sideOffset = this.lengthInMeters * 0.3;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
-        const forwardOffset = this.size * 0.15 + thrusterSize * 0.75;
+        const forwardOffset = this.lengthInMeters * 0.15 + thrusterSize * 0.75;
 
         const retroThrusterFacing = this.facing;
         const positions = [
@@ -617,10 +613,10 @@ export class Ship {
     }
 
     spawnLateralThrusters(direction, thrustFacing) {
-        const sideOffsetMagnitude = this.size * 0.35;
+        const sideOffsetMagnitude = this.lengthInMeters * 0.35;
         const sideOffset = direction === 'Left' ? -sideOffsetMagnitude : sideOffsetMagnitude;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
-        const forwardOffset = this.size * 0.2 + thrusterSize * 0.5;
+        const forwardOffset = this.lengthInMeters * 0.2 + thrusterSize * 0.5;
         const thrusterFacing = Ship.normalizeAngle(thrustFacing + 180);
 
         const positions = [

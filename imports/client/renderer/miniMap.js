@@ -41,7 +41,7 @@ export function renderMiniMap(map, options) {
 export function renderMiniShip(map, ship, playerShipId, worldPixelsPerMeter, pixelsPerMeter) {
     map.save();
     map.translate(ship.locationX * worldPixelsPerMeter, ship.locationY * worldPixelsPerMeter);
-    map.scale(ship.size * pixelsPerMeter, ship.size * pixelsPerMeter);
+    map.scale(ship.lengthInMeters * pixelsPerMeter, ship.lengthInMeters * pixelsPerMeter);
     map.beginPath();
     map.arc(0, 0, 1.0, 0, 2 * Math.PI);
     let fillStyle = "rgba(128, 128, 128, 1.0)";

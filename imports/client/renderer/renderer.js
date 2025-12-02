@@ -12,7 +12,6 @@ import {renderThruster} from './worldObjects/thruster.js';
 import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
 import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
-import {COLLISION_DIMENSIONS} from '../../engine/config/collisionDimensions.js';
 
 export class Renderer {
     constructor(mapRadius) {
@@ -594,17 +593,13 @@ function buildBoundingBoxForRender(gameObject) {
 }
 
 function getBoundingBoxSpec(gameObject) {
-    const objectLength = Number(gameObject.collisionLengthMeters);
-    const objectWidth = Number(gameObject.collisionWidthMeters);
+    const objectLength = Number(gameObject.lengthInMeters);
+    const objectWidth = Number(gameObject.widthInMeters);
     if (objectLength > 0 && objectWidth > 0) {
         return {length: objectLength, width: objectWidth};
     }
-    const explicitSpec = COLLISION_DIMENSIONS[gameObject.type];
-    if (explicitSpec) {
-        return explicitSpec;
-    }
-    const fallbackSize = Number(gameObject.size) || 1;
-    return {length: fallbackSize, width: fallbackSize};
+    // Fallback: return default dimensions if lengthInMeters/widthInMeters not set
+    return {length: 1, width: 1};
 }
 
 function normalizeAxis(axis) {

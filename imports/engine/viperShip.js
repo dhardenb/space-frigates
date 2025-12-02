@@ -8,7 +8,6 @@ export class ViperShip extends Ship {
         
         this.shipTypeId = 'Viper';
         this.shipDisplayName = 'Viper';
-        this.size = 8.0;
         this.maxHullStrength = 100;
         this.thrusterStrength = 100;
         this.maxThrusterStrength = 100;
