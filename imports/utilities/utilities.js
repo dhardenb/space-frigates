@@ -35,6 +35,17 @@ const PILOT_TYPE_NAMES = Object.entries(PILOT_TYPE_CODES).reduce((acc, [name, co
     return acc;
 }, {});
 
+const ROTATION_DIRECTION_CODES = {
+    'None': 0,
+    'Clockwise': 1,
+    'CounterClockwise': 2
+};
+
+const ROTATION_DIRECTION_NAMES = Object.entries(ROTATION_DIRECTION_CODES).reduce((acc, [name, code]) => {
+    acc[code] = name;
+    return acc;
+}, {});
+
 const EVENT_CODES = {
     ShipDestroyed: 1
 };
@@ -92,11 +103,11 @@ export class Utilities {
 
     static packGameState(unpackedGameState) {
 
-        unpackedGameState.gameState = Utilities.removeByAttr(unpackedGameState.gameState, "Type", "Particle");
+        unpackedGameState.gameState = Utilities.removeByAttr(unpackedGameState.gameState, "type", "Particle");
 
         const filteredGameState = [];
         for (let i = 0; i < unpackedGameState.gameState.length; i++) {
-            const typeCode = Utilities.getTypeCode(unpackedGameState.gameState[i].Type);
+            const typeCode = Utilities.getTypeCode(unpackedGameState.gameState[i].type);
             if (typeCode) {
                 filteredGameState.push(unpackedGameState.gameState[i]);
             }
@@ -255,7 +266,7 @@ export class Utilities {
     }
 
     static calculateObjectSize(gameObject) {
-        const typeCode = Utilities.getTypeCode(gameObject.Type);
+        const typeCode = Utilities.getTypeCode(gameObject.type);
         if (!typeCode) {
             return 0;
         }
@@ -264,14 +275,14 @@ export class Utilities {
 
         switch (typeCode) {
             case TYPE_CODES.Player: {
-                const nameBytes = Utilities.encodeString(gameObject.Name || "");
+                const nameBytes = Utilities.encodeString(gameObject.name || "");
                 const nameLength = Math.min(nameBytes.length, 255);
                 return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + 4 /* ShipId */ + 2 /* Kills */ + 2 /* Deaths */;
             }
             case TYPE_CODES.Ship: {
                 const nameBytes = Utilities.encodeString(gameObject.Name || "");
                 const nameLength = Math.min(nameBytes.length, 255);
-                return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + (4 * 10) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */ + 1 /* auto pilot */;
+                return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + (4 * 11) /* numeric floats */ + 1 /* ShieldOn */ + 1 /* ship type */ + 1 /* pilot type */ + 1 /* auto pilot */;
             }
             case TYPE_CODES.Debris: {
                 return BASE + 4 /* Id */ + (4 * 7);
@@ -280,7 +291,7 @@ export class Utilities {
                 return BASE + 4 /* Id */ + (4 * 6) + 4 /* Owner */;
             }
             case TYPE_CODES.Sound: {
-                const soundBytes = Utilities.encodeString(gameObject.SoundType || "");
+                const soundBytes = Utilities.encodeString(gameObject.soundType || "");
                 const soundLength = Math.min(soundBytes.length, 255);
                 return BASE + 1 /* sound len */ + soundLength + (4 * 2);
             }
@@ -317,7 +328,7 @@ export class Utilities {
     }
 
     static writeGameObject(view, offset, gameObject) {
-        const typeCode = Utilities.getTypeCode(gameObject.Type);
+        const typeCode = Utilities.getTypeCode(gameObject.type);
         if (!typeCode) {
             return offset;
         }
@@ -326,73 +337,76 @@ export class Utilities {
 
         switch (typeCode) {
             case TYPE_CODES.Player:
-                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
-                offset = Utilities.writeShortString(view, offset, gameObject.Name || "");
-                view.setUint32(offset, (gameObject.ShipId >>> 0) || 0, true); offset += 4;
-                view.setUint16(offset, (gameObject.Kills >>> 0) || 0, true); offset += 2;
-                view.setUint16(offset, (gameObject.Deaths >>> 0) || 0, true); offset += 2;
+                view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeShortString(view, offset, gameObject.name || "");
+                view.setUint32(offset, (gameObject.shipId >>> 0) || 0, true); offset += 4;
+                view.setUint16(offset, (gameObject.kills >>> 0) || 0, true); offset += 2;
+                view.setUint16(offset, (gameObject.deaths >>> 0) || 0, true); offset += 2;
                 break;
             case TYPE_CODES.Ship:
-                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeShortString(view, offset, gameObject.Name || "");
+                const rotationDirectionCode = ROTATION_DIRECTION_CODES[gameObject.rotationDirection] || 0;
                 offset = Utilities.writeFloatFields(view, offset, [
-                    gameObject.LocationX,
-                    gameObject.LocationY,
-                    gameObject.Facing,
-                    gameObject.Heading,
-                    gameObject.Velocity,
-                    gameObject.RotationDirection,
-                    gameObject.RotationVelocity,
-                    gameObject.ShieldStatus,
-                    gameObject.HullStrength,
-                    gameObject.Capacitor
+                    gameObject.locationX,
+                    gameObject.locationY,
+                    gameObject.facing,
+                    gameObject.heading,
+                    gameObject.velocity,
+                    rotationDirectionCode,
+                    gameObject.rotationVelocity,
+                    gameObject.shieldStatus,
+                    gameObject.hullStrength,
+                    gameObject.capacitor,
+                    gameObject.size
                 ]);
-                view.setUint8(offset, gameObject.ShieldOn ? 1 : 0); offset += 1;
+                view.setUint8(offset, gameObject.shieldOn ? 1 : 0); offset += 1;
                 view.setUint8(offset, SHIP_TYPE_CODES[gameObject.shipTypeId] || 0); offset += 1;
                 view.setUint8(offset, PILOT_TYPE_CODES[gameObject.pilotType] || 0); offset += 1;
                 view.setUint8(offset, gameObject.autoPilotEngaged ? 1 : 0); offset += 1;
                 break;
             case TYPE_CODES.Debris:
-                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
+                const debrisRotationCode = ROTATION_DIRECTION_CODES[gameObject.rotationDirection] || 0;
                 offset = Utilities.writeFloatFields(view, offset, [
-                    gameObject.LocationX,
-                    gameObject.LocationY,
-                    gameObject.Facing,
-                    gameObject.Heading,
-                    gameObject.Velocity,
-                    gameObject.RotationDirection,
-                    gameObject.RotationVelocity
+                    gameObject.locationX,
+                    gameObject.locationY,
+                    gameObject.facing,
+                    gameObject.heading,
+                    gameObject.velocity,
+                    debrisRotationCode,
+                    gameObject.rotationVelocity
                 ]);
                 break;
             case TYPE_CODES.Laser:
-                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
-                    gameObject.Fuel,
-                    gameObject.LocationX,
-                    gameObject.LocationY,
-                    gameObject.Facing,
-                    gameObject.Heading,
-                    gameObject.Velocity
+                    gameObject.fuel,
+                    gameObject.locationX,
+                    gameObject.locationY,
+                    gameObject.facing,
+                    gameObject.heading,
+                    gameObject.velocity
                 ]);
-                view.setUint32(offset, (gameObject.Owner >>> 0) || 0, true); offset += 4;
+                view.setUint32(offset, (gameObject.owner >>> 0) || 0, true); offset += 4;
                 break;
             case TYPE_CODES.Sound:
-                offset = Utilities.writeShortString(view, offset, gameObject.SoundType || "");
+                offset = Utilities.writeShortString(view, offset, gameObject.soundType || "");
                 offset = Utilities.writeFloatFields(view, offset, [
-                    gameObject.LocationX,
-                    gameObject.LocationY
+                    gameObject.locationX,
+                    gameObject.locationY
                 ]);
                 break;
             case TYPE_CODES.Thruster:
-                view.setUint32(offset, (gameObject.Id >>> 0) || 0, true); offset += 4;
+                view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
-                    gameObject.Fuel,
-                    gameObject.LocationX,
-                    gameObject.LocationY,
-                    gameObject.Facing,
-                    gameObject.Heading,
-                    gameObject.Velocity,
-                    gameObject.Size
+                    gameObject.fuel,
+                    gameObject.locationX,
+                    gameObject.locationY,
+                    gameObject.facing,
+                    gameObject.heading,
+                    gameObject.velocity,
+                    gameObject.size
                 ]);
                 break;
             default:
@@ -429,98 +443,105 @@ export class Utilities {
         const typeCode = view.getUint8(offset); offset += 1;
         const typeName = TYPE_NAMES[typeCode] || 'Unknown';
 
-        const object = { Type: typeName };
+        const object = { type: typeName };
 
         switch (typeCode) {
             case TYPE_CODES.Player: {
-                object.Id = view.getUint32(offset, true); offset += 4;
+                object.id = view.getUint32(offset, true); offset += 4;
                 const result = Utilities.readShortString(view, offset);
-                object.Name = result.value;
+                object.name = result.value;
                 offset = result.offset;
-                object.ShipId = view.getUint32(offset, true); offset += 4;
-                object.Kills = view.getUint16(offset, true); offset += 2;
-                object.Deaths = view.getUint16(offset, true); offset += 2;
+                object.shipId = view.getUint32(offset, true); offset += 4;
+                object.kills = view.getUint16(offset, true); offset += 2;
+                object.deaths = view.getUint16(offset, true); offset += 2;
                 break;
             }
             case TYPE_CODES.Ship: {
-                object.Id = view.getUint32(offset, true); offset += 4;
+                object.id = view.getUint32(offset, true); offset += 4;
                 const result = Utilities.readShortString(view, offset);
                 object.Name = result.value;
                 offset = result.offset;
-                const values = Utilities.readFloatFields(view, offset, 10);
+                const values = Utilities.readFloatFields(view, offset, 11);
                 offset = values.offset;
+                let rotationDirectionCode;
                 [
-                    object.LocationX,
-                    object.LocationY,
-                    object.Facing,
-                    object.Heading,
-                    object.Velocity,
-                    object.RotationDirection,
-                    object.RotationVelocity,
-                    object.ShieldStatus,
-                    object.HullStrength,
-                    object.Capacitor
+                    object.locationX,
+                    object.locationY,
+                    object.facing,
+                    object.heading,
+                    object.velocity,
+                    rotationDirectionCode,
+                    object.rotationVelocity,
+                    object.shieldStatus,
+                    object.hullStrength,
+                    object.capacitor,
+                    object.size
                 ] = values.values;
-                object.ShieldOn = view.getUint8(offset) === 1; offset += 1;
+                // Convert rotationDirection from code to string
+                object.rotationDirection = ROTATION_DIRECTION_NAMES[Math.round(rotationDirectionCode)] || 'None';
+                object.shieldOn = view.getUint8(offset) === 1; offset += 1;
                 object.shipTypeId = SHIP_TYPE_NAMES[view.getUint8(offset)] || null; offset += 1;
                 object.pilotType = PILOT_TYPE_NAMES[view.getUint8(offset)] || 'Unknown'; offset += 1;
                 object.autoPilotEngaged = view.getUint8(offset) === 1; offset += 1;
                 break;
             }
             case TYPE_CODES.Debris: {
-                object.Id = view.getUint32(offset, true); offset += 4;
+                object.id = view.getUint32(offset, true); offset += 4;
                 const values = Utilities.readFloatFields(view, offset, 7);
                 offset = values.offset;
                 [
-                    object.LocationX,
-                    object.LocationY,
-                    object.Facing,
-                    object.Heading,
-                    object.Velocity,
-                    object.RotationDirection,
-                    object.RotationVelocity
+                    object.locationX,
+                    object.locationY,
+                    object.facing,
+                    object.heading,
+                    object.velocity,
+                    object.rotationDirection,
+                    object.rotationVelocity
                 ] = values.values;
+                // Convert rotationDirection from code to string
+                const debrisRotationCode = Math.round(object.rotationDirection);
+                object.rotationDirection = ROTATION_DIRECTION_NAMES[debrisRotationCode] || 'None';
                 break;
             }
             case TYPE_CODES.Laser: {
-                object.Id = view.getUint32(offset, true); offset += 4;
+                object.id = view.getUint32(offset, true); offset += 4;
                 const values = Utilities.readFloatFields(view, offset, 6);
                 offset = values.offset;
                 [
-                    object.Fuel,
-                    object.LocationX,
-                    object.LocationY,
-                    object.Facing,
-                    object.Heading,
-                    object.Velocity
+                    object.fuel,
+                    object.locationX,
+                    object.locationY,
+                    object.facing,
+                    object.heading,
+                    object.velocity
                 ] = values.values;
-                object.Owner = view.getUint32(offset, true); offset += 4;
+                object.owner = view.getUint32(offset, true); offset += 4;
                 break;
             }
             case TYPE_CODES.Sound: {
                 const result = Utilities.readShortString(view, offset);
-                object.SoundType = result.value;
+                object.soundType = result.value;
                 offset = result.offset;
                 const values = Utilities.readFloatFields(view, offset, 2);
                 offset = values.offset;
                 [
-                    object.LocationX,
-                    object.LocationY
+                    object.locationX,
+                    object.locationY
                 ] = values.values;
                 break;
             }
             case TYPE_CODES.Thruster: {
-                object.Id = view.getUint32(offset, true); offset += 4;
+                object.id = view.getUint32(offset, true); offset += 4;
                 const values = Utilities.readFloatFields(view, offset, 7);
                 offset = values.offset;
                 [
-                    object.Fuel,
-                    object.LocationX,
-                    object.LocationY,
-                    object.Facing,
-                    object.Heading,
-                    object.Velocity,
-                    object.Size
+                    object.fuel,
+                    object.locationX,
+                    object.locationY,
+                    object.facing,
+                    object.heading,
+                    object.velocity,
+                    object.size
                 ] = values.values;
                 break;
             }

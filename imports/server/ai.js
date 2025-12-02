@@ -16,7 +16,7 @@ export class Ai {
     createNewShip() {
         let players = [];
         for (let i=0, j=gameObjects.length; i<j; i++) {
-            if (gameObjects[i].Type == 'Player') {
+            if (gameObjects[i].type == 'Player') {
                 players.push(gameObjects[i]);
             }
         }
@@ -35,9 +35,8 @@ export class Ai {
         }
         if (nextShipType == 1 || nextShipType == 2) {
             const aiProfile = 'bot';
-            const newAiShip = new Ship(Engine.getNextGameObjectId());
             const shipTypeId = this.selectShipType();
-            newAiShip.init({shipTypeId, pilotType: 'Bot', aiProfile});
+            const newAiShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId, pilotType: 'Bot', aiProfile});
             newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }
@@ -47,7 +46,7 @@ export class Ai {
         const now = Date.now();
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             const gameObject = gameObjects[x];
-            if (gameObject.Type === 'Ship' && gameObject.pilotType === 'Bot') {
+            if (gameObject.type === 'Ship' && gameObject.pilotType === 'Bot') {
                 const shouldScan = !Number.isFinite(gameObject.nextScanAt) || now >= gameObject.nextScanAt;
                 if (shouldScan) {
                     gameObject.lastScan = this.scanForNearbyObjects(gameObject);
@@ -71,18 +70,18 @@ export class Ai {
         const contacts = [];
         for (let i = 0; i < gameObjects.length; i++) {
             const candidate = gameObjects[i];
-            if (!candidate || candidate.Id === origin.Id) {
+            if (!candidate || candidate.id === origin.id) {
                 continue;
             }
             // Only scan Ship objects - other objects (Debris, Laser, etc.) should not be targeted
-            if (candidate.Type !== 'Ship') {
+            if (candidate.type !== 'Ship') {
                 continue;
             }
             if (!this.isObservable(candidate)) {
                 continue;
             }
-            const dx = candidate.LocationX - origin.LocationX;
-            const dy = candidate.LocationY - origin.LocationY;
+            const dx = candidate.locationX - origin.locationX;
+            const dy = candidate.locationY - origin.locationY;
             const distanceSquared = dx * dx + dy * dy;
             if (distanceSquared > radiusSquared) {
                 continue;
@@ -101,10 +100,10 @@ export class Ai {
     }
 
     getSensorRadius(origin) {
-        if (!origin || !Number.isFinite(origin.Size)) {
+        if (!origin || !Number.isFinite(origin.size)) {
             return 0;
         }
-        const radius = origin.Size / 2;
+        const radius = origin.size / 2;
         if (radius <= 0) {
             return 0;
         }
@@ -115,33 +114,33 @@ export class Ai {
     }
 
     isObservable(candidate) {
-        return candidate && Number.isFinite(candidate.LocationX) && Number.isFinite(candidate.LocationY);
+        return candidate && Number.isFinite(candidate.locationX) && Number.isFinite(candidate.locationY);
     }
 
     describeObservation(candidate, dx, dy, distanceSquared, pilotKillsByShipId) {
         const distance = Math.sqrt(distanceSquared);
         const bearingRadians = Math.atan2(dx, -dy);
-        const hullStrength = Number.isFinite(candidate.HullStrength) ? candidate.HullStrength : undefined;
-        const capacitor = Number.isFinite(candidate.Capacitor) ? candidate.Capacitor : undefined;
-        const shieldStatus = Number.isFinite(candidate.ShieldStatus) ? candidate.ShieldStatus : undefined;
-        const kills = pilotKillsByShipId?.get(candidate.Id);
+        const hullStrength = Number.isFinite(candidate.hullStrength) ? candidate.hullStrength : undefined;
+        const capacitor = Number.isFinite(candidate.capacitor) ? candidate.capacitor : undefined;
+        const shieldStatus = Number.isFinite(candidate.shieldStatus) ? candidate.shieldStatus : undefined;
+        const kills = pilotKillsByShipId?.get(candidate.id);
         const killCount = Number.isFinite(kills) ? kills : undefined;
         return {
-            id: candidate.Id,
-            type: candidate.Type,
+            id: candidate.id,
+            type: candidate.type,
             shipTypeId: candidate.shipTypeId,
             pilotType: candidate.pilotType,
             distance,
             bearingRadians,
             bearingDegrees: bearingRadians * 180 / Math.PI,
             location: {
-                x: candidate.LocationX,
-                y: candidate.LocationY
+                x: candidate.locationX,
+                y: candidate.locationY
             },
-            velocity: candidate.Velocity,
-            heading: candidate.Heading,
-            facing: candidate.Facing,
-            size: candidate.Size,
+            velocity: candidate.velocity,
+            heading: candidate.heading,
+            facing: candidate.facing,
+            size: candidate.size,
             hullStrength,
             capacitor,
             shieldStatus,
@@ -153,14 +152,14 @@ export class Ai {
         const killsByShipId = new Map();
         for (let i = 0; i < gameObjects.length; i++) {
             const pilot = gameObjects[i];
-            if (!pilot || pilot.Type !== 'Player') {
+            if (!pilot || pilot.type !== 'Player') {
                 continue;
             }
-            if (!Number.isFinite(pilot.ShipId)) {
+            if (!Number.isFinite(pilot.shipId)) {
                 continue;
             }
-            const kills = Number.isFinite(pilot.Kills) ? pilot.Kills : undefined;
-            killsByShipId.set(pilot.ShipId, kills);
+            const kills = Number.isFinite(pilot.kills) ? pilot.kills : undefined;
+            killsByShipId.set(pilot.shipId, kills);
         }
         return killsByShipId;
     }
@@ -241,26 +240,26 @@ export class Ai {
     }
 
     isCapacitorFull(gameObject) {
-        if (!Number.isFinite(gameObject?.Capacitor)) {
+        if (!Number.isFinite(gameObject?.capacitor)) {
             return false;
         }
-        const maxCapacitor = Number.isFinite(gameObject?.MaxCapacitor) ? gameObject.MaxCapacitor : gameObject.Capacitor;
+        const maxCapacitor = Number.isFinite(gameObject?.maxCapacitor) ? gameObject.maxCapacitor : gameObject.capacitor;
         const tolerance = Number.isFinite(this.energyFullTolerance) ? this.energyFullTolerance : 0;
-        return gameObject.Capacitor >= maxCapacitor - tolerance;
+        return gameObject.capacitor >= maxCapacitor - tolerance;
     }
 
     isShieldFull(gameObject) {
-        if (!Number.isFinite(gameObject?.ShieldStatus)) {
+        if (!Number.isFinite(gameObject?.shieldStatus)) {
             return false;
         }
-        const maxShield = Number.isFinite(gameObject?.MaxShieldStrength) ? gameObject.MaxShieldStrength : gameObject.ShieldStatus;
+        const maxShield = Number.isFinite(gameObject?.maxShieldStrength) ? gameObject.maxShieldStrength : gameObject.shieldStatus;
         const tolerance = Number.isFinite(this.energyFullTolerance) ? this.energyFullTolerance : 0;
-        return gameObject.ShieldStatus >= maxShield - tolerance;
+        return gameObject.shieldStatus >= maxShield - tolerance;
     }
 
     getCapacitorRatio(gameObject) {
-        const capacitor = Number.isFinite(gameObject?.Capacitor) ? gameObject.Capacitor : 0;
-        const maxCapacitor = Number.isFinite(gameObject?.MaxCapacitor) ? gameObject.MaxCapacitor : capacitor;
+        const capacitor = Number.isFinite(gameObject?.capacitor) ? gameObject.capacitor : 0;
+        const maxCapacitor = Number.isFinite(gameObject?.maxCapacitor) ? gameObject.maxCapacitor : capacitor;
         if (maxCapacitor <= 0) {
             return 0;
         }
@@ -268,9 +267,9 @@ export class Ai {
     }
 
     recharge(gameObject, commands) {
-        commands.push({command: 4, targetId: gameObject.Id});
-        if (gameObject.ShieldOn === 1) {
-            commands.push({command: 5, targetId: gameObject.Id});
+        commands.push({command: 4, targetId: gameObject.id});
+        if (gameObject.shieldOn === 1) {
+            commands.push({command: 5, targetId: gameObject.id});
         }
     }
 
@@ -292,7 +291,7 @@ export class Ai {
 
         commands.push({
             command: shouldRotate ? rotationCommand : 2,
-            targetId: gameObject.Id
+            targetId: gameObject.id
         });
 
         gameObject.patrolState.step += 1;
@@ -310,7 +309,7 @@ export class Ai {
             for (let i = 0; i < gameObjects.length; i++) {
                 const candidate = gameObjects[i];
                 // Verify it's the correct ID, is a Ship, and is a human-controlled ship
-                if (candidate && candidate.Id === gameObject.attackTargetId && candidate.Type === 'Ship' && candidate.pilotType === 'Human') {
+                if (candidate && candidate.id === gameObject.attackTargetId && candidate.type === 'Ship' && candidate.pilotType === 'Human') {
                     targetShip = candidate;
                     break;
                 }
@@ -318,52 +317,52 @@ export class Ai {
         }
 
         // If target ship not found, fall back to scan data
-        if (!targetShip || !Number.isFinite(targetShip.LocationX) || !Number.isFinite(targetShip.LocationY)) {
+        if (!targetShip || !Number.isFinite(targetShip.locationX) || !Number.isFinite(targetShip.locationY)) {
             // Use scan data as fallback
-            const facing = Ship.normalizeAngle(Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
+            const facing = Ship.normalizeAngle(Number.isFinite(gameObject.facing) ? gameObject.facing : 0);
             const desiredFacing = Ship.normalizeAngle(target.bearingDegrees);
             const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
             const angleTolerance = 10;
-            const rotationVelocity = Math.abs(Number(gameObject.RotationVelocity) || 0);
-            const rotationDirection = gameObject.RotationDirection || 'None';
+            const rotationVelocity = Math.abs(Number(gameObject.rotationVelocity) || 0);
+            const rotationDirection = gameObject.rotationDirection || 'None';
             const rotationStopThreshold = 0.1;
 
             const desiredRotation = angleDelta > 0 ? 'Clockwise' : 'CounterClockwise';
 
             if (rotationDirection !== 'None' && rotationDirection !== desiredRotation && rotationVelocity > rotationStopThreshold) {
                 const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
-                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                commands.push({command: dampenCommand, targetId: gameObject.id});
                 return;
             }
 
             if (Math.abs(angleDelta) > angleTolerance) {
                 const rotateCommand = desiredRotation === 'Clockwise' ? 3 : 1;
-                commands.push({command: rotateCommand, targetId: gameObject.Id});
+                commands.push({command: rotateCommand, targetId: gameObject.id});
                 return;
             }
 
             if (rotationVelocity > rotationStopThreshold && rotationDirection !== 'None') {
                 const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
-                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                commands.push({command: dampenCommand, targetId: gameObject.id});
                 return;
             }
 
-            commands.push({command: 0, targetId: gameObject.Id});
+            commands.push({command: 0, targetId: gameObject.id});
             return;
         }
 
         // Calculate bearing from bot's current position to target's current position
-        const dx = targetShip.LocationX - gameObject.LocationX;
-        const dy = targetShip.LocationY - gameObject.LocationY;
+        const dx = targetShip.locationX - gameObject.locationX;
+        const dy = targetShip.locationY - gameObject.locationY;
         const bearingRadians = Math.atan2(dx, -dy);
         const bearingDegrees = bearingRadians * 180 / Math.PI;
 
-        const facing = Ship.normalizeAngle(Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
+        const facing = Ship.normalizeAngle(Number.isFinite(gameObject.facing) ? gameObject.facing : 0);
         const desiredFacing = Ship.normalizeAngle(bearingDegrees);
         const angleDelta = Ship.normalizeSignedAngle(desiredFacing - facing);
         const angleTolerance = 10;
-        const rotationVelocity = Math.abs(Number(gameObject.RotationVelocity) || 0);
-        const rotationDirection = gameObject.RotationDirection || 'None';
+        const rotationVelocity = Math.abs(Number(gameObject.rotationVelocity) || 0);
+        const rotationDirection = gameObject.rotationDirection || 'None';
         const rotationStopThreshold = 0.1;
 
         const desiredRotation = angleDelta > 0 ? 'Clockwise' : 'CounterClockwise';
@@ -371,7 +370,7 @@ export class Ai {
         // If rotating in wrong direction, dampen immediately
         if (rotationDirection !== 'None' && rotationDirection !== desiredRotation && rotationVelocity > rotationStopThreshold) {
             const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
-            commands.push({command: dampenCommand, targetId: gameObject.Id});
+            commands.push({command: dampenCommand, targetId: gameObject.id});
             return;
         }
 
@@ -380,11 +379,11 @@ export class Ai {
             // Always try to stop rotation when aligned, even if velocity is low
             if (rotationDirection !== 'None' && rotationVelocity > 0) {
                 const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
-                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                commands.push({command: dampenCommand, targetId: gameObject.id});
                 return;
             }
             // Aligned and stopped (rotationDirection is 'None' or velocity is 0), fire laser
-            commands.push({command: 0, targetId: gameObject.Id});
+            commands.push({command: 0, targetId: gameObject.id});
             return;
         }
 
@@ -401,25 +400,25 @@ export class Ai {
             // Also dampen if rotation velocity is already high (>= 2) to prevent excessive spinning
             if ((framesToAlign < 3 && rotationVelocity > 1) || rotationVelocity >= 2) {
                 const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
-                commands.push({command: dampenCommand, targetId: gameObject.Id});
+                commands.push({command: dampenCommand, targetId: gameObject.id});
                 return;
             }
             // Otherwise continue rotating (but only if velocity isn't too high)
             if (rotationVelocity < 2) {
                 const rotateCommand = desiredRotation === 'Clockwise' ? 3 : 1;
-                commands.push({command: rotateCommand, targetId: gameObject.Id});
+                commands.push({command: rotateCommand, targetId: gameObject.id});
                 return;
             }
             // Velocity is high but we're not close enough to dampen yet - don't issue command to let it coast
             // Actually, we should still dampen to prevent excessive velocity
             const dampenCommand = rotationDirection === 'Clockwise' ? 1 : 3;
-            commands.push({command: dampenCommand, targetId: gameObject.Id});
+            commands.push({command: dampenCommand, targetId: gameObject.id});
             return;
         }
 
         // Not rotating or rotating in wrong direction, start rotating
         const rotateCommand = desiredRotation === 'Clockwise' ? 3 : 1;
-        commands.push({command: rotateCommand, targetId: gameObject.Id});
+        commands.push({command: rotateCommand, targetId: gameObject.id});
     }
 
     getScanIntervalForMode(mode) {

@@ -6,93 +6,93 @@ export class Physics {
     static framesPerSecond = 60;
 
     static moveObjectAlongVector(GameObject) {
-        if (GameObject.Heading == 0)
+        if (GameObject.heading == 0)
         {
-            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / Physics.framesPerSecond;
+            GameObject.locationY = GameObject.locationY - GameObject.velocity / Physics.framesPerSecond;
         }
-        else if (GameObject.Heading == 90)
+        else if (GameObject.heading == 90)
         {
-            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / Physics.framesPerSecond;
+            GameObject.locationX = GameObject.locationX + GameObject.velocity / Physics.framesPerSecond;
         }
-        else if (GameObject.Heading == 180)
+        else if (GameObject.heading == 180)
         {
-            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / Physics.framesPerSecond;
+            GameObject.locationY = GameObject.locationY + GameObject.velocity / Physics.framesPerSecond;
         }
-        else if (GameObject.Heading == 270)
+        else if (GameObject.heading == 270)
         {
-            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / Physics.framesPerSecond;
+            GameObject.locationX = GameObject.locationX - GameObject.velocity / Physics.framesPerSecond;
         }
-        else if (GameObject.Heading < 90)
+        else if (GameObject.heading < 90)
         {
-            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / Physics.framesPerSecond * (Math.sin(GameObject.Heading * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / Physics.framesPerSecond * (Math.cos(GameObject.Heading * 0.0174532925));
+            GameObject.locationX = GameObject.locationX + GameObject.velocity / Physics.framesPerSecond * (Math.sin(GameObject.heading * 0.0174532925));
+            GameObject.locationY = GameObject.locationY - GameObject.velocity / Physics.framesPerSecond * (Math.cos(GameObject.heading * 0.0174532925));
         }
-        else if (GameObject.Heading < 180)
+        else if (GameObject.heading < 180)
         {
-            GameObject.LocationX = GameObject.LocationX + GameObject.Velocity / Physics.framesPerSecond * (Math.sin((180 - GameObject.Heading) * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / Physics.framesPerSecond * (Math.cos((180 - GameObject.Heading) * 0.0174532925));
+            GameObject.locationX = GameObject.locationX + GameObject.velocity / Physics.framesPerSecond * (Math.sin((180 - GameObject.heading) * 0.0174532925));
+            GameObject.locationY = GameObject.locationY + GameObject.velocity / Physics.framesPerSecond * (Math.cos((180 - GameObject.heading) * 0.0174532925));
         }
-        else if (GameObject.Heading < 270)
+        else if (GameObject.heading < 270)
         {
-            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / Physics.framesPerSecond * (Math.sin((GameObject.Heading - 180) * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY + GameObject.Velocity / Physics.framesPerSecond * (Math.cos((GameObject.Heading - 180) * 0.0174532925));
+            GameObject.locationX = GameObject.locationX - GameObject.velocity / Physics.framesPerSecond * (Math.sin((GameObject.heading - 180) * 0.0174532925));
+            GameObject.locationY = GameObject.locationY + GameObject.velocity / Physics.framesPerSecond * (Math.cos((GameObject.heading - 180) * 0.0174532925));
         }
         else
         {
-            GameObject.LocationX = GameObject.LocationX - GameObject.Velocity / Physics.framesPerSecond * (Math.sin((360 - GameObject.Heading) * 0.0174532925));
-            GameObject.LocationY = GameObject.LocationY - GameObject.Velocity / Physics.framesPerSecond * (Math.cos((360 - GameObject.Heading) * 0.0174532925));
+            GameObject.locationX = GameObject.locationX - GameObject.velocity / Physics.framesPerSecond * (Math.sin((360 - GameObject.heading) * 0.0174532925));
+            GameObject.locationY = GameObject.locationY - GameObject.velocity / Physics.framesPerSecond * (Math.cos((360 - GameObject.heading) * 0.0174532925));
         }
     }
 
     static findNewVelocity(GameObject, NewHeading, NewVelocity) {
     
-        const newXaxisComponent = Physics.getXaxisComponent(GameObject.Heading, GameObject.Velocity) + Physics.getXaxisComponent(NewHeading, NewVelocity);
-        const newYaxisComponent = Physics.getYaxisComponent(GameObject.Heading, GameObject.Velocity) + Physics.getYaxisComponent(NewHeading, NewVelocity);
+        const newXaxisComponent = Physics.getXaxisComponent(GameObject.heading, GameObject.velocity) + Physics.getXaxisComponent(NewHeading, NewVelocity);
+        const newYaxisComponent = Physics.getYaxisComponent(GameObject.heading, GameObject.velocity) + Physics.getYaxisComponent(NewHeading, NewVelocity);
 
         if (newXaxisComponent == 0 && newYaxisComponent == 0)
         {
-            GameObject.Heading = 0;
-            GameObject.Velocity = 0;
+            GameObject.heading = 0;
+            GameObject.velocity = 0;
         }
         else if (newXaxisComponent == 0 && newYaxisComponent < 0)
         {
-            GameObject.Heading = 0;
-            GameObject.Velocity = Math.abs(newYaxisComponent);
+            GameObject.heading = 0;
+            GameObject.velocity = Math.abs(newYaxisComponent);
         }
         else if (newXaxisComponent > 0 && newYaxisComponent == 0)
         {
-            GameObject.Heading = 90;
-            GameObject.Velocity = Math.abs(newXaxisComponent);
+            GameObject.heading = 90;
+            GameObject.velocity = Math.abs(newXaxisComponent);
         }
         else if (newXaxisComponent == 0 && newYaxisComponent > 0)
         {
-            GameObject.Heading = 180;
-            GameObject.Velocity = Math.abs(newYaxisComponent);
+            GameObject.heading = 180;
+            GameObject.velocity = Math.abs(newYaxisComponent);
         }
         else if (newXaxisComponent < 0 && newYaxisComponent == 0)
         {
-            GameObject.Heading = 270;
-            GameObject.Velocity = Math.abs(newXaxisComponent);
+            GameObject.heading = 270;
+            GameObject.velocity = Math.abs(newXaxisComponent);
         }
         else if (newXaxisComponent < 0 && newYaxisComponent < 0)
         {
-            GameObject.Velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
-            GameObject.Heading = 360 - Math.atan(newXaxisComponent / newYaxisComponent) / 0.0174532925;
+            GameObject.velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
+            GameObject.heading = 360 - Math.atan(newXaxisComponent / newYaxisComponent) / 0.0174532925;
         }
         else if (newXaxisComponent < 0 && newYaxisComponent > 0)
         {
-            GameObject.Velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
-            GameObject.Heading = (Math.atan(Math.abs(newXaxisComponent) / newYaxisComponent) / 0.0174532925) - 180;
+            GameObject.velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
+            GameObject.heading = (Math.atan(Math.abs(newXaxisComponent) / newYaxisComponent) / 0.0174532925) - 180;
         }
         else if (newXaxisComponent > 0 && newYaxisComponent < 0)
         {
-            GameObject.Velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
-            GameObject.Heading = Math.atan(newXaxisComponent / Math.abs(newYaxisComponent)) / 0.0174532925;
+            GameObject.velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
+            GameObject.heading = Math.atan(newXaxisComponent / Math.abs(newYaxisComponent)) / 0.0174532925;
         }
         else if (newXaxisComponent > 0 && newYaxisComponent > 0)
         {
-            GameObject.Velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
-            GameObject.Heading = 180 - Math.atan(newXaxisComponent / newYaxisComponent) / 0.0174532925;
+            GameObject.velocity = Math.sqrt(newXaxisComponent * newXaxisComponent + newYaxisComponent * newYaxisComponent);
+            GameObject.heading = 180 - Math.atan(newXaxisComponent / newYaxisComponent) / 0.0174532925;
         }
     }
 
@@ -232,25 +232,25 @@ export class Physics {
 
     static findNewFacing(GameObject) {
 
-        if (GameObject.RotationVelocity > 0) {
+        if (GameObject.rotationVelocity > 0) {
 
-            if (GameObject.RotationDirection == 'CounterClockwise') {
+            if (GameObject.rotationDirection == 'CounterClockwise') {
 
-                GameObject.Facing = GameObject.Facing - GameObject.RotationVelocity * 90 / Physics.framesPerSecond;
+                GameObject.facing = GameObject.facing - GameObject.rotationVelocity * 90 / Physics.framesPerSecond;
             }
             else {
 
-                GameObject.Facing = GameObject.Facing + GameObject.RotationVelocity * 90 / Physics.framesPerSecond;
+                GameObject.facing = GameObject.facing + GameObject.rotationVelocity * 90 / Physics.framesPerSecond;
             }
         }
 
-        if (GameObject.Facing < 0) {
+        if (GameObject.facing < 0) {
 
-            GameObject.Facing = 360 - GameObject.Facing * -1;
+            GameObject.facing = 360 - GameObject.facing * -1;
         }
-        else if (GameObject.Facing > 359) {
+        else if (GameObject.facing > 359) {
 
-            GameObject.Facing = GameObject.Facing - 360;
+            GameObject.facing = GameObject.facing - 360;
         }
     }
 

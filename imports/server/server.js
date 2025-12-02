@@ -184,22 +184,21 @@ Meteor.methods({
         const server = Server.getInstance();
         const shipTypeId = server ? server.resolveHumanShipType() : 'Viper';
         const playerId = Utilities.hashStringToUint32(this.connection.id);
-        let playerShip = new Ship(Engine.getNextGameObjectId());
-        playerShip.init({shipTypeId, pilotType: 'Human'});
+        let playerShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId, pilotType: 'Human'});
         playerShip.Name = name;
         playerShip.setStartingHumanPosition(mapRadius);
         gameObjects.push(playerShip);
 
         for (let i=0, j=gameObjects.length; i<j; i++) {
-            if (gameObjects[i].Type == 'Player') {
-                if (gameObjects[i].Id == playerId) {
-                    gameObjects[i].ShipId = playerShip.Id;
-                    gameObjects[i].Name = name;
+            if (gameObjects[i].type == 'Player') {
+                if (gameObjects[i].id == playerId) {
+                    gameObjects[i].shipId = playerShip.id;
+                    gameObjects[i].name = name;
                 }
             }
         }
 
-        return playerShip.Id;
+        return playerShip.id;
     },
 
     getPlayerId: function() {

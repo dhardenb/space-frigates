@@ -12,65 +12,68 @@ const AUTO_PILOT_ROTATION_THRESHOLD = 0.01;
 
 export class Ship {
 
-    constructor(id) {
-        this.Id = id;
-        this.Type = 'Ship';
+    constructor(id, {shipTypeId, pilotType = 'Human', aiProfile = null, initializeState = true} = {}) {
+        this.id = id;
+        this.type = 'Ship';
         this.shipTypeId = null;
         this.pilotType = 'Unknown';
         this.aiProfile = null;
-        this.Size = 0;
-        this.MaxHullStrength = 0;
-        this.ThrusterStrength = 0;
-        this.MaxThrusterStrength = 0;
-        this.PlasmaCannonStrength = 0;
-        this.MaxPlasmaCannonStrength = 0;
-        this.MaxCapacitor = 0;
-        this.Mass = 12000; // kilograms
-        this.ReactorOutputPerSecond = 10;
-        this.ThrusterEnergyPerSecond = Physics.framesPerSecond * 5; // preserves 5J/frame
-        this.LaserEnergyCost = 10;
-        this.LaserFuelCapacity = 30;
-        this.LaserFuelConsumptionRate = 30;
-        this.RotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
-        this.ThrusterForceProduced = this.Mass * 20 * Physics.framesPerSecond;
-        this.MaxShieldStrength = 100;
-        this.ShieldRechargeRate = 0.25;
-        this.ShieldDecayRate = 0.25;
+        this.size = 0;
+        this.maxHullStrength = 0;
+        this.thrusterStrength = 0;
+        this.maxThrusterStrength = 0;
+        this.plasmaCannonStrength = 0;
+        this.maxPlasmaCannonStrength = 0;
+        this.maxCapacitor = 0;
+        this.mass = 12000; // kilograms
+        this.reactorOutputPerSecond = 10;
+        this.thrusterEnergyPerSecond = Physics.framesPerSecond * 5; // preserves 5J/frame
+        this.laserEnergyCost = 10;
+        this.laserFuelCapacity = 30;
+        this.laserFuelConsumptionRate = 30;
+        this.rotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
+        this.thrusterForceProduced = this.mass * 20 * Physics.framesPerSecond;
+        this.maxShieldStrength = 100;
+        this.shieldRechargeRate = 0.25;
+        this.shieldDecayRate = 0.25;
         this.autoPilotEngaged = false;
         this.autoPilotFacingLocked = false;
         const shipCollisionSpec = COLLISION_DIMENSIONS.Ship;
         // Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
         this.collisionLengthMeters = shipCollisionSpec.length;
         this.collisionWidthMeters = shipCollisionSpec.width;
-    }       
 
-    init({shipTypeId, pilotType = 'Human', aiProfile = null} = {}) {
-        const definition = SHIP_TYPES[shipTypeId];
-        if (!definition) {
-            throw new Error(`Unknown ship type: ${shipTypeId}`);
+        // If shipTypeId is provided, configure the ship
+        if (shipTypeId) {
+            const definition = SHIP_TYPES[shipTypeId];
+            if (!definition) {
+                throw new Error(`Unknown ship type: ${shipTypeId}`);
+            }
+
+            this.shipTypeId = definition.id;
+            this.shipDisplayName = definition.displayName;
+            this.pilotType = pilotType;
+            this.aiProfile = aiProfile;
+
+            this.applyShipTypeDefaults();
+
+            // Initialize runtime state if requested (default true, false for deserialization)
+            if (initializeState) {
+                this.locationX = 0;
+                this.locationY = 0;
+                this.facing = 0;
+                this.heading = 0;
+                this.velocity = 0;
+                this.rotationDirection = "None";
+                this.rotationVelocity = 0;
+                this.shieldOn = 0;
+                this.shieldStatus = 0;
+                this.hullStrength = this.maxHullStrength;
+                this.capacitor = this.maxCapacitor;
+                this.autoPilotEngaged = false;
+                this.autoPilotFacingLocked = false;
+            }
         }
-
-        this.Type = 'Ship';
-        this.shipTypeId = definition.id;
-        this.shipDisplayName = definition.displayName;
-        this.pilotType = pilotType;
-        this.aiProfile = aiProfile;
-
-        this.applyShipTypeDefaults();
-
-        this.LocationX = 0;
-        this.LocationY = 0;
-        this.Facing = 0;
-        this.Heading = 0;
-        this.Velocity = 0;
-        this.RotationDirection = "None";
-        this.RotationVelocity = 0;
-        this.ShieldOn = 0;
-        this.ShieldStatus = 0;
-        this.HullStrength = this.MaxHullStrength;
-        this.Capacitor = this.MaxCapacitor;
-        this.autoPilotEngaged = false;
-        this.autoPilotFacingLocked = false;
     }
 
     applyShipTypeDefaults() {
@@ -81,26 +84,26 @@ export class Ship {
         if (!definition) {
             return;
         }
-        this.Size = definition.size;
+        this.size = definition.size;
         this.shipDisplayName = this.shipDisplayName || definition.displayName;
-        this.MaxHullStrength = definition.maxHullStrength;
-        this.ThrusterStrength = definition.thrusterStrength;
-        this.MaxThrusterStrength = definition.maxThrusterStrength;
-        this.PlasmaCannonStrength = definition.plasmaCannonStrength;
-        this.MaxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
-        this.MaxCapacitor = definition.maxCapacitor;
-        this.MaxShieldStrength = definition.maxShieldStrength ?? this.MaxShieldStrength;
-        this.ShieldRechargeRate = definition.shieldRechargeRate ?? this.ShieldRechargeRate;
-        this.ShieldDecayRate = definition.shieldDecayRate ?? this.ShieldDecayRate;
-        this.ReactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.ReactorOutputPerSecond;
-        this.LaserEnergyCost = definition.laserEnergyCost ?? this.LaserEnergyCost;
-        this.LaserFuelCapacity = definition.laserFuelCapacity ?? this.LaserFuelCapacity;
-        this.LaserFuelConsumptionRate = definition.laserFuelConsumptionRate ?? this.LaserFuelConsumptionRate;
-        this.ThrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.ThrusterEnergyPerSecond;
-        this.RotationEnergyPerSecond = definition.rotationEnergyPerSecond ?? this.RotationEnergyPerSecond;
-        this.Mass = definition.mass ?? this.Mass;
-        const defaultThrusterForce = this.Mass * 20 * Physics.framesPerSecond;
-        this.ThrusterForceProduced = definition.thrusterForceProduced ?? defaultThrusterForce;
+        this.maxHullStrength = definition.maxHullStrength;
+        this.thrusterStrength = definition.thrusterStrength;
+        this.maxThrusterStrength = definition.maxThrusterStrength;
+        this.plasmaCannonStrength = definition.plasmaCannonStrength;
+        this.maxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
+        this.maxCapacitor = definition.maxCapacitor;
+        this.maxShieldStrength = definition.maxShieldStrength ?? this.maxShieldStrength;
+        this.shieldRechargeRate = definition.shieldRechargeRate ?? this.shieldRechargeRate;
+        this.shieldDecayRate = definition.shieldDecayRate ?? this.shieldDecayRate;
+        this.reactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.reactorOutputPerSecond;
+        this.laserEnergyCost = definition.laserEnergyCost ?? this.laserEnergyCost;
+        this.laserFuelCapacity = definition.laserFuelCapacity ?? this.laserFuelCapacity;
+        this.laserFuelConsumptionRate = definition.laserFuelConsumptionRate ?? this.laserFuelConsumptionRate;
+        this.thrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.thrusterEnergyPerSecond;
+        this.rotationEnergyPerSecond = definition.rotationEnergyPerSecond ?? this.rotationEnergyPerSecond;
+        this.mass = definition.mass ?? this.mass;
+        const defaultThrusterForce = this.mass * 20 * Physics.framesPerSecond;
+        this.thrusterForceProduced = definition.thrusterForceProduced ?? defaultThrusterForce;
     }
 
     determineCurrentCommand(commands) {
@@ -119,7 +122,7 @@ export class Ship {
         let autoPilotRequested = false;
         let autoPilotCancelled = false;
         for(let x = 0, y = commands.length; x < y; x++) {
-            if (commands[x].targetId == this.Id) {
+            if (commands[x].targetId == this.id) {
                 const candidateCommand = commands[x].command;
                 if (candidateCommand === 'BRAKE_DOWN' || candidateCommand === 4 || candidateCommand === '4') {
                     autoPilotRequested = true;
@@ -163,14 +166,14 @@ export class Ship {
             return;
         }
 
-        const facing = Ship.normalizeAngle(Number.isFinite(this.Facing) ? this.Facing : 0);
-        const heading = Ship.normalizeAngle(Number.isFinite(this.Heading) ? this.Heading : 0);
+        const facing = Ship.normalizeAngle(Number.isFinite(this.facing) ? this.facing : 0);
+        const heading = Ship.normalizeAngle(Number.isFinite(this.heading) ? this.heading : 0);
         const targetFacing = Ship.normalizeAngle(heading + 180);
         const angleDelta = Ship.normalizeSignedAngle(targetFacing - facing);
         const absAngleDelta = Math.abs(angleDelta);
-        const velocityMagnitude = Math.abs(Number(this.Velocity) || 0);
-        const rotationMagnitude = Math.abs(Number(this.RotationVelocity) || 0);
-        const rotationSpeedLevel = Math.abs(Number(this.RotationVelocity) || 0);
+        const velocityMagnitude = Math.abs(Number(this.velocity) || 0);
+        const rotationMagnitude = Math.abs(Number(this.rotationVelocity) || 0);
+        const rotationSpeedLevel = Math.abs(Number(this.rotationVelocity) || 0);
 
         if (velocityMagnitude <= AUTO_PILOT_VELOCITY_THRESHOLD && rotationMagnitude <= AUTO_PILOT_ROTATION_THRESHOLD) {
             this.disableAutoPilot();
@@ -184,8 +187,8 @@ export class Ship {
 
         if (velocityMagnitude > AUTO_PILOT_VELOCITY_THRESHOLD && !this.autoPilotFacingLocked && absAngleDelta > AUTO_PILOT_ANGLE_TOLERANCE_DEGREES) {
             const desiredDirection = angleDelta > 0 ? 'CounterClockwise' : 'Clockwise';
-            const rotationDirection = this.RotationDirection || 'None';
-            const rotationVelocity = Number(this.RotationVelocity) || 0;
+            const rotationDirection = this.rotationDirection || 'None';
+            const rotationVelocity = Number(this.rotationVelocity) || 0;
             const needsKickstart = rotationDirection === 'None' || rotationVelocity <= AUTO_PILOT_ROTATION_THRESHOLD;
             const rotatingSameWay = rotationDirection === desiredDirection;
             if (needsKickstart || rotatingSameWay) {
@@ -194,12 +197,12 @@ export class Ship {
             return;
         }
 
-        if (!this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.RotationDirection !== 'None') {
+        if (!this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.rotationDirection !== 'None') {
             this.dampenRotation();
             return;
         }
 
-        if (this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.RotationDirection !== 'None') {
+        if (this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.rotationDirection !== 'None') {
             this.dampenRotation();
             return;
         }
@@ -211,10 +214,10 @@ export class Ship {
                 if (!this.autoPilotFacingLocked) {
                     this.autoPilotFacingLocked = true;
                 }
-                const newVelocityMagnitude = Math.abs(Number(this.Velocity) || 0);
+                const newVelocityMagnitude = Math.abs(Number(this.velocity) || 0);
                 if (newVelocityMagnitude >= previousVelocity) {
-                    this.Velocity = 0;
-                    this.Heading = this.Facing;
+                    this.velocity = 0;
+                    this.heading = this.facing;
                 }
             }
             return;
@@ -257,22 +260,22 @@ export class Ship {
         // now we assume infinite fuel so it simply tops off the capacitor at a
         // fixed joules-per-second rate.
         ///////////////////////////////////////////////////////////////////////////
-        const reactorOutputPerSecond = this.ReactorOutputPerSecond || 10;
-        const capacitorCapacity = this.MaxCapacitor || 100;
-        if (this.Capacitor < capacitorCapacity) {
+        const reactorOutputPerSecond = this.reactorOutputPerSecond || 10;
+        const capacitorCapacity = this.maxCapacitor || 100;
+        if (this.capacitor < capacitorCapacity) {
             const regenAmount = reactorOutputPerSecond / framesPerSecond;
-            this.Capacitor = Math.min(capacitorCapacity, this.Capacitor + regenAmount);
+            this.capacitor = Math.min(capacitorCapacity, this.capacitor + regenAmount);
         }
     }
 
     fireLaser() {
         if (this.currentCommand == 0) {
             let activateLaser;
-            if (this.Capacitor >= this.LaserEnergyCost) {
-                this.Capacitor -= this.LaserEnergyCost; // BAD! Should be with respect to time!!!
+            if (this.capacitor >= this.laserEnergyCost) {
+                this.capacitor -= this.laserEnergyCost; // BAD! Should be with respect to time!!!
                 activateLaser = true;
-            } else if (this.ShieldStatus >= 20) {
-                this.ShieldStatus -= 20; // BAD! Should be with respect to time!!!
+            } else if (this.shieldStatus >= 20) {
+                this.shieldStatus -= 20; // BAD! Should be with respect to time!!!
                 activateLaser = true;
             } else {
                 activateLaser = false;
@@ -322,45 +325,45 @@ export class Ship {
 
     updateShields() {
         if (this.currentCommand == 5) {
-            if (this.ShieldOn == 0) {
-                this.ShieldOn = 1; 
+            if (this.shieldOn == 0) {
+                this.shieldOn = 1; 
             } else {
-                this.ShieldOn = 0;
+                this.shieldOn = 0;
             }
         }
-        const rechargeRate = this.ShieldRechargeRate;
-        const decayRate = this.ShieldDecayRate;
-        const maxShield = this.MaxShieldStrength;
-        if (this.ShieldOn == 1) {
-            if (this.ShieldStatus < maxShield && this.Capacitor >= rechargeRate) {
-                this.ShieldStatus = this.ShieldStatus + rechargeRate; // BAD! Should be with respect to time!!!
-                this.Capacitor = this.Capacitor - rechargeRate; // BAD! Should be with respect to time!!!
-            } else if (this.ShieldStatus >= maxShield && this.Capacitor >= rechargeRate / 2) {
-                this.Capacitor = this.Capacitor - rechargeRate / 2; // BAD! Should be with respect to time!!!
-            } else if (this.ShieldStatus >= rechargeRate && this.Capacitor < rechargeRate) {
-                this.ShieldStatus -= rechargeRate; // BAD! Should be with respect to time!!!
+        const rechargeRate = this.shieldRechargeRate;
+        const decayRate = this.shieldDecayRate;
+        const maxShield = this.maxShieldStrength;
+        if (this.shieldOn == 1) {
+            if (this.shieldStatus < maxShield && this.capacitor >= rechargeRate) {
+                this.shieldStatus = this.shieldStatus + rechargeRate; // BAD! Should be with respect to time!!!
+                this.capacitor = this.capacitor - rechargeRate; // BAD! Should be with respect to time!!!
+            } else if (this.shieldStatus >= maxShield && this.capacitor >= rechargeRate / 2) {
+                this.capacitor = this.capacitor - rechargeRate / 2; // BAD! Should be with respect to time!!!
+            } else if (this.shieldStatus >= rechargeRate && this.capacitor < rechargeRate) {
+                this.shieldStatus -= rechargeRate; // BAD! Should be with respect to time!!!
             }
         }
-        if (this.ShieldOn == 0) {
-            if (this.ShieldStatus >= decayRate) {
-                this.ShieldStatus = this.ShieldStatus - decayRate; // BAD! Should be with respect to time!!!
-                if (this.Capacitor <= this.MaxCapacitor - decayRate / 2) {
-                    this.Capacitor += decayRate / 2; // BAD! Should be with respect to time!!!
+        if (this.shieldOn == 0) {
+            if (this.shieldStatus >= decayRate) {
+                this.shieldStatus = this.shieldStatus - decayRate; // BAD! Should be with respect to time!!!
+                if (this.capacitor <= this.maxCapacitor - decayRate / 2) {
+                    this.capacitor += decayRate / 2; // BAD! Should be with respect to time!!!
                 }
             } else {
-                this.ShieldStatus = 0;
+                this.shieldStatus = 0;
             }
         }
-        if (this.ShieldStatus > maxShield) {
-            this.ShieldStatus = maxShield;
-        } else if (this.ShieldStatus < 0)  {
-            this.ShieldStatus = 0
+        if (this.shieldStatus > maxShield) {
+            this.shieldStatus = maxShield;
+        } else if (this.shieldStatus < 0)  {
+            this.shieldStatus = 0
         }
     }
 
     updateVelocity() {
-        if (this.Velocity < 0) {
-            this.Velocity = 0;
+        if (this.velocity < 0) {
+            this.velocity = 0;
         }
     }
 
@@ -392,41 +395,41 @@ export class Ship {
         const angle = Math.floor(Math.random() * 360);
         const distanceFromCenter = mapRadius / 2;
         if (angle == 0) {
-            this.LocationX = 0;
-            this.LocationY = distanceFromCenter * -1;
+            this.locationX = 0;
+            this.locationY = distanceFromCenter * -1;
         }
         else if (angle == 90) {
-            this.LocationX = distanceFromCenter;
-            this.LocationY = 0;
+            this.locationX = distanceFromCenter;
+            this.locationY = 0;
         }
         else if (angle == 180) {
-            this.LocationX = 0;
-            this.LocationY = distanceFromCenter;
+            this.locationX = 0;
+            this.locationY = distanceFromCenter;
         }
         else if (angle == 270) {
-            this.LocationX = distanceFromCenter * -1;
-            this.LocationY = 0;
+            this.locationX = distanceFromCenter * -1;
+            this.locationY = 0;
         }
         else if (angle < 90) {
-            this.LocationX = distanceFromCenter * Math.sin(angle * 0.0174532925);
-            this.LocationY = distanceFromCenter * Math.cos(angle * 0.0174532925) * -1;
+            this.locationX = distanceFromCenter * Math.sin(angle * 0.0174532925);
+            this.locationY = distanceFromCenter * Math.cos(angle * 0.0174532925) * -1;
         }
         else if (angle < 180) {
-            this.LocationX = distanceFromCenter * Math.sin((180 - angle) * 0.0174532925);
-            this.LocationY = distanceFromCenter * Math.cos((180 - angle) * 0.0174532925);
+            this.locationX = distanceFromCenter * Math.sin((180 - angle) * 0.0174532925);
+            this.locationY = distanceFromCenter * Math.cos((180 - angle) * 0.0174532925);
         }
         else if (angle < 270) {
-            this.LocationX = distanceFromCenter * Math.sin((angle - 180) * 0.0174532925) * -1;
-            this.LocationY = distanceFromCenter * Math.cos((angle - 180) * 0.0174532925);
+            this.locationX = distanceFromCenter * Math.sin((angle - 180) * 0.0174532925) * -1;
+            this.locationY = distanceFromCenter * Math.cos((angle - 180) * 0.0174532925);
         }
         else { // 360
-            this.LocationX = distanceFromCenter * Math.sin((360 - angle) * 0.0174532925) * -1;
-            this.LocationY = distanceFromCenter * Math.cos((360 - angle) * 0.0174532925) * -1;
+            this.locationX = distanceFromCenter * Math.sin((360 - angle) * 0.0174532925) * -1;
+            this.locationY = distanceFromCenter * Math.cos((360 - angle) * 0.0174532925) * -1;
         }
         // NOTE: I want to change this so that the starting facing of the ship is
         // oppostie the angle of it's starting postion relative to the center of the
         // map
-        this.Facing = Math.random()*360+1;
+        this.facing = Math.random()*360+1;
     }
 
     // I'll have to modify this to take in the players starting position...
@@ -434,41 +437,41 @@ export class Ship {
         const angle = Math.floor(Math.random() * 360);
         const distanceFromCenter = Math.floor(Math.random() * mapRadius);
         if (angle == 0) {
-            this.LocationX = 0;
-            this.LocationY = distanceFromCenter * -1;
+            this.locationX = 0;
+            this.locationY = distanceFromCenter * -1;
         }
         else if (angle == 90) {
-            this.LocationX = distanceFromCenter;
-            this.LocationY = 0;
+            this.locationX = distanceFromCenter;
+            this.locationY = 0;
         }
         else if (angle == 180) {
-            this.LocationX = 0;
-            this.LocationY = distanceFromCenter;
+            this.locationX = 0;
+            this.locationY = distanceFromCenter;
         }
         else if (angle == 270) {
-            this.LocationX = distanceFromCenter * -1;
-            this.LocationY = 0;
+            this.locationX = distanceFromCenter * -1;
+            this.locationY = 0;
         }
         else if (angle < 90) {
-            this.LocationX = distanceFromCenter * Math.sin(angle * 0.0174532925);
-            this.LocationY = distanceFromCenter * Math.cos(angle * 0.0174532925) * -1;
+            this.locationX = distanceFromCenter * Math.sin(angle * 0.0174532925);
+            this.locationY = distanceFromCenter * Math.cos(angle * 0.0174532925) * -1;
         }
         else if (angle < 180) {
-            this.LocationX = distanceFromCenter * Math.sin((180 - angle) * 0.0174532925);
-            this.LocationY = distanceFromCenter * Math.cos((180 - angle) * 0.0174532925);
+            this.locationX = distanceFromCenter * Math.sin((180 - angle) * 0.0174532925);
+            this.locationY = distanceFromCenter * Math.cos((180 - angle) * 0.0174532925);
         }
         else if (angle < 270) {
-            this.LocationX = distanceFromCenter * Math.sin((angle - 180) * 0.0174532925) * -1;
-            this.LocationY = distanceFromCenter * Math.cos((angle - 180) * 0.0174532925);
+            this.locationX = distanceFromCenter * Math.sin((angle - 180) * 0.0174532925) * -1;
+            this.locationY = distanceFromCenter * Math.cos((angle - 180) * 0.0174532925);
         }
         else { // 360
-            this.LocationX = distanceFromCenter * Math.sin((360 - angle) * 0.0174532925) * -1;
-            this.LocationY = distanceFromCenter * Math.cos((360 - angle) * 0.0174532925) * -1;
+            this.locationX = distanceFromCenter * Math.sin((360 - angle) * 0.0174532925) * -1;
+            this.locationY = distanceFromCenter * Math.cos((360 - angle) * 0.0174532925) * -1;
         }
         // NOTE: I want to change this so that the starting facing of the ship is
         // oppostie the angle of it's starting postion relative to the center of the
         // map
-        this.Facing = Math.random()*360+1;
+        this.facing = Math.random()*360+1;
     }
 
     takeDamage(damage) {
@@ -476,31 +479,31 @@ export class Ship {
             return;
         }
 
-        const shieldAbsorbed = Math.min(this.ShieldStatus, damage);
-        this.ShieldStatus -= shieldAbsorbed;
+        const shieldAbsorbed = Math.min(this.shieldStatus, damage);
+        this.shieldStatus -= shieldAbsorbed;
 
         const remainingDamage = damage - shieldAbsorbed;
         if (remainingDamage <= 0) {
             return;
         }
 
-        const hullDamage = Math.min(remainingDamage, this.HullStrength);
+        const hullDamage = Math.min(remainingDamage, this.hullStrength);
         if (hullDamage <= 0) {
             return;
         }
 
-        this.HullStrength -= hullDamage;
+        this.hullStrength -= hullDamage;
         this.checkForComponentDamage();
     }
 
     applyForwardThrust() {
-        const energyPerFrame = this.ThrusterEnergyPerSecond / Physics.framesPerSecond;
+        const energyPerFrame = this.thrusterEnergyPerSecond / Physics.framesPerSecond;
         let activateThruster = false;
-        if (this.Capacitor >= energyPerFrame) {
-            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+        if (this.capacitor >= energyPerFrame) {
+            this.capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
             activateThruster = true;
-        } else if (this.ShieldStatus >= 10) {
-            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+        } else if (this.shieldStatus >= 10) {
+            this.shieldStatus -= 10; // BAD! Should be with respect to time!!!
             activateThruster = true;
         }
 
@@ -508,26 +511,26 @@ export class Ship {
             return false;
         }
 
-        const mass = this.Mass || 1;
-        const thrustForce = this.ThrusterForceProduced || 0;
+        const mass = this.mass || 1;
+        const thrustForce = this.thrusterForceProduced || 0;
         const acceleration = thrustForce / mass;
         const velocityBoost = acceleration / Physics.framesPerSecond;
-        Physics.findNewVelocity(this, this.Facing, velocityBoost);
+        Physics.findNewVelocity(this, this.facing, velocityBoost);
         const newThruster = new Thruster(Engine.getNextGameObjectId());
-        const facing = (this.Facing + 180) % 360;
+        const facing = (this.facing + 180) % 360;
         newThruster.init(this, {facing});
         gameObjects.push(newThruster);
         return true;
     }
 
     applyRetrogradeThrust() {
-        const energyPerFrame = this.ThrusterEnergyPerSecond / 2 / Physics.framesPerSecond;
+        const energyPerFrame = this.thrusterEnergyPerSecond / 2 / Physics.framesPerSecond;
         let activateThruster = false;
-        if (this.Capacitor >= energyPerFrame) {
-            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+        if (this.capacitor >= energyPerFrame) {
+            this.capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
             activateThruster = true;
-        } else if (this.ShieldStatus >= 10) {
-            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+        } else if (this.shieldStatus >= 10) {
+            this.shieldStatus -= 10; // BAD! Should be with respect to time!!!
             activateThruster = true;
         }
 
@@ -535,24 +538,24 @@ export class Ship {
             return false;
         }
 
-        const mass = this.Mass || 1;
-        const thrustForce = (this.ThrusterForceProduced || 0) / 2;
+        const mass = this.mass || 1;
+        const thrustForce = (this.thrusterForceProduced || 0) / 2;
         const acceleration = thrustForce / mass;
         const velocityBoost = acceleration / Physics.framesPerSecond;
-        const retroFacing = (this.Facing + 180) % 360;
+        const retroFacing = (this.facing + 180) % 360;
         Physics.findNewVelocity(this, retroFacing, velocityBoost);
         this.spawnRetrogradeThrusters();
         return true;
     }
 
     applyLateralThrust(direction) {
-        const energyPerFrame = this.ThrusterEnergyPerSecond / 2 / Physics.framesPerSecond;
+        const energyPerFrame = this.thrusterEnergyPerSecond / 2 / Physics.framesPerSecond;
         let activateThruster = false;
-        if (this.Capacitor >= energyPerFrame) {
-            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+        if (this.capacitor >= energyPerFrame) {
+            this.capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
             activateThruster = true;
-        } else if (this.ShieldStatus >= 10) {
-            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+        } else if (this.shieldStatus >= 10) {
+            this.shieldStatus -= 10; // BAD! Should be with respect to time!!!
             activateThruster = true;
         }
 
@@ -560,43 +563,43 @@ export class Ship {
             return false;
         }
 
-        const mass = this.Mass || 1;
-        const thrustForce = (this.ThrusterForceProduced || 0) / 2;
+        const mass = this.mass || 1;
+        const thrustForce = (this.thrusterForceProduced || 0) / 2;
         const acceleration = thrustForce / mass;
         const velocityBoost = acceleration / Physics.framesPerSecond;
         const angleOffset = direction === 'Left' ? 90 : -90;
-        const lateralFacing = Ship.normalizeAngle(this.Facing + angleOffset);
+        const lateralFacing = Ship.normalizeAngle(this.facing + angleOffset);
         Physics.findNewVelocity(this, lateralFacing, velocityBoost);
         this.spawnLateralThrusters(direction, lateralFacing);
         return true;
     }
 
     applyRotationThrust(direction) {
-        const energyPerFrame = this.RotationEnergyPerSecond / Physics.framesPerSecond;
+        const energyPerFrame = this.rotationEnergyPerSecond / Physics.framesPerSecond;
         let activate = false;
-        if (this.Capacitor >= energyPerFrame) {
-            this.Capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
+        if (this.capacitor >= energyPerFrame) {
+            this.capacitor -= energyPerFrame; // BAD! Should be with respect to time!!!
             activate = true;
-        } else if (this.ShieldStatus >= 10) {
-            this.ShieldStatus -= 10; // BAD! Should be with respect to time!!!
+        } else if (this.shieldStatus >= 10) {
+            this.shieldStatus -= 10; // BAD! Should be with respect to time!!!
             activate = true;
         }
 
         if (!activate) {
             return false;
         }
-        if (this.RotationDirection == 'None') {
-            this.RotationDirection = direction;
-            this.RotationVelocity = 1;
-        } else if (this.RotationDirection == direction) {
-            if (this.RotationVelocity < 3) {
-                this.RotationVelocity = this.RotationVelocity + 1; // BAD! Should be with respect to time!!!
+        if (this.rotationDirection == 'None') {
+            this.rotationDirection = direction;
+            this.rotationVelocity = 1;
+        } else if (this.rotationDirection == direction) {
+            if (this.rotationVelocity < 3) {
+                this.rotationVelocity = this.rotationVelocity + 1; // BAD! Should be with respect to time!!!
             }
         } else {
-            this.RotationVelocity = this.RotationVelocity - 1; // BAD! Should be with respect to time!!!
-            if (this.RotationVelocity <= 0) {
-                this.RotationVelocity = 0;
-                this.RotationDirection = 'None';
+            this.rotationVelocity = this.rotationVelocity - 1; // BAD! Should be with respect to time!!!
+            if (this.rotationVelocity <= 0) {
+                this.rotationVelocity = 0;
+                this.rotationDirection = 'None';
             }
         }
 
@@ -610,7 +613,7 @@ export class Ship {
     }
 
     calculateOffsetFromShip(forwardOffset, rightOffset) {
-        const facingRadians = this.Facing * 0.0174532925;
+        const facingRadians = this.facing * 0.0174532925;
         const forwardX = Math.sin(facingRadians);
         const forwardY = -Math.cos(facingRadians);
         const rightX = Math.cos(facingRadians);
@@ -629,27 +632,27 @@ export class Ship {
     }
 
     spawnRotationThrusters(clockwise = true) {
-        const forwardOffset = this.Size * 0.5;
-        const sideOffset = this.Size * 0.35;
+        const forwardOffset = this.size * 0.5;
+        const sideOffset = this.size * 0.35;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
 
         const positions = clockwise ? [
-            {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: (this.Facing - 90 + 360) % 360},
-            {offset: this.calculateOffsetFromShip(-forwardOffset, sideOffset), facing: (this.Facing + 90) % 360},
+            {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: (this.facing - 90 + 360) % 360},
+            {offset: this.calculateOffsetFromShip(-forwardOffset, sideOffset), facing: (this.facing + 90) % 360},
         ] : [
-            {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: (this.Facing + 90) % 360},
-            {offset: this.calculateOffsetFromShip(-forwardOffset, -sideOffset), facing: (this.Facing - 90 + 360) % 360},
+            {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: (this.facing + 90) % 360},
+            {offset: this.calculateOffsetFromShip(-forwardOffset, -sideOffset), facing: (this.facing - 90 + 360) % 360},
         ];
 
         positions.forEach(({offset, facing}) => this.spawnThrusterAt(offset, facing, thrusterSize));
     }
 
     spawnRetrogradeThrusters() {
-        const sideOffset = this.Size * 0.3;
+        const sideOffset = this.size * 0.3;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
-        const forwardOffset = this.Size * 0.15 + thrusterSize * 0.75;
+        const forwardOffset = this.size * 0.15 + thrusterSize * 0.75;
 
-        const retroThrusterFacing = this.Facing;
+        const retroThrusterFacing = this.facing;
         const positions = [
             {offset: this.calculateOffsetFromShip(forwardOffset, -sideOffset), facing: retroThrusterFacing},
             {offset: this.calculateOffsetFromShip(forwardOffset, sideOffset), facing: retroThrusterFacing},
@@ -659,10 +662,10 @@ export class Ship {
     }
 
     spawnLateralThrusters(direction, thrustFacing) {
-        const sideOffsetMagnitude = this.Size * 0.35;
+        const sideOffsetMagnitude = this.size * 0.35;
         const sideOffset = direction === 'Left' ? -sideOffsetMagnitude : sideOffsetMagnitude;
         const thrusterSize = Thruster.DEFAULT_SIZE / 3;
-        const forwardOffset = this.Size * 0.2 + thrusterSize * 0.5;
+        const forwardOffset = this.size * 0.2 + thrusterSize * 0.5;
         const thrusterFacing = Ship.normalizeAngle(thrustFacing + 180);
 
         const positions = [
@@ -674,20 +677,20 @@ export class Ship {
     }
 
     dampenRotation() {
-        if (this.RotationVelocity <= 0 || this.RotationDirection == 'None') {
-            this.RotationVelocity = 0;
-            this.RotationDirection = 'None';
+        if (this.rotationVelocity <= 0 || this.rotationDirection == 'None') {
+            this.rotationVelocity = 0;
+            this.rotationDirection = 'None';
             return true;
         }
-        const opposing = this.RotationDirection == 'Clockwise' ? 'CounterClockwise' : 'Clockwise';
+        const opposing = this.rotationDirection == 'Clockwise' ? 'CounterClockwise' : 'Clockwise';
         return this.applyRotationThrust(opposing);
     }
 
     checkForComponentDamage() {
-        if (this.HullStrength / this.MaxHullStrength <= .33) {
+        if (this.hullStrength / this.maxHullStrength <= .33) {
             // Something is taking damage!!!
         }
-        else if (this.HullStrength / this.MaxHullStrength <= .66) {
+        else if (this.hullStrength / this.maxHullStrength <= .66) {
             // Something might take damage!!!
         }
     }

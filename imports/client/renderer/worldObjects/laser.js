@@ -1,19 +1,19 @@
 export function renderLaser(map, laser, worldPixelsPerMeter) {
     map.save();
 
-    map.translate(laser.LocationX * worldPixelsPerMeter, laser.LocationY * worldPixelsPerMeter);
+    map.translate(laser.locationX * worldPixelsPerMeter, laser.locationY * worldPixelsPerMeter);
 
-    map.rotate(laser.Facing * Math.PI / 180);
+    map.rotate(laser.facing * Math.PI / 180);
 
-    map.scale(laser.Size * worldPixelsPerMeter, laser.Size * worldPixelsPerMeter);
+    map.scale(laser.size * worldPixelsPerMeter, laser.size * worldPixelsPerMeter);
 
-    const maxFuel = laser.MaxFuel || 1;
+    const maxFuel = laser.maxFuel || 1;
 
-    map.strokeStyle = `rgba(255, 255, 255, ${laser.Fuel / maxFuel})`;
+    map.strokeStyle = `rgba(255, 255, 255, ${laser.fuel / maxFuel})`;
 
     map.lineWidth = 0.1;
 
-    map.fillStyle = `rgba(0, 255, 255, ${laser.Fuel / maxFuel})`;
+    map.fillStyle = `rgba(0, 255, 255, ${laser.fuel / maxFuel})`;
 
     map.beginPath();
 

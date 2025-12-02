@@ -379,18 +379,18 @@ export class DebugOverlay {
 
     extractShipAttributes(ship) {
         return {
-            mass: Number(ship.Mass) || 0,
-            maxCapacitor: Number(ship.MaxCapacitor) || 0,
-            reactorOutputPerSecond: Number(ship.ReactorOutputPerSecond) || 0,
-            thrusterEnergyPerSecond: Number(ship.ThrusterEnergyPerSecond) || 0,
-            thrusterForceProduced: Number(ship.ThrusterForceProduced) || 0,
-            rotationEnergyPerSecond: Number(ship.RotationEnergyPerSecond) || 0,
-            laserEnergyCost: Number(ship.LaserEnergyCost) || 0,
-            laserFuelCapacity: Number(ship.LaserFuelCapacity) || 0,
-            laserFuelConsumptionRate: Number(ship.LaserFuelConsumptionRate) || 0,
-            maxShieldStrength: Number(ship.MaxShieldStrength) || 0,
-            shieldRechargeRate: Number(ship.ShieldRechargeRate) || 0,
-            shieldDecayRate: Number(ship.ShieldDecayRate) || 0
+            mass: Number(ship.mass) || 0,
+            maxCapacitor: Number(ship.maxCapacitor) || 0,
+            reactorOutputPerSecond: Number(ship.reactorOutputPerSecond) || 0,
+            thrusterEnergyPerSecond: Number(ship.thrusterEnergyPerSecond) || 0,
+            thrusterForceProduced: Number(ship.thrusterForceProduced) || 0,
+            rotationEnergyPerSecond: Number(ship.rotationEnergyPerSecond) || 0,
+            laserEnergyCost: Number(ship.laserEnergyCost) || 0,
+            laserFuelCapacity: Number(ship.laserFuelCapacity) || 0,
+            laserFuelConsumptionRate: Number(ship.laserFuelConsumptionRate) || 0,
+            maxShieldStrength: Number(ship.maxShieldStrength) || 0,
+            shieldRechargeRate: Number(ship.shieldRechargeRate) || 0,
+            shieldDecayRate: Number(ship.shieldDecayRate) || 0
         };
     }
 

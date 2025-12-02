@@ -43,7 +43,7 @@ export class Engine {
     collisionDetection() {
         const solidObjects = this.findSolidObjects();
         // Run colision detection for each solidObject
-        const isShip = (obj) => obj && obj.Type === 'Ship';
+        const isShip = (obj) => obj && obj.type === 'Ship';
 
         for (let i = 0, j = solidObjects.length; i < j; i++) {
             for (let k = i + 1, l = solidObjects.length; k < l; k++) {
@@ -67,9 +67,9 @@ export class Engine {
         }
 
         // Fallback to legacy radius check if bounding box data is unavailable
-        const deltaX = (objectA.LocationX || 0) - (objectB.LocationX || 0);
-        const deltaY = (objectA.LocationY || 0) - (objectB.LocationY || 0);
-        const radiusSum = (objectA.Size || 0) / 2 + (objectB.Size || 0) / 2;
+        const deltaX = (objectA.locationX || 0) - (objectB.locationX || 0);
+        const deltaY = (objectA.locationY || 0) - (objectB.locationY || 0);
+        const radiusSum = (objectA.size || 0) / 2 + (objectB.size || 0) / 2;
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY) < radiusSum;
     }
 
@@ -78,15 +78,15 @@ export class Engine {
             return null;
         }
         const spec = this.getBoundingBoxSpec(gameObject);
-        const centerX = Number(gameObject.LocationX);
-        const centerY = Number(gameObject.LocationY);
+        const centerX = Number(gameObject.locationX);
+        const centerY = Number(gameObject.locationY);
         if (!Number.isFinite(centerX) || !Number.isFinite(centerY)) {
             return null;
         }
 
-        const headingDegrees = Number.isFinite(gameObject.Heading)
-            ? gameObject.Heading
-            : (Number.isFinite(gameObject.Facing) ? gameObject.Facing : 0);
+        const headingDegrees = Number.isFinite(gameObject.heading)
+            ? gameObject.heading
+            : (Number.isFinite(gameObject.facing) ? gameObject.facing : 0);
         const headingRadians = headingDegrees * Math.PI / 180;
 
         const axisLength = this.normalizeAxis({
@@ -118,12 +118,12 @@ export class Engine {
             return {length: objectLength, width: objectWidth};
         }
 
-        const explicitSpec = COLLISION_BOX_SPECS[gameObject.Type];
+        const explicitSpec = COLLISION_BOX_SPECS[gameObject.type];
         if (explicitSpec) {
             return explicitSpec;
         }
 
-        const fallbackSize = Number(gameObject.Size) || 1;
+        const fallbackSize = Number(gameObject.size) || 1;
         return {length: fallbackSize, width: fallbackSize};
     }
 
@@ -190,41 +190,41 @@ export class Engine {
             // the amount of fuel remaining. So, the amount of damage
             // done by the laser is reduced the farther it travels.
             // NOTE: Once a laser runs out of fuel it disappears
-            const damage = laser.Fuel;
+            const damage = laser.fuel;
             target.takeDamage(damage);
             this.createLaserExplosion(laser);
-            if (target.HullStrength <= 0) {
-                if (target.Type !== 'Debris') {
+            if (target.hullStrength <= 0) {
+                if (target.type !== 'Debris') {
                     this.createDebris(target);
                 }
                 this.createExplosion(target);
                 this.deadObjects.push(target);
-                if (target.Type === 'Ship') {
-                    this.scoreDeath(target.Id);
-                    this.scoreKill(laser.Owner);
+                if (target.type === 'Ship') {
+                    this.scoreDeath(target.id);
+                    this.scoreKill(laser.owner);
                     this.recordShipDestroyed(target);
                 }
             }
             return true;
         };
 
-        if (objectA.Type === 'Laser' && isShip(objectB)) {
+        if (objectA.type === 'Laser' && isShip(objectB)) {
             return laserHitsTarget(objectA, objectB);
         }
-        if (objectB.Type === 'Laser' && isShip(objectA)) {
+        if (objectB.type === 'Laser' && isShip(objectA)) {
             return laserHitsTarget(objectB, objectA);
         }
-        if (objectA.Type === 'Laser' && objectB.Type === 'Debris') {
+        if (objectA.type === 'Laser' && objectB.type === 'Debris') {
             return laserHitsTarget(objectA, objectB);
         }
-        if (objectB.Type === 'Laser' && objectA.Type === 'Debris') {
+        if (objectB.type === 'Laser' && objectA.type === 'Debris') {
             return laserHitsTarget(objectB, objectA);
         }
         return false;
     }
 
     isLaserLaserCollision(objectA, objectB) {
-        if (objectA.Type !== 'Laser' || objectB.Type !== 'Laser') {
+        if (objectA.type !== 'Laser' || objectB.type !== 'Laser') {
             return false;
         }
 
@@ -237,20 +237,20 @@ export class Engine {
         if (!objectA || !objectB) {
             return;
         }
-        if (!objectA.Mass || !objectB.Mass) {
+        if (!objectA.mass || !objectB.mass) {
             return;
         }
 
-        const normalX = objectB.LocationX - objectA.LocationX;
-        const normalY = objectB.LocationY - objectA.LocationY;
+        const normalX = objectB.locationX - objectA.locationX;
+        const normalY = objectB.locationY - objectA.locationY;
         const normalMagnitude = Math.sqrt(normalX * normalX + normalY * normalY) || 1;
         const unitNormalX = normalX / normalMagnitude;
         const unitNormalY = normalY / normalMagnitude;
 
-        const velocityAX = Physics.getXaxisComponent(objectA.Heading, objectA.Velocity);
-        const velocityAY = Physics.getYaxisComponent(objectA.Heading, objectA.Velocity);
-        const velocityBX = Physics.getXaxisComponent(objectB.Heading, objectB.Velocity);
-        const velocityBY = Physics.getYaxisComponent(objectB.Heading, objectB.Velocity);
+        const velocityAX = Physics.getXaxisComponent(objectA.heading, objectA.velocity);
+        const velocityAY = Physics.getYaxisComponent(objectA.heading, objectA.velocity);
+        const velocityBX = Physics.getXaxisComponent(objectB.heading, objectB.velocity);
+        const velocityBY = Physics.getYaxisComponent(objectB.heading, objectB.velocity);
 
         const relativeVelocityX = velocityAX - velocityBX;
         const relativeVelocityY = velocityAY - velocityBY;
@@ -262,8 +262,8 @@ export class Engine {
         }
 
         const restitution = 0.2; // low bounce to avoid ships ricocheting around
-        const inverseMassA = 1 / objectA.Mass;
-        const inverseMassB = 1 / objectB.Mass;
+        const inverseMassA = 1 / objectA.mass;
+        const inverseMassB = 1 / objectB.mass;
         const impulseScalar = -(1 + restitution) * relativeVelocityAlongNormal / (inverseMassA + inverseMassB);
 
         const impulseX = impulseScalar * unitNormalX;
@@ -275,32 +275,32 @@ export class Engine {
         const newVelocityBY = velocityBY - impulseY * inverseMassB;
 
         const headingVelocityA = Physics.vectorToHeadingAndVelocity(newVelocityAX, newVelocityAY);
-        objectA.Heading = headingVelocityA.heading;
-        objectA.Velocity = headingVelocityA.velocity;
+        objectA.heading = headingVelocityA.heading;
+        objectA.velocity = headingVelocityA.velocity;
 
         const headingVelocityB = Physics.vectorToHeadingAndVelocity(newVelocityBX, newVelocityBY);
-        objectB.Heading = headingVelocityB.heading;
-        objectB.Velocity = headingVelocityB.velocity;
+        objectB.heading = headingVelocityB.heading;
+        objectB.velocity = headingVelocityB.velocity;
 
         this.applyCollisionDamage(objectA, objectB, relativeVelocityAlongNormal);
         this.createImpactExplosion(objectA, objectB);
     }
 
     applyCollisionDamage(objectA, objectB, relativeVelocityAlongNormal) {
-        const reducedMass = (objectA.Mass * objectB.Mass) / (objectA.Mass + objectB.Mass);
+        const reducedMass = (objectA.mass * objectB.mass) / (objectA.mass + objectB.mass);
         const impactSpeed = Math.abs(relativeVelocityAlongNormal);
         const impactEnergy = 0.5 * reducedMass * impactSpeed * impactSpeed;
         const damageScale = 10000;
         const damage = impactEnergy / damageScale;
 
-        const totalMass = objectA.Mass + objectB.Mass;
-        const damageToA = damage * (objectB.Mass / totalMass);
-        const damageToB = damage * (objectA.Mass / totalMass);
+        const totalMass = objectA.mass + objectB.mass;
+        const damageToA = damage * (objectB.mass / totalMass);
+        const damageToB = damage * (objectA.mass / totalMass);
 
-        if (objectA.HullStrength !== undefined) {
+        if (objectA.hullStrength !== undefined) {
             objectA.takeDamage(damageToA);
         }
-        if (objectB.HullStrength !== undefined) {
+        if (objectB.hullStrength !== undefined) {
             objectB.takeDamage(damageToB);
         }
 
@@ -309,17 +309,17 @@ export class Engine {
     }
 
     handleDestroyedObject(targetObject, sourceObject) {
-        if (targetObject.HullStrength !== undefined && targetObject.HullStrength <= 0) {
-            if (targetObject.Type !== 'Debris') {
+        if (targetObject.hullStrength !== undefined && targetObject.hullStrength <= 0) {
+            if (targetObject.type !== 'Debris') {
                 this.createDebris(targetObject);
             }
             this.createExplosion(targetObject);
             this.deadObjects.push(targetObject);
-            if (targetObject.Type === 'Ship') {
-                this.scoreDeath(targetObject.Id);
+            if (targetObject.type === 'Ship') {
+                this.scoreDeath(targetObject.id);
                 this.recordShipDestroyed(targetObject);
-                if (sourceObject && sourceObject.Id) {
-                    this.scoreKill(sourceObject.Id);
+                if (sourceObject && sourceObject.id) {
+                    this.scoreKill(sourceObject.id);
                 }
             }
         }
@@ -327,15 +327,15 @@ export class Engine {
 
     createImpactExplosion(objectA, objectB, useLaserParticles = false) {
         const impactPoint = {
-            LocationX: (objectA.LocationX + objectB.LocationX) / 2,
-            LocationY: (objectA.LocationY + objectB.LocationY) / 2,
-            Size: Math.max(objectA.Size, objectB.Size)
+            locationX: (objectA.locationX + objectB.locationX) / 2,
+            locationY: (objectA.locationY + objectB.locationY) / 2,
+            size: Math.max(objectA.size, objectB.size)
         };
         if (useLaserParticles) {
             const laserFuel = this.sumLaserFuel(objectA, objectB);
             if (laserFuel.maxFuel > 0) {
-                impactPoint.Fuel = laserFuel.remainingFuel;
-                impactPoint.MaxFuel = laserFuel.maxFuel;
+                impactPoint.fuel = laserFuel.remainingFuel;
+                impactPoint.maxFuel = laserFuel.maxFuel;
             }
             this.createLaserExplosion(impactPoint);
         }
@@ -346,9 +346,9 @@ export class Engine {
 
     sumLaserFuel(...objects) {
         return objects.reduce((totals, object) => {
-            if (object && object.Type === 'Laser') {
-                totals.remainingFuel += Math.max(0, object.Fuel || 0);
-                totals.maxFuel += Math.max(0, object.MaxFuel || 0);
+            if (object && object.type === 'Laser') {
+                totals.remainingFuel += Math.max(0, object.fuel || 0);
+                totals.maxFuel += Math.max(0, object.maxFuel || 0);
             }
             return totals;
         }, {remainingFuel: 0, maxFuel: 0});
@@ -369,8 +369,8 @@ export class Engine {
     }
 
     createLaserExplosion(sourceGameObject) {
-        const fuelRatio = sourceGameObject && sourceGameObject.MaxFuel
-            ? Math.max(0, Math.min(1, (sourceGameObject.Fuel || 0) / sourceGameObject.MaxFuel))
+        const fuelRatio = sourceGameObject && sourceGameObject.maxFuel
+            ? Math.max(0, Math.min(1, (sourceGameObject.fuel || 0) / sourceGameObject.maxFuel))
             : null;
         const sparksToSpawn = fuelRatio === null
             ? this.explosionSize
@@ -385,7 +385,7 @@ export class Engine {
 
     fuelDetection() {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Fuel < 0) {
+            if (gameObjects[x].fuel < 0) {
                 this.recordShipDestroyed(gameObjects[x]);
                 this.deadObjects.push(gameObjects[x]);
             }
@@ -396,7 +396,7 @@ export class Engine {
     findSolidObjects() {
         const solidObjects = [];
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Type != 'Particle' && gameObjects[x].Type != 'LaserParticle' && gameObjects[x].Type != 'Thruster' && gameObjects[x].Type != 'Player' && gameObjects[x].Type != 'Sound') {
+            if (gameObjects[x].type != 'Particle' && gameObjects[x].type != 'LaserParticle' && gameObjects[x].type != 'Thruster' && gameObjects[x].type != 'Player' && gameObjects[x].type != 'Sound') {
                 solidObjects.push(gameObjects[x])
             }
         }
@@ -409,14 +409,14 @@ export class Engine {
             // Check to see if GameObject has flown past the border. I do this by measuring the distance
             // from the Game Object to the center of the screen and making sure the distance is smaller
             // than the radius of the screen.
-            if (!(solidObjects[x].LocationX * solidObjects[x].LocationX + solidObjects[x].LocationY * solidObjects[x].LocationY < this.mapRadius * this.mapRadius)) {
-                if (solidObjects[x].Type === 'Laser') {
+            if (!(solidObjects[x].locationX * solidObjects[x].locationX + solidObjects[x].locationY * solidObjects[x].locationY < this.mapRadius * this.mapRadius)) {
+                if (solidObjects[x].type === 'Laser') {
                     this.createLaserExplosion(solidObjects[x]);
                 }
                 else {
                     this.createExplosion(solidObjects[x]);
                 }
-                this.scoreDeath(solidObjects[x].Id);
+                this.scoreDeath(solidObjects[x].id);
                 this.deadObjects.push(solidObjects[x]);
                 this.recordShipDestroyed(solidObjects[x]);
             }
@@ -428,7 +428,7 @@ export class Engine {
         for (let x = 0, y = this.deadObjects.length; x < y; x++) {
             let i = 0;
             for (let j = 0; j < gameObjects.length; j++) {
-                if (gameObjects[j].Id == this.deadObjects[x].Id) {
+                if (gameObjects[j].id == this.deadObjects[x].id) {
                     gameObjects.splice(i, 1);
                 }
                 else {
@@ -440,7 +440,7 @@ export class Engine {
     }
 
     removeSoundObjects() {
-        gameObjects = Utilities.removeByAttr(gameObjects, "Type", "Sound");
+        gameObjects = Utilities.removeByAttr(gameObjects, "type", "Sound");
     }
 
     convertObjects(localGameObjects, remoteGameObjects) {
@@ -460,35 +460,35 @@ export class Engine {
         for (let i = 0; i < localGameObjects.length; i++) {
             const obj = localGameObjects[i];
 
-            if (!obj || !obj.Type) {
+            if (!obj || !obj.type) {
                 continue;
             }
 
-            if (!managedTypes.has(obj.Type)) {
+            if (!managedTypes.has(obj.type)) {
                 preservedObjects.push(obj);
                 continue;
             }
 
-            if (obj && typeof obj.Id !== 'undefined') {
-                existingById.set(obj.Id, obj);
+            if (obj && typeof obj.id !== 'undefined') {
+                existingById.set(obj.id, obj);
             }
         }
 
         const mergedObjects = [];
         for (let i = 0; i < remoteGameObjects.length; i++) {
             const remoteObject = remoteGameObjects[i];
-            const ctor = constructors[remoteObject.Type];
+            const ctor = constructors[remoteObject.type];
 
             if (!ctor) {
                 continue;
             }
 
-            const hasStableId = typeof remoteObject.Id !== 'undefined';
+            const hasStableId = typeof remoteObject.id !== 'undefined';
             let instance = null;
 
-            if (hasStableId && existingById.has(remoteObject.Id)) {
-                const candidate = existingById.get(remoteObject.Id);
-                if (candidate && candidate.Type === remoteObject.Type) {
+            if (hasStableId && existingById.has(remoteObject.id)) {
+                const candidate = existingById.get(remoteObject.id);
+                if (candidate && candidate.type === remoteObject.type) {
                     instance = candidate;
                 }
             }
@@ -496,10 +496,13 @@ export class Engine {
             if (instance) {
                 Object.assign(instance, remoteObject);
             } else {
-                instance = Object.assign(new ctor(), remoteObject);
+                // Create ship without initialization for deserialization
+                instance = new ctor(remoteObject.id, {initializeState: false});
+                Object.assign(instance, remoteObject);
             }
 
-            if (instance instanceof Ship && typeof instance.applyShipTypeDefaults === 'function') {
+            // Apply ship type defaults if shipTypeId exists (from network data)
+            if (instance instanceof Ship && instance.shipTypeId && typeof instance.applyShipTypeDefaults === 'function') {
                 instance.applyShipTypeDefaults();
             }
 
@@ -531,21 +534,21 @@ export class Engine {
         if (!gameObject) {
             return;
         }
-        if (gameObject.Type == 'Ship') {
+        if (gameObject.type == 'Ship') {
             this.recordEvent({
                 type: 'ShipDestroyed',
-                shipId: gameObject.Id,
-                locationX: gameObject.LocationX,
-                locationY: gameObject.LocationY
+                shipId: gameObject.id,
+                locationX: gameObject.locationX,
+                locationY: gameObject.locationY
             });
         }
     }
 
     scoreKill(shipId) {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Type == 'Player') {
-                if (gameObjects[x].ShipId == shipId) {
-                    gameObjects[x].Kills += 1;
+            if (gameObjects[x].type == 'Player') {
+                if (gameObjects[x].shipId == shipId) {
+                    gameObjects[x].kills += 1;
                 }
             }
         }
@@ -553,9 +556,9 @@ export class Engine {
 
     scoreDeath(shipId) {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].Type == 'Player') {
-                if (gameObjects[x].ShipId == shipId) {
-                    gameObjects[x].Deaths += 1;
+            if (gameObjects[x].type == 'Player') {
+                if (gameObjects[x].shipId == shipId) {
+                    gameObjects[x].deaths += 1;
                 }
             }
         }

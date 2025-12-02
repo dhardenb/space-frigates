@@ -3,15 +3,15 @@ import {Utilities} from '../utilities/utilities.js';
 export class Player {
 
     constructor() {
-        this.Type = "Player";
+        this.type = "Player";
     }   
 
     init(connectionId) {
-        this.Id = Utilities.hashStringToUint32(connectionId);
-        this.Name = "";
-        this.ShipId = 0;
-        this.Kills = 0;
-        this.Deaths = 0;
+        this.id = Utilities.hashStringToUint32(connectionId);
+        this.name = "";
+        this.shipId = 0;
+        this.kills = 0;
+        this.deaths = 0;
     }
 
     update(commands, framesPerSecond) {}

@@ -11,11 +11,11 @@ export class Debris {
     //
     // Size should probbaly be configurable
     constructor(id) {
-        this.Id = id;
-        this.Size = 4.0;
-        this.Mass = 10; // default placeholder, overwritten during init
-        this.MaxHullStrength = 1;
-        this.HullStrength = this.MaxHullStrength;
+        this.id = id;
+        this.size = 4.0;
+        this.mass = 10; // default placeholder, overwritten during init
+        this.maxHullStrength = 1;
+        this.hullStrength = this.maxHullStrength;
         const debrisCollisionSpec = COLLISION_DIMENSIONS.Debris;
         // Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
         this.collisionLengthMeters = debrisCollisionSpec.length;
@@ -39,17 +39,17 @@ export class Debris {
     // class. Will require all classes to be updated, a
     // major undertaking
     init(sourceObject) {
-        this.Type = "Debris";
-        this.LocationX = sourceObject.LocationX;
-        this.LocationY = sourceObject.LocationY;
-        this.Facing = sourceObject.Facing;
-        this.Heading = sourceObject.Heading;
-        this.Velocity = sourceObject.Velocity;
-        this.RotationDirection = Debris.setIntitialRotationDirection();
-        this.RotationVelocity = Debris.setInitialRotationVelocity();
-        this.Mass = Math.max((sourceObject.Mass || 0) * 0.1, 1);
-        this.MaxHullStrength = Math.max((sourceObject.MaxHullStrength || 0) * 0.1, 1);
-        this.HullStrength = this.MaxHullStrength;
+        this.type = "Debris";
+        this.locationX = sourceObject.locationX;
+        this.locationY = sourceObject.locationY;
+        this.facing = sourceObject.facing;
+        this.heading = sourceObject.heading;
+        this.velocity = sourceObject.velocity;
+        this.rotationDirection = Debris.setIntitialRotationDirection();
+        this.rotationVelocity = Debris.setInitialRotationVelocity();
+        this.mass = Math.max((sourceObject.mass || 0) * 0.1, 1);
+        this.maxHullStrength = Math.max((sourceObject.maxHullStrength || 0) * 0.1, 1);
+        this.hullStrength = this.maxHullStrength;
     }
 
     // physics is a gloabl, need to fix that!
@@ -61,9 +61,9 @@ export class Debris {
     }
 
     takeDamage(damage) {
-        this.HullStrength -= damage;
-        if (this.HullStrength < 0) {
-            this.HullStrength = 0;
+        this.hullStrength -= damage;
+        if (this.hullStrength < 0) {
+            this.hullStrength = 0;
         }
     }
 

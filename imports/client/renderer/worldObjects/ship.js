@@ -11,28 +11,28 @@ export function renderShip(map, ship, {
 }) {
     map.save();
 
-    map.translate(ship.LocationX * pixelsPerMeter, ship.LocationY * pixelsPerMeter);
-    map.rotate(ship.Facing * Math.PI / 180);
+    map.translate(ship.locationX * pixelsPerMeter, ship.locationY * pixelsPerMeter);
+    map.rotate(ship.facing * Math.PI / 180);
 
-    const shipScale = ship.Size * worldPixelsPerMeter;
+    const shipScale = ship.size * worldPixelsPerMeter;
 
-    if (ship.ShieldStatus > 0) {
+    if (ship.shieldStatus > 0) {
         map.save();
         map.scale(shipScale, shipScale);
         map.beginPath();
         map.arc(0, 0, 1, 0, 2 * Math.PI);
         map.lineWidth = 0.05;
-        map.strokeStyle = `rgba(100, 200, 255, ${ship.ShieldStatus / 150})`;
+        map.strokeStyle = `rgba(100, 200, 255, ${ship.shieldStatus / 150})`;
         map.stroke();
-        map.fillStyle = `rgba(100, 200, 255, ${ship.ShieldStatus / 300})`;
+        map.fillStyle = `rgba(100, 200, 255, ${ship.shieldStatus / 300})`;
         map.fill();
         map.restore();
     }
 
     let cockpitColor = 'red';
-    if (ship.HullStrength >= 66) {
+    if (ship.hullStrength >= 66) {
         cockpitColor = 'green';
-    } else if (ship.HullStrength >= 33) {
+    } else if (ship.hullStrength >= 33) {
         cockpitColor = 'yellow';
     }
 
@@ -83,29 +83,29 @@ export function renderShip(map, ship, {
 
     map.save();
 
-    const isPlayersShip = ship.Id === (playerShip && playerShip.Id);
+    const isPlayersShip = ship.id === (playerShip && playerShip.id);
     const isHumanPilot = ship.pilotType === 'Human';
 
     let nameToDraw = '';
 
     if (isHumanPilot) {
         if (isPlayersShip) {
-            const candidateName = playerName || shipNamesById?.get(ship.Id) || ship.Name;
+            const candidateName = playerName || shipNamesById?.get(ship.id) || ship.Name;
             nameToDraw = candidateName && candidateName !== '' ? candidateName : 'GUEST';
         } else {
-            const candidateName = shipNamesById?.get(ship.Id) || ship.Name;
+            const candidateName = shipNamesById?.get(ship.id) || ship.Name;
             nameToDraw = candidateName && candidateName !== '' ? candidateName : 'GUEST';
         }
     } else if (ship.pilotType === 'Bot') {
-        const candidateName = shipNamesById?.get(ship.Id) || ship.Name || ship.aiProfile;
+        const candidateName = shipNamesById?.get(ship.id) || ship.Name || ship.aiProfile;
         nameToDraw = candidateName && candidateName !== '' ? candidateName : '';
     }
 
     map.fillStyle = 'gray';
     map.font = '12px Arial';
     map.translate(
-        ship.LocationX * worldPixelsPerMeter - map.measureText(nameToDraw).width / 2,
-        ship.LocationY * worldPixelsPerMeter + ship.Size * worldPixelsPerMeter * 1.5
+        ship.locationX * worldPixelsPerMeter - map.measureText(nameToDraw).width / 2,
+        ship.locationY * worldPixelsPerMeter + ship.size * worldPixelsPerMeter * 1.5
     );
 
     map.fillText(nameToDraw, 0, 0);

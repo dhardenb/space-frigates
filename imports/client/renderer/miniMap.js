@@ -29,7 +29,7 @@ export function renderMiniMap(map, options) {
     map.translate(focalX, focalY);
     renderBoundry(map, mapRadius, worldPixelsPerMeter);
     for (let i = 0, j = gameObjects.length; i < j; i++) {
-        if (gameObjects[i].Type == 'Ship') {
+        if (gameObjects[i].type == 'Ship') {
             renderMiniShip(map, gameObjects[i], playerShipId, worldPixelsPerMeter, pixelsPerMeter);
         }
     }
@@ -40,12 +40,12 @@ export function renderMiniMap(map, options) {
 
 export function renderMiniShip(map, ship, playerShipId, worldPixelsPerMeter, pixelsPerMeter) {
     map.save();
-    map.translate(ship.LocationX * worldPixelsPerMeter, ship.LocationY * worldPixelsPerMeter);
-    map.scale(ship.Size * pixelsPerMeter, ship.Size * pixelsPerMeter);
+    map.translate(ship.locationX * worldPixelsPerMeter, ship.locationY * worldPixelsPerMeter);
+    map.scale(ship.size * pixelsPerMeter, ship.size * pixelsPerMeter);
     map.beginPath();
     map.arc(0, 0, 1.0, 0, 2 * Math.PI);
     let fillStyle = "rgba(128, 128, 128, 1.0)";
-    if (ship.Id == playerShipId) {
+    if (ship.id == playerShipId) {
         fillStyle = "rgba(0, 128, 0, 1.0)";
     } else if (ship.pilotType === "Human") {
         fillStyle = "rgba(255, 0, 0, 1.0)";

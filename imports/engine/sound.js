@@ -1,13 +1,13 @@
 export class Sound {
 
     constructor() {
-        this.Type = "Sound";
+        this.type = "Sound";
     }
 
     init = function(soundType, sourceObject) {
-        this.SoundType = soundType;
-        this.LocationX = sourceObject.LocationX;
-        this.LocationY = sourceObject.LocationY;
+        this.soundType = soundType;
+        this.locationX = sourceObject.locationX;
+        this.locationY = sourceObject.locationY;
     }
 
     update(commnads, framesPerSecond) {}
