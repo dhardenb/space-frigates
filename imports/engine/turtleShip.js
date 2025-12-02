@@ -1,5 +1,4 @@
 import {Ship} from './ship.js';
-import {SHIP_TYPES} from './shipTypes.js';
 import {Physics} from './physics.js';
 
 export class TurtleShip extends Ship {
@@ -7,28 +6,26 @@ export class TurtleShip extends Ship {
     constructor(id, {pilotType = 'Human', aiProfile = null, initializeState = true} = {}) {
         super(id, {pilotType, aiProfile, initializeState});
         
-        const definition = SHIP_TYPES.Turtle;
-        this.shipTypeId = definition.id;
-        this.shipDisplayName = definition.displayName;
-        this.size = definition.size;
-        this.maxHullStrength = definition.maxHullStrength;
-        this.thrusterStrength = definition.thrusterStrength;
-        this.maxThrusterStrength = definition.maxThrusterStrength;
-        this.plasmaCannonStrength = definition.plasmaCannonStrength;
-        this.maxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
-        this.maxCapacitor = definition.maxCapacitor;
-        this.maxShieldStrength = definition.maxShieldStrength ?? this.maxShieldStrength;
-        this.shieldRechargeRate = definition.shieldRechargeRate ?? this.shieldRechargeRate;
-        this.shieldDecayRate = definition.shieldDecayRate ?? this.shieldDecayRate;
-        this.reactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.reactorOutputPerSecond;
-        this.laserEnergyCost = definition.laserEnergyCost ?? this.laserEnergyCost;
-        this.laserFuelCapacity = definition.laserFuelCapacity ?? this.laserFuelCapacity;
-        this.laserFuelConsumptionRate = definition.laserFuelConsumptionRate ?? this.laserFuelConsumptionRate;
-        this.thrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.thrusterEnergyPerSecond;
-        this.rotationEnergyPerSecond = definition.rotationEnergyPerSecond ?? this.rotationEnergyPerSecond;
-        this.mass = definition.mass ?? this.mass;
-        const defaultThrusterForce = this.mass * 20 * Physics.framesPerSecond;
-        this.thrusterForceProduced = definition.thrusterForceProduced ?? defaultThrusterForce;
+        this.shipTypeId = 'Turtle';
+        this.shipDisplayName = 'Turtle';
+        this.size = 8.0;
+        this.maxHullStrength = 100;
+        this.thrusterStrength = 100;
+        this.maxThrusterStrength = 100;
+        this.plasmaCannonStrength = 100;
+        this.maxPlasmaCannonStrength = 100;
+        this.maxCapacitor = 100;
+        this.maxShieldStrength = 100;
+        this.shieldRechargeRate = 0.25;
+        this.shieldDecayRate = 0.25;
+        this.reactorOutputPerSecond = 10;
+        this.laserEnergyCost = 10;
+        this.laserFuelCapacity = 30;
+        this.laserFuelConsumptionRate = 30;
+        this.thrusterEnergyPerSecond = 300;
+        this.rotationEnergyPerSecond = 300;
+        this.mass = 12000;
+        this.thrusterForceProduced = 14400000;
 
         // Initialize runtime state if requested
         if (initializeState) {
