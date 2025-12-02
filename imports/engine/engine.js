@@ -547,8 +547,8 @@ export class Engine {
     scoreKill(shipId) {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].type == 'Player') {
-                if (gameObjects[x].ShipId == shipId) {
-                    gameObjects[x].Kills += 1;
+                if (gameObjects[x].shipId == shipId) {
+                    gameObjects[x].kills += 1;
                 }
             }
         }
@@ -557,8 +557,8 @@ export class Engine {
     scoreDeath(shipId) {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].type == 'Player') {
-                if (gameObjects[x].ShipId == shipId) {
-                    gameObjects[x].Deaths += 1;
+                if (gameObjects[x].shipId == shipId) {
+                    gameObjects[x].deaths += 1;
                 }
             }
         }

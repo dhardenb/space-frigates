@@ -275,7 +275,7 @@ export class Utilities {
 
         switch (typeCode) {
             case TYPE_CODES.Player: {
-                const nameBytes = Utilities.encodeString(gameObject.Name || "");
+                const nameBytes = Utilities.encodeString(gameObject.name || "");
                 const nameLength = Math.min(nameBytes.length, 255);
                 return BASE + 4 /* Id */ + 1 /* name len */ + nameLength + 4 /* ShipId */ + 2 /* Kills */ + 2 /* Deaths */;
             }
@@ -338,10 +338,10 @@ export class Utilities {
         switch (typeCode) {
             case TYPE_CODES.Player:
                 view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
-                offset = Utilities.writeShortString(view, offset, gameObject.Name || "");
-                view.setUint32(offset, (gameObject.ShipId >>> 0) || 0, true); offset += 4;
-                view.setUint16(offset, (gameObject.Kills >>> 0) || 0, true); offset += 2;
-                view.setUint16(offset, (gameObject.Deaths >>> 0) || 0, true); offset += 2;
+                offset = Utilities.writeShortString(view, offset, gameObject.name || "");
+                view.setUint32(offset, (gameObject.shipId >>> 0) || 0, true); offset += 4;
+                view.setUint16(offset, (gameObject.kills >>> 0) || 0, true); offset += 2;
+                view.setUint16(offset, (gameObject.deaths >>> 0) || 0, true); offset += 2;
                 break;
             case TYPE_CODES.Ship:
                 view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
@@ -449,11 +449,11 @@ export class Utilities {
             case TYPE_CODES.Player: {
                 object.id = view.getUint32(offset, true); offset += 4;
                 const result = Utilities.readShortString(view, offset);
-                object.Name = result.value;
+                object.name = result.value;
                 offset = result.offset;
-                object.ShipId = view.getUint32(offset, true); offset += 4;
-                object.Kills = view.getUint16(offset, true); offset += 2;
-                object.Deaths = view.getUint16(offset, true); offset += 2;
+                object.shipId = view.getUint32(offset, true); offset += 4;
+                object.kills = view.getUint16(offset, true); offset += 2;
+                object.deaths = view.getUint16(offset, true); offset += 2;
                 break;
             }
             case TYPE_CODES.Ship: {

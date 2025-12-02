@@ -155,11 +155,11 @@ export class Ai {
             if (!pilot || pilot.type !== 'Player') {
                 continue;
             }
-            if (!Number.isFinite(pilot.ShipId)) {
+            if (!Number.isFinite(pilot.shipId)) {
                 continue;
             }
-            const kills = Number.isFinite(pilot.Kills) ? pilot.Kills : undefined;
-            killsByShipId.set(pilot.ShipId, kills);
+            const kills = Number.isFinite(pilot.kills) ? pilot.kills : undefined;
+            killsByShipId.set(pilot.shipId, kills);
         }
         return killsByShipId;
     }

@@ -283,14 +283,14 @@ export class Renderer {
         const shipNamesById = new Map();
         for (let i = 0; i < gameObjects.length; i++) {
             const gameObject = gameObjects[i];
-            const name = (gameObject && typeof gameObject.Name === 'string') ? gameObject.Name.trim() : '';
+            const name = (gameObject && typeof gameObject.name === 'string') ? gameObject.name.trim() : '';
 
             if (name === '') {
                 continue;
             }
 
-            if (gameObject.type === 'Player' && typeof gameObject.ShipId !== 'undefined') {
-                shipNamesById.set(gameObject.ShipId, name);
+            if (gameObject.type === 'Player' && typeof gameObject.shipId !== 'undefined') {
+                shipNamesById.set(gameObject.shipId, name);
             }
 
             if (gameObject.type === 'Ship' && typeof gameObject.id !== 'undefined') {
@@ -599,7 +599,7 @@ function getBoundingBoxSpec(gameObject) {
     if (objectLength > 0 && objectWidth > 0) {
         return {length: objectLength, width: objectWidth};
     }
-    const explicitSpec = COLLISION_DIMENSIONS[gameObject.Type];
+    const explicitSpec = COLLISION_DIMENSIONS[gameObject.type];
     if (explicitSpec) {
         return explicitSpec;
     }

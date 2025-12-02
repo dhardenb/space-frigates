@@ -192,8 +192,8 @@ Meteor.methods({
         for (let i=0, j=gameObjects.length; i<j; i++) {
             if (gameObjects[i].type == 'Player') {
                 if (gameObjects[i].id == playerId) {
-                    gameObjects[i].ShipId = playerShip.id;
-                    gameObjects[i].Name = name;
+                    gameObjects[i].shipId = playerShip.id;
+                    gameObjects[i].name = name;
                 }
             }
         }
