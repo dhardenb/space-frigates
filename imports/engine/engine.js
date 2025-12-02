@@ -65,7 +65,9 @@ export class Engine {
         // Fallback to legacy radius check if bounding box data is unavailable
         const deltaX = (objectA.locationX || 0) - (objectB.locationX || 0);
         const deltaY = (objectA.locationY || 0) - (objectB.locationY || 0);
-        const radiusSum = (objectA.size || 0) / 2 + (objectB.size || 0) / 2;
+        const radiusA = (objectA.lengthInMeters || objectA.size || 0) / 2;
+        const radiusB = (objectB.lengthInMeters || objectB.size || 0) / 2;
+        const radiusSum = radiusA + radiusB;
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY) < radiusSum;
     }
 
@@ -317,10 +319,12 @@ export class Engine {
     }
 
     createImpactExplosion(objectA, objectB, useLaserParticles = false) {
+        const sizeA = objectA.lengthInMeters || objectA.size || 0;
+        const sizeB = objectB.lengthInMeters || objectB.size || 0;
         const impactPoint = {
             locationX: (objectA.locationX + objectB.locationX) / 2,
             locationY: (objectA.locationY + objectB.locationY) / 2,
-            size: Math.max(objectA.size, objectB.size)
+            size: Math.max(sizeA, sizeB)
         };
         if (useLaserParticles) {
             const laserFuel = this.sumLaserFuel(objectA, objectB);

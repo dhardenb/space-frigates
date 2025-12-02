@@ -8,6 +8,8 @@ export class TurtleShip extends Ship {
         
         this.shipTypeId = 'Turtle';
         this.shipDisplayName = 'Turtle';
+        this.lengthInMeters = 8;
+        this.widthInMeters = 8;
         this.maxHullStrength = 100;
         this.thrusterStrength = 100;
         this.maxThrusterStrength = 100;
