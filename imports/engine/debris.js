@@ -1,6 +1,5 @@
 import {Physics} from './physics.js';
 import {Utilities} from '../utilities/utilities.js';
-import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
 
 export class Debris {
     
@@ -12,14 +11,11 @@ export class Debris {
     // Size should probbaly be configurable
     constructor(id) {
         this.id = id;
-        this.size = 4.0;
         this.mass = 10; // default placeholder, overwritten during init
         this.maxHullStrength = 1;
         this.hullStrength = this.maxHullStrength;
-        const debrisCollisionSpec = COLLISION_DIMENSIONS.Debris;
-        // Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
-        this.collisionLengthMeters = debrisCollisionSpec.length;
-        this.collisionWidthMeters = debrisCollisionSpec.width;
+        this.lengthInMeters = 4;
+        this.widthInMeters = 4;
     }
 
     // Variable names need to be changed but can't do it

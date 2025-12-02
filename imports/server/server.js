@@ -1,7 +1,8 @@
 import {Ai} from './ai.js';
 import {Engine} from '../engine/engine.js';
 import {Meteor} from 'meteor/meteor';
-import {Ship} from '../engine/ship.js';
+import {ViperShip} from '../engine/viperShip.js';
+import {TurtleShip} from '../engine/turtleShip.js';
 import {Utilities} from '../utilities/utilities.js';
 
 export class Server {
@@ -184,7 +185,9 @@ Meteor.methods({
         const server = Server.getInstance();
         const shipTypeId = server ? server.resolveHumanShipType() : 'Viper';
         const playerId = Utilities.hashStringToUint32(this.connection.id);
-        let playerShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId, pilotType: 'Human'});
+        let playerShip = shipTypeId === 'Viper' 
+            ? new ViperShip(Engine.getNextGameObjectId(), {pilotType: 'Human'})
+            : new TurtleShip(Engine.getNextGameObjectId(), {pilotType: 'Human'});
         playerShip.Name = name;
         playerShip.setStartingHumanPosition(mapRadius);
         gameObjects.push(playerShip);

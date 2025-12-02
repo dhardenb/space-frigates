@@ -14,7 +14,7 @@ export function renderShip(map, ship, {
     map.translate(ship.locationX * pixelsPerMeter, ship.locationY * pixelsPerMeter);
     map.rotate(ship.facing * Math.PI / 180);
 
-    const shipScale = ship.size * worldPixelsPerMeter;
+    const shipScale = ship.lengthInMeters * worldPixelsPerMeter;
 
     if (ship.shieldStatus > 0) {
         map.save();
@@ -105,7 +105,7 @@ export function renderShip(map, ship, {
     map.font = '12px Arial';
     map.translate(
         ship.locationX * worldPixelsPerMeter - map.measureText(nameToDraw).width / 2,
-        ship.locationY * worldPixelsPerMeter + ship.size * worldPixelsPerMeter * 1.5
+        ship.locationY * worldPixelsPerMeter + ship.lengthInMeters * worldPixelsPerMeter * 1.5
     );
 
     map.fillText(nameToDraw, 0, 0);

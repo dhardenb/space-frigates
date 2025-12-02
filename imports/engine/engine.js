@@ -1,6 +1,8 @@
 import {Player} from './player.js';
 import {Laser} from './laser.js';
 import {Ship} from './ship.js';
+import {ViperShip} from './viperShip.js';
+import {TurtleShip} from './turtleShip.js';
 import {Particle} from './particle.js';
 import {LaserParticle} from './laserParticle.js';
 import {Thruster} from './thruster.js';
@@ -8,12 +10,6 @@ import {Debris} from './debris.js';
 import {Sound} from './sound.js';
 import {Physics} from './physics.js';
 import {Utilities} from '../utilities/utilities.js';
-import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
-
-// IMPORTANT: COLLISION_DIMENSIONS drives both the per-object metadata
-// (collisionLengthMeters/collisionWidthMeters) and these engine-level
-// fallbacks. Update the shared configuration before relying on new sizes.
-const COLLISION_BOX_SPECS = COLLISION_DIMENSIONS;
 
 export class Engine {
 
@@ -69,7 +65,9 @@ export class Engine {
         // Fallback to legacy radius check if bounding box data is unavailable
         const deltaX = (objectA.locationX || 0) - (objectB.locationX || 0);
         const deltaY = (objectA.locationY || 0) - (objectB.locationY || 0);
-        const radiusSum = (objectA.size || 0) / 2 + (objectB.size || 0) / 2;
+        const radiusA = (objectA.lengthInMeters || objectA.size || 0) / 2;
+        const radiusB = (objectB.lengthInMeters || objectB.size || 0) / 2;
+        const radiusSum = radiusA + radiusB;
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY) < radiusSum;
     }
 
@@ -112,19 +110,14 @@ export class Engine {
             return {length: 1, width: 1};
         }
 
-        const objectLength = Number(gameObject.collisionLengthMeters);
-        const objectWidth = Number(gameObject.collisionWidthMeters);
+        const objectLength = Number(gameObject.lengthInMeters);
+        const objectWidth = Number(gameObject.widthInMeters);
         if (objectLength > 0 && objectWidth > 0) {
             return {length: objectLength, width: objectWidth};
         }
 
-        const explicitSpec = COLLISION_BOX_SPECS[gameObject.type];
-        if (explicitSpec) {
-            return explicitSpec;
-        }
-
-        const fallbackSize = Number(gameObject.size) || 1;
-        return {length: fallbackSize, width: fallbackSize};
+        // Fallback: return default dimensions if lengthInMeters/widthInMeters not set
+        return {length: 1, width: 1};
     }
 
     normalizeAxis(axis) {
@@ -326,10 +319,12 @@ export class Engine {
     }
 
     createImpactExplosion(objectA, objectB, useLaserParticles = false) {
+        const sizeA = objectA.lengthInMeters || objectA.size || 0;
+        const sizeB = objectB.lengthInMeters || objectB.size || 0;
         const impactPoint = {
             locationX: (objectA.locationX + objectB.locationX) / 2,
             locationY: (objectA.locationY + objectB.locationY) / 2,
-            size: Math.max(objectA.size, objectB.size)
+            size: Math.max(sizeA, sizeB)
         };
         if (useLaserParticles) {
             const laserFuel = this.sumLaserFuel(objectA, objectB);
@@ -477,10 +472,19 @@ export class Engine {
         const mergedObjects = [];
         for (let i = 0; i < remoteGameObjects.length; i++) {
             const remoteObject = remoteGameObjects[i];
-            const ctor = constructors[remoteObject.type];
+            let ctor = constructors[remoteObject.type];
 
             if (!ctor) {
                 continue;
+            }
+
+            // For Ship objects, select the correct subclass based on shipTypeId
+            if (remoteObject.type === 'Ship' && remoteObject.shipTypeId) {
+                if (remoteObject.shipTypeId === 'Viper') {
+                    ctor = ViperShip;
+                } else if (remoteObject.shipTypeId === 'Turtle') {
+                    ctor = TurtleShip;
+                }
             }
 
             const hasStableId = typeof remoteObject.id !== 'undefined';
@@ -499,11 +503,6 @@ export class Engine {
                 // Create ship without initialization for deserialization
                 instance = new ctor(remoteObject.id, {initializeState: false});
                 Object.assign(instance, remoteObject);
-            }
-
-            // Apply ship type defaults if shipTypeId exists (from network data)
-            if (instance instanceof Ship && instance.shipTypeId && typeof instance.applyShipTypeDefaults === 'function') {
-                instance.applyShipTypeDefaults();
             }
 
             mergedObjects.push(instance);

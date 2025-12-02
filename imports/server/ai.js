@@ -1,4 +1,6 @@
 import {Engine} from '../engine/engine.js';
+import {ViperShip} from '../engine/viperShip.js';
+import {TurtleShip} from '../engine/turtleShip.js';
 import {Ship} from '../engine/ship.js';
 
 export class Ai {
@@ -21,22 +23,28 @@ export class Ai {
             }
         }
         let numberOfPlayers = players.length;
-        let nextShipType = 0;
         if (numberOfPlayers == 0) {
-            nextShipType = 0;
-        } else if (numberOfPlayers == 1) {
-            nextShipType = Math.floor((Math.random()*400)+1);
-        } else if (numberOfPlayers == 2) {
-            nextShipType = Math.floor((Math.random()*1600)+1);
-        } else if (numberOfPlayers == 3) {
-            nextShipType = Math.floor((Math.random()*3200)+1);
-        } else {
-            nextShipType = Math.floor((Math.random()*6400)+1);
+            return; // Don't create bots if no players
         }
-        if (nextShipType == 1 || nextShipType == 2) {
+        
+        // Probability-based ship creation
+        let spawnChance = 0;
+        if (numberOfPlayers == 1) {
+            spawnChance = 0.005; // 0.5% per frame (~0.3 ships/second at 60fps)
+        } else if (numberOfPlayers == 2) {
+            spawnChance = 0.00125; // 0.125% per frame (~0.075 ships/second at 60fps)
+        } else if (numberOfPlayers == 3) {
+            spawnChance = 0.000625; // 0.0625% per frame (~0.0375 ships/second at 60fps)
+        } else {
+            spawnChance = 0.0003125; // 0.03125% per frame (~0.01875 ships/second at 60fps)
+        }
+        
+        if (Math.random() < spawnChance) {
             const aiProfile = 'bot';
             const shipTypeId = this.selectShipType();
-            const newAiShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId, pilotType: 'Bot', aiProfile});
+            const newAiShip = shipTypeId === 'Viper'
+                ? new ViperShip(Engine.getNextGameObjectId(), {pilotType: 'Bot', aiProfile})
+                : new TurtleShip(Engine.getNextGameObjectId(), {pilotType: 'Bot', aiProfile});
             newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }
@@ -100,10 +108,10 @@ export class Ai {
     }
 
     getSensorRadius(origin) {
-        if (!origin || !Number.isFinite(origin.size)) {
+        if (!origin || !Number.isFinite(origin.lengthInMeters)) {
             return 0;
         }
-        const radius = origin.size / 2;
+        const radius = origin.lengthInMeters / 2;
         if (radius <= 0) {
             return 0;
         }
@@ -140,7 +148,7 @@ export class Ai {
             velocity: candidate.velocity,
             heading: candidate.heading,
             facing: candidate.facing,
-            size: candidate.size,
+            size: candidate.lengthInMeters || candidate.size,
             hullStrength,
             capacitor,
             shieldStatus,

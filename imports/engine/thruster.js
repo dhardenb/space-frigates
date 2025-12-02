@@ -38,39 +38,39 @@ export class Thruster {
 
         if (sourceObject.facing == 0) {
 
-            this.locationY = this.locationY + sourceObject.size / 2 + this.size / 2 + this.thrusterOffset;
+            this.locationY = this.locationY + sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset;
         }
         else if (sourceObject.facing == 90) {
 
-            this.locationX = this.locationX - sourceObject.size / 2 - this.size / 2 - this.thrusterOffset;
+            this.locationX = this.locationX - sourceObject.lengthInMeters / 2 - this.size / 2 - this.thrusterOffset;
         }
         else if (sourceObject.facing == 180) {
 
-            this.locationY = this.locationY - sourceObject.size / 2 - this.size / 2 - this.thrusterOffset;
+            this.locationY = this.locationY - sourceObject.lengthInMeters / 2 - this.size / 2 - this.thrusterOffset;
         }
         else if (sourceObject.facing == 270) {
 
-            this.locationX = this.locationX + sourceObject.size / 2 + this.size / 2 + this.thrusterOffset;
+            this.locationX = this.locationX + sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset;
         }
         else if (sourceObject.facing < 90) {
 
-            this.locationX = this.locationX - (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin(sourceObject.facing * 0.0174532925));
-            this.locationY = this.locationY + (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos(sourceObject.facing * 0.0174532925));
+            this.locationX = this.locationX - (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin(sourceObject.facing * 0.0174532925));
+            this.locationY = this.locationY + (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos(sourceObject.facing * 0.0174532925));
         }
         else if (sourceObject.facing < 180) {
 
-            this.locationX = this.locationX - (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin((180 - sourceObject.facing) * 0.0174532925));
-            this.locationY = this.locationY - (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos((180 - sourceObject.facing) * 0.0174532925));
+            this.locationX = this.locationX - (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin((180 - sourceObject.facing) * 0.0174532925));
+            this.locationY = this.locationY - (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos((180 - sourceObject.facing) * 0.0174532925));
         }
         else if (sourceObject.facing < 270) {
 
-            this.locationX = this.locationX + (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin((sourceObject.facing - 180) * 0.0174532925));
-            this.locationY = this.locationY - (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos((sourceObject.facing - 180) * 0.0174532925));
+            this.locationX = this.locationX + (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin((sourceObject.facing - 180) * 0.0174532925));
+            this.locationY = this.locationY - (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos((sourceObject.facing - 180) * 0.0174532925));
         }
         else {
 
-            this.locationX = this.locationX + (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin((360 - sourceObject.facing) * 0.0174532925));
-            this.locationY = this.locationY + (sourceObject.size / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos((360 - sourceObject.facing) * 0.0174532925));
+            this.locationX = this.locationX + (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.sin((360 - sourceObject.facing) * 0.0174532925));
+            this.locationY = this.locationY + (sourceObject.lengthInMeters / 2 + this.size / 2 + this.thrusterOffset)*(Math.cos((360 - sourceObject.facing) * 0.0174532925));
         }
     }
 }

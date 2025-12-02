@@ -5,7 +5,7 @@ export function renderDebris(map, debris, worldPixelsPerMeter) {
 
     map.rotate(debris.facing * Math.PI / 180);
 
-    map.scale(debris.size * worldPixelsPerMeter, debris.size * worldPixelsPerMeter);
+    map.scale(debris.lengthInMeters * worldPixelsPerMeter, debris.lengthInMeters * worldPixelsPerMeter);
 
     map.strokeStyle = 'rgba(50, 50, 50, 1)';
 
