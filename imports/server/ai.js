@@ -35,9 +35,8 @@ export class Ai {
         }
         if (nextShipType == 1 || nextShipType == 2) {
             const aiProfile = 'bot';
-            const newAiShip = new Ship(Engine.getNextGameObjectId());
             const shipTypeId = this.selectShipType();
-            newAiShip.init({shipTypeId, pilotType: 'Bot', aiProfile});
+            const newAiShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId, pilotType: 'Bot', aiProfile});
             newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }

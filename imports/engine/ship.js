@@ -12,7 +12,7 @@ const AUTO_PILOT_ROTATION_THRESHOLD = 0.01;
 
 export class Ship {
 
-    constructor(id) {
+    constructor(id, {shipTypeId, pilotType = 'Human', aiProfile = null, initializeState = true} = {}) {
         this.Id = id;
         this.Type = 'Ship';
         this.shipTypeId = null;
@@ -42,35 +42,38 @@ export class Ship {
         // Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
         this.collisionLengthMeters = shipCollisionSpec.length;
         this.collisionWidthMeters = shipCollisionSpec.width;
-    }       
 
-    init({shipTypeId, pilotType = 'Human', aiProfile = null} = {}) {
-        const definition = SHIP_TYPES[shipTypeId];
-        if (!definition) {
-            throw new Error(`Unknown ship type: ${shipTypeId}`);
+        // If shipTypeId is provided, configure the ship
+        if (shipTypeId) {
+            const definition = SHIP_TYPES[shipTypeId];
+            if (!definition) {
+                throw new Error(`Unknown ship type: ${shipTypeId}`);
+            }
+
+            this.shipTypeId = definition.id;
+            this.shipDisplayName = definition.displayName;
+            this.pilotType = pilotType;
+            this.aiProfile = aiProfile;
+
+            this.applyShipTypeDefaults();
+
+            // Initialize runtime state if requested (default true, false for deserialization)
+            if (initializeState) {
+                this.LocationX = 0;
+                this.LocationY = 0;
+                this.Facing = 0;
+                this.Heading = 0;
+                this.Velocity = 0;
+                this.RotationDirection = "None";
+                this.RotationVelocity = 0;
+                this.ShieldOn = 0;
+                this.ShieldStatus = 0;
+                this.HullStrength = this.MaxHullStrength;
+                this.Capacitor = this.MaxCapacitor;
+                this.autoPilotEngaged = false;
+                this.autoPilotFacingLocked = false;
+            }
         }
-
-        this.Type = 'Ship';
-        this.shipTypeId = definition.id;
-        this.shipDisplayName = definition.displayName;
-        this.pilotType = pilotType;
-        this.aiProfile = aiProfile;
-
-        this.applyShipTypeDefaults();
-
-        this.LocationX = 0;
-        this.LocationY = 0;
-        this.Facing = 0;
-        this.Heading = 0;
-        this.Velocity = 0;
-        this.RotationDirection = "None";
-        this.RotationVelocity = 0;
-        this.ShieldOn = 0;
-        this.ShieldStatus = 0;
-        this.HullStrength = this.MaxHullStrength;
-        this.Capacitor = this.MaxCapacitor;
-        this.autoPilotEngaged = false;
-        this.autoPilotFacingLocked = false;
     }
 
     applyShipTypeDefaults() {

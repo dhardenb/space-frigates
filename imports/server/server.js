@@ -184,8 +184,7 @@ Meteor.methods({
         const server = Server.getInstance();
         const shipTypeId = server ? server.resolveHumanShipType() : 'Viper';
         const playerId = Utilities.hashStringToUint32(this.connection.id);
-        let playerShip = new Ship(Engine.getNextGameObjectId());
-        playerShip.init({shipTypeId, pilotType: 'Human'});
+        let playerShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId, pilotType: 'Human'});
         playerShip.Name = name;
         playerShip.setStartingHumanPosition(mapRadius);
         gameObjects.push(playerShip);

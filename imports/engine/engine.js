@@ -496,10 +496,13 @@ export class Engine {
             if (instance) {
                 Object.assign(instance, remoteObject);
             } else {
-                instance = Object.assign(new ctor(), remoteObject);
+                // Create ship without initialization for deserialization
+                instance = new ctor(remoteObject.Id, {initializeState: false});
+                Object.assign(instance, remoteObject);
             }
 
-            if (instance instanceof Ship && typeof instance.applyShipTypeDefaults === 'function') {
+            // Apply ship type defaults if shipTypeId exists (from network data)
+            if (instance instanceof Ship && instance.shipTypeId && typeof instance.applyShipTypeDefaults === 'function') {
                 instance.applyShipTypeDefaults();
             }
 

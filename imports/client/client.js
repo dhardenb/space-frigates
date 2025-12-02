@@ -156,8 +156,7 @@ export class Client {
                 }
             });
         } else {
-            let playerShip = new Ship(Engine.getNextGameObjectId());
-            playerShip.init({shipTypeId: 'Viper', pilotType: 'Human'});
+            let playerShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId: 'Viper', pilotType: 'Human'});
             playerShip.Name = this.playerName;
             playerShip.setStartingHumanPosition(this.mapRadius);
             gameObjects.push(playerShip);
