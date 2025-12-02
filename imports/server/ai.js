@@ -1,4 +1,6 @@
 import {Engine} from '../engine/engine.js';
+import {ViperShip} from '../engine/viperShip.js';
+import {TurtleShip} from '../engine/turtleShip.js';
 import {Ship} from '../engine/ship.js';
 
 export class Ai {
@@ -36,7 +38,9 @@ export class Ai {
         if (nextShipType == 1 || nextShipType == 2) {
             const aiProfile = 'bot';
             const shipTypeId = this.selectShipType();
-            const newAiShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId, pilotType: 'Bot', aiProfile});
+            const newAiShip = shipTypeId === 'Viper'
+                ? new ViperShip(Engine.getNextGameObjectId(), {pilotType: 'Bot', aiProfile})
+                : new TurtleShip(Engine.getNextGameObjectId(), {pilotType: 'Bot', aiProfile});
             newAiShip.setStartingAiPosition(this.mapRadius);
             gameObjects.push(newAiShip);
         }

@@ -1,6 +1,8 @@
 import {Player} from './player.js';
 import {Laser} from './laser.js';
 import {Ship} from './ship.js';
+import {ViperShip} from './viperShip.js';
+import {TurtleShip} from './turtleShip.js';
 import {Particle} from './particle.js';
 import {LaserParticle} from './laserParticle.js';
 import {Thruster} from './thruster.js';
@@ -477,10 +479,19 @@ export class Engine {
         const mergedObjects = [];
         for (let i = 0; i < remoteGameObjects.length; i++) {
             const remoteObject = remoteGameObjects[i];
-            const ctor = constructors[remoteObject.type];
+            let ctor = constructors[remoteObject.type];
 
             if (!ctor) {
                 continue;
+            }
+
+            // For Ship objects, select the correct subclass based on shipTypeId
+            if (remoteObject.type === 'Ship' && remoteObject.shipTypeId) {
+                if (remoteObject.shipTypeId === 'Viper') {
+                    ctor = ViperShip;
+                } else if (remoteObject.shipTypeId === 'Turtle') {
+                    ctor = TurtleShip;
+                }
             }
 
             const hasStableId = typeof remoteObject.id !== 'undefined';
@@ -499,11 +510,6 @@ export class Engine {
                 // Create ship without initialization for deserialization
                 instance = new ctor(remoteObject.id, {initializeState: false});
                 Object.assign(instance, remoteObject);
-            }
-
-            // Apply ship type defaults if shipTypeId exists (from network data)
-            if (instance instanceof Ship && instance.shipTypeId && typeof instance.applyShipTypeDefaults === 'function') {
-                instance.applyShipTypeDefaults();
             }
 
             mergedObjects.push(instance);

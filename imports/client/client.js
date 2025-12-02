@@ -2,7 +2,7 @@ import {Engine} from '../engine/engine.js';
 import {Keyboard} from './keyboard.js';
 import {Renderer} from './renderer/renderer.js';
 import {Utilities} from '../utilities/utilities.js';
-import {Ship} from '../engine/ship.js';
+import {ViperShip} from '../engine/viperShip.js';
 import {DebugOverlay} from './renderer/debugOverlay.js';
 
 export class Client {
@@ -156,7 +156,7 @@ export class Client {
                 }
             });
         } else {
-            let playerShip = new Ship(Engine.getNextGameObjectId(), {shipTypeId: 'Viper', pilotType: 'Human'});
+            let playerShip = new ViperShip(Engine.getNextGameObjectId(), {pilotType: 'Human'});
             playerShip.Name = this.playerName;
             playerShip.setStartingHumanPosition(this.mapRadius);
             gameObjects.push(playerShip);

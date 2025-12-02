@@ -3,7 +3,6 @@ import {Laser} from './laser.js';
 import {Physics} from './physics.js';
 import {Sound} from './sound.js';
 import {Thruster} from './thruster.js';
-import {SHIP_TYPES} from './shipTypes.js';
 import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
 
 const AUTO_PILOT_ANGLE_TOLERANCE_DEGREES = 3;
@@ -12,12 +11,13 @@ const AUTO_PILOT_ROTATION_THRESHOLD = 0.01;
 
 export class Ship {
 
-    constructor(id, {shipTypeId, pilotType = 'Human', aiProfile = null, initializeState = true} = {}) {
+    constructor(id, {pilotType = 'Human', aiProfile = null, initializeState = true} = {}) {
         this.id = id;
         this.type = 'Ship';
         this.shipTypeId = null;
-        this.pilotType = 'Unknown';
-        this.aiProfile = null;
+        this.shipDisplayName = null;
+        this.pilotType = pilotType;
+        this.aiProfile = aiProfile;
         this.size = 0;
         this.maxHullStrength = 0;
         this.thrusterStrength = 0;
@@ -43,67 +43,22 @@ export class Ship {
         this.collisionLengthMeters = shipCollisionSpec.length;
         this.collisionWidthMeters = shipCollisionSpec.width;
 
-        // If shipTypeId is provided, configure the ship
-        if (shipTypeId) {
-            const definition = SHIP_TYPES[shipTypeId];
-            if (!definition) {
-                throw new Error(`Unknown ship type: ${shipTypeId}`);
-            }
-
-            this.shipTypeId = definition.id;
-            this.shipDisplayName = definition.displayName;
-            this.pilotType = pilotType;
-            this.aiProfile = aiProfile;
-
-            this.applyShipTypeDefaults();
-
-            // Initialize runtime state if requested (default true, false for deserialization)
-            if (initializeState) {
-                this.locationX = 0;
-                this.locationY = 0;
-                this.facing = 0;
-                this.heading = 0;
-                this.velocity = 0;
-                this.rotationDirection = "None";
-                this.rotationVelocity = 0;
-                this.shieldOn = 0;
-                this.shieldStatus = 0;
-                this.hullStrength = this.maxHullStrength;
-                this.capacitor = this.maxCapacitor;
-                this.autoPilotEngaged = false;
-                this.autoPilotFacingLocked = false;
-            }
+        // Initialize runtime state if requested (default true, false for deserialization)
+        if (initializeState) {
+            this.locationX = 0;
+            this.locationY = 0;
+            this.facing = 0;
+            this.heading = 0;
+            this.velocity = 0;
+            this.rotationDirection = "None";
+            this.rotationVelocity = 0;
+            this.shieldOn = 0;
+            this.shieldStatus = 0;
+            this.hullStrength = this.maxHullStrength;
+            this.capacitor = this.maxCapacitor;
+            this.autoPilotEngaged = false;
+            this.autoPilotFacingLocked = false;
         }
-    }
-
-    applyShipTypeDefaults() {
-        if (!this.shipTypeId) {
-            return;
-        }
-        const definition = SHIP_TYPES[this.shipTypeId];
-        if (!definition) {
-            return;
-        }
-        this.size = definition.size;
-        this.shipDisplayName = this.shipDisplayName || definition.displayName;
-        this.maxHullStrength = definition.maxHullStrength;
-        this.thrusterStrength = definition.thrusterStrength;
-        this.maxThrusterStrength = definition.maxThrusterStrength;
-        this.plasmaCannonStrength = definition.plasmaCannonStrength;
-        this.maxPlasmaCannonStrength = definition.maxPlasmaCannonStrength;
-        this.maxCapacitor = definition.maxCapacitor;
-        this.maxShieldStrength = definition.maxShieldStrength ?? this.maxShieldStrength;
-        this.shieldRechargeRate = definition.shieldRechargeRate ?? this.shieldRechargeRate;
-        this.shieldDecayRate = definition.shieldDecayRate ?? this.shieldDecayRate;
-        this.reactorOutputPerSecond = definition.reactorOutputPerSecond ?? this.reactorOutputPerSecond;
-        this.laserEnergyCost = definition.laserEnergyCost ?? this.laserEnergyCost;
-        this.laserFuelCapacity = definition.laserFuelCapacity ?? this.laserFuelCapacity;
-        this.laserFuelConsumptionRate = definition.laserFuelConsumptionRate ?? this.laserFuelConsumptionRate;
-        this.thrusterEnergyPerSecond = definition.thrusterEnergyPerSecond ?? this.thrusterEnergyPerSecond;
-        this.rotationEnergyPerSecond = definition.rotationEnergyPerSecond ?? this.rotationEnergyPerSecond;
-        this.mass = definition.mass ?? this.mass;
-        const defaultThrusterForce = this.mass * 20 * Physics.framesPerSecond;
-        this.thrusterForceProduced = definition.thrusterForceProduced ?? defaultThrusterForce;
     }
 
     determineCurrentCommand(commands) {
