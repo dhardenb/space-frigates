@@ -11,11 +11,11 @@ export function renderDamgeIndicator(map, {availableWidth, availableHeight, pixe
 
     map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
 
-    if (playerShip.HullStrength / playerShip.MaxHullStrength <= .33) {
+    if (playerShip.hullStrength / playerShip.maxHullStrength <= .33) {
         map.strokeStyle = "rgba(255, 0, 0, 1.0)";
         map.fillStyle = "rgba(100, 0, 0, 1.0)";
     }
-    else if (playerShip.HullStrength / playerShip.MaxHullStrength <= .66) {
+    else if (playerShip.hullStrength / playerShip.maxHullStrength <= .66) {
         map.strokeStyle = "rgba(255, 255, 0, 1.0)";
         map.fillStyle = "rgba(100, 100, 0, 1.0)";
     }
@@ -80,11 +80,11 @@ export function renderDamgeIndicator(map, {availableWidth, availableHeight, pixe
 
     map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
 
-    if (playerShip.PlasmaCannonStrength / playerShip.MaxPlasmaCannonStrength <= .33) {
+    if (playerShip.plasmaCannonStrength / playerShip.maxPlasmaCannonStrength <= .33) {
         map.strokeStyle = "rgba(255, 0, 0, 1.0)";
         map.fillStyle = "rgba(100, 0, 0, 1.0)";
     }
-    else if (playerShip.PlasmaCannonStrength / playerShip.MaxPlasmaCannonStrength <= .66) {
+    else if (playerShip.plasmaCannonStrength / playerShip.maxPlasmaCannonStrength <= .66) {
         map.strokeStyle = "rgba(255, 255, 0, 1.0)";
         map.fillStyle = "rgba(100, 100, 0, 1.0)";
     }
@@ -169,11 +169,11 @@ export function renderDamgeIndicator(map, {availableWidth, availableHeight, pixe
 
     map.scale(totalLengthOfObject * pixelsPerMeter, totalLengthOfObject * pixelsPerMeter);
 
-    if (playerShip.ThrusterStrength / playerShip.MaxThrusterStrength <= .33) {
+    if (playerShip.thrusterStrength / playerShip.maxThrusterStrength <= .33) {
         map.strokeStyle = "rgba(255, 0, 0, 1.0)";
         map.fillStyle = "rgba(100, 0, 0, 1.0)";
     }
-    else if (playerShip.ThrusterStrength / playerShip.MaxThrusterStrength <= .66) {
+    else if (playerShip.thrusterStrength / playerShip.maxThrusterStrength <= .66) {
         map.strokeStyle = "rgba(255, 255, 0, 1.0)";
         map.fillStyle = "rgba(100, 100, 0, 1.0)";
     }

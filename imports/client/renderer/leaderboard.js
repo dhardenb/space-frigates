@@ -18,7 +18,7 @@ export function renderLeaderboard(map, {gameObjects, playerId}) {
 
     for (let i = 0, j = gameObjects.length; i < j; i++) {
         const gameObject = gameObjects[i];
-        if (gameObject.Type === 'Player' && gameObject.Name !== "") {
+        if (gameObject.type === 'Player' && gameObject.Name !== "") {
             players.push(gameObject);
         }
     }
@@ -30,7 +30,7 @@ export function renderLeaderboard(map, {gameObjects, playerId}) {
         if (a.Deaths !== b.Deaths) {
             return a.Deaths - b.Deaths;
         }
-        return a.Id - b.Id;
+        return a.id - b.id;
     });
 
     for (let i = 0, j = players.length; i < j; i++) {

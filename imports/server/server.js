@@ -190,15 +190,15 @@ Meteor.methods({
         gameObjects.push(playerShip);
 
         for (let i=0, j=gameObjects.length; i<j; i++) {
-            if (gameObjects[i].Type == 'Player') {
-                if (gameObjects[i].Id == playerId) {
-                    gameObjects[i].ShipId = playerShip.Id;
+            if (gameObjects[i].type == 'Player') {
+                if (gameObjects[i].id == playerId) {
+                    gameObjects[i].ShipId = playerShip.id;
                     gameObjects[i].Name = name;
                 }
             }
         }
 
-        return playerShip.Id;
+        return playerShip.id;
     },
 
     getPlayerId: function() {

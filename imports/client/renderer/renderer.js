@@ -124,7 +124,7 @@ export class Renderer {
     }
 
     determineIfObjectShouldBeRendered(objectToInspect) {
-        if (objectToInspect.LocationX > this.camera.left && objectToInspect.LocationX <  this.camera.right && objectToInspect.LocationY > this.camera.top && objectToInspect.LocationY < this.camera.bottom) {
+        if (objectToInspect.locationX > this.camera.left && objectToInspect.locationX <  this.camera.right && objectToInspect.locationY > this.camera.top && objectToInspect.locationY < this.camera.bottom) {
             return true;
         } else {
             return false;
@@ -134,25 +134,25 @@ export class Renderer {
     updateCamera() {
         this.camera.prevCenterX = this.camera.centerX;
         this.camera.prevCenterY = this.camera.centerY;
-        if (typeof this.playerShip.LocationX === 'undefined') {
+        if (typeof this.playerShip.locationX === 'undefined') {
             this.camera.centerX = 0;
         } else {
-            this.camera.centerX = this.playerShip.LocationX;
+            this.camera.centerX = this.playerShip.locationX;
         }
-        if (typeof this.playerShip.LocationY === 'undefined') {
+        if (typeof this.playerShip.locationY === 'undefined') {
             this.camera.centerY = 0;
         } else {
-            this.camera.centerY = this.playerShip.LocationY;
+            this.camera.centerY = this.playerShip.locationY;
         }
-        this.camera.left = this.playerShip.LocationX - this.availableWidth / 2;
-        this.camera.right = this.playerShip.LocationX + this.availableWidth / 2;
-        this.camera.top = this.playerShip.LocationY - this.availableHeight / 2;
-        this.camera.bottom = this.playerShip.LocationY + this.availableHeight / 2;
+        this.camera.left = this.playerShip.locationX - this.availableWidth / 2;
+        this.camera.right = this.playerShip.locationX + this.availableWidth / 2;
+        this.camera.top = this.playerShip.locationY - this.availableHeight / 2;
+        this.camera.bottom = this.playerShip.locationY + this.availableHeight / 2;
     }
 
     updateLocationOffset() {
-        this.focalX = -this.playerShip.LocationX * this.worldPixelsPerMeter;
-        this.focalY = -this.playerShip.LocationY * this.worldPixelsPerMeter;
+        this.focalX = -this.playerShip.locationX * this.worldPixelsPerMeter;
+        this.focalY = -this.playerShip.locationY * this.worldPixelsPerMeter;
     }
 
     scrollTheBackground() {
@@ -253,7 +253,7 @@ export class Renderer {
     // the player dies and restarts
     updatePlayerShip(playerShipId) {
         for (let i = 0, j = gameObjects.length; i < j; i++) {
-            if (gameObjects[i].Id == playerShipId) {
+            if (gameObjects[i].id == playerShipId) {
                 this.playerShip = gameObjects[i];
             }
         }
@@ -289,12 +289,12 @@ export class Renderer {
                 continue;
             }
 
-            if (gameObject.Type === 'Player' && typeof gameObject.ShipId !== 'undefined') {
+            if (gameObject.type === 'Player' && typeof gameObject.ShipId !== 'undefined') {
                 shipNamesById.set(gameObject.ShipId, name);
             }
 
-            if (gameObject.Type === 'Ship' && typeof gameObject.Id !== 'undefined') {
-                shipNamesById.set(gameObject.Id, name);
+            if (gameObject.type === 'Ship' && typeof gameObject.id !== 'undefined') {
+                shipNamesById.set(gameObject.id, name);
             }
         }
 
@@ -309,7 +309,7 @@ export class Renderer {
 
             if (this.determineIfObjectShouldBeRendered(gameObjects[i])) {
 
-                if (gameObjects[i].Type == 'Ship') {
+                if (gameObjects[i].type == 'Ship') {
 
                     renderShip(this.map, gameObjects[i], {
                         pixelsPerMeter: this.pixelsPerMeter,
@@ -323,39 +323,39 @@ export class Renderer {
 
                 }
 
-                else if (gameObjects[i].Type == 'Particle') {
+                else if (gameObjects[i].type == 'Particle') {
 
                     renderParticle(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
-                else if (gameObjects[i].Type == 'LaserParticle') {
+                else if (gameObjects[i].type == 'LaserParticle') {
 
                     renderLaserParticle(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
-                else if (gameObjects[i].Type == 'Thruster') {
+                else if (gameObjects[i].type == 'Thruster') {
 
                     renderThruster(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
                 }
 
-                else if (gameObjects[i].Type == 'Laser') {
+                else if (gameObjects[i].type == 'Laser') {
 
                     renderLaser(this.map, gameObjects[i], this.worldPixelsPerMeter);
                     this.renderBoundingBox(gameObjects[i]);
 
                 }
 
-                else if (gameObjects[i].Type == 'Debris') {
+                else if (gameObjects[i].type == 'Debris') {
 
                     renderDebris(this.map, gameObjects[i], this.worldPixelsPerMeter);
                     this.renderBoundingBox(gameObjects[i]);
 
                 }
 
-                else if (gameObjects[i].Type == 'Sound') {
+                else if (gameObjects[i].type == 'Sound') {
 
                     this.renderSound(gameObjects[i]);
 
@@ -392,18 +392,18 @@ export class Renderer {
 
             renderHullStrength(this.map, {
                 availableHeight: this.availableHeight,
-                hullStrength: this.playerShip.HullStrength,
+                hullStrength: this.playerShip.hullStrength,
             });
 
             renderCapacitorStatus(this.map, {
                 availableHeight: this.availableHeight,
-                capacitor: this.playerShip.Capacitor,
+                capacitor: this.playerShip.capacitor,
             });
 
             renderShieldStatus(this.map, {
                 availableHeight: this.availableHeight,
-                shieldStatus: this.playerShip.ShieldStatus,
-                shieldOn: this.playerShip.ShieldOn,
+                shieldStatus: this.playerShip.shieldStatus,
+                shieldOn: this.playerShip.shieldOn,
             });
 
             renderDamgeIndicator(this.map, {
@@ -450,7 +450,7 @@ export class Renderer {
 
         this.map.save();
 
-        this.map.translate(star.LocationX * this.worldPixelsPerMeter, star.LocationY * this.worldPixelsPerMeter);
+        this.map.translate(star.locationX * this.worldPixelsPerMeter, star.locationY * this.worldPixelsPerMeter);
 
         this.map.beginPath();
 
@@ -493,7 +493,7 @@ export class Renderer {
 
             if (this.playerShip != null) {
                 
-                distanceFromPlayersShip = Math.sqrt((this.playerShip.LocationX - sound.LocationX) * (this.playerShip.LocationX - sound.LocationX) + (this.playerShip.LocationY - sound.LocationY) * (this.playerShip.LocationY - sound.LocationY)) / this.pixelsPerMeter;
+                distanceFromPlayersShip = Math.sqrt((this.playerShip.locationX - sound.locationX) * (this.playerShip.locationX - sound.locationX) + (this.playerShip.locationY - sound.locationY) * (this.playerShip.locationY - sound.locationY)) / this.pixelsPerMeter;
 
             }
 
@@ -507,7 +507,7 @@ export class Renderer {
 
             let srcFile = '';
 
-            if (sound.SoundType == "LaserFired") {
+            if (sound.soundType == "LaserFired") {
                 
                 soundVolume = soundVolume * 1.0;
                 
@@ -533,7 +533,7 @@ export class Renderer {
         if (!this.showBoundingBoxes) {
             return;
         }
-        if (!gameObject || !BOUNDING_BOX_RENDER_TYPES.has(gameObject.Type)) {
+        if (!gameObject || !BOUNDING_BOX_RENDER_TYPES.has(gameObject.type)) {
             return;
         }
         const box = buildBoundingBoxForRender(gameObject);
@@ -567,14 +567,14 @@ function buildBoundingBoxForRender(gameObject) {
         return null;
     }
     const spec = getBoundingBoxSpec(gameObject);
-    const centerX = Number(gameObject.LocationX);
-    const centerY = Number(gameObject.LocationY);
+    const centerX = Number(gameObject.locationX);
+    const centerY = Number(gameObject.locationY);
     if (!Number.isFinite(centerX) || !Number.isFinite(centerY)) {
         return null;
     }
-    const orientationDegrees = Number.isFinite(gameObject.Facing)
-        ? gameObject.Facing
-        : (Number.isFinite(gameObject.Heading) ? gameObject.Heading : 0);
+    const orientationDegrees = Number.isFinite(gameObject.facing)
+        ? gameObject.facing
+        : (Number.isFinite(gameObject.heading) ? gameObject.heading : 0);
     const orientationRadians = orientationDegrees * Math.PI / 180;
     const axisLength = normalizeAxis({
         x: Math.sin(orientationRadians),
@@ -603,7 +603,7 @@ function getBoundingBoxSpec(gameObject) {
     if (explicitSpec) {
         return explicitSpec;
     }
-    const fallbackSize = Number(gameObject.Size) || 1;
+    const fallbackSize = Number(gameObject.size) || 1;
     return {length: fallbackSize, width: fallbackSize};
 }
 

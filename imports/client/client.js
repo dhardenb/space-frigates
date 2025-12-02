@@ -74,7 +74,7 @@ export class Client {
             let playerIsAlive = false;        
 
             for (let x = 0; x < gameObjects.length; x++) {
-                if (gameObjects[x].Id == this.playerShipId) {
+                if (gameObjects[x].id == this.playerShipId) {
                     playerIsAlive = true;
                 }
             }
@@ -160,7 +160,7 @@ export class Client {
             playerShip.Name = this.playerName;
             playerShip.setStartingHumanPosition(this.mapRadius);
             gameObjects.push(playerShip);
-            this.playerShipId = playerShip.Id;
+            this.playerShipId = playerShip.id;
         }
     }
 
@@ -283,7 +283,7 @@ export class Client {
         }
         for (let i = 0; i < gameObjects.length; i++) {
             const obj = gameObjects[i];
-            if (obj && obj.Type === 'Ship' && obj.Id === this.playerShipId) {
+            if (obj && obj.type === 'Ship' && obj.id === this.playerShipId) {
                 return obj;
             }
         }
@@ -338,11 +338,11 @@ export class Client {
             }
         });
 
-        if (ship.Capacitor > ship.MaxCapacitor) {
-            ship.Capacitor = ship.MaxCapacitor;
+        if (ship.capacitor > ship.maxCapacitor) {
+            ship.capacitor = ship.maxCapacitor;
         }
-        if (ship.ShieldStatus > ship.MaxShieldStrength) {
-            ship.ShieldStatus = ship.MaxShieldStrength;
+        if (ship.shieldStatus > ship.maxShieldStrength) {
+            ship.shieldStatus = ship.maxShieldStrength;
         }
 
         this.debugOverlay.setShipStatus('Ship attributes updated.', 'success');

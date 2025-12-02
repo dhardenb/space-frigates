@@ -4,15 +4,15 @@ import {COLLISION_DIMENSIONS} from './config/collisionDimensions.js';
 export class Laser {
 
         constructor(id) {
-                this.Id = id;
-                this.Type = "Laser";
-                this.Size = 3.0;
-                this.Mass = 0;
-                this.LaserLaunchOffset = 1.0;
+                this.id = id;
+                this.type = "Laser";
+                this.size = 3.0;
+                this.mass = 0;
+                this.laserLaunchOffset = 1.0;
                 this.initialVelocity = 100;
-                this.Velocity = 0;
+                this.velocity = 0;
                 this.fuelConsumptionRate = 30; // default, can be overridden
-                this.MaxFuel = 30;
+                this.maxFuel = 30;
 		const laserCollisionSpec = COLLISION_DIMENSIONS.Laser;
 		// Collision dimensions must stay in sync with COLLISION_DIMENSIONS.
 		this.collisionLengthMeters = laserCollisionSpec.length;
@@ -20,61 +20,61 @@ export class Laser {
 	}
 
 	init(sourceObject) {
-		this.LocationX = sourceObject.LocationX;
-		this.LocationY = sourceObject.LocationY;
-		this.Facing = sourceObject.Facing;
-		this.Heading = sourceObject.Heading;
-		this.MaxFuel = sourceObject.LaserFuelCapacity || this.MaxFuel;
-		this.fuelConsumptionRate = sourceObject.LaserFuelConsumptionRate || this.fuelConsumptionRate;
-		this.Fuel = this.MaxFuel;
-		this.Owner = sourceObject.Id;
+		this.locationX = sourceObject.locationX;
+		this.locationY = sourceObject.locationY;
+		this.facing = sourceObject.facing;
+		this.heading = sourceObject.heading;
+		this.maxFuel = sourceObject.laserFuelCapacity || this.maxFuel;
+		this.fuelConsumptionRate = sourceObject.laserFuelConsumptionRate || this.fuelConsumptionRate;
+		this.fuel = this.maxFuel;
+		this.owner = sourceObject.id;
 		this.calclulateInitialPosition(sourceObject);
-		Physics.findNewVelocity(this, sourceObject.Facing, this.initialVelocity);
+		Physics.findNewVelocity(this, sourceObject.facing, this.initialVelocity);
 	}
 
 	update(commands, framesPerSecond) {	
-		this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
+		this.fuel = this.fuel - this.fuelConsumptionRate / framesPerSecond;
 		Physics.moveObjectAlongVector(this);
 	}
 
 	calclulateInitialPosition(sourceObject) {
 
-		if (sourceObject.Facing == 0) {
+		if (sourceObject.facing == 0) {
 
-			this.LocationY = this.LocationY - sourceObject.Size / 2 - this.Size / 2 - this.LaserLaunchOffset;
+			this.locationY = this.locationY - sourceObject.size / 2 - this.size / 2 - this.laserLaunchOffset;
 
 		}
-		else if (sourceObject.Facing == 90) {
+		else if (sourceObject.facing == 90) {
 
-			this.LocationX = this.LocationX + sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset;
+			this.locationX = this.locationX + sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset;
 		}
-		else if (sourceObject.Facing == 180) {
+		else if (sourceObject.facing == 180) {
 
-			this.LocationY = this.LocationY + sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset;
+			this.locationY = this.locationY + sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset;
 		}
-		else if (sourceObject.Facing == 270) {
+		else if (sourceObject.facing == 270) {
 
-			this.LocationX = this.LocationX - sourceObject.Size / 2 - this.Size / 2 - this.LaserLaunchOffset;
+			this.locationX = this.locationX - sourceObject.size / 2 - this.size / 2 - this.laserLaunchOffset;
 		}
-		else if (sourceObject.Facing < 90) {
+		else if (sourceObject.facing < 90) {
 
-			this.LocationX = this.LocationX + (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.sin(sourceObject.Facing * 0.0174532925));
-			this.LocationY = this.LocationY - (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.cos(sourceObject.Facing * 0.0174532925));
+			this.locationX = this.locationX + (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.sin(sourceObject.facing * 0.0174532925));
+			this.locationY = this.locationY - (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.cos(sourceObject.facing * 0.0174532925));
 		}
-		else if (sourceObject.Facing < 180) {
+		else if (sourceObject.facing < 180) {
 
-			this.LocationX = this.LocationX + (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.sin((180 - sourceObject.Facing) * 0.0174532925));
-			this.LocationY = this.LocationY + (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.cos((180 - sourceObject.Facing) * 0.0174532925));
+			this.locationX = this.locationX + (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.sin((180 - sourceObject.facing) * 0.0174532925));
+			this.locationY = this.locationY + (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.cos((180 - sourceObject.facing) * 0.0174532925));
 		}
-		else if (sourceObject.Facing < 270) {
+		else if (sourceObject.facing < 270) {
 
-			this.LocationX = this.LocationX - (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.sin((sourceObject.Facing - 180) * 0.0174532925));
-			this.LocationY = this.LocationY + (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.cos((sourceObject.Facing - 180) * 0.0174532925));
+			this.locationX = this.locationX - (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.sin((sourceObject.facing - 180) * 0.0174532925));
+			this.locationY = this.locationY + (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.cos((sourceObject.facing - 180) * 0.0174532925));
 		}
 		else {
 
-			this.LocationX = this.LocationX - (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.sin((360 - sourceObject.Facing) * 0.0174532925));
-			this.LocationY = this.LocationY - (sourceObject.Size / 2 + this.Size / 2 + this.LaserLaunchOffset)*(Math.cos((360 - sourceObject.Facing) * 0.0174532925));
+			this.locationX = this.locationX - (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.sin((360 - sourceObject.facing) * 0.0174532925));
+			this.locationY = this.locationY - (sourceObject.size / 2 + this.size / 2 + this.laserLaunchOffset)*(Math.cos((360 - sourceObject.facing) * 0.0174532925));
 		}
 	}
 }

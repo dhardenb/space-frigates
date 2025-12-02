@@ -1,8 +1,8 @@
 export function renderLaserParticle(map, particle, worldPixelsPerMeter) {
     map.save();
 
-    map.translate(particle.LocationX * worldPixelsPerMeter, particle.LocationY * worldPixelsPerMeter);
-    map.rotate((particle.Heading + 90) * Math.PI / 180);
+    map.translate(particle.locationX * worldPixelsPerMeter, particle.locationY * worldPixelsPerMeter);
+    map.rotate((particle.heading + 90) * Math.PI / 180);
 
     const alpha = Math.random() * 0.5 + 0.25;
     const red = 150 + Math.floor(Math.random() * 70);
@@ -10,9 +10,9 @@ export function renderLaserParticle(map, particle, worldPixelsPerMeter) {
     const blue = 220 + Math.floor(Math.random() * 35);
 
     map.strokeStyle = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-    map.lineWidth = Math.max(1, particle.Size * worldPixelsPerMeter * 0.6);
+    map.lineWidth = Math.max(1, particle.size * worldPixelsPerMeter * 0.6);
 
-    const sparkLengthPixels = (particle.sparkLength || particle.Size) * worldPixelsPerMeter * 1.5;
+    const sparkLengthPixels = (particle.sparkLength || particle.size) * worldPixelsPerMeter * 1.5;
 
     map.beginPath();
     map.moveTo(0, 0);

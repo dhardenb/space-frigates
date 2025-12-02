@@ -3,23 +3,23 @@ import {Physics} from './physics.js';
 export class Particle {
 
     constructor(id) {
-        this.Id = id;
-        this.Type = "Particle";
-        this.Facing = 0;
-        this.Size = 2.0;
+        this.id = id;
+        this.type = "Particle";
+        this.facing = 0;
+        this.size = 2.0;
         this.fuelConsumptionRate = 1; // 1 per second!
     }
 
     init(sourceObject) {
-        this.LocationX = sourceObject.LocationX;
-        this.LocationY = sourceObject.LocationY;
-        this.Heading = Math.random() * 360;
-        this.Velocity = Math.random() * 100;
-        this.Fuel = Math.random() * 0.5;
+        this.locationX = sourceObject.locationX;
+        this.locationY = sourceObject.locationY;
+        this.heading = Math.random() * 360;
+        this.velocity = Math.random() * 100;
+        this.fuel = Math.random() * 0.5;
     }
 
     update(commands, framesPerSecond) {
-        this.Fuel = this.Fuel - this.fuelConsumptionRate / framesPerSecond;
+        this.fuel = this.fuel - this.fuelConsumptionRate / framesPerSecond;
         Physics.moveObjectAlongVector(this);
     }
 }
