@@ -3,7 +3,7 @@ import {Laser} from './laser.js';
 import {Ship} from './ship.js';
 import {ViperShip} from './viperShip.js';
 import {TurtleShip} from './turtleShip.js';
-import {Particle} from './particle.js';
+import {FireParticle} from './fireParticle.js';
 import {LaserParticle} from './laserParticle.js';
 import {Thruster} from './thruster.js';
 import {Debris} from './debris.js';
@@ -391,7 +391,7 @@ export class Engine {
             return;
         }
         for (let i = 0; i < this.explosionSize; i++) {
-            const newParticle = new Particle(Engine.getNextGameObjectId());
+            const newParticle = new FireParticle(Engine.getNextGameObjectId());
             newParticle.init(explosion);
             gameObjects.push(newParticle);
         }
@@ -427,7 +427,7 @@ export class Engine {
     findSolidObjects() {
         const solidObjects = [];
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].type != 'Particle' && gameObjects[x].type != 'LaserParticle' && gameObjects[x].type != 'Thruster' && gameObjects[x].type != 'Player' && gameObjects[x].type != 'Sound' && gameObjects[x].type != 'Explosion') {
+            if (gameObjects[x].type != 'FireParticle' && gameObjects[x].type != 'LaserParticle' && gameObjects[x].type != 'Thruster' && gameObjects[x].type != 'Player' && gameObjects[x].type != 'Sound' && gameObjects[x].type != 'Explosion') {
                 solidObjects.push(gameObjects[x])
             }
         }

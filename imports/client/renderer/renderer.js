@@ -333,7 +333,7 @@ export class Renderer {
 
                 }
 
-                else if (gameObjects[i].type == 'Particle') {
+                else if (gameObjects[i].type == 'FireParticle') {
 
                     renderParticle(this.map, gameObjects[i], this.worldPixelsPerMeter);
 
