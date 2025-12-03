@@ -39,8 +39,11 @@ export class Renderer {
         this.minZoomFactor = 0.5;
         this.maxZoomFactor = 2.5;
         this.renderTimeSeconds = 0;
+        this.renderTimestampMs = 0;
         this.landingOverlayAlpha = 0;
         this.showBoundingBoxes = true;
+        this.recentSoundKeys = [];
+        this.soundDedupIntervalMs = 500;
     }
 
     createBackground() {
@@ -264,6 +267,8 @@ export class Renderer {
         this.playerName = playerName;
         const nowMs = (typeof performance !== 'undefined' && typeof performance.now === 'function') ? performance.now() : Date.now();
         this.renderTimeSeconds = nowMs / 1000;
+        this.renderTimestampMs = nowMs;
+        this.pruneRecentSounds(nowMs);
 
         let windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
@@ -486,6 +491,16 @@ export class Renderer {
 
         if (Client.gameMode == 'PLAY_MODE') {
 
+            const timestampMs = this.renderTimestampMs || Date.now();
+            const soundKey = this.buildSoundKey(sound);
+
+            if (soundKey) {
+                if (this.wasSoundRecentlyPlayed(soundKey, timestampMs)) {
+                    return;
+                }
+                this.markSoundPlayed(soundKey, timestampMs);
+            }
+
             let distanceFromPlayersShip = 0;
 
             let soundVolume = 1.0;
@@ -526,6 +541,37 @@ export class Renderer {
 
         }
 
+    }
+
+    buildSoundKey(sound) {
+        if (!sound || typeof sound.soundType !== 'string') {
+            return null;
+        }
+
+        const x = Number(sound.locationX);
+        const y = Number(sound.locationY);
+
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+            return null;
+        }
+
+        const roundedX = Math.round(x * 100) / 100;
+        const roundedY = Math.round(y * 100) / 100;
+
+        return `${sound.soundType}:${roundedX}:${roundedY}`;
+    }
+
+    wasSoundRecentlyPlayed(key, timestampMs) {
+        return this.recentSoundKeys.some((entry) => entry.key === key && (timestampMs - entry.playedAt) <= this.soundDedupIntervalMs);
+    }
+
+    markSoundPlayed(key, timestampMs) {
+        this.recentSoundKeys.push({key, playedAt: timestampMs});
+    }
+
+    pruneRecentSounds(timestampMs) {
+        const cutoff = timestampMs - this.soundDedupIntervalMs;
+        this.recentSoundKeys = this.recentSoundKeys.filter((entry) => entry.playedAt >= cutoff);
     }
 
     renderBoundingBox(gameObject) {
