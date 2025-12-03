@@ -232,8 +232,7 @@ export class Ship {
                 activateLaser = false;
             }
             if (activateLaser) {
-                const newLaser = new Laser(Engine.getNextGameObjectId());
-                newLaser.init(this);
+                const newLaser = new Laser(Engine.getNextGameObjectId(), {sourceObject: this});
                 gameObjects.push(newLaser);
                 const newSound = new Sound();
                 newSound.init("LaserFired", this);
@@ -467,9 +466,8 @@ export class Ship {
         const acceleration = thrustForce / mass;
         const velocityBoost = acceleration / Physics.framesPerSecond;
         Physics.findNewVelocity(this, this.facing, velocityBoost);
-        const newThruster = new Thruster(Engine.getNextGameObjectId());
         const facing = (this.facing + 180) % 360;
-        newThruster.init(this, {facing});
+        const newThruster = new Thruster(Engine.getNextGameObjectId(), {sourceObject: this, facing});
         gameObjects.push(newThruster);
         return true;
     }
@@ -577,8 +575,7 @@ export class Ship {
     }
 
     spawnThrusterAt(offset, facing, size) {
-        const thruster = new Thruster(Engine.getNextGameObjectId(), size);
-        thruster.init(this, {offset, facing, size});
+        const thruster = new Thruster(Engine.getNextGameObjectId(), {sourceObject: this, offset, facing, size});
         gameObjects.push(thruster);
     }
 

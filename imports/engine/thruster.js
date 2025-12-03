@@ -3,30 +3,41 @@ import {Physics} from './physics.js';
 export class Thruster {
     static DEFAULT_SIZE = 6.0;
 
-    constructor(id, size = Thruster.DEFAULT_SIZE) {
+    constructor(id, {sourceObject = null, size = Thruster.DEFAULT_SIZE, facing = null, offset = null, initializeState = true} = {}) {
         this.id = id;
         this.type = "Thruster";
         this.size = size;
         this.thrusterOffset = 2.0;
         this.initialVelocity = 0;
         this.fuelConsumptionRate = 1;
-    }
 
-    init(sourceObject, options = {}) {
-        this.locationX = sourceObject.locationX;
-        this.locationY = sourceObject.locationY;
-        this.facing = typeof options.facing === 'number' ? options.facing : sourceObject.facing;
-        this.heading = sourceObject.heading;
-        this.velocity = sourceObject.velocity;
-        this.size = typeof options.size === 'number' ? options.size : this.size;
-        this.fuel = 0.1;
-        if (options.offset) {
-            this.locationX += options.offset.x;
-            this.locationY += options.offset.y;
-        } else {
-            this.calclulateInitialPosition(sourceObject);
+        // Initialize from source object if provided
+        if (sourceObject) {
+            this.locationX = sourceObject.locationX;
+            this.locationY = sourceObject.locationY;
+            this.facing = typeof facing === 'number' ? facing : sourceObject.facing;
+            this.heading = sourceObject.heading;
+            this.velocity = sourceObject.velocity;
+            this.size = typeof size === 'number' ? size : this.size;
+            this.fuel = 0.1;
+            if (offset) {
+                this.locationX += offset.x;
+                this.locationY += offset.y;
+            } else {
+                this.calclulateInitialPosition(sourceObject);
+            }
+            Physics.findNewVelocity(this, this.facing, this.initialVelocity);
         }
-        Physics.findNewVelocity(this, this.facing, this.initialVelocity);
+
+        // Initialize runtime state if requested (default true, false for deserialization)
+        if (initializeState && !sourceObject) {
+            this.locationX = 0;
+            this.locationY = 0;
+            this.facing = 0;
+            this.heading = 0;
+            this.velocity = 0;
+            this.fuel = 0.1;
+        }
     }
 
     update(commands, framesPerSecond) {
