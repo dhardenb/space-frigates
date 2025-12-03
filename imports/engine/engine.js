@@ -20,7 +20,6 @@ export class Engine {
         this.deadObjects = [];
         this.explosionSize = 20;
         this.mapRadius = mapRadius;
-        this.eventRecorder = null;
     }
 
     static getNextGameObjectId() {
@@ -196,7 +195,6 @@ export class Engine {
                 if (target.type === 'Ship') {
                     this.scoreDeath(target.id);
                     this.scoreKill(laser.owner);
-                    this.recordShipDestroyed(target);
                 }
             }
             return true;
@@ -311,7 +309,6 @@ export class Engine {
             this.deadObjects.push(targetObject);
             if (targetObject.type === 'Ship') {
                 this.scoreDeath(targetObject.id);
-                this.recordShipDestroyed(targetObject);
                 if (sourceObject && sourceObject.id) {
                     this.scoreKill(sourceObject.id);
                 }
@@ -421,7 +418,6 @@ export class Engine {
     fuelDetection() {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].fuel < 0) {
-                this.recordShipDestroyed(gameObjects[x]);
                 this.deadObjects.push(gameObjects[x]);
             }
         }
@@ -453,7 +449,6 @@ export class Engine {
                 }
                 this.scoreDeath(solidObjects[x].id);
                 this.deadObjects.push(solidObjects[x]);
-                this.recordShipDestroyed(solidObjects[x]);
             }
         }
         this.removeDeadObjects();
@@ -562,30 +557,6 @@ export class Engine {
         }
 
         return localGameObjects;
-    }
-
-    setEventRecorder(recorder) {
-        this.eventRecorder = recorder;
-    }
-
-    recordEvent(event) {
-        if (typeof this.eventRecorder === 'function' && event) {
-            this.eventRecorder(event);
-        }
-    }
-
-    recordShipDestroyed(gameObject) {
-        if (!gameObject) {
-            return;
-        }
-        if (gameObject.type == 'Ship') {
-            this.recordEvent({
-                type: 'ShipDestroyed',
-                shipId: gameObject.id,
-                locationX: gameObject.locationX,
-                locationY: gameObject.locationY
-            });
-        }
     }
 
     scoreKill(shipId) {

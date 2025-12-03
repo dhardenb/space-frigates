@@ -71,9 +71,7 @@ export class Client {
                 gameObjects = this.engine.convertObjects(gameObjects, serverUpdate.gameState);
             }  
 
-            this.replayEvents(serverUpdate.events);
-
-            let playerIsAlive = false;        
+            let playerIsAlive = false;
 
             for (let x = 0; x < gameObjects.length; x++) {
                 if (gameObjects[x].id == this.playerShipId) {
@@ -175,23 +173,6 @@ export class Client {
             this.engine.spawnLaserExplosionParticles(explosion);
         } else {
             this.engine.spawnExplosionParticles(explosion);
-        }
-    }
-
-    replayEvents(events) {
-        if (!Array.isArray(events)) {
-            return;
-        }
-
-        for (let i = 0; i < events.length; i++) {
-            const event = events[i];
-            if (event.type === 'ShipDestroyed') {
-                // Use the engine helper to spawn local particles where the ship died
-                this.engine.createExplosion({
-                    locationX: event.locationX,
-                    locationY: event.locationY
-                });
-            }
         }
     }
 
