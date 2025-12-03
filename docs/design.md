@@ -90,7 +90,72 @@ Woud be really nice to provide volume and mute controls to the GUI
 
 ## Network Event Stream
 
-The snapshot sent from the server now carries a lightweight `events` array. Each entry describes a one-off action the client could not infer locally (currently `ShipDestroyed`). The server records these events while running the authoritative physics simulation and includes them in the packed payload; the client replays them right after reconciling the snapshot so visuals such as remote explosions still occur even when the responsible ship never existed locally.
+### Why Events Exist
+
+The game uses a client-server architecture where the server runs the authoritative physics simulation and periodically sends snapshots of the game state to clients. However, some important game events cannot be inferred from state snapshots alone:
+
+1. **One-time visual effects**: When a ship is destroyed, the explosion particles need to be created even if the destroyed ship was never visible to a particular client (e.g., it was destroyed off-screen or before the client connected).
+
+2. **State transitions that aren't in snapshots**: A destroyed ship simply disappears from the game state. Without an event, clients wouldn't know where or when the destruction occurred, making it impossible to show explosion effects at the correct location.
+
+3. **Network throttling**: When network throttling is enabled, the server may skip sending snapshots for several physics ticks. Events are buffered and sent together, ensuring important one-time occurrences aren't lost.
+
+### How It Works
+
+The event system follows a simple flow:
+
+**Server-side (event creation):**
+1. During physics updates, the Engine detects significant events (e.g., ship destruction) and calls `recordShipDestroyed()`.
+2. This creates an event object with type `ShipDestroyed` containing the ship's ID and location.
+3. The event is recorded via the Engine's event recorder callback, which the Server provides.
+4. Events accumulate in a `pendingEvents` array during each physics tick.
+5. After each tick, pending events are flushed into an `eventBuffer`.
+6. When a snapshot is emitted (respecting network throttling), the event buffer is included in the packed game state and sent to all clients.
+7. The event buffer is then cleared for the next cycle.
+
+**Client-side (event replay):**
+1. The client receives the packed snapshot and unpacks it, extracting both the game state and the events array.
+2. The game state is reconciled (objects are updated/created/removed).
+3. Immediately after reconciliation, `replayEvents()` is called with the events array.
+4. For each event, the client checks the event type and performs the appropriate local action (e.g., creating explosion particles at the specified location).
+
+This ensures that visual effects like explosions happen at the correct time and location, even when the client never had the destroyed object in its local state.
+
+### Current Event Types
+
+**ShipDestroyed**
+- **When created**: Triggered when a ship is destroyed by:
+  - Laser impact (when hull reaches zero)
+  - Collision damage (when hull reaches zero)
+  - Fuel depletion (when fuel goes negative)
+  - Boundary violation (when ship flies out of bounds)
+- **Event data**:
+  - `type`: `'ShipDestroyed'`
+  - `shipId`: uint32 (the destroyed ship's ID)
+  - `locationX`: float32 (X coordinate where destruction occurred)
+  - `locationY`: float32 (Y coordinate where destruction occurred)
+- **Client action**: Creates an explosion particle effect at the specified location using `engine.createExplosion()`.
+
+### Adding New Event Types
+
+To add a new event type:
+
+1. **Define the event code** in `imports/utilities/utilities.js`:
+   - Add the event name and code to `EVENT_CODES` (e.g., `NewEventType: 2`)
+
+2. **Implement serialization** in `Utilities.writeEvent()`:
+   - Add a case for the new event code
+   - Write the event's data fields to the binary buffer
+
+3. **Implement deserialization** in `Utilities.readEvent()`:
+   - Add a case for the new event code
+   - Read the event's data fields from the binary buffer
+
+4. **Create the event** in the Engine:
+   - Call `this.recordEvent({ type: 'NewEventType', ...data })` at the appropriate point in the physics simulation
+
+5. **Handle the event** on the client:
+   - Add a case in `Client.replayEvents()` to handle the new event type and perform the appropriate local action
 
 ### Network Throttling
 
