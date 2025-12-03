@@ -15,7 +15,6 @@ export class Client {
         this.commands = [];
         this.inputStream = new Meteor.Streamer('input');
         this.outputStream = new Meteor.Streamer('output');
-        this.renderer = new Renderer(this.mapRadius);
         this.keyboard = new Keyboard();
         this.currentFrameRate = 0;
         this.previousTimeStamp = null;
@@ -28,6 +27,9 @@ export class Client {
         this.playerName = "";
         this.playerShipId = -1;
         this.engine = new Engine(this.mapRadius);
+        this.renderer = new Renderer(this.mapRadius, {
+            onExplosionEffect: this.handleExplosionEffect.bind(this)
+        });
         this.debugOverlay = null;
         this.autopilotIndicator = document.getElementById('autopilot-indicator');
         this.lastServerUpdateId = null;
@@ -69,9 +71,7 @@ export class Client {
                 gameObjects = this.engine.convertObjects(gameObjects, serverUpdate.gameState);
             }  
 
-            this.replayEvents(serverUpdate.events);
-
-            let playerIsAlive = false;        
+            let playerIsAlive = false;
 
             for (let x = 0; x < gameObjects.length; x++) {
                 if (gameObjects[x].id == this.playerShipId) {
@@ -118,6 +118,7 @@ export class Client {
         this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
         const playerShip = this.getPlayerShip();
         this.engine.removeSoundObjects();
+        this.engine.removeExplosionObjects();
         if (this.debugOverlay) {
             this.debugOverlay.updateStats({
                 fps: this.currentFrameRate,
@@ -164,20 +165,14 @@ export class Client {
         }
     }
 
-    replayEvents(events) {
-        if (!Array.isArray(events)) {
+    handleExplosionEffect(explosion) {
+        if (!explosion) {
             return;
         }
-
-        for (let i = 0; i < events.length; i++) {
-            const event = events[i];
-            if (event.type === 'ShipDestroyed') {
-                // Use the engine helper to spawn local particles where the ship died
-                this.engine.createExplosion({
-                    LocationX: event.locationX,
-                    LocationY: event.locationY
-                });
-            }
+        if (explosion.explosionType === 'Laser') {
+            this.engine.spawnLaserExplosionParticles(explosion);
+        } else {
+            this.engine.spawnExplosionParticles(explosion);
         }
     }
 

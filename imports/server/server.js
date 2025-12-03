@@ -26,10 +26,8 @@ export class Server {
         this.outputStream = new Meteor.Streamer('output');
         this.updateId = 0;
         this.engine = new Engine(this.mapRadius);
-        this.pendingEvents = [];
-        this.eventBuffer = [];
         this.soundBuffer = [];
-        this.engine.setEventRecorder(this.recordEvent.bind(this));
+        this.explosionBuffer = [];
         this.lastBroadcastAt = 0;
 
         const configuredInterval = Number(Meteor.settings.private && Meteor.settings.private.messageOutputRate);
@@ -63,17 +61,6 @@ export class Server {
         this.inputStream.on('input', (input) => {this.commands.push(input)});
     }
 
-    recordEvent(event) {
-        this.pendingEvents.push(event);
-    }
-
-    flushPendingEventsIntoBuffer() {
-        if (this.pendingEvents.length) {
-            Array.prototype.push.apply(this.eventBuffer, this.pendingEvents);
-        }
-        this.pendingEvents = [];
-    }
-
     bufferSoundObjects() {
         const sounds = [];
 
@@ -86,6 +73,21 @@ export class Server {
         if (sounds.length) {
             Array.prototype.push.apply(this.soundBuffer, sounds);
             this.engine.removeSoundObjects();
+        }
+    }
+
+    bufferExplosionObjects() {
+        const explosions = [];
+
+        for (let i = 0; i < gameObjects.length; i++) {
+            if (gameObjects[i].type === 'Explosion') {
+                explosions.push(gameObjects[i]);
+            }
+        }
+
+        if (explosions.length) {
+            Array.prototype.push.apply(this.explosionBuffer, explosions);
+            this.engine.removeExplosionObjects();
         }
     }
 
@@ -174,16 +176,16 @@ export class Server {
         this.ai.issueCommands(this.commands);
         this.engine.update(this.commands, this.frameRate);
         this.commands = [];
-        this.flushPendingEventsIntoBuffer();
         this.bufferSoundObjects();
+        this.bufferExplosionObjects();
 
         const now = Date.now();
         if (this.shouldEmitSnapshot(now)) {
-            const eventsToSend = this.eventBuffer;
             const soundsToSend = this.soundBuffer;
-            this.eventBuffer = [];
+            const explosionsToSend = this.explosionBuffer;
             this.soundBuffer = [];
-            this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects.concat(soundsToSend), events: eventsToSend}));
+            this.explosionBuffer = [];
+            this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects.concat(soundsToSend, explosionsToSend)}));
             this.lastBroadcastAt = now;
         }
         this.updateId++;

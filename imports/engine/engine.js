@@ -8,6 +8,7 @@ import {LaserParticle} from './laserParticle.js';
 import {Thruster} from './thruster.js';
 import {Debris} from './debris.js';
 import {Sound} from './sound.js';
+import {Explosion} from './explosion.js';
 import {Physics} from './physics.js';
 import {Utilities} from '../utilities/utilities.js';
 
@@ -19,7 +20,6 @@ export class Engine {
         this.deadObjects = [];
         this.explosionSize = 20;
         this.mapRadius = mapRadius;
-        this.eventRecorder = null;
     }
 
     static getNextGameObjectId() {
@@ -195,7 +195,6 @@ export class Engine {
                 if (target.type === 'Ship') {
                     this.scoreDeath(target.id);
                     this.scoreKill(laser.owner);
-                    this.recordShipDestroyed(target);
                 }
             }
             return true;
@@ -310,7 +309,6 @@ export class Engine {
             this.deadObjects.push(targetObject);
             if (targetObject.type === 'Ship') {
                 this.scoreDeath(targetObject.id);
-                this.recordShipDestroyed(targetObject);
                 if (sourceObject && sourceObject.id) {
                     this.scoreKill(sourceObject.id);
                 }
@@ -355,16 +353,56 @@ export class Engine {
     }
 
     createExplosion(sourceGameObject) {
+        this.queueExplosion(sourceGameObject, {explosionType: 'Standard'});
+    }
+
+    createLaserExplosion(sourceGameObject) {
+        const explosionOptions = {explosionType: 'Laser'};
+
+        if (sourceGameObject && typeof sourceGameObject.fuel !== 'undefined') {
+            explosionOptions.fuel = sourceGameObject.fuel;
+        }
+        if (sourceGameObject && typeof sourceGameObject.maxFuel !== 'undefined') {
+            explosionOptions.maxFuel = sourceGameObject.maxFuel;
+        }
+        if (sourceGameObject && typeof sourceGameObject.size !== 'undefined') {
+            explosionOptions.size = sourceGameObject.size;
+        }
+
+        this.queueExplosion(sourceGameObject, explosionOptions);
+    }
+
+    queueExplosion(sourceGameObject, options = {}) {
+        const explosionSource = sourceGameObject ? Object.assign({}, sourceGameObject) : {};
+        if (typeof explosionSource.LocationX === 'number') {
+            explosionSource.locationX = explosionSource.locationX || explosionSource.LocationX;
+        }
+        if (typeof explosionSource.LocationY === 'number') {
+            explosionSource.locationY = explosionSource.locationY || explosionSource.LocationY;
+        }
+
+        const newExplosion = new Explosion();
+        newExplosion.init(explosionSource, options);
+        gameObjects.push(newExplosion);
+    }
+
+    spawnExplosionParticles(explosion) {
+        if (!explosion) {
+            return;
+        }
         for (let i = 0; i < this.explosionSize; i++) {
             const newParticle = new Particle(Engine.getNextGameObjectId());
-            newParticle.init(sourceGameObject);
+            newParticle.init(explosion);
             gameObjects.push(newParticle);
         }
     }
 
-    createLaserExplosion(sourceGameObject) {
-        const fuelRatio = sourceGameObject && sourceGameObject.maxFuel
-            ? Math.max(0, Math.min(1, (sourceGameObject.fuel || 0) / sourceGameObject.maxFuel))
+    spawnLaserExplosionParticles(explosion) {
+        if (!explosion) {
+            return;
+        }
+        const fuelRatio = explosion && explosion.maxFuel
+            ? Math.max(0, Math.min(1, (explosion.fuel || 0) / explosion.maxFuel))
             : null;
         const sparksToSpawn = fuelRatio === null
             ? this.explosionSize
@@ -372,7 +410,7 @@ export class Engine {
 
         for (let i = 0; i < sparksToSpawn; i++) {
             const newParticle = new LaserParticle(Engine.getNextGameObjectId());
-            newParticle.init(sourceGameObject);
+            newParticle.init(explosion);
             gameObjects.push(newParticle);
         }
     }
@@ -380,7 +418,6 @@ export class Engine {
     fuelDetection() {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
             if (gameObjects[x].fuel < 0) {
-                this.recordShipDestroyed(gameObjects[x]);
                 this.deadObjects.push(gameObjects[x]);
             }
         }
@@ -390,7 +427,7 @@ export class Engine {
     findSolidObjects() {
         const solidObjects = [];
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].type != 'Particle' && gameObjects[x].type != 'LaserParticle' && gameObjects[x].type != 'Thruster' && gameObjects[x].type != 'Player' && gameObjects[x].type != 'Sound') {
+            if (gameObjects[x].type != 'Particle' && gameObjects[x].type != 'LaserParticle' && gameObjects[x].type != 'Thruster' && gameObjects[x].type != 'Player' && gameObjects[x].type != 'Sound' && gameObjects[x].type != 'Explosion') {
                 solidObjects.push(gameObjects[x])
             }
         }
@@ -412,7 +449,6 @@ export class Engine {
                 }
                 this.scoreDeath(solidObjects[x].id);
                 this.deadObjects.push(solidObjects[x]);
-                this.recordShipDestroyed(solidObjects[x]);
             }
         }
         this.removeDeadObjects();
@@ -437,6 +473,10 @@ export class Engine {
         gameObjects = Utilities.removeByAttr(gameObjects, "type", "Sound");
     }
 
+    removeExplosionObjects() {
+        gameObjects = Utilities.removeByAttr(gameObjects, "type", "Explosion");
+    }
+
     convertObjects(localGameObjects, remoteGameObjects) {
         // Reconcile remote snapshots into the existing array to avoid thrashing
         const constructors = {
@@ -445,6 +485,7 @@ export class Engine {
             Laser: Laser,
             Debris: Debris,
             Sound: Sound,
+            Explosion: Explosion,
             Thruster: Thruster
         };
 
@@ -516,30 +557,6 @@ export class Engine {
         }
 
         return localGameObjects;
-    }
-
-    setEventRecorder(recorder) {
-        this.eventRecorder = recorder;
-    }
-
-    recordEvent(event) {
-        if (typeof this.eventRecorder === 'function' && event) {
-            this.eventRecorder(event);
-        }
-    }
-
-    recordShipDestroyed(gameObject) {
-        if (!gameObject) {
-            return;
-        }
-        if (gameObject.type == 'Ship') {
-            this.recordEvent({
-                type: 'ShipDestroyed',
-                shipId: gameObject.id,
-                locationX: gameObject.locationX,
-                locationY: gameObject.locationY
-            });
-        }
     }
 
     scoreKill(shipId) {

@@ -1,5 +1,5 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 5;
+const BINARY_VERSION = 7;
 
 const TYPE_CODES = {
     Player: 1,
@@ -7,7 +7,8 @@ const TYPE_CODES = {
     Debris: 3,
     Laser: 4,
     Sound: 5,
-    Thruster: 6
+    Thruster: 6,
+    Explosion: 7
 };
 
 const TYPE_NAMES = Object.entries(TYPE_CODES).reduce((acc, [name, code]) => {
@@ -46,15 +47,6 @@ const ROTATION_DIRECTION_NAMES = Object.entries(ROTATION_DIRECTION_CODES).reduce
     return acc;
 }, {});
 
-const EVENT_CODES = {
-    ShipDestroyed: 1
-};
-
-const EVENT_NAMES = Object.entries(EVENT_CODES).reduce((acc, [name, code]) => {
-    acc[code] = name;
-    return acc;
-}, {});
-
 const textEncoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
 const textDecoder = typeof TextDecoder !== 'undefined' ? new TextDecoder() : null;
 
@@ -63,8 +55,7 @@ const HEADER_SIZE =
     /* version */ 2 +
     /* updateId */ 4 +
     /* timestamp */ 8 +
-    /* objectCount */ 4 +
-    /* eventCount */ 4;
+    /* objectCount */ 4;
 
 export class Utilities {
 
@@ -113,21 +104,13 @@ export class Utilities {
             }
         }
 
-        const candidateEvents = Array.isArray(unpackedGameState.events) ? unpackedGameState.events : [];
-        const filteredEvents = [];
-        for (let i = 0; i < candidateEvents.length; i++) {
-            if (EVENT_CODES[candidateEvents[i].type]) {
-                filteredEvents.push(candidateEvents[i]);
-            }
-        }
         const header = {
             updateId: Number(unpackedGameState.updateId) >>> 0,
             timestamp: Date.now(),
-            objectCount: filteredGameState.length,
-            eventCount: filteredEvents.length
+            objectCount: filteredGameState.length
         };
 
-        const totalBytes = Utilities.calculateBinarySize(filteredGameState, filteredEvents);
+        const totalBytes = Utilities.calculateBinarySize(filteredGameState);
         const buffer = new ArrayBuffer(totalBytes);
         const view = new DataView(buffer);
         let offset = 0;
@@ -136,10 +119,6 @@ export class Utilities {
 
         for (let i = 0; i < filteredGameState.length; i++) {
             offset = Utilities.writeGameObject(view, offset, filteredGameState[i]);
-        }
-
-        for (let i = 0; i < filteredEvents.length; i++) {
-            offset = Utilities.writeEvent(view, offset, filteredEvents[i]);
         }
 
         return new Uint8Array(buffer, 0, offset);
@@ -185,8 +164,6 @@ export class Utilities {
         const updateId = view.getUint32(offset, true); offset += 4;
         const timestamp = view.getFloat64(offset, true); offset += 8;
         const objectCount = view.getUint32(offset, true); offset += 4;
-        const eventCount = view.getUint32(offset, true); offset += 4;
-
         const unpackedGameState = {
             update: {
                 id: updateId,
@@ -199,12 +176,6 @@ export class Utilities {
         for (let i = 0; i < objectCount; i++) {
             const result = Utilities.readGameObject(view, offset);
             unpackedGameState.gameState.push(result.object);
-            offset = result.offset;
-        }
-
-        for (let i = 0; i < eventCount; i++) {
-            const result = Utilities.readEvent(view, offset);
-            unpackedGameState.events.push(result.event);
             offset = result.offset;
         }
 
@@ -251,15 +222,11 @@ export class Utilities {
         return 0;
     }
 
-    static calculateBinarySize(gameObjects, events) {
+    static calculateBinarySize(gameObjects) {
         let size = HEADER_SIZE;
 
         for (let i = 0; i < gameObjects.length; i++) {
             size += Utilities.calculateObjectSize(gameObjects[i]);
-        }
-
-        for (let i = 0; i < events.length; i++) {
-            size += Utilities.calculateEventSize(events[i]);
         }
 
         return size;
@@ -295,23 +262,14 @@ export class Utilities {
                 const soundLength = Math.min(soundBytes.length, 255);
                 return BASE + 1 /* sound len */ + soundLength + (4 * 2);
             }
+            case TYPE_CODES.Explosion: {
+                const explosionBytes = Utilities.encodeString(gameObject.explosionType || "");
+                const explosionLength = Math.min(explosionBytes.length, 255);
+                return BASE + 1 /* explosion len */ + explosionLength + (4 * 5);
+            }
             case TYPE_CODES.Thruster: {
                 return BASE + 4 /* Id */ + (4 * 7);
             }
-            default:
-                return 0;
-        }
-    }
-
-    static calculateEventSize(event) {
-        const typeCode = EVENT_CODES[event.type];
-        if (!typeCode) {
-            return 0;
-        }
-
-        switch (typeCode) {
-            case EVENT_CODES.ShipDestroyed:
-                return 1 /* type */ + 4 /* shipId */ + 4 /* LocationX */ + 4 /* LocationY */;
             default:
                 return 0;
         }
@@ -323,7 +281,6 @@ export class Utilities {
         view.setUint32(offset, header.updateId >>> 0, true); offset += 4;
         view.setFloat64(offset, Number(header.timestamp) || 0, true); offset += 8;
         view.setUint32(offset, header.objectCount >>> 0, true); offset += 4;
-        view.setUint32(offset, header.eventCount >>> 0, true); offset += 4;
         return offset;
     }
 
@@ -396,6 +353,16 @@ export class Utilities {
                     gameObject.locationY
                 ]);
                 break;
+            case TYPE_CODES.Explosion:
+                offset = Utilities.writeShortString(view, offset, gameObject.explosionType || "");
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.locationX,
+                    gameObject.locationY,
+                    gameObject.size,
+                    gameObject.fuel,
+                    gameObject.maxFuel
+                ]);
+                break;
             case TYPE_CODES.Thruster:
                 view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
@@ -406,29 +373,6 @@ export class Utilities {
                     gameObject.heading,
                     gameObject.velocity,
                     gameObject.size
-                ]);
-                break;
-            default:
-                break;
-        }
-
-        return offset;
-    }
-
-    static writeEvent(view, offset, event) {
-        const typeCode = EVENT_CODES[event.type];
-        if (!typeCode) {
-            return offset;
-        }
-
-        view.setUint8(offset, typeCode); offset += 1;
-
-        switch (typeCode) {
-            case EVENT_CODES.ShipDestroyed:
-                view.setUint32(offset, (event.shipId >>> 0) || 0, true); offset += 4;
-                offset = Utilities.writeFloatFields(view, offset, [
-                    event.locationX,
-                    event.locationY
                 ]);
                 break;
             default:
@@ -528,6 +472,21 @@ export class Utilities {
                 ] = values.values;
                 break;
             }
+            case TYPE_CODES.Explosion: {
+                const result = Utilities.readShortString(view, offset);
+                object.explosionType = result.value;
+                offset = result.offset;
+                const values = Utilities.readFloatFields(view, offset, 5);
+                offset = values.offset;
+                [
+                    object.locationX,
+                    object.locationY,
+                    object.size,
+                    object.fuel,
+                    object.maxFuel
+                ] = values.values;
+                break;
+            }
             case TYPE_CODES.Thruster: {
                 object.id = view.getUint32(offset, true); offset += 4;
                 const values = Utilities.readFloatFields(view, offset, 7);
@@ -548,28 +507,6 @@ export class Utilities {
         }
 
         return { object, offset };
-    }
-
-    static readEvent(view, offset) {
-        const typeCode = view.getUint8(offset); offset += 1;
-        const event = { type: EVENT_NAMES[typeCode] || 'Unknown' };
-
-        switch (typeCode) {
-            case EVENT_CODES.ShipDestroyed: {
-                event.shipId = view.getUint32(offset, true); offset += 4;
-                const values = Utilities.readFloatFields(view, offset, 2);
-                offset = values.offset;
-                [
-                    event.locationX,
-                    event.locationY
-                ] = values.values;
-                break;
-            }
-            default:
-                break;
-        }
-
-        return { event, offset };
     }
 
     static writeShortString(view, offset, value) {
