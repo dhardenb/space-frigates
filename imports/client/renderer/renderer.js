@@ -14,7 +14,7 @@ import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
 
 export class Renderer {
-    constructor(mapRadius) {
+    constructor(mapRadius, options = {}) {
         this.visualRange = 150;
         this.audioRange = 50;
         this.pixelsPerMeter = 0;
@@ -26,6 +26,9 @@ export class Renderer {
         this.gameVolume = Meteor.settings.public.gameVolume;
         this.mapRadius = mapRadius;
         this.playerShip = {};
+        this.explosionEffectHandler = typeof options.onExplosionEffect === 'function'
+            ? options.onExplosionEffect
+            : null;
         this.focalX = 0;
         this.focalY = 0;
         this.camera = {"centerX":0, "centerY":0, "prevCenterX":0, "prevCenterY":0, "boundry": {"left":0, "right":0, "top":0, "bottom":0}};
@@ -44,6 +47,8 @@ export class Renderer {
         this.showBoundingBoxes = true;
         this.recentSoundKeys = [];
         this.soundDedupIntervalMs = 500;
+        this.recentExplosionKeys = [];
+        this.explosionDedupIntervalMs = 500;
     }
 
     createBackground() {
@@ -269,6 +274,7 @@ export class Renderer {
         this.renderTimeSeconds = nowMs / 1000;
         this.renderTimestampMs = nowMs;
         this.pruneRecentSounds(nowMs);
+        this.pruneRecentExplosions(nowMs);
 
         let windowOffset = 22;
         this.availableWidth = window.innerWidth - windowOffset;
@@ -362,6 +368,11 @@ export class Renderer {
                 else if (gameObjects[i].type == 'Sound') {
 
                     this.renderSound(gameObjects[i]);
+
+                }
+                else if (gameObjects[i].type == 'Explosion') {
+
+                    this.renderExplosion(gameObjects[i]);
 
                 }
             }
@@ -543,6 +554,28 @@ export class Renderer {
 
     }
 
+    renderExplosion(explosion) {
+
+        if (Client.gameMode !== 'PLAY_MODE') {
+            return;
+        }
+
+        const timestampMs = this.renderTimestampMs || Date.now();
+        const explosionKey = this.buildExplosionKey(explosion);
+
+        if (explosionKey) {
+            if (this.wasExplosionRecentlyRendered(explosionKey, timestampMs)) {
+                return;
+            }
+            this.markExplosionRendered(explosionKey, timestampMs);
+        }
+
+        if (typeof this.explosionEffectHandler === 'function') {
+            this.explosionEffectHandler(explosion);
+        }
+
+    }
+
     buildSoundKey(sound) {
         if (!sound || typeof sound.soundType !== 'string') {
             return null;
@@ -572,6 +605,38 @@ export class Renderer {
     pruneRecentSounds(timestampMs) {
         const cutoff = timestampMs - this.soundDedupIntervalMs;
         this.recentSoundKeys = this.recentSoundKeys.filter((entry) => entry.playedAt >= cutoff);
+    }
+
+    buildExplosionKey(explosion) {
+        if (!explosion) {
+            return null;
+        }
+
+        const x = Number(explosion.locationX);
+        const y = Number(explosion.locationY);
+
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+            return null;
+        }
+
+        const roundedX = Math.round(x * 100) / 100;
+        const roundedY = Math.round(y * 100) / 100;
+        const explosionType = typeof explosion.explosionType === 'string' ? explosion.explosionType : 'Standard';
+
+        return `${explosionType}:${roundedX}:${roundedY}`;
+    }
+
+    wasExplosionRecentlyRendered(key, timestampMs) {
+        return this.recentExplosionKeys.some((entry) => entry.key === key && (timestampMs - entry.renderedAt) <= this.explosionDedupIntervalMs);
+    }
+
+    markExplosionRendered(key, timestampMs) {
+        this.recentExplosionKeys.push({key, renderedAt: timestampMs});
+    }
+
+    pruneRecentExplosions(timestampMs) {
+        const cutoff = timestampMs - this.explosionDedupIntervalMs;
+        this.recentExplosionKeys = this.recentExplosionKeys.filter((entry) => entry.renderedAt >= cutoff);
     }
 
     renderBoundingBox(gameObject) {

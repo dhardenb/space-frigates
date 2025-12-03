@@ -1,5 +1,5 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 5;
+const BINARY_VERSION = 6;
 
 const TYPE_CODES = {
     Player: 1,
@@ -7,7 +7,8 @@ const TYPE_CODES = {
     Debris: 3,
     Laser: 4,
     Sound: 5,
-    Thruster: 6
+    Thruster: 6,
+    Explosion: 7
 };
 
 const TYPE_NAMES = Object.entries(TYPE_CODES).reduce((acc, [name, code]) => {
@@ -295,6 +296,11 @@ export class Utilities {
                 const soundLength = Math.min(soundBytes.length, 255);
                 return BASE + 1 /* sound len */ + soundLength + (4 * 2);
             }
+            case TYPE_CODES.Explosion: {
+                const explosionBytes = Utilities.encodeString(gameObject.explosionType || "");
+                const explosionLength = Math.min(explosionBytes.length, 255);
+                return BASE + 1 /* explosion len */ + explosionLength + (4 * 5);
+            }
             case TYPE_CODES.Thruster: {
                 return BASE + 4 /* Id */ + (4 * 7);
             }
@@ -394,6 +400,16 @@ export class Utilities {
                 offset = Utilities.writeFloatFields(view, offset, [
                     gameObject.locationX,
                     gameObject.locationY
+                ]);
+                break;
+            case TYPE_CODES.Explosion:
+                offset = Utilities.writeShortString(view, offset, gameObject.explosionType || "");
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.locationX,
+                    gameObject.locationY,
+                    gameObject.size,
+                    gameObject.fuel,
+                    gameObject.maxFuel
                 ]);
                 break;
             case TYPE_CODES.Thruster:
@@ -525,6 +541,21 @@ export class Utilities {
                 [
                     object.locationX,
                     object.locationY
+                ] = values.values;
+                break;
+            }
+            case TYPE_CODES.Explosion: {
+                const result = Utilities.readShortString(view, offset);
+                object.explosionType = result.value;
+                offset = result.offset;
+                const values = Utilities.readFloatFields(view, offset, 5);
+                offset = values.offset;
+                [
+                    object.locationX,
+                    object.locationY,
+                    object.size,
+                    object.fuel,
+                    object.maxFuel
                 ] = values.values;
                 break;
             }

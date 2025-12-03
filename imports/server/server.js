@@ -29,6 +29,7 @@ export class Server {
         this.pendingEvents = [];
         this.eventBuffer = [];
         this.soundBuffer = [];
+        this.explosionBuffer = [];
         this.engine.setEventRecorder(this.recordEvent.bind(this));
         this.lastBroadcastAt = 0;
 
@@ -86,6 +87,21 @@ export class Server {
         if (sounds.length) {
             Array.prototype.push.apply(this.soundBuffer, sounds);
             this.engine.removeSoundObjects();
+        }
+    }
+
+    bufferExplosionObjects() {
+        const explosions = [];
+
+        for (let i = 0; i < gameObjects.length; i++) {
+            if (gameObjects[i].type === 'Explosion') {
+                explosions.push(gameObjects[i]);
+            }
+        }
+
+        if (explosions.length) {
+            Array.prototype.push.apply(this.explosionBuffer, explosions);
+            this.engine.removeExplosionObjects();
         }
     }
 
@@ -176,14 +192,17 @@ export class Server {
         this.commands = [];
         this.flushPendingEventsIntoBuffer();
         this.bufferSoundObjects();
+        this.bufferExplosionObjects();
 
         const now = Date.now();
         if (this.shouldEmitSnapshot(now)) {
             const eventsToSend = this.eventBuffer;
             const soundsToSend = this.soundBuffer;
+            const explosionsToSend = this.explosionBuffer;
             this.eventBuffer = [];
             this.soundBuffer = [];
-            this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects.concat(soundsToSend), events: eventsToSend}));
+            this.explosionBuffer = [];
+            this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects.concat(soundsToSend, explosionsToSend), events: eventsToSend}));
             this.lastBroadcastAt = now;
         }
         this.updateId++;
