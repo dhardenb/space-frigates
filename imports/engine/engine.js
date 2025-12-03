@@ -350,8 +350,7 @@ export class Engine {
     }
 
     createDebris(sourceGameObject) {
-        const newDebris = new Debris(Engine.getNextGameObjectId());
-        newDebris.init(sourceGameObject);
+        const newDebris = new Debris(Engine.getNextGameObjectId(), {sourceObject: sourceGameObject});
         gameObjects.push(newDebris);
     }
 

@@ -3,49 +3,40 @@ import {Utilities} from '../utilities/utilities.js';
 
 export class Debris {
     
-    // Still hate that I have to maintain a default
-    // constructor and init function to handle obejcts
-    // created from scratch and objects cloned from
-    // another object
-    //
     // Size should probbaly be configurable
-    constructor(id) {
+    constructor(id, {sourceObject = null, initializeState = true} = {}) {
         this.id = id;
-        this.mass = 10; // default placeholder, overwritten during init
-        this.maxHullStrength = 1;
-        this.hullStrength = this.maxHullStrength;
+        this.type = "Debris";
         this.lengthInMeters = 4;
         this.widthInMeters = 4;
-    }
+        this.mass = 10; // default placeholder, overwritten if sourceObject provided
+        this.maxHullStrength = 1;
 
-    // Variable names need to be changed but can't do it
-    // until I chnage them for ALL classes which is going
-    // to be a major effort!
-    //
-    // Need to remove the type object and use instanceof 
-    // instead. Will also need to be done across all
-    // objects and will be a major effort. Will also have
-    // to remember to retain a type code when packing
-    // and unpacking
-    //
-    // Heading and Velocity can probably be combined 
-    // in a Vector object
-    //
-    // Most of these can be refactored out into a parent
-    // class. Will require all classes to be updated, a
-    // major undertaking
-    init(sourceObject) {
-        this.type = "Debris";
-        this.locationX = sourceObject.locationX;
-        this.locationY = sourceObject.locationY;
-        this.facing = sourceObject.facing;
-        this.heading = sourceObject.heading;
-        this.velocity = sourceObject.velocity;
-        this.rotationDirection = Debris.setIntitialRotationDirection();
-        this.rotationVelocity = Debris.setInitialRotationVelocity();
-        this.mass = Math.max((sourceObject.mass || 0) * 0.1, 1);
-        this.maxHullStrength = Math.max((sourceObject.maxHullStrength || 0) * 0.1, 1);
-        this.hullStrength = this.maxHullStrength;
+        // Initialize from source object if provided
+        if (sourceObject) {
+            this.locationX = sourceObject.locationX;
+            this.locationY = sourceObject.locationY;
+            this.facing = sourceObject.facing;
+            this.heading = sourceObject.heading;
+            this.velocity = sourceObject.velocity;
+            this.rotationDirection = Debris.setIntitialRotationDirection();
+            this.rotationVelocity = Debris.setInitialRotationVelocity();
+            this.mass = Math.max((sourceObject.mass || 0) * 0.1, 1);
+            this.maxHullStrength = Math.max((sourceObject.maxHullStrength || 0) * 0.1, 1);
+            this.hullStrength = this.maxHullStrength;
+        }
+
+        // Initialize runtime state if requested (default true, false for deserialization)
+        if (initializeState && !sourceObject) {
+            this.locationX = 0;
+            this.locationY = 0;
+            this.facing = 0;
+            this.heading = 0;
+            this.velocity = 0;
+            this.rotationDirection = Debris.setIntitialRotationDirection();
+            this.rotationVelocity = Debris.setInitialRotationVelocity();
+            this.hullStrength = this.maxHullStrength;
+        }
     }
 
     // physics is a gloabl, need to fix that!

@@ -2,7 +2,7 @@ import {Physics} from './physics.js';
 
 export class Laser {
 
-        constructor(id) {
+        constructor(id, {sourceObject = null, initializeState = true} = {}) {
                 this.id = id;
                 this.type = "Laser";
                 this.mass = 0;
@@ -13,19 +13,29 @@ export class Laser {
                 this.maxFuel = 30;
 		this.lengthInMeters = 3;
 		this.widthInMeters = 1;
-	}
 
-	init(sourceObject) {
-		this.locationX = sourceObject.locationX;
-		this.locationY = sourceObject.locationY;
-		this.facing = sourceObject.facing;
-		this.heading = sourceObject.heading;
-		this.maxFuel = sourceObject.laserFuelCapacity || this.maxFuel;
-		this.fuelConsumptionRate = sourceObject.laserFuelConsumptionRate || this.fuelConsumptionRate;
-		this.fuel = this.maxFuel;
-		this.owner = sourceObject.id;
-		this.calclulateInitialPosition(sourceObject);
-		Physics.findNewVelocity(this, sourceObject.facing, this.initialVelocity);
+		// Initialize from source object if provided
+		if (sourceObject) {
+			this.locationX = sourceObject.locationX;
+			this.locationY = sourceObject.locationY;
+			this.facing = sourceObject.facing;
+			this.heading = sourceObject.heading;
+			this.maxFuel = sourceObject.laserFuelCapacity || this.maxFuel;
+			this.fuelConsumptionRate = sourceObject.laserFuelConsumptionRate || this.fuelConsumptionRate;
+			this.fuel = this.maxFuel;
+			this.owner = sourceObject.id;
+			this.calclulateInitialPosition(sourceObject);
+			Physics.findNewVelocity(this, sourceObject.facing, this.initialVelocity);
+		}
+
+		// Initialize runtime state if requested (default true, false for deserialization)
+		if (initializeState && !sourceObject) {
+			this.locationX = 0;
+			this.locationY = 0;
+			this.facing = 0;
+			this.heading = 0;
+			this.fuel = this.maxFuel;
+		}
 	}
 
 	update(commands, framesPerSecond) {	
