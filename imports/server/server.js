@@ -28,6 +28,7 @@ export class Server {
         this.engine = new Engine(this.mapRadius);
         this.pendingEvents = [];
         this.eventBuffer = [];
+        this.soundBuffer = [];
         this.engine.setEventRecorder(this.recordEvent.bind(this));
         this.lastBroadcastAt = 0;
 
@@ -71,6 +72,21 @@ export class Server {
             Array.prototype.push.apply(this.eventBuffer, this.pendingEvents);
         }
         this.pendingEvents = [];
+    }
+
+    bufferSoundObjects() {
+        const sounds = [];
+
+        for (let i = 0; i < gameObjects.length; i++) {
+            if (gameObjects[i].type === 'Sound') {
+                sounds.push(gameObjects[i]);
+            }
+        }
+
+        if (sounds.length) {
+            Array.prototype.push.apply(this.soundBuffer, sounds);
+            this.engine.removeSoundObjects();
+        }
     }
 
     shouldEmitSnapshot(now) {
@@ -154,21 +170,22 @@ export class Server {
     }
 
     updateLoop() {
-        this.ai.createNewShip(); 
+        this.ai.createNewShip();
         this.ai.issueCommands(this.commands);
         this.engine.update(this.commands, this.frameRate);
         this.commands = [];
         this.flushPendingEventsIntoBuffer();
+        this.bufferSoundObjects();
 
         const now = Date.now();
         if (this.shouldEmitSnapshot(now)) {
             const eventsToSend = this.eventBuffer;
+            const soundsToSend = this.soundBuffer;
             this.eventBuffer = [];
-            this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects, events: eventsToSend}));
+            this.soundBuffer = [];
+            this.outputStream.emit('output', Utilities.packGameState({updateId: this.updateId, gameState: gameObjects.concat(soundsToSend), events: eventsToSend}));
             this.lastBroadcastAt = now;
         }
-
-        this.engine.removeSoundObjects();
         this.updateId++;
     }
 
