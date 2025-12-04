@@ -19,6 +19,7 @@ export class Renderer {
         this.audioRange = 50;
         this.pixelsPerMeter = 0;
         this.worldPixelsPerMeter = 0;
+        this.devicePixelRatio = 1;
         this.miniMapZoomLevel = 0.03;
         this.availableWidth = 0;
         this.availableHeight = 0;
@@ -60,13 +61,21 @@ export class Renderer {
         this.availablePixels = this.availableHeight < this.availableWidth ? this.availableWidth : this.availableHeight;
         this.pixelsPerMeter = this.availablePixels / 2 / this.visualRange;
         this.worldPixelsPerMeter = this.pixelsPerMeter;
-        this.background.canvas.width = this.availableWidth;
-        this.background.canvas.height = this.availableHeight;
+        this.devicePixelRatio = window.devicePixelRatio || 1;
+
+        this.background.canvas.width = this.availableWidth * this.devicePixelRatio;
+        this.background.canvas.height = this.availableHeight * this.devicePixelRatio;
+        this.background.canvas.style.width = `${this.availableWidth}px`;
+        this.background.canvas.style.height = `${this.availableHeight}px`;
+        this.background.setTransform(this.devicePixelRatio, 0, 0, this.devicePixelRatio, 0, 0);
 
         this.starFieldCanvas = document.createElement('canvas');
-        this.starFieldCanvas.width = this.availableWidth;
-        this.starFieldCanvas.height = this.availableHeight;
+        this.starFieldCanvas.width = this.availableWidth * this.devicePixelRatio;
+        this.starFieldCanvas.height = this.availableHeight * this.devicePixelRatio;
+        this.starFieldCanvas.style.width = `${this.availableWidth}px`;
+        this.starFieldCanvas.style.height = `${this.availableHeight}px`;
         this.starFieldContext = this.starFieldCanvas.getContext('2d');
+        this.starFieldContext.setTransform(this.devicePixelRatio, 0, 0, this.devicePixelRatio, 0, 0);
 
         for (let x = 0; x < this.availableWidth; x++) {
             for (let y = 0; y < this.availableHeight; y++) {
@@ -258,10 +267,34 @@ export class Renderer {
         const lowerRightX = Math.round(this.starField.lowerRight.x);
         const lowerRightY = Math.round(this.starField.lowerRight.y);
 
-        this.background.drawImage(this.starFieldCanvas, upperLeftX, upperLeftY);
-        this.background.drawImage(this.starFieldCanvas, upperRightX, upperRightY);
-        this.background.drawImage(this.starFieldCanvas, lowerLeftX, lowerLeftY);
-        this.background.drawImage(this.starFieldCanvas, lowerRightX, lowerRightY);
+        this.background.drawImage(
+            this.starFieldCanvas,
+            upperLeftX,
+            upperLeftY,
+            this.availableWidth,
+            this.availableHeight,
+        );
+        this.background.drawImage(
+            this.starFieldCanvas,
+            upperRightX,
+            upperRightY,
+            this.availableWidth,
+            this.availableHeight,
+        );
+        this.background.drawImage(
+            this.starFieldCanvas,
+            lowerLeftX,
+            lowerLeftY,
+            this.availableWidth,
+            this.availableHeight,
+        );
+        this.background.drawImage(
+            this.starFieldCanvas,
+            lowerRightX,
+            lowerRightY,
+            this.availableWidth,
+            this.availableHeight,
+        );
     }
  
     // This is dumb, I should be able to set a pointer when the player
@@ -294,10 +327,13 @@ export class Renderer {
         this.map.canvas.width = this.availableWidth;
         this.map.canvas.height = this.availableHeight;
 
-        const backgroundSizeChanged = this.background.canvas.width !== this.availableWidth
-            || this.background.canvas.height !== this.availableHeight
-            || this.starFieldCanvas.width !== this.availableWidth
-            || this.starFieldCanvas.height !== this.availableHeight;
+        const scaledWidth = this.availableWidth * this.devicePixelRatio;
+        const scaledHeight = this.availableHeight * this.devicePixelRatio;
+
+        const backgroundSizeChanged = this.background.canvas.width !== scaledWidth
+            || this.background.canvas.height !== scaledHeight
+            || this.starFieldCanvas.width !== scaledWidth
+            || this.starFieldCanvas.height !== scaledHeight;
 
         if (backgroundSizeChanged) {
             this.createBackground();
