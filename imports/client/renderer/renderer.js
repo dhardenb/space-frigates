@@ -249,10 +249,19 @@ export class Renderer {
         
         this.background.clearRect(0,0, this.availableWidth, this.availableHeight);
 
-        this.background.drawImage(this.starFieldCanvas, this.starField.upperLeft.x, this.starField.upperLeft.y);
-        this.background.drawImage(this.starFieldCanvas, this.starField.upperRight.x, this.starField.upperRight.y);
-        this.background.drawImage(this.starFieldCanvas, this.starField.lowerLeft.x, this.starField.lowerLeft.y);
-        this.background.drawImage(this.starFieldCanvas, this.starField.lowerRight.x, this.starField.lowerRight.y);
+        const upperLeftX = Math.round(this.starField.upperLeft.x);
+        const upperLeftY = Math.round(this.starField.upperLeft.y);
+        const upperRightX = Math.round(this.starField.upperRight.x);
+        const upperRightY = Math.round(this.starField.upperRight.y);
+        const lowerLeftX = Math.round(this.starField.lowerLeft.x);
+        const lowerLeftY = Math.round(this.starField.lowerLeft.y);
+        const lowerRightX = Math.round(this.starField.lowerRight.x);
+        const lowerRightY = Math.round(this.starField.lowerRight.y);
+
+        this.background.drawImage(this.starFieldCanvas, upperLeftX, upperLeftY);
+        this.background.drawImage(this.starFieldCanvas, upperRightX, upperRightY);
+        this.background.drawImage(this.starFieldCanvas, lowerLeftX, lowerLeftY);
+        this.background.drawImage(this.starFieldCanvas, lowerRightX, lowerRightY);
     }
  
     // This is dumb, I should be able to set a pointer when the player
