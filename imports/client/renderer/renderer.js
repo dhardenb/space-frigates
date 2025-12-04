@@ -285,6 +285,15 @@ export class Renderer {
         this.map.canvas.width = this.availableWidth;
         this.map.canvas.height = this.availableHeight;
 
+        const backgroundSizeChanged = this.background.canvas.width !== this.availableWidth
+            || this.background.canvas.height !== this.availableHeight
+            || this.starFieldCanvas.width !== this.availableWidth
+            || this.starFieldCanvas.height !== this.availableHeight;
+
+        if (backgroundSizeChanged) {
+            this.createBackground();
+        }
+
         this.updatePlayerShip(playerShipId);
         this.updateCamera();
         this.updateLocationOffset();
