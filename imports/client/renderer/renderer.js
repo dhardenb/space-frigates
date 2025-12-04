@@ -97,6 +97,7 @@ export class Renderer {
         this.background.canvas.style.width = `${this.availableWidth}px`;
         this.background.canvas.style.height = `${this.availableHeight}px`;
         this.background.setTransform(1, 0, 0, 1, 0, 0);
+        this.background.imageSmoothingEnabled = false;
 
         const desiredTileSizePx = Math.max(1, Math.floor(this.starFieldConfig.tileSizeCss * this.devicePixelRatio));
         const tileNeedsRebuild = !this.starTile
@@ -233,8 +234,10 @@ export class Renderer {
         const tileSizePx = this.starTile.sizePx;
         const offsets = [-tileSizePx, 0, tileSizePx];
 
-        const offsetX = ((-cameraXPx % tileSizePx) + tileSizePx) % tileSizePx - tileSizePx;
-        const offsetY = ((-cameraYPx % tileSizePx) + tileSizePx) % tileSizePx - tileSizePx;
+        const baseOffsetX = ((-cameraXPx % tileSizePx) + tileSizePx) % tileSizePx;
+        const baseOffsetY = ((-cameraYPx % tileSizePx) + tileSizePx) % tileSizePx;
+        const offsetX = Math.round(baseOffsetX) - tileSizePx;
+        const offsetY = Math.round(baseOffsetY) - tileSizePx;
 
         this.background.clearRect(0, 0, this.viewportWidthPx, this.viewportHeightPx);
 
