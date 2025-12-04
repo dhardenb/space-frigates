@@ -1,5 +1,4 @@
 import {Particle} from './particle.js';
-import {Physics} from './physics.js';
 
 export class LaserParticle extends Particle {
 
@@ -23,10 +22,5 @@ export class LaserParticle extends Particle {
         this.fuel = lifetimeSeconds;
         this.sparkLength = 0.5 + Math.random();
         this.fuelConsumptionRate = 1 + Math.random() * 0.8;
-    }
-
-    update(commands, framesPerSecond) {
-        this.fuel = this.fuel - this.fuelConsumptionRate / framesPerSecond;
-        Physics.moveObjectAlongVector(this);
     }
 }
