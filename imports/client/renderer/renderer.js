@@ -12,6 +12,7 @@ import {renderThruster} from './worldObjects/thruster.js';
 import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
 import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
+import {renderTargetSelector} from './worldObjects/targetSelector.js';
 
 export class Renderer {
     constructor(mapRadius, options = {}) {
@@ -390,6 +391,8 @@ export class Renderer {
             }
         }
 
+        this.renderTargetSelectorOverlay(gameObjects);
+
         this.map.restore();
 
         this.map.save();
@@ -508,6 +511,42 @@ export class Renderer {
 
         this.map.restore();
 
+    }
+
+    renderTargetSelectorOverlay(gameObjects) {
+        const ship = this.playerShip;
+        if (!ship) {
+            return;
+        }
+        const {locationX, locationY, facing, id: playerShipId} = ship;
+        if (!Number.isFinite(locationX) || !Number.isFinite(locationY) || !Number.isFinite(facing)) {
+            return;
+        }
+
+        const targetDistanceMeters = 75;
+        const forwardVector = getFacingUnitVector(facing);
+        const targetLocation = {
+            x: locationX + forwardVector.x * targetDistanceMeters,
+            y: locationY + forwardVector.y * targetDistanceMeters,
+        };
+
+        const targetOverEnemyOrDebris = isTargetOverEnemyOrDebris({
+            targetLocation,
+            gameObjects,
+            playerShipId,
+            hitHalfSizeMeters: 3.5,
+        });
+
+        const selectorColor = targetOverEnemyOrDebris ? 'rgba(200, 40, 40, 0.95)' : 'rgba(150, 150, 150, 0.9)';
+        const selectorFillColor = targetOverEnemyOrDebris ? 'rgba(200, 40, 40, 0.25)' : null;
+
+        renderTargetSelector(this.map, {
+            targetX: targetLocation.x,
+            targetY: targetLocation.y,
+            worldPixelsPerMeter: this.worldPixelsPerMeter,
+            color: selectorColor,
+            fillColor: selectorFillColor,
+        });
     }
 
     renderSound(sound) {
@@ -764,3 +803,85 @@ function getBoundingBoxCorners(box) {
         }
     ];
 }
+
+function getFacingUnitVector(compassFacingDegrees) {
+    const clampedDegrees = Number.isFinite(compassFacingDegrees) ? compassFacingDegrees % 360 : 0;
+    const orientationRadians = clampedDegrees * Math.PI / 180;
+    return {
+        x: Math.sin(orientationRadians),
+        y: -Math.cos(orientationRadians)
+    };
+}
+
+function isTargetOverEnemyOrDebris({targetLocation, gameObjects, playerShipId, hitHalfSizeMeters = 3.5}) {
+    if (!targetLocation || !gameObjects || !Array.isArray(gameObjects)) {
+        return false;
+    }
+
+    const targetBox = createSquareBoundingBox({
+        center: targetLocation,
+        halfSize: hitHalfSizeMeters,
+    });
+
+    for (let i = 0; i < gameObjects.length; i++) {
+        const candidate = gameObjects[i];
+        const isEnemyShip = candidate && candidate.type === 'Ship' && candidate.id !== playerShipId;
+        const isDebris = candidate && candidate.type === 'Debris';
+        if (!isEnemyShip && !isDebris) {
+            continue;
+        }
+        const box = buildBoundingBoxForRender(candidate);
+        if (box && doBoundingBoxesOverlap(box, targetBox)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function createSquareBoundingBox({center, halfSize}) {
+    const size = Number(halfSize);
+    const resolvedHalfSize = Number.isFinite(size) && size > 0 ? size : 0;
+    return {
+        center: {x: center.x, y: center.y},
+        halfLength: resolvedHalfSize,
+        halfWidth: resolvedHalfSize,
+        axisLength: {x: 0, y: -1},
+        axisWidth: {x: 1, y: 0},
+    };
+}
+
+function doBoundingBoxesOverlap(boxA, boxB) {
+    if (!boxA || !boxB) {
+        return false;
+    }
+
+    const axesToTest = [
+        boxA.axisLength,
+        boxA.axisWidth,
+        boxB.axisLength,
+        boxB.axisWidth,
+    ];
+
+    for (let i = 0; i < axesToTest.length; i++) {
+        const axis = axesToTest[i];
+        const projectionA = projectBoxOntoAxis(boxA, axis);
+        const projectionB = projectBoxOntoAxis(boxB, axis);
+        const overlaps = projectionA.min <= projectionB.max && projectionB.min <= projectionA.max;
+        if (!overlaps) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function projectBoxOntoAxis(box, axis) {
+    const centerProjection = box.center.x * axis.x + box.center.y * axis.y;
+    const extent = Math.abs(box.halfLength * (box.axisLength.x * axis.x + box.axisLength.y * axis.y))
+        + Math.abs(box.halfWidth * (box.axisWidth.x * axis.x + box.axisWidth.y * axis.y));
+    return {
+        min: centerProjection - extent,
+        max: centerProjection + extent,
+    };
+}
+
