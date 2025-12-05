@@ -12,6 +12,7 @@ import {renderThruster} from './worldObjects/thruster.js';
 import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
 import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
+import {renderTargetSelector} from './worldObjects/targetSelector.js';
 
 export class Renderer {
     constructor(mapRadius, options = {}) {
@@ -390,6 +391,8 @@ export class Renderer {
             }
         }
 
+        this.renderTargetSelectorOverlay(gameObjects);
+
         this.map.restore();
 
         this.map.save();
@@ -508,6 +511,39 @@ export class Renderer {
 
         this.map.restore();
 
+    }
+
+    renderTargetSelectorOverlay(gameObjects) {
+        const ship = this.playerShip;
+        if (!ship) {
+            return;
+        }
+        const {locationX, locationY, facing, id: playerShipId} = ship;
+        if (!Number.isFinite(locationX) || !Number.isFinite(locationY) || !Number.isFinite(facing)) {
+            return;
+        }
+
+        const targetDistanceMeters = 50;
+        const forwardVector = getFacingUnitVector(facing);
+        const targetLocation = {
+            x: locationX + forwardVector.x * targetDistanceMeters,
+            y: locationY + forwardVector.y * targetDistanceMeters,
+        };
+
+        const targetOverEnemy = isTargetOverEnemyShip({
+            targetLocation,
+            gameObjects,
+            playerShipId,
+        });
+
+        const selectorColor = targetOverEnemy ? 'rgba(200, 40, 40, 0.95)' : 'rgba(150, 150, 150, 0.9)';
+
+        renderTargetSelector(this.map, {
+            targetX: targetLocation.x,
+            targetY: targetLocation.y,
+            worldPixelsPerMeter: this.worldPixelsPerMeter,
+            color: selectorColor,
+        });
     }
 
     renderSound(sound) {
@@ -763,4 +799,43 @@ function getBoundingBoxCorners(box) {
             y: box.center.y + lengthVector.y - widthVector.y
         }
     ];
+}
+
+function getFacingUnitVector(compassFacingDegrees) {
+    const clampedDegrees = Number.isFinite(compassFacingDegrees) ? compassFacingDegrees % 360 : 0;
+    const orientationRadians = clampedDegrees * Math.PI / 180;
+    return {
+        x: Math.sin(orientationRadians),
+        y: -Math.cos(orientationRadians)
+    };
+}
+
+function isTargetOverEnemyShip({targetLocation, gameObjects, playerShipId}) {
+    if (!targetLocation || !gameObjects || !Array.isArray(gameObjects)) {
+        return false;
+    }
+    for (let i = 0; i < gameObjects.length; i++) {
+        const candidate = gameObjects[i];
+        if (!candidate || candidate.type !== 'Ship' || candidate.id === playerShipId) {
+            continue;
+        }
+        const box = buildBoundingBoxForRender(candidate);
+        if (box && isPointInsideBoundingBox(box, targetLocation)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isPointInsideBoundingBox(box, point) {
+    if (!box || !point) {
+        return false;
+    }
+    const relative = {
+        x: point.x - box.center.x,
+        y: point.y - box.center.y
+    };
+    const projectionLength = relative.x * box.axisLength.x + relative.y * box.axisLength.y;
+    const projectionWidth = relative.x * box.axisWidth.x + relative.y * box.axisWidth.y;
+    return Math.abs(projectionLength) <= box.halfLength && Math.abs(projectionWidth) <= box.halfWidth;
 }
