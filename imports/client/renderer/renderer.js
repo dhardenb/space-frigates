@@ -34,7 +34,15 @@ export class Renderer {
         this.camera = {"centerX":0, "centerY":0, "prevCenterX":0, "prevCenterY":0, "boundry": {"left":0, "right":0, "top":0, "bottom":0}};
         this.map = document.getElementById("map").getContext('2d');
         this.background = document.getElementById("background").getContext('2d');
-        this.starField = {"upperLeft": {"x":0, "y":0}, "upperRight": {"x":0, "y":0}, "lowerLeft": {"x":0, "y":0}, "lowerRight": {"x":0, "y":0}};
+        this.devicePixelRatio = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+        this.starFieldConfig = {
+            tileSizeCss: 2048,
+            densityPerPixel: 1 / 1000,
+            minRadiusCss: 0.5,
+            maxRadiusCss: 1.25,
+            seed: 1337,
+        };
+        this.starTile = null;
         this.createBackground();
         this.playerId = 0;
         this.playerName = "";
@@ -51,44 +59,99 @@ export class Renderer {
         this.explosionDedupIntervalMs = 500;
     }
 
-    createBackground() {
+    refreshViewportMeasurements() {
+        const windowOffset = 22;
+        const availableWidth = window.innerWidth - windowOffset;
+        const availableHeight = window.innerHeight - windowOffset;
+        const availablePixels = availableHeight < availableWidth ? availableWidth : availableHeight;
+        const devicePixelRatio = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+        const viewportWidthPx = Math.max(1, Math.floor(availableWidth * devicePixelRatio));
+        const viewportHeightPx = Math.max(1, Math.floor(availableHeight * devicePixelRatio));
 
-        // This should be handled in a dedicated event handler...
-        let windowOffset = 22;
-        this.availableWidth = window.innerWidth - windowOffset;
-        this.availableHeight = window.innerHeight - windowOffset;
-        this.availablePixels = this.availableHeight < this.availableWidth ? this.availableWidth : this.availableHeight;
+        const changed = availableWidth !== this.availableWidth
+            || availableHeight !== this.availableHeight
+            || availablePixels !== this.availablePixels
+            || viewportWidthPx !== this.viewportWidthPx
+            || viewportHeightPx !== this.viewportHeightPx
+            || devicePixelRatio !== this.devicePixelRatio;
+
+        this.availableWidth = availableWidth;
+        this.availableHeight = availableHeight;
+        this.availablePixels = availablePixels;
+        this.viewportWidthPx = viewportWidthPx;
+        this.viewportHeightPx = viewportHeightPx;
+        this.devicePixelRatio = devicePixelRatio;
         this.pixelsPerMeter = this.availablePixels / 2 / this.visualRange;
         this.worldPixelsPerMeter = this.pixelsPerMeter;
-        this.background.canvas.width = this.availableWidth;
-        this.background.canvas.height = this.availableHeight;
 
-        this.starFieldCanvas = document.createElement('canvas');
-        this.starFieldCanvas.width = this.availableWidth;
-        this.starFieldCanvas.height = this.availableHeight;
-        this.starFieldContext = this.starFieldCanvas.getContext('2d');
+        return changed;
+    }
 
-        for (let x = 0; x < this.availableWidth; x++) {
-            for (let y = 0; y < this.availableHeight; y++) {
-                if (Math.floor((Math.random()*1000)+1) == 1) {
-                    this.starFieldContext.beginPath();
-                    this.starFieldContext.arc(x, y, 1, 0, 2 * Math.PI);
-                    this.starFieldContext.fillStyle = "rgba(100, 100, 255, " + Math.random() + ")";
-                    this.starFieldContext.fill();
-                }
-            }
+    createBackground({skipViewportRefresh = false} = {}) {
+        if (!skipViewportRefresh) {
+            this.refreshViewportMeasurements();
         }
 
-        this.starField.upperLeft.x = -this.availableWidth / 2;
-        this.starField.upperLeft.y = -this.availableHeight / 2;
-        this.starField.upperRight.x = this.availableWidth / 2;
-        this.starField.upperRight.y = -this.availableHeight / 2;
-        this.starField.lowerLeft.x = -this.availableWidth / 2;
-        this.starField.lowerLeft.y = this.availableHeight / 2;
-        this.starField.lowerRight.x = this.availableWidth / 2;
-        this.starField.lowerRight.y = this.availableHeight / 2;
+        this.background.canvas.width = this.viewportWidthPx;
+        this.background.canvas.height = this.viewportHeightPx;
+        this.background.canvas.style.width = `${this.availableWidth}px`;
+        this.background.canvas.style.height = `${this.availableHeight}px`;
+        this.background.setTransform(1, 0, 0, 1, 0, 0);
+        this.background.imageSmoothingEnabled = false;
 
-        this.background.drawImage(this.starFieldCanvas, 0, 0);
+        const desiredTileSizePx = Math.max(1, Math.floor(this.starFieldConfig.tileSizeCss * this.devicePixelRatio));
+        const tileNeedsRebuild = !this.starTile
+            || this.starTile.sizePx !== desiredTileSizePx
+            || this.starTile.devicePixelRatio !== this.devicePixelRatio;
+
+        if (tileNeedsRebuild) {
+            this.starTile = this.createStarTile(desiredTileSizePx);
+        }
+
+        this.background.clearRect(0, 0, this.viewportWidthPx, this.viewportHeightPx);
+    }
+
+    createStarTile(tileSizePx) {
+        const devicePixelRatio = this.devicePixelRatio || 1;
+        const tileSizeCss = tileSizePx / devicePixelRatio;
+        const tileCanvas = document.createElement('canvas');
+        tileCanvas.width = tileSizePx;
+        tileCanvas.height = tileSizePx;
+        const tileContext = tileCanvas.getContext('2d');
+        const areaCss = tileSizeCss * tileSizeCss;
+        const starCount = Math.max(1, Math.round(areaCss * this.starFieldConfig.densityPerPixel));
+        const rng = this.createSeededRng(this.starFieldConfig.seed);
+        const radiusRangeCss = this.starFieldConfig.maxRadiusCss - this.starFieldConfig.minRadiusCss;
+
+        for (let i = 0; i < starCount; i++) {
+            const x = Math.floor(rng() * tileSizePx);
+            const y = Math.floor(rng() * tileSizePx);
+            const radiusCss = this.starFieldConfig.minRadiusCss + rng() * radiusRangeCss;
+            // Ensure minimum 1 physical pixel radius to prevent subpixel antialiasing
+            // which causes stars to appear dim on high-DPI monitors with fractional scaling
+            const radiusPx = Math.max(1, radiusCss * devicePixelRatio);
+            const alpha = rng();
+
+            tileContext.beginPath();
+            tileContext.arc(x, y, radiusPx, 0, 2 * Math.PI);
+            tileContext.fillStyle = `rgba(100, 100, 255, ${alpha})`;
+            tileContext.fill();
+        }
+
+        return {
+            canvas: tileCanvas,
+            sizePx: tileSizePx,
+            tileSizeCss,
+            devicePixelRatio,
+        };
+    }
+
+    createSeededRng(seed) {
+        let state = seed >>> 0;
+        return () => {
+            state = (state * 1664525 + 1013904223) >>> 0;
+            return state / 0x100000000;
+        };
     }
 
     setZoomFactor(factor) {
@@ -163,96 +226,38 @@ export class Renderer {
     }
 
     scrollTheBackground() {
-
-        // WARNING! This only works right now if I set the players starting
-        // position in the world to (0,0)
-        //
-        // I need to figure out how to know when I player just started so that
-        // I cn reorient the background to the player position
-        //
-        // A possible solution is to add a field to the ship itself to
-        // indicate it's "age" Then, the rendering code can use this to know
-        // that if the ship is new that it should realign the scrolling to
-        // the new ships location
-        //
-        // Also, I kind of need this new porerty anyway so that I can implemnt
-        // the feature that a ship is "transparent" when it very first enters
-        // the battle so it can not blow up immeditalty
-       
-        this.horizontalScrollAdjustment = this.camera.prevCenterX - this.camera.centerX;
-        this.verticalScrollAdjustment = this.camera.prevCenterY - this.camera.centerY;
-
-        this.starField.upperLeft.x += this.horizontalScrollAdjustment * this.worldPixelsPerMeter;
-        this.starField.upperLeft.y += this.verticalScrollAdjustment * this.worldPixelsPerMeter;
-        this.starField.upperRight.x += this.horizontalScrollAdjustment * this.worldPixelsPerMeter;
-        this.starField.upperRight.y += this.verticalScrollAdjustment * this.worldPixelsPerMeter;
-        this.starField.lowerLeft.x += this.horizontalScrollAdjustment * this.worldPixelsPerMeter;
-        this.starField.lowerLeft.y += this.verticalScrollAdjustment * this.worldPixelsPerMeter;
-        this.starField.lowerRight.x += this.horizontalScrollAdjustment * this.worldPixelsPerMeter;
-        this.starField.lowerRight.y += this.verticalScrollAdjustment * this.worldPixelsPerMeter;
-
-        // upperLeft
-        if (this.starField.upperLeft.x > this.camera.boundry.right) {
-            this.starField.upperLeft.x -= this.availableWidth * 2;
-        }
-        if (this.starField.upperLeft.x +this.availableWidth < this.camera.boundry.left) {
-            this.starField.upperLeft.x += this.availableWidth * 2;
-        }
-        if (this.starField.upperLeft.y > this.camera.boundry.bottom) {
-            this.starField.upperLeft.y -= this.availableHeight * 2;
-        }
-        if (this.starField.upperLeft.y + this.availableHeight < this.camera.boundry.top) {
-            this.starField.upperLeft.y += this.availableHeight * 2;
+        if (!this.starTile) {
+            return;
         }
 
-        // upperRight
-        if (this.starField.upperRight.x > this.camera.boundry.right) {
-            this.starField.upperRight.x -= this.availableWidth * 2;
-        }
-        if (this.starField.upperRight.x +this.availableWidth < this.camera.boundry.left) {
-            this.starField.upperRight.x += this.availableWidth * 2;
-        }
-        if (this.starField.upperRight.y > this.camera.boundry.bottom) {
-            this.starField.upperRight.y -= this.availableHeight * 2;
-        }
-        if (this.starField.upperRight.y + this.availableHeight < this.camera.boundry.top) {
-            this.starField.upperRight.y += this.availableHeight * 2;
-        }
+        const pixelsPerMeterPx = this.worldPixelsPerMeter * this.devicePixelRatio;
+        const cameraXPx = (typeof this.playerShip.locationX === 'number' ? this.playerShip.locationX : 0) * pixelsPerMeterPx;
+        const cameraYPx = (typeof this.playerShip.locationY === 'number' ? this.playerShip.locationY : 0) * pixelsPerMeterPx;
+        const tileSizePx = this.starTile.sizePx;
+        const offsets = [-tileSizePx, 0, tileSizePx];
 
-        // lowerLeft
-        if (this.starField.lowerLeft.x > this.camera.boundry.right) {
-            this.starField.lowerLeft.x -= this.availableWidth * 2;
-        }
-        if (this.starField.lowerLeft.x +this.availableWidth < this.camera.boundry.left) {
-            this.starField.lowerLeft.x += this.availableWidth * 2;
-        }
-        if (this.starField.lowerLeft.y > this.camera.boundry.bottom) {
-            this.starField.lowerLeft.y -= this.availableHeight * 2;
-        }
-        if (this.starField.lowerLeft.y + this.availableHeight < this.camera.boundry.top) {
-            this.starField.lowerLeft.y += this.availableHeight * 2;
-        }
+        const baseOffsetX = ((-cameraXPx % tileSizePx) + tileSizePx) % tileSizePx;
+        const baseOffsetY = ((-cameraYPx % tileSizePx) + tileSizePx) % tileSizePx;
+        const offsetX = Math.round(baseOffsetX) - tileSizePx;
+        const offsetY = Math.round(baseOffsetY) - tileSizePx;
 
-        // lowerRight
-        if (this.starField.lowerRight.x > this.camera.boundry.right) {
-            this.starField.lowerRight.x -= this.availableWidth * 2;
-        }
-        if (this.starField.lowerRight.x +this.availableWidth < this.camera.boundry.left) {
-            this.starField.lowerRight.x += this.availableWidth * 2;
-        }
-        if (this.starField.lowerRight.y > this.camera.boundry.bottom) {
-            this.starField.lowerRight.y -= this.availableHeight * 2;
-        }
-        if (this.starField.lowerRight.y + this.availableHeight < this.camera.boundry.top) {
-            this.starField.lowerRight.y += this.availableHeight * 2;
-        }
-        
-        this.background.clearRect(0,0, this.availableWidth, this.availableHeight);
+        this.background.clearRect(0, 0, this.viewportWidthPx, this.viewportHeightPx);
 
-        this.background.drawImage(this.starFieldCanvas, this.starField.upperLeft.x, this.starField.upperLeft.y);
-        this.background.drawImage(this.starFieldCanvas, this.starField.upperRight.x, this.starField.upperRight.y);
-        this.background.drawImage(this.starFieldCanvas, this.starField.lowerLeft.x, this.starField.lowerLeft.y);
-        this.background.drawImage(this.starFieldCanvas, this.starField.lowerRight.x, this.starField.lowerRight.y);
+        for (let i = 0; i < offsets.length; i++) {
+            for (let j = 0; j < offsets.length; j++) {
+                const drawX = offsetX + offsets[i];
+                const drawY = offsetY + offsets[j];
+
+                if (drawX >= this.viewportWidthPx || drawX + tileSizePx <= 0) {
+                    continue;
+                }
+                if (drawY >= this.viewportHeightPx || drawY + tileSizePx <= 0) {
+                    continue;
+                }
+
+                this.background.drawImage(this.starTile.canvas, drawX, drawY);
+            }
+        }
     }
  
     // This is dumb, I should be able to set a pointer when the player
@@ -276,22 +281,20 @@ export class Renderer {
         this.pruneRecentSounds(nowMs);
         this.pruneRecentExplosions(nowMs);
 
-        let windowOffset = 22;
-        this.availableWidth = window.innerWidth - windowOffset;
-        this.availableHeight = window.innerHeight - windowOffset;
-        this.availablePixels = this.availableHeight < this.availableWidth ? this.availableWidth : this.availableHeight;
-        this.pixelsPerMeter = this.availablePixels / 2 / this.visualRange;
-        this.worldPixelsPerMeter = this.pixelsPerMeter;
+        const viewportChanged = this.refreshViewportMeasurements();
         this.map.canvas.width = this.availableWidth;
         this.map.canvas.height = this.availableHeight;
 
-        const backgroundSizeChanged = this.background.canvas.width !== this.availableWidth
-            || this.background.canvas.height !== this.availableHeight
-            || this.starFieldCanvas.width !== this.availableWidth
-            || this.starFieldCanvas.height !== this.availableHeight;
+        const desiredTileSizePx = Math.max(1, Math.floor(this.starFieldConfig.tileSizeCss * this.devicePixelRatio));
+        const backgroundSizeChanged = viewportChanged
+            || this.background.canvas.width !== this.viewportWidthPx
+            || this.background.canvas.height !== this.viewportHeightPx
+            || !this.starTile
+            || this.starTile.sizePx !== desiredTileSizePx
+            || this.starTile.devicePixelRatio !== this.devicePixelRatio;
 
         if (backgroundSizeChanged) {
-            this.createBackground();
+            this.createBackground({skipViewportRefresh: true});
         }
 
         this.updatePlayerShip(playerShipId);
