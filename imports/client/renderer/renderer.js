@@ -530,14 +530,14 @@ export class Renderer {
             y: locationY + forwardVector.y * targetDistanceMeters,
         };
 
-        const targetOverEnemy = isTargetOverEnemyShip({
+        const targetOverEnemyOrDebris = isTargetOverEnemyOrDebris({
             targetLocation,
             gameObjects,
             playerShipId,
         });
 
-        const selectorColor = targetOverEnemy ? 'rgba(200, 40, 40, 0.95)' : 'rgba(150, 150, 150, 0.9)';
-        const selectorFillColor = targetOverEnemy ? 'rgba(200, 40, 40, 0.25)' : null;
+        const selectorColor = targetOverEnemyOrDebris ? 'rgba(200, 40, 40, 0.95)' : 'rgba(150, 150, 150, 0.9)';
+        const selectorFillColor = targetOverEnemyOrDebris ? 'rgba(200, 40, 40, 0.25)' : null;
 
         renderTargetSelector(this.map, {
             targetX: targetLocation.x,
@@ -812,13 +812,15 @@ function getFacingUnitVector(compassFacingDegrees) {
     };
 }
 
-function isTargetOverEnemyShip({targetLocation, gameObjects, playerShipId}) {
+function isTargetOverEnemyOrDebris({targetLocation, gameObjects, playerShipId}) {
     if (!targetLocation || !gameObjects || !Array.isArray(gameObjects)) {
         return false;
     }
     for (let i = 0; i < gameObjects.length; i++) {
         const candidate = gameObjects[i];
-        if (!candidate || candidate.type !== 'Ship' || candidate.id === playerShipId) {
+        const isEnemyShip = candidate && candidate.type === 'Ship' && candidate.id !== playerShipId;
+        const isDebris = candidate && candidate.type === 'Debris';
+        if (!isEnemyShip && !isDebris) {
             continue;
         }
         const box = buildBoundingBoxForRender(candidate);
