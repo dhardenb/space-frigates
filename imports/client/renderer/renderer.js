@@ -523,7 +523,7 @@ export class Renderer {
             return;
         }
 
-        const targetDistanceMeters = 50;
+        const targetDistanceMeters = 75;
         const forwardVector = getFacingUnitVector(facing);
         const targetLocation = {
             x: locationX + forwardVector.x * targetDistanceMeters,

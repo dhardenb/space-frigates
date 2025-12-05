@@ -3,7 +3,7 @@ export function renderTargetSelector(map, {
     targetY,
     worldPixelsPerMeter,
     color = 'rgba(150, 150, 150, 0.9)',
-    diameterMeters = 3,
+    diameterMeters = 5,
 }) {
     if (!map || !Number.isFinite(targetX) || !Number.isFinite(targetY) || !Number.isFinite(worldPixelsPerMeter)) {
         return;
