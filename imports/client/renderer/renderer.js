@@ -127,7 +127,9 @@ export class Renderer {
             const x = Math.floor(rng() * tileSizePx);
             const y = Math.floor(rng() * tileSizePx);
             const radiusCss = this.starFieldConfig.minRadiusCss + rng() * radiusRangeCss;
-            const radiusPx = radiusCss * devicePixelRatio;
+            // Ensure minimum 1 physical pixel radius to prevent subpixel antialiasing
+            // which causes stars to appear dim on high-DPI monitors with fractional scaling
+            const radiusPx = Math.max(1, radiusCss * devicePixelRatio);
             const alpha = rng();
 
             tileContext.beginPath();
