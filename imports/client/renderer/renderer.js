@@ -537,12 +537,14 @@ export class Renderer {
         });
 
         const selectorColor = targetOverEnemy ? 'rgba(200, 40, 40, 0.95)' : 'rgba(150, 150, 150, 0.9)';
+        const selectorFillColor = targetOverEnemy ? 'rgba(200, 40, 40, 0.25)' : null;
 
         renderTargetSelector(this.map, {
             targetX: targetLocation.x,
             targetY: targetLocation.y,
             worldPixelsPerMeter: this.worldPixelsPerMeter,
             color: selectorColor,
+            fillColor: selectorFillColor,
         });
     }
 

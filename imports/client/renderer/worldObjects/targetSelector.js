@@ -4,6 +4,7 @@ export function renderTargetSelector(map, {
     worldPixelsPerMeter,
     color = 'rgba(150, 150, 150, 0.9)',
     diameterMeters = 5,
+    fillColor = null,
 }) {
     if (!map || !Number.isFinite(targetX) || !Number.isFinite(targetY) || !Number.isFinite(worldPixelsPerMeter)) {
         return;
@@ -21,6 +22,10 @@ export function renderTargetSelector(map, {
 
     map.beginPath();
     map.arc(0, 0, radiusPx, 0, 2 * Math.PI);
+    if (fillColor) {
+        map.fillStyle = fillColor;
+        map.fill();
+    }
     map.stroke();
 
     const crossArmLengthPx = radiusPx * 0.85;
