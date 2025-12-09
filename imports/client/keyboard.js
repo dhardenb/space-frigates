@@ -36,6 +36,9 @@ export class Keyboard {
                     client.playerName = client.playerName + evt.key.toUpperCase();
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
+                if (evt.repeat) {
+                    return;
+                }
                 client.commandHandler({command: 'TOGGLE_MISSILES'});
             }
         }
