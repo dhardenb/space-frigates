@@ -214,13 +214,13 @@ export class Engine {
         };
 
         if (this.isProjectile(objectA) && isShip(objectB)) {
-            if (objectA.owner && objectA.owner === objectB.id) {
+            if (typeof objectA.owner !== 'undefined' && objectA.owner === objectB.id) {
                 return false;
             }
             return projectileHitsTarget(objectA, objectB);
         }
         if (this.isProjectile(objectB) && isShip(objectA)) {
-            if (objectB.owner && objectB.owner === objectA.id) {
+            if (typeof objectB.owner !== 'undefined' && objectB.owner === objectA.id) {
                 return false;
             }
             return projectileHitsTarget(objectB, objectA);
