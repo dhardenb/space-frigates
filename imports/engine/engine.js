@@ -189,10 +189,15 @@ export class Engine {
             // done by the laser is reduced the farther it travels.
             // NOTE: Once a laser runs out of fuel it disappears
             const damage = projectile.type === 'Missile'
-                ? (projectile.initialFuel || projectile.maxFuel || projectile.fuel)
+                ? this.getMissilePayload(projectile)
                 : projectile.fuel;
             target.takeDamage(damage);
-            this.createLaserExplosion(projectile);
+            if (projectile.type === 'Missile') {
+                this.createMissileExplosion(projectile);
+            }
+            else {
+                this.createLaserExplosion(projectile);
+            }
             if (target.hullStrength <= 0) {
                 if (target.type !== 'Debris') {
                     this.createDebris(target);
@@ -331,6 +336,16 @@ export class Engine {
             locationY: (objectA.locationY + objectB.locationY) / 2,
             size: Math.max(sizeA, sizeB)
         };
+
+        if (objectA.type === 'Missile' || objectB.type === 'Missile') {
+            const missilePayload = this.sumMissilePayload(objectA, objectB);
+            if (missilePayload > 0) {
+                impactPoint.size = missilePayload;
+            }
+            this.createMissileExplosion(impactPoint, missilePayload);
+            return;
+        }
+
         if (useLaserParticles) {
             const laserFuel = this.sumLaserFuel(objectA, objectB);
             if (laserFuel.maxFuel > 0) {
@@ -338,10 +353,10 @@ export class Engine {
                 impactPoint.maxFuel = laserFuel.maxFuel;
             }
             this.createLaserExplosion(impactPoint);
+            return;
         }
-        else {
-            this.createExplosion(impactPoint);
-        }
+
+        this.createExplosion(impactPoint);
     }
 
     sumLaserFuel(...objects) {
@@ -354,6 +369,22 @@ export class Engine {
         }, {remainingFuel: 0, maxFuel: 0});
     }
 
+    getMissilePayload(object) {
+        if (!object) {
+            return 0;
+        }
+        return object.payload || object.initialFuel || object.maxFuel || object.fuel || 0;
+    }
+
+    sumMissilePayload(...objects) {
+        return objects.reduce((total, object) => {
+            if (object && object.type === 'Missile') {
+                total += this.getMissilePayload(object);
+            }
+            return total;
+        }, 0);
+    }
+
     createDebris(sourceGameObject) {
         const newDebris = new Debris(Engine.getNextGameObjectId(), {sourceObject: sourceGameObject});
         gameObjects.push(newDebris);
@@ -361,6 +392,17 @@ export class Engine {
 
     createExplosion(sourceGameObject) {
         this.queueExplosion(sourceGameObject, {explosionType: 'Standard'});
+    }
+
+    createMissileExplosion(sourceGameObject, payloadOverride = null) {
+        const payload = payloadOverride !== null
+            ? payloadOverride
+            : this.getMissilePayload(sourceGameObject);
+        const explosionOptions = {
+            explosionType: 'Standard',
+            size: payload || sourceGameObject.size || sourceGameObject.lengthInMeters
+        };
+        this.queueExplosion(sourceGameObject, explosionOptions);
     }
 
     createLaserExplosion(sourceGameObject) {
@@ -430,7 +472,7 @@ export class Engine {
             }
 
             if (object.type === 'Missile' && object.fuel <= 0) {
-                this.createLaserExplosion(object);
+                this.createMissileExplosion(object);
                 this.deadObjects.push(object);
                 continue;
             }

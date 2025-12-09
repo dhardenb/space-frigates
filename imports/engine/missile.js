@@ -10,6 +10,6 @@ export class Missile extends Laser {
 
                 this.maxFuel = (this.maxFuel || 0) * 2;
                 this.fuel = this.maxFuel;
-                this.initialFuel = this.maxFuel;
+                this.payload = this.maxFuel;
         }
 }
