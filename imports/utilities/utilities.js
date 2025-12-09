@@ -1,11 +1,12 @@
 const BINARY_MAGIC = 0x53464753; // 'SFGS'
-const BINARY_VERSION = 7;
+const BINARY_VERSION = 8;
 
 const TYPE_CODES = {
     Player: 1,
     Ship: 2,
     Debris: 3,
     Laser: 4,
+    Missile: 8,
     Sound: 5,
     Thruster: 6,
     Explosion: 7
@@ -257,6 +258,9 @@ export class Utilities {
             case TYPE_CODES.Laser: {
                 return BASE + 4 /* Id */ + (4 * 6) + 4 /* Owner */;
             }
+            case TYPE_CODES.Missile: {
+                return BASE + 4 /* Id */ + (4 * 6) + 4 /* Owner */;
+            }
             case TYPE_CODES.Sound: {
                 const soundBytes = Utilities.encodeString(gameObject.soundType || "");
                 const soundLength = Math.min(soundBytes.length, 255);
@@ -335,6 +339,18 @@ export class Utilities {
                 ]);
                 break;
             case TYPE_CODES.Laser:
+                view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
+                offset = Utilities.writeFloatFields(view, offset, [
+                    gameObject.fuel,
+                    gameObject.locationX,
+                    gameObject.locationY,
+                    gameObject.facing,
+                    gameObject.heading,
+                    gameObject.velocity
+                ]);
+                view.setUint32(offset, (gameObject.owner >>> 0) || 0, true); offset += 4;
+                break;
+            case TYPE_CODES.Missile:
                 view.setUint32(offset, (gameObject.id >>> 0) || 0, true); offset += 4;
                 offset = Utilities.writeFloatFields(view, offset, [
                     gameObject.fuel,
@@ -446,6 +462,21 @@ export class Utilities {
                 break;
             }
             case TYPE_CODES.Laser: {
+                object.id = view.getUint32(offset, true); offset += 4;
+                const values = Utilities.readFloatFields(view, offset, 6);
+                offset = values.offset;
+                [
+                    object.fuel,
+                    object.locationX,
+                    object.locationY,
+                    object.facing,
+                    object.heading,
+                    object.velocity
+                ] = values.values;
+                object.owner = view.getUint32(offset, true); offset += 4;
+                break;
+            }
+            case TYPE_CODES.Missile: {
                 object.id = view.getUint32(offset, true); offset += 4;
                 const values = Utilities.readFloatFields(view, offset, 6);
                 offset = values.offset;
