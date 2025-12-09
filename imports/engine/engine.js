@@ -1,5 +1,6 @@
 import {Player} from './player.js';
 import {Laser} from './laser.js';
+import {Missile} from './missile.js';
 import {Ship} from './ship.js';
 import {ViperShip} from './viperShip.js';
 import {TurtleShip} from './turtleShip.js';
@@ -165,27 +166,39 @@ export class Engine {
     }
 
     handleSpecialCollisionCases(objectA, objectB, isShip) {
-        // ship hit by laser (any orientation of inputs)
-        if (this.isLaserShipCollision(objectA, objectB, isShip)) {
+        // ship hit by projectile (any orientation of inputs)
+        if (this.isProjectileShipCollision(objectA, objectB, isShip)) {
             return true;
         }
 
-        if (this.isLaserLaserCollision(objectA, objectB)) {
+        if (this.isProjectileProjectileCollision(objectA, objectB)) {
             return true;
         }
 
         return false;
     }
 
-    isLaserShipCollision(objectA, objectB, isShip) {
-        const laserHitsTarget = (laser, target) => {
+    isProjectile(gameObject) {
+        return gameObject && (gameObject.type === 'Laser' || gameObject.type === 'Missile');
+    }
+
+    isProjectileShipCollision(objectA, objectB, isShip) {
+        const projectileHitsTarget = (projectile, target) => {
             // The amount of damage that the laser does is determined by
             // the amount of fuel remaining. So, the amount of damage
             // done by the laser is reduced the farther it travels.
             // NOTE: Once a laser runs out of fuel it disappears
-            const damage = laser.fuel;
+            const damage = projectile.type === 'Missile'
+                ? this.getMissilePayload(projectile)
+                : projectile.fuel;
             target.takeDamage(damage);
-            this.createLaserExplosion(laser);
+            if (projectile.type === 'Missile') {
+                this.createMissileExplosion(projectile);
+                this.deadObjects.push(projectile);
+            }
+            else {
+                this.createLaserExplosion(projectile);
+            }
             if (target.hullStrength <= 0) {
                 if (target.type !== 'Debris') {
                     this.createDebris(target);
@@ -194,29 +207,35 @@ export class Engine {
                 this.deadObjects.push(target);
                 if (target.type === 'Ship') {
                     this.scoreDeath(target.id);
-                    this.scoreKill(laser.owner);
+                    this.scoreKill(projectile.owner);
                 }
             }
             return true;
         };
 
-        if (objectA.type === 'Laser' && isShip(objectB)) {
-            return laserHitsTarget(objectA, objectB);
+        if (this.isProjectile(objectA) && isShip(objectB)) {
+            if (typeof objectA.owner !== 'undefined' && objectA.owner === objectB.id) {
+                return false;
+            }
+            return projectileHitsTarget(objectA, objectB);
         }
-        if (objectB.type === 'Laser' && isShip(objectA)) {
-            return laserHitsTarget(objectB, objectA);
+        if (this.isProjectile(objectB) && isShip(objectA)) {
+            if (typeof objectB.owner !== 'undefined' && objectB.owner === objectA.id) {
+                return false;
+            }
+            return projectileHitsTarget(objectB, objectA);
         }
-        if (objectA.type === 'Laser' && objectB.type === 'Debris') {
-            return laserHitsTarget(objectA, objectB);
+        if (this.isProjectile(objectA) && objectB.type === 'Debris') {
+            return projectileHitsTarget(objectA, objectB);
         }
-        if (objectB.type === 'Laser' && objectA.type === 'Debris') {
-            return laserHitsTarget(objectB, objectA);
+        if (this.isProjectile(objectB) && objectA.type === 'Debris') {
+            return projectileHitsTarget(objectB, objectA);
         }
         return false;
     }
 
-    isLaserLaserCollision(objectA, objectB) {
-        if (objectA.type !== 'Laser' || objectB.type !== 'Laser') {
+    isProjectileProjectileCollision(objectA, objectB) {
+        if (!this.isProjectile(objectA) || !this.isProjectile(objectB)) {
             return false;
         }
 
@@ -324,6 +343,16 @@ export class Engine {
             locationY: (objectA.locationY + objectB.locationY) / 2,
             size: Math.max(sizeA, sizeB)
         };
+
+        if (objectA.type === 'Missile' || objectB.type === 'Missile') {
+            const missilePayload = this.sumMissilePayload(objectA, objectB);
+            if (missilePayload > 0) {
+                impactPoint.size = missilePayload;
+            }
+            this.createMissileExplosion(impactPoint, missilePayload);
+            return;
+        }
+
         if (useLaserParticles) {
             const laserFuel = this.sumLaserFuel(objectA, objectB);
             if (laserFuel.maxFuel > 0) {
@@ -331,20 +360,36 @@ export class Engine {
                 impactPoint.maxFuel = laserFuel.maxFuel;
             }
             this.createLaserExplosion(impactPoint);
+            return;
         }
-        else {
-            this.createExplosion(impactPoint);
-        }
+
+        this.createExplosion(impactPoint);
     }
 
     sumLaserFuel(...objects) {
         return objects.reduce((totals, object) => {
-            if (object && object.type === 'Laser') {
+            if (object && (object.type === 'Laser' || object.type === 'Missile')) {
                 totals.remainingFuel += Math.max(0, object.fuel || 0);
                 totals.maxFuel += Math.max(0, object.maxFuel || 0);
             }
             return totals;
         }, {remainingFuel: 0, maxFuel: 0});
+    }
+
+    getMissilePayload(object) {
+        if (!object) {
+            return 0;
+        }
+        return object.payload || object.initialFuel || object.maxFuel || object.fuel || 0;
+    }
+
+    sumMissilePayload(...objects) {
+        return objects.reduce((total, object) => {
+            if (object && object.type === 'Missile') {
+                total += this.getMissilePayload(object);
+            }
+            return total;
+        }, 0);
     }
 
     createDebris(sourceGameObject) {
@@ -354,6 +399,17 @@ export class Engine {
 
     createExplosion(sourceGameObject) {
         this.queueExplosion(sourceGameObject, {explosionType: 'Standard'});
+    }
+
+    createMissileExplosion(sourceGameObject, payloadOverride = null) {
+        const payload = payloadOverride !== null
+            ? payloadOverride
+            : this.getMissilePayload(sourceGameObject);
+        const explosionOptions = {
+            explosionType: 'Standard',
+            size: payload || sourceGameObject.size || sourceGameObject.lengthInMeters
+        };
+        this.queueExplosion(sourceGameObject, explosionOptions);
     }
 
     createLaserExplosion(sourceGameObject) {
@@ -417,8 +473,19 @@ export class Engine {
 
     fuelDetection() {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].fuel < 0) {
-                this.deadObjects.push(gameObjects[x]);
+            const object = gameObjects[x];
+            if (typeof object.fuel !== 'number') {
+                continue;
+            }
+
+            if (object.type === 'Missile' && object.fuel <= 0) {
+                this.createMissileExplosion(object);
+                this.deadObjects.push(object);
+                continue;
+            }
+
+            if (object.fuel < 0) {
+                this.deadObjects.push(object);
             }
         }
         this.removeDeadObjects();
@@ -441,7 +508,7 @@ export class Engine {
             // from the Game Object to the center of the screen and making sure the distance is smaller
             // than the radius of the screen.
             if (!(solidObjects[x].locationX * solidObjects[x].locationX + solidObjects[x].locationY * solidObjects[x].locationY < this.mapRadius * this.mapRadius)) {
-                if (solidObjects[x].type === 'Laser') {
+                if (this.isProjectile(solidObjects[x])) {
                     this.createLaserExplosion(solidObjects[x]);
                 }
                 else {
@@ -483,6 +550,7 @@ export class Engine {
             Player: Player,
             Ship: Ship,
             Laser: Laser,
+            Missile: Missile,
             Debris: Debris,
             Sound: Sound,
             Explosion: Explosion,

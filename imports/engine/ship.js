@@ -1,5 +1,6 @@
 import {Engine} from '../engine/engine.js';
 import {Laser} from './laser.js';
+import {Missile} from './missile.js';
 import {Physics} from './physics.js';
 import {Sound} from './sound.js';
 import {Thruster} from './thruster.js';
@@ -29,6 +30,10 @@ export class Ship {
         this.laserEnergyCost = 10;
         this.laserFuelCapacity = 30;
         this.laserFuelConsumptionRate = 30;
+        this.maxMissiles = 3;
+        this.missilesRemaining = this.maxMissiles;
+        this.missilesArmed = false;
+        this.missileFireRequested = false;
         this.rotationEnergyPerSecond = Physics.framesPerSecond * 5; // matches old 5-per-frame default
         this.thrusterForceProduced = this.mass * 20 * Physics.framesPerSecond;
         this.maxShieldStrength = 100;
@@ -54,6 +59,9 @@ export class Ship {
             this.capacitor = this.maxCapacitor;
             this.autoPilotEngaged = false;
             this.autoPilotFacingLocked = false;
+            this.missilesRemaining = this.maxMissiles;
+            this.missilesArmed = false;
+            this.missileFireRequested = false;
         }
     }
 
@@ -75,6 +83,9 @@ export class Ship {
         for(let x = 0, y = commands.length; x < y; x++) {
             if (commands[x].targetId == this.id) {
                 const candidateCommand = commands[x].command;
+                if (candidateCommand === 'TOGGLE_MISSILES' || candidateCommand === 'FIRE_MISSILE') {
+                    continue;
+                }
                 if (candidateCommand === 'BRAKE_DOWN' || candidateCommand === 4 || candidateCommand === '4') {
                     autoPilotRequested = true;
                     continue;
@@ -327,8 +338,10 @@ export class Ship {
 
     update(commands, framesPerSecond) {
         this.determineCurrentCommand(commands);
+        this.processMissileCommands(commands);
         this.updateRector(framesPerSecond);
         this.fireLaser();
+        this.fireMissileIfRequested();
         this.updateThrusters();
         this.updateRetroThrusters();
         this.updateLateralThrusters();
@@ -338,7 +351,68 @@ export class Ship {
         this.updateShields();
         this.updateVelocity();
         this.updateFacing();
-        this.updateLocation(); 
+        this.updateLocation();
+    }
+
+    processMissileCommands(commands) {
+        let toggleRequested = false;
+        let fireRequested = false;
+
+        if (this.missilesRemaining <= 0) {
+            this.missilesArmed = false;
+        }
+
+        for(let x = 0, y = commands.length; x < y; x++) {
+            if (commands[x].targetId == this.id) {
+                const candidateCommand = commands[x].command;
+                if (candidateCommand === 'TOGGLE_MISSILES') {
+                    toggleRequested = true;
+                }
+                if (candidateCommand === 'FIRE_MISSILE') {
+                    fireRequested = true;
+                }
+            }
+        }
+
+        if (toggleRequested) {
+            this.toggleMissileArming();
+        }
+        if (fireRequested) {
+            this.missileFireRequested = true;
+        }
+    }
+
+    toggleMissileArming() {
+        if (this.missilesArmed) {
+            this.missilesArmed = false;
+            this.missileFireRequested = false;
+            return;
+        }
+        if (this.missilesRemaining > 0) {
+            this.missilesArmed = true;
+            this.missileFireRequested = false;
+        }
+    }
+
+    fireMissileIfRequested() {
+        if (!this.missileFireRequested) {
+            return;
+        }
+
+        this.missileFireRequested = false;
+
+        if (!this.missilesArmed || this.missilesRemaining <= 0) {
+            this.missilesArmed = false;
+            return;
+        }
+
+        const newMissile = new Missile(Engine.getNextGameObjectId(), {sourceObject: this});
+        gameObjects.push(newMissile);
+        const newSound = new Sound();
+        newSound.init("LaserFired", this);
+        gameObjects.push(newSound);
+        this.missilesRemaining = Math.max(0, (this.missilesRemaining || 0) - 1);
+        this.missilesArmed = false;
     }
 
     setStartingHumanPosition(mapRadius) {

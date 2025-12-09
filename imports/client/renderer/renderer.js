@@ -7,9 +7,10 @@ import {renderDebris} from './worldObjects/debris.js';
 import {renderLaser} from './worldObjects/laser.js';
 import {renderParticle} from './worldObjects/particle.js';
 import {renderLaserParticle} from './worldObjects/laserParticle.js';
+import {renderMissile} from './worldObjects/missile.js';
 import {renderShip} from './worldObjects/ship.js';
 import {renderThruster} from './worldObjects/thruster.js';
-import {renderCapacitorStatus, renderHullStrength, renderShieldStatus} from './hudMeters.js';
+import {renderCapacitorStatus, renderHullStrength, renderMissileStatus, renderShieldStatus} from './hudMeters.js';
 import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
 import {renderTargetSelector} from './worldObjects/targetSelector.js';
@@ -30,6 +31,10 @@ export class Renderer {
         this.explosionEffectHandler = typeof options.onExplosionEffect === 'function'
             ? options.onExplosionEffect
             : null;
+        this.onTargetStatusChange = typeof options.onTargetStatusChange === 'function'
+            ? options.onTargetStatusChange
+            : null;
+        this.targetSelectorHot = false;
         this.focalX = 0;
         this.focalY = 0;
         this.camera = {"centerX":0, "centerY":0, "prevCenterX":0, "prevCenterY":0, "boundry": {"left":0, "right":0, "top":0, "bottom":0}};
@@ -371,6 +376,13 @@ export class Renderer {
 
                 }
 
+                else if (gameObjects[i].type == 'Missile') {
+
+                    renderMissile(this.map, gameObjects[i], this.worldPixelsPerMeter);
+                    this.renderBoundingBox(gameObjects[i]);
+
+                }
+
                 else if (gameObjects[i].type == 'Debris') {
 
                     renderDebris(this.map, gameObjects[i], this.worldPixelsPerMeter);
@@ -418,6 +430,13 @@ export class Renderer {
             renderLeaderboard(this.map, {
                 gameObjects,
                 playerId: this.playerId,
+            });
+
+            renderMissileStatus(this.map, {
+                availableHeight: this.availableHeight,
+                missilesRemaining: this.playerShip.missilesRemaining,
+                missilesArmed: this.playerShip.missilesArmed,
+                maxMissiles: this.playerShip.maxMissiles,
             });
 
             renderHullStrength(this.map, {
@@ -516,10 +535,16 @@ export class Renderer {
     renderTargetSelectorOverlay(gameObjects) {
         const ship = this.playerShip;
         if (!ship) {
+            this.updateTargetSelectorState(false);
             return;
         }
         const {locationX, locationY, facing, id: playerShipId} = ship;
         if (!Number.isFinite(locationX) || !Number.isFinite(locationY) || !Number.isFinite(facing)) {
+            this.updateTargetSelectorState(false);
+            return;
+        }
+        if (!ship.missilesArmed) {
+            this.updateTargetSelectorState(false);
             return;
         }
 
@@ -540,6 +565,8 @@ export class Renderer {
         const selectorColor = targetOverEnemyOrDebris ? 'rgba(200, 40, 40, 0.95)' : 'rgba(150, 150, 150, 0.9)';
         const selectorFillColor = targetOverEnemyOrDebris ? 'rgba(200, 40, 40, 0.25)' : null;
 
+        this.updateTargetSelectorState(targetOverEnemyOrDebris);
+
         renderTargetSelector(this.map, {
             targetX: targetLocation.x,
             targetY: targetLocation.y,
@@ -547,6 +574,20 @@ export class Renderer {
             color: selectorColor,
             fillColor: selectorFillColor,
         });
+    }
+
+    resetTargetSelectorState() {
+        this.updateTargetSelectorState(false);
+    }
+
+    updateTargetSelectorState(isTargetHot) {
+        const nextState = Boolean(isTargetHot);
+        if (this.targetSelectorHot !== nextState) {
+            this.targetSelectorHot = nextState;
+            if (this.onTargetStatusChange) {
+                this.onTargetStatusChange(nextState);
+            }
+        }
     }
 
     renderSound(sound) {
