@@ -46,6 +46,8 @@ export class Client {
         };
         this.pendingMissileLock = false;
         this.lastMissileArmed = false;
+        this.pendingMissileToggleAt = null; // Timestamp of last missile toggle command
+        this.missileToggleGracePeriodMs = 500; // Grace period to protect local state from stale server snapshots
 
         window.gameObjects = []; // 7 files
     }
@@ -71,7 +73,35 @@ export class Client {
             this.recordSnapshotSize(snapshotBytes);
             
             if (!this.localMode) {
+                // Capture local missile state before server sync if we have a pending toggle
+                let preserveMissileState = null;
+                if (this.pendingMissileToggleAt) {
+                    const now = Date.now();
+                    const elapsed = now - this.pendingMissileToggleAt;
+                    if (elapsed < this.missileToggleGracePeriodMs) {
+                        const playerShip = this.getPlayerShip();
+                        if (playerShip) {
+                            preserveMissileState = {
+                                missilesArmed: playerShip.missilesArmed,
+                                missileFireRequested: playerShip.missileFireRequested
+                            };
+                        }
+                    } else {
+                        // Grace period expired, clear the pending toggle
+                        this.pendingMissileToggleAt = null;
+                    }
+                }
+
                 gameObjects = this.engine.convertObjects(gameObjects, serverUpdate.gameState);
+
+                // Restore local missile state if we were protecting it
+                if (preserveMissileState) {
+                    const playerShip = this.getPlayerShip();
+                    if (playerShip) {
+                        playerShip.missilesArmed = preserveMissileState.missilesArmed;
+                        playerShip.missileFireRequested = preserveMissileState.missileFireRequested;
+                    }
+                }
             }  
 
             let playerIsAlive = false;
@@ -183,6 +213,10 @@ export class Client {
     commandHandler(input) {
         this.commands.push(input);
         input.targetId = this.playerShipId;
+        // Track missile toggle commands for grace period protection against stale server snapshots
+        if (input.command === 'TOGGLE_MISSILES') {
+            this.pendingMissileToggleAt = Date.now();
+        }
         if (!this.localMode) this.inputStream.emit('input', input);
     }
 
