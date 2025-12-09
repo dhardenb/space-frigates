@@ -49,6 +49,27 @@ export function renderShieldStatus(map, {availableHeight, shieldStatus, shieldOn
     map.restore();
 }
 
+export function renderMissileStatus(map, {availableHeight, missilesRemaining, missilesArmed, maxMissiles}) {
+    const remaining = Math.max(0, Math.floor(missilesRemaining || 0));
+    const total = Math.max(0, Math.floor(maxMissiles || 0));
+    const armedText = missilesArmed && remaining > 0 ? 'ARMED' : 'SAFE';
+    const armedColor = missilesArmed && remaining > 0 ? 'rgba(200, 40, 40, 0.85)' : 'rgba(128, 128, 128, 0.7)';
+
+    map.save();
+    map.translate(0, availableHeight - 125);
+    map.fillStyle = 'rgba(128, 128, 128, 0.5)';
+    map.font = '20px Arial';
+    map.fillText(`MISSILES ${remaining}/${total}`, 0, 0);
+    map.restore();
+
+    map.save();
+    map.translate(180, availableHeight - 125);
+    map.fillStyle = armedColor;
+    map.font = '20px Arial';
+    map.fillText(armedText, 0, 0);
+    map.restore();
+}
+
 export function renderInstructions(map, availableHeight) {
     map.save();
     map.fillStyle = "yellow";
@@ -65,6 +86,8 @@ export function renderInstructions(map, availableHeight) {
     map.fillText("S or DOWN ARROW => Auto Brake", 0, 0);
     map.translate(0, 25);
     map.fillText("ALT => Toggle Shields", 0, 0);
+    map.translate(0, 25);
+    map.fillText("M => Arm / Disarm Missiles", 0, 0);
     map.translate(0, 25);
     map.fillText("SPACEBAR => Fire", 0, 0);
     map.restore();

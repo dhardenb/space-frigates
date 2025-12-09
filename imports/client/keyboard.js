@@ -28,6 +28,17 @@ export class Keyboard {
                 client.commandHandler({command: 5});
             }
         }
+        // M key - Toggle missiles
+        else if(evt.keyCode==77) {
+            evt.preventDefault();
+            if (Client.gameMode == 'START_MODE') {
+                if (client.playerName.length < 8) {
+                    client.playerName = client.playerName + String.fromCharCode(evt.which);
+                }
+            } else if (Client.gameMode == 'PLAY_MODE') {
+                client.commandHandler({command: 'TOGGLE_MISSILES'});
+            }
+        }
         // SPACE_BAR - Fire
         else if(evt.keyCode == 32) {
             evt.preventDefault();

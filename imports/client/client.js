@@ -28,7 +28,8 @@ export class Client {
         this.playerShipId = -1;
         this.engine = new Engine(this.mapRadius);
         this.renderer = new Renderer(this.mapRadius, {
-            onExplosionEffect: this.handleExplosionEffect.bind(this)
+            onExplosionEffect: this.handleExplosionEffect.bind(this),
+            onTargetStatusChange: this.handleTargetSelectorChange.bind(this)
         });
         this.debugOverlay = null;
         this.autopilotIndicator = document.getElementById('autopilot-indicator');
@@ -43,7 +44,9 @@ export class Client {
             holdDurationMs: 3000,
             fadeDurationMs: 1500
         };
-        
+        this.pendingMissileLock = false;
+        this.lastMissileArmed = false;
+
         window.gameObjects = []; // 7 files
     }
 
@@ -115,8 +118,9 @@ export class Client {
         this.currentFrameRate = this.targetFrameRate;
         this.previousTimeStamp = currentTimeStamp;
         this.commands = [];
-        this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
         const playerShip = this.getPlayerShip();
+        this.syncMissileArmingState(playerShip);
+        this.renderer.renderMap(this.playerId, this.playerName, this.playerShipId);
         this.engine.removeSoundObjects();
         this.engine.removeExplosionObjects();
         if (this.debugOverlay) {
@@ -202,6 +206,45 @@ export class Client {
 
         this.debugOverlay.setRefreshCallback(() => this.fetchNetworkThrottleState());
         this.fetchNetworkThrottleState();
+    }
+
+    syncMissileArmingState(ship) {
+        const missilesRemaining = ship ? ship.missilesRemaining : 0;
+        const missilesArmed = !!(ship && ship.missilesArmed && missilesRemaining > 0);
+
+        if (missilesRemaining <= 0) {
+            this.pendingMissileLock = false;
+        }
+
+        if (missilesArmed && !this.lastMissileArmed) {
+            this.pendingMissileLock = true;
+            if (this.renderer) {
+                this.renderer.resetTargetSelectorState();
+            }
+        } else if (!missilesArmed) {
+            this.pendingMissileLock = false;
+        }
+
+        this.lastMissileArmed = missilesArmed;
+    }
+
+    handleTargetSelectorChange(isTargetHot) {
+        if (!isTargetHot) {
+            return;
+        }
+
+        const ship = this.getPlayerShip();
+        if (!ship || !ship.missilesArmed || ship.missilesRemaining <= 0) {
+            this.pendingMissileLock = false;
+            return;
+        }
+
+        if (!this.pendingMissileLock) {
+            return;
+        }
+
+        this.pendingMissileLock = false;
+        this.commandHandler({command: 'FIRE_MISSILE'});
     }
 
     adjustZoom(delta) {
