@@ -194,6 +194,7 @@ export class Engine {
             target.takeDamage(damage);
             if (projectile.type === 'Missile') {
                 this.createMissileExplosion(projectile);
+                this.deadObjects.push(projectile);
             }
             else {
                 this.createLaserExplosion(projectile);
