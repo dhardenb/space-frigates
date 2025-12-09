@@ -188,7 +188,9 @@ export class Engine {
             // the amount of fuel remaining. So, the amount of damage
             // done by the laser is reduced the farther it travels.
             // NOTE: Once a laser runs out of fuel it disappears
-            const damage = projectile.fuel;
+            const damage = projectile.type === 'Missile'
+                ? (projectile.initialFuel || projectile.maxFuel || projectile.fuel)
+                : projectile.fuel;
             target.takeDamage(damage);
             this.createLaserExplosion(projectile);
             if (target.hullStrength <= 0) {
@@ -422,8 +424,19 @@ export class Engine {
 
     fuelDetection() {
         for (let x = 0, y = gameObjects.length; x < y; x++) {
-            if (gameObjects[x].fuel < 0) {
-                this.deadObjects.push(gameObjects[x]);
+            const object = gameObjects[x];
+            if (typeof object.fuel !== 'number') {
+                continue;
+            }
+
+            if (object.type === 'Missile' && object.fuel <= 0) {
+                this.createLaserExplosion(object);
+                this.deadObjects.push(object);
+                continue;
+            }
+
+            if (object.fuel < 0) {
+                this.deadObjects.push(object);
             }
         }
         this.removeDeadObjects();

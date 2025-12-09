@@ -406,21 +406,6 @@ export class Ship {
             return;
         }
 
-        let activateMissile;
-        if (this.capacitor >= this.laserEnergyCost) {
-            this.capacitor -= this.laserEnergyCost;
-            activateMissile = true;
-        } else if (this.shieldStatus >= 20) {
-            this.shieldStatus -= 20;
-            activateMissile = true;
-        } else {
-            activateMissile = false;
-        }
-
-        if (!activateMissile) {
-            return;
-        }
-
         const newMissile = new Missile(Engine.getNextGameObjectId(), {sourceObject: this});
         gameObjects.push(newMissile);
         const newSound = new Sound();
