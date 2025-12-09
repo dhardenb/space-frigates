@@ -1,6 +1,4 @@
-## Future Work Backlog
-
-### Renderer Optimizations
+# Renderer Optimizations
 
 1. **Cache procedural ship art**
    - Render the animated human ship into an offscreen canvas (or `OffscreenCanvas`) at a canonical scale/rotation, then draw that bitmap with `drawImage` for each instance. This amortizes the cost of gradients, shadows, and path construction across frames, trading CPU paint work for cheap GPU blits.
@@ -14,7 +12,7 @@
 4. **Reuse gradients and paths**
    - Move static gradients (fuselage metal, canopy base colors) and frequently used `Path2D`s into cached objects so they aren’t recreated on every draw call, lowering garbage generation and JS execution time.
 
-### Gameplay & Balance
+# Gameplay Balance
 
 1. **Realistic energy model**
    - Revisit capacitor capacities, reactor output, and weapon energy costs so they use plausible joule values (and possibly units) instead of the current game-only placeholders, then rebalance regen and consumption around the new scale.
@@ -27,7 +25,7 @@
 5. **Rotation tuning**
    - Introduce per-ship rotation acceleration/decay settings (or an advanced flight mode) so rotational thrusters can feel distinct without making new players spin uncontrollably.
 
-### Network Optimization
+# Network Optimization
 
 1. **Client-side interpolation/extrapolation**
    - Buffer multiple authoritative snapshots on the client, then render positions using interpolation (and extrapolation for short gaps) to smooth remote motion when outbound snapshots are throttled below the physics tick rate.
@@ -45,7 +43,7 @@
    - Move the ad-hoc DataView layout to a formal schema (e.g., FlatBuffers, protobuf, Cap'n Proto) so field changes are versioned automatically and tooling can generate encoders/decoders for other runtimes.
    - Adds room for richer validation (checksums, signatures) and could unlock streaming partial updates once the delta system is in place.
 
-### Bot AI Improvements
+# Bot AI Improvements
 
 1. **Lead targeting (predictive aiming)**
    - Instead of aiming at where the target IS, aim where it WILL BE when the laser arrives. Calculate time-to-target based on distance and laser speed (100 units), then predict the target's future position using their heading and velocity. This significantly improves hit rate against moving targets.
@@ -74,3 +72,25 @@
 9. **Energy management**
    - Monitor capacitor levels and temporarily disengage (stop firing, disable shields) to recharge if energy gets critically low, rather than draining shields for weapons.
 
+# New Features
+
+- Autopilot toggle
+- Update rotational thrusters to use auto pilot
+- Update auto brakes to use all thrusters
+- Better energy meters
+- Damage system
+- Guided Missiles
+- Flares
+- Full Screen Option
+- Volume Control
+- Zoom Level
+- Rest of Sounds effects
+- "Warp in"
+- Turn off hit boxes default in the debug screen
+- REmove debug button, map to a key instead
+
+# Bugs
+
+- Always seems to glitc when first starting
+- Players don't get taken out of the leader board
+- Stop making new AI ships sometimes
