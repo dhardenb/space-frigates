@@ -123,71 +123,184 @@ export class Ship {
         return this.autoPilotEngaged === true;
     }
 
+    /**
+     * Autopilot braking system that preserves the ship's current facing.
+     *
+     * Decomposes velocity into ship-relative components (forward/backward and left/right)
+     * and fires the appropriate thrusters to counter each component:
+     * - Forward velocity → retrograde thrusters
+     * - Backward velocity → main thruster
+     * - Rightward velocity → left lateral thrusters
+     * - Leftward velocity → right lateral thrusters
+     *
+     * Rotation is dampened but the ship does not rotate to face retrograde.
+     */
     updateAutoPilot() {
         if (!this.isAutoPilotActive()) {
             return;
         }
 
-        const facing = Ship.normalizeAngle(Number.isFinite(this.facing) ? this.facing : 0);
-        const heading = Ship.normalizeAngle(Number.isFinite(this.heading) ? this.heading : 0);
-        const targetFacing = Ship.normalizeAngle(heading + 180);
-        const angleDelta = Ship.normalizeSignedAngle(targetFacing - facing);
-        const absAngleDelta = Math.abs(angleDelta);
         const velocityMagnitude = Math.abs(Number(this.velocity) || 0);
         const rotationMagnitude = Math.abs(Number(this.rotationVelocity) || 0);
-        const rotationSpeedLevel = Math.abs(Number(this.rotationVelocity) || 0);
 
+        // Check if we've stopped - disable autopilot
         if (velocityMagnitude <= AUTO_PILOT_VELOCITY_THRESHOLD && rotationMagnitude <= AUTO_PILOT_ROTATION_THRESHOLD) {
             this.disableAutoPilot();
             return;
         }
 
-        if (rotationSpeedLevel > 1) {
+        // Always dampen rotation first to stabilize facing
+        if (rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.rotationDirection !== 'None') {
             this.dampenRotation();
             return;
         }
 
-        if (velocityMagnitude > AUTO_PILOT_VELOCITY_THRESHOLD && !this.autoPilotFacingLocked && absAngleDelta > AUTO_PILOT_ANGLE_TOLERANCE_DEGREES) {
-            const desiredDirection = angleDelta > 0 ? 'CounterClockwise' : 'Clockwise';
-            const rotationDirection = this.rotationDirection || 'None';
-            const rotationVelocity = Number(this.rotationVelocity) || 0;
-            const needsKickstart = rotationDirection === 'None' || rotationVelocity <= AUTO_PILOT_ROTATION_THRESHOLD;
-            const rotatingSameWay = rotationDirection === desiredDirection;
-            if (needsKickstart || rotatingSameWay) {
-                this.applyRotationThrust(desiredDirection);
-            }
-            return;
-        }
-
-        if (!this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.rotationDirection !== 'None') {
-            this.dampenRotation();
-            return;
-        }
-
-        if (this.autoPilotFacingLocked && rotationMagnitude > AUTO_PILOT_ROTATION_THRESHOLD && this.rotationDirection !== 'None') {
-            this.dampenRotation();
-            return;
-        }
-
+        // If velocity is significant, apply braking thrusters
         if (velocityMagnitude > AUTO_PILOT_VELOCITY_THRESHOLD) {
-            const previousVelocity = velocityMagnitude;
-            const fired = this.applyForwardThrust();
-            if (fired) {
-                if (!this.autoPilotFacingLocked) {
-                    this.autoPilotFacingLocked = true;
+            const {forwardSpeed, rightSpeed} = this.getShipRelativeVelocity();
+
+            // Threshold for considering a velocity component significant enough to brake
+            const componentThreshold = AUTO_PILOT_VELOCITY_THRESHOLD * 0.5;
+
+            // Determine which thruster(s) to fire based on velocity components
+            // Prioritize the larger component, but can fire both if needed
+            const absForward = Math.abs(forwardSpeed);
+            const absRight = Math.abs(rightSpeed);
+
+            let thrusterFired = false;
+
+            // Fire thruster for the dominant velocity component
+            if (absForward >= absRight && absForward > componentThreshold) {
+                // Forward/backward is dominant
+                if (forwardSpeed > 0) {
+                    // Moving forward relative to facing - fire retrograde
+                    const previousForwardSpeed = forwardSpeed;
+                    thrusterFired = this.applyRetrogradeThrust();
+                    // Check for overshoot on forward velocity
+                    if (thrusterFired) {
+                        const {forwardSpeed: newForwardSpeed, rightSpeed} = this.getShipRelativeVelocity();
+                        if (newForwardSpeed < 0 || Math.abs(newForwardSpeed) > Math.abs(previousForwardSpeed)) {
+                            // Overshot - zero out forward component
+                            this.setVelocityFromShipRelative(0, rightSpeed);
+                        }
+                    }
+                } else {
+                    // Moving backward relative to facing - fire main thruster
+                    const previousVelocity = velocityMagnitude;
+                    thrusterFired = this.applyForwardThrust();
+                    // Check if we overshot (velocity increased or direction reversed)
+                    if (thrusterFired) {
+                        const newVelocityMagnitude = Math.abs(Number(this.velocity) || 0);
+                        if (newVelocityMagnitude >= previousVelocity) {
+                            this.velocity = 0;
+                            this.heading = this.facing;
+                        }
+                    }
                 }
-                const newVelocityMagnitude = Math.abs(Number(this.velocity) || 0);
-                if (newVelocityMagnitude >= previousVelocity) {
-                    this.velocity = 0;
-                    this.heading = this.facing;
+            } else if (absRight > componentThreshold) {
+                // Left/right is dominant
+                // Note: applyLateralThrust('Left') fires thrusters on the LEFT side,
+                // which pushes the ship to the RIGHT (and vice versa)
+                const previousRightSpeed = rightSpeed;
+                if (rightSpeed > 0) {
+                    // Moving right relative to facing - fire RIGHT lateral (pushes ship left)
+                    thrusterFired = this.applyLateralThrust('Right');
+                } else {
+                    // Moving left relative to facing - fire LEFT lateral (pushes ship right)
+                    thrusterFired = this.applyLateralThrust('Left');
+                }
+                // Check for overshoot on lateral velocity
+                if (thrusterFired) {
+                    const {rightSpeed: newRightSpeed} = this.getShipRelativeVelocity();
+                    // If we crossed zero (sign changed) or increased magnitude, we overshot
+                    if ((previousRightSpeed > 0 && newRightSpeed < 0) ||
+                        (previousRightSpeed < 0 && newRightSpeed > 0) ||
+                        Math.abs(newRightSpeed) > Math.abs(previousRightSpeed)) {
+                        // Zero out the lateral component by recalculating velocity
+                        const {forwardSpeed} = this.getShipRelativeVelocity();
+                        this.setVelocityFromShipRelative(forwardSpeed, 0);
+                    }
+                }
+            }
+
+            // If no thruster was fired but we still have velocity, try to stop
+            if (!thrusterFired && velocityMagnitude > AUTO_PILOT_VELOCITY_THRESHOLD) {
+                // Fallback: fire retrograde if we have any forward component
+                if (forwardSpeed > componentThreshold) {
+                    this.applyRetrogradeThrust();
+                } else if (forwardSpeed < -componentThreshold) {
+                    this.applyForwardThrust();
                 }
             }
             return;
         }
 
+        // Final check - if everything is below threshold, disable autopilot
         if (rotationMagnitude <= AUTO_PILOT_ROTATION_THRESHOLD && velocityMagnitude <= AUTO_PILOT_VELOCITY_THRESHOLD) {
             this.disableAutoPilot();
         }
+    }
+
+    /**
+     * Decomposes the ship's velocity into ship-relative coordinates.
+     *
+     * Returns:
+     * - forwardSpeed: positive = moving forward (toward facing), negative = moving backward
+     * - rightSpeed: positive = moving right, negative = moving left
+     *
+     * Uses compass convention: 0° = North (up), angles increase clockwise.
+     */
+    getShipRelativeVelocity() {
+        const facingRad = (this.facing || 0) * 0.0174532925; // deg to rad
+        const velocity = this.velocity || 0;
+        const heading = this.heading || 0;
+
+        // Get world velocity components using existing Physics utilities
+        const vx = Physics.getXaxisComponent(heading, velocity);
+        const vy = Physics.getYaxisComponent(heading, velocity);
+
+        // Ship's forward unit vector (compass: 0° = North = -Y in screen coords)
+        // Forward: (sin(facing), -cos(facing))
+        const fx = Math.sin(facingRad);
+        const fy = -Math.cos(facingRad);
+
+        // Ship's right unit vector (90° clockwise from forward)
+        // Right: (cos(facing), sin(facing))
+        const rx = Math.cos(facingRad);
+        const ry = Math.sin(facingRad);
+
+        // Project velocity onto ship axes (dot products)
+        const forwardSpeed = vx * fx + vy * fy;
+        const rightSpeed = vx * rx + vy * ry;
+
+        return {forwardSpeed, rightSpeed};
+    }
+
+    /**
+     * Sets the ship's velocity from ship-relative components.
+     *
+     * @param {number} forwardSpeed - Velocity along ship's facing axis (positive = forward)
+     * @param {number} rightSpeed - Velocity perpendicular to facing (positive = right)
+     */
+    setVelocityFromShipRelative(forwardSpeed, rightSpeed) {
+        const facingRad = (this.facing || 0) * 0.0174532925;
+
+        // Ship's forward unit vector
+        const fx = Math.sin(facingRad);
+        const fy = -Math.cos(facingRad);
+
+        // Ship's right unit vector
+        const rx = Math.cos(facingRad);
+        const ry = Math.sin(facingRad);
+
+        // Convert to world velocity components
+        const vx = forwardSpeed * fx + rightSpeed * rx;
+        const vy = forwardSpeed * fy + rightSpeed * ry;
+
+        // Convert to heading and velocity magnitude
+        const result = Physics.vectorToHeadingAndVelocity(vx, vy);
+        this.heading = result.heading;
+        this.velocity = result.velocity;
     }
 
     static normalizeAngle(angle) {
