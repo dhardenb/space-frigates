@@ -89,6 +89,5 @@
 
 # Bugs
 
-- Always seems to glitc when first starting
-- Players don't get taken out of the leader board
-- Stop making new AI ships sometimes
+- Always seems to glitch when first starting
+- Stops making new AI ships sometimes

@@ -103,7 +103,8 @@ export class Server {
         // Find inactive players
         for (let i = 0; i < gameObjects.length; i++) {
             const obj = gameObjects[i];
-            if (obj.type === 'Player' && obj.name !== '' && obj.isInactive(this.playerInactivityTimeoutMs)) {
+            // Only check inactivity for players who have started playing (have a ship assigned)
+            if (obj.type === 'Player' && obj.shipId && obj.isInactive(this.playerInactivityTimeoutMs)) {
                 playersToRemove.push({
                     playerId: obj.id,
                     shipId: obj.shipId

@@ -18,7 +18,8 @@ export function renderLeaderboard(map, {gameObjects, playerId}) {
 
     for (let i = 0, j = gameObjects.length; i < j; i++) {
         const gameObject = gameObjects[i];
-        if (gameObject.type === 'Player' && gameObject.name !== "") {
+        // Show players who have started playing (have a ship assigned)
+        if (gameObject.type === 'Player' && gameObject.shipId) {
             players.push(gameObject);
         }
     }
@@ -40,7 +41,8 @@ export function renderLeaderboard(map, {gameObjects, playerId}) {
         } else {
             map.fillStyle = "rgba(128, 128, 128, 0.5)";
         }
-        map.fillText(players[i].name, 0, 0);
+        const displayName = players[i].name || 'GUEST';
+        map.fillText(displayName, 0, 0);
         map.save();
         map.translate(155, 0);
         map.fillText(players[i].kills, 0, 0);
