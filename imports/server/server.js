@@ -40,6 +40,15 @@ export class Server {
             intervalMs: sanitizedInterval
         };
 
+        // Inactivity timeout in milliseconds (default 60 seconds)
+        const configuredTimeout = Number(Meteor.settings.private && Meteor.settings.private.playerInactivityTimeoutMs);
+        this.playerInactivityTimeoutMs = Number.isFinite(configuredTimeout) && configuredTimeout > 0
+            ? configuredTimeout
+            : 60000;
+
+        // How often to check for inactive players (default every 10 seconds)
+        this.inactivityCheckIntervalMs = 10000;
+
         global.gameObjects = [];
         Server.instance = this;
     }
@@ -48,6 +57,7 @@ export class Server {
         this.setupStreamPermissions();
         this.setupStreamListeners();
         this.startPhysicsLoop();
+        this.startInactivityCleanup();
     }
 
     setupStreamPermissions() {
@@ -58,7 +68,60 @@ export class Server {
     }
 
     setupStreamListeners() {
-        this.inputStream.on('input', (input) => {this.commands.push(input)});
+        this.inputStream.on('input', (input) => {
+            this.commands.push(input);
+            this.updatePlayerActivity(input);
+        });
+    }
+
+    /**
+     * Update the last activity timestamp for the player who sent the command.
+     * Commands have a targetId which is the ship ID; we find the player by matching shipId.
+     * @param {Object} input - The command input containing targetId (ship ID)
+     */
+    updatePlayerActivity(input) {
+        if (!input || typeof input.targetId === 'undefined') {
+            return;
+        }
+        const shipId = input.targetId;
+        for (let i = 0; i < gameObjects.length; i++) {
+            const obj = gameObjects[i];
+            if (obj.type === 'Player' && obj.shipId === shipId) {
+                obj.updateActivity();
+                break;
+            }
+        }
+    }
+
+    /**
+     * Remove players who have been inactive for longer than the configured timeout.
+     * Also removes their associated ships.
+     */
+    removeInactivePlayers() {
+        const playersToRemove = [];
+
+        // Find inactive players
+        for (let i = 0; i < gameObjects.length; i++) {
+            const obj = gameObjects[i];
+            if (obj.type === 'Player' && obj.name !== '' && obj.isInactive(this.playerInactivityTimeoutMs)) {
+                playersToRemove.push({
+                    playerId: obj.id,
+                    shipId: obj.shipId
+                });
+            }
+        }
+
+        // Remove inactive players and their ships
+        for (const player of playersToRemove) {
+            if (player.shipId) {
+                gameObjects = Utilities.removeByAttr(gameObjects, 'id', player.shipId);
+            }
+            gameObjects = Utilities.removeByAttr(gameObjects, 'id', player.playerId);
+        }
+    }
+
+    startInactivityCleanup() {
+        setInterval(() => this.removeInactivePlayers(), this.inactivityCheckIntervalMs);
     }
 
     bufferSoundObjects() {
