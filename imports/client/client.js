@@ -56,6 +56,9 @@ export class Client {
         this.fullscreenEnabled = false;
         this.fullscreenToggleHovered = false;
         this.closeButtonHovered = false;
+        this.volume = 50; // 0-100, where 50 = 1x volume, 100 = 2x volume, 0 = muted
+        this.volumeSliderHovered = false;
+        this.volumeSliderDragging = false;
 
         window.gameObjects = []; // 7 files
     }
@@ -65,6 +68,8 @@ export class Client {
         this.setupStreamListeners();
         this.setupDebugOverlay();
         this.setupSettingsInteraction();
+        // Initialize volume to default (50% = 1x multiplier)
+        this.setVolume(this.volume);
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
 
@@ -541,9 +546,47 @@ export class Client {
 
     getSettings() {
         return {
-            gameVolume: this.renderer ? this.renderer.gameVolume : 1,
+            volume: this.volume,
             fullscreen: this.fullscreenEnabled,
         };
+    }
+
+    getVolume() {
+        return this.volume;
+    }
+
+    setVolume(value) {
+        this.volume = Math.max(0, Math.min(100, value));
+        // Update the renderer's game volume
+        // volume 50 = 1x multiplier, volume 100 = 2x, volume 0 = 0x
+        if (this.renderer) {
+            const multiplier = this.volume / 50; // 0-2 range
+            this.renderer.gameVolume = Meteor.settings.public.gameVolume * multiplier;
+        }
+    }
+
+    /**
+     * Gets the volume multiplier for audio (0-2 range).
+     * @returns {number} Volume multiplier
+     */
+    getVolumeMultiplier() {
+        return this.volume / 50;
+    }
+
+    isVolumeSliderHovered() {
+        return this.volumeSliderHovered;
+    }
+
+    setVolumeSliderHovered(hovered) {
+        this.volumeSliderHovered = hovered;
+    }
+
+    isVolumeSliderDragging() {
+        return this.volumeSliderDragging;
+    }
+
+    setVolumeSliderDragging(dragging) {
+        this.volumeSliderDragging = dragging;
     }
 
     isFullscreenToggleHovered() {
@@ -633,10 +676,11 @@ export class Client {
         }
 
         // Import hit testing functions dynamically to avoid circular deps
-        import('./renderer/settingsMenu.js').then(({isPointInSettingsButton, isPointInBounds, getSettingsMenuBounds}) => {
+        import('./renderer/settingsMenu.js').then(({isPointInSettingsButton, isPointInBounds, getSettingsMenuBounds, getSliderValueFromPosition}) => {
             this._isPointInSettingsButton = isPointInSettingsButton;
             this._isPointInBounds = isPointInBounds;
             this._getSettingsMenuBounds = getSettingsMenuBounds;
+            this._getSliderValueFromPosition = getSliderValueFromPosition;
         });
 
         // Listen for fullscreen change events to sync state
@@ -644,6 +688,35 @@ export class Client {
         document.addEventListener('webkitfullscreenchange', () => this.syncFullscreenState());
         document.addEventListener('mozfullscreenchange', () => this.syncFullscreenState());
         document.addEventListener('MSFullscreenChange', () => this.syncFullscreenState());
+
+        mapCanvas.addEventListener('mousedown', (evt) => {
+            if (!this._isPointInSettingsButton) {
+                return;
+            }
+            const rect = mapCanvas.getBoundingClientRect();
+            const x = evt.clientX - rect.left;
+            const y = evt.clientY - rect.top;
+
+            // Check volume slider drag start
+            if (this.settingsOpen && this._getSettingsMenuBounds && this._isPointInBounds && this._getSliderValueFromPosition) {
+                const menuBounds = this._getSettingsMenuBounds();
+                
+                if (menuBounds.volumeSlider && this._isPointInBounds(x, y, menuBounds.volumeSlider)) {
+                    this.setVolumeSliderDragging(true);
+                    const newVolume = this._getSliderValueFromPosition(x, menuBounds.volumeSlider, 0, 100);
+                    this.setVolume(newVolume);
+                }
+            }
+        });
+
+        mapCanvas.addEventListener('mouseup', () => {
+            this.setVolumeSliderDragging(false);
+        });
+
+        // Also handle mouseup outside the canvas
+        document.addEventListener('mouseup', () => {
+            this.setVolumeSliderDragging(false);
+        });
 
         mapCanvas.addEventListener('click', (evt) => {
             if (!this._isPointInSettingsButton) {
@@ -668,6 +741,11 @@ export class Client {
                     this.toggleFullscreen();
                     return;
                 }
+
+                // Volume slider click (handled in mousedown, so just prevent gear toggle)
+                if (menuBounds.volumeSlider && this._isPointInBounds(x, y, menuBounds.volumeSlider)) {
+                    return;
+                }
             }
 
             // Settings button (gear icon)
@@ -686,6 +764,16 @@ export class Client {
 
             let cursorPointer = false;
 
+            // Handle volume slider dragging
+            if (this.volumeSliderDragging && this._getSettingsMenuBounds && this._getSliderValueFromPosition) {
+                const menuBounds = this._getSettingsMenuBounds();
+                if (menuBounds.volumeSlider) {
+                    const newVolume = this._getSliderValueFromPosition(x, menuBounds.volumeSlider, 0, 100);
+                    this.setVolume(newVolume);
+                }
+                cursorPointer = true;
+            }
+
             // Check settings menu hover states (when open)
             if (this.settingsOpen && this._getSettingsMenuBounds && this._isPointInBounds) {
                 const menuBounds = this._getSettingsMenuBounds();
@@ -703,9 +791,17 @@ export class Client {
                 if (fullscreenHovered) {
                     cursorPointer = true;
                 }
+
+                // Volume slider hover
+                const volumeHovered = menuBounds.volumeSlider && this._isPointInBounds(x, y, menuBounds.volumeSlider);
+                this.setVolumeSliderHovered(volumeHovered);
+                if (volumeHovered || this.volumeSliderDragging) {
+                    cursorPointer = true;
+                }
             } else {
                 this.setFullscreenToggleHovered(false);
                 this.setCloseButtonHovered(false);
+                this.setVolumeSliderHovered(false);
             }
 
             // Settings button hover

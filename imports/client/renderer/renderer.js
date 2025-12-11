@@ -556,6 +556,8 @@ export class Renderer {
                 availableHeight: this.availableHeight,
                 settings: typeof client !== 'undefined' && client.getSettings ? client.getSettings() : {},
                 fullscreenToggleHovered: typeof client !== 'undefined' && client.isFullscreenToggleHovered && client.isFullscreenToggleHovered(),
+                volumeSliderHovered: typeof client !== 'undefined' && client.isVolumeSliderHovered && client.isVolumeSliderHovered(),
+                volumeSliderDragging: typeof client !== 'undefined' && client.isVolumeSliderDragging && client.isVolumeSliderDragging(),
                 closeButtonHovered: typeof client !== 'undefined' && client.isCloseButtonHovered && client.isCloseButtonHovered(),
             });
         }
