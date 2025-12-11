@@ -89,5 +89,4 @@
 
 # Bugs
 
-- Always seems to glitch when first starting
 - Stops making new AI ships sometimes
