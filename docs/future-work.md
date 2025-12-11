@@ -86,8 +86,6 @@
 - Zoom Level
 - Rest of Sounds effects
 - "Warp in"
-- Turn off hit boxes default in the debug screen
-- REmove debug button, map to a key instead
 
 # Bugs
 

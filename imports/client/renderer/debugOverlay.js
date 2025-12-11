@@ -15,7 +15,7 @@ export class DebugOverlay {
         this.lastKnownThrottle = null;
         this.lastShipAttributes = null;
         this.dom = this.getDomHandles();
-        this.enabled = this.environment !== 'prod' && this.dom.overlay && this.dom.toggle;
+        this.enabled = this.environment !== 'prod' && this.dom.overlay;
         this.boundKeyHandler = this.handleKeyDown.bind(this);
         this.boundWheelHandler = this.handleWheel.bind(this);
 
@@ -30,7 +30,6 @@ export class DebugOverlay {
     getDomHandles() {
         return {
             overlay: document.getElementById('debug-overlay'),
-            toggle: document.getElementById('debug-toggle'),
             close: document.getElementById('debug-close'),
             tabs: document.querySelectorAll('[data-debug-tab]'),
             panelSystem: document.getElementById('debug-panel-system'),
@@ -69,17 +68,12 @@ export class DebugOverlay {
     }
 
     teardownDom() {
-        if (this.dom.toggle) {
-            this.dom.toggle.remove();
-        }
         if (this.dom.overlay) {
             this.dom.overlay.remove();
         }
     }
 
     initialize() {
-        this.dom.toggle.classList.remove('hidden');
-        this.dom.toggle.addEventListener('click', () => this.toggleVisibility());
         this.dom.close.addEventListener('click', () => this.hide());
         this.dom.apply.addEventListener('click', () => this.requestApply());
         this.dom.refresh.addEventListener('click', () => this.requestRefresh());
@@ -119,7 +113,6 @@ export class DebugOverlay {
         }
         this.visible = true;
         this.dom.overlay.classList.remove('hidden');
-        this.dom.toggle.setAttribute('aria-expanded', 'true');
         this.requestRefresh();
     }
 
@@ -129,7 +122,6 @@ export class DebugOverlay {
         }
         this.visible = false;
         this.dom.overlay.classList.add('hidden');
-        this.dom.toggle.setAttribute('aria-expanded', 'false');
     }
 
     handleKeyDown(event) {
