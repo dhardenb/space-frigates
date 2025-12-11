@@ -76,7 +76,6 @@
 
 - Autopilot toggle
 - Update rotational thrusters to use auto pilot
-- Update auto brakes to use all thrusters
 - Better energy meters
 - Damage system
 - Guided Missiles
