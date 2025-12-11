@@ -49,6 +49,14 @@ export class Client {
         this.pendingMissileToggleAt = null; // Timestamp of last missile toggle command
         this.missileToggleGracePeriodMs = 500; // Grace period to protect local state from stale server snapshots
 
+        // Settings menu state
+        this.settingsOpen = false;
+        this.settingsButtonBounds = null;
+        this.settingsButtonHovered = false;
+        this.fullscreenEnabled = false;
+        this.fullscreenToggleHovered = false;
+        this.closeButtonHovered = false;
+
         window.gameObjects = []; // 7 files
     }
 
@@ -56,6 +64,7 @@ export class Client {
         this.getPlayerId();
         this.setupStreamListeners();
         this.setupDebugOverlay();
+        this.setupSettingsInteraction();
         window.requestAnimationFrame(this.gameLoop.bind(this));
     }
 
@@ -494,6 +503,221 @@ export class Client {
                 Client.gameMode = 'PLAY_MODE';
             }
         }
+    }
+
+    // Settings menu methods
+
+    toggleSettings() {
+        this.settingsOpen = !this.settingsOpen;
+    }
+
+    openSettings() {
+        this.settingsOpen = true;
+    }
+
+    closeSettings() {
+        this.settingsOpen = false;
+    }
+
+    isSettingsOpen() {
+        return this.settingsOpen;
+    }
+
+    setSettingsButtonBounds(bounds) {
+        this.settingsButtonBounds = bounds;
+    }
+
+    getSettingsButtonBounds() {
+        return this.settingsButtonBounds;
+    }
+
+    setSettingsButtonHovered(hovered) {
+        this.settingsButtonHovered = hovered;
+    }
+
+    isSettingsButtonHovered() {
+        return this.settingsButtonHovered;
+    }
+
+    getSettings() {
+        return {
+            gameVolume: this.renderer ? this.renderer.gameVolume : 1,
+            fullscreen: this.fullscreenEnabled,
+        };
+    }
+
+    isFullscreenToggleHovered() {
+        return this.fullscreenToggleHovered;
+    }
+
+    setFullscreenToggleHovered(hovered) {
+        this.fullscreenToggleHovered = hovered;
+    }
+
+    isCloseButtonHovered() {
+        return this.closeButtonHovered;
+    }
+
+    setCloseButtonHovered(hovered) {
+        this.closeButtonHovered = hovered;
+    }
+
+    toggleFullscreen() {
+        if (this.fullscreenEnabled) {
+            this.exitFullscreen();
+        } else {
+            this.enterFullscreen();
+        }
+    }
+
+    enterFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().then(() => {
+                this.fullscreenEnabled = true;
+            }).catch((err) => {
+                console.warn('Failed to enter fullscreen:', err);
+            });
+        } else if (elem.webkitRequestFullscreen) {
+            // Safari
+            elem.webkitRequestFullscreen();
+            this.fullscreenEnabled = true;
+        } else if (elem.mozRequestFullScreen) {
+            // Firefox
+            elem.mozRequestFullScreen();
+            this.fullscreenEnabled = true;
+        } else if (elem.msRequestFullscreen) {
+            // IE/Edge
+            elem.msRequestFullscreen();
+            this.fullscreenEnabled = true;
+        }
+    }
+
+    exitFullscreen() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+                this.fullscreenEnabled = false;
+            }).catch((err) => {
+                console.warn('Failed to exit fullscreen:', err);
+            });
+        } else if (document.webkitExitFullscreen) {
+            // Safari
+            document.webkitExitFullscreen();
+            this.fullscreenEnabled = false;
+        } else if (document.mozCancelFullScreen) {
+            // Firefox
+            document.mozCancelFullScreen();
+            this.fullscreenEnabled = false;
+        } else if (document.msExitFullscreen) {
+            // IE/Edge
+            document.msExitFullscreen();
+            this.fullscreenEnabled = false;
+        }
+    }
+
+    syncFullscreenState() {
+        // Sync our state with actual browser fullscreen state
+        const isFullscreen = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement
+        );
+        this.fullscreenEnabled = isFullscreen;
+    }
+
+    setupSettingsInteraction() {
+        const mapCanvas = document.getElementById('map');
+        if (!mapCanvas) {
+            return;
+        }
+
+        // Import hit testing functions dynamically to avoid circular deps
+        import('./renderer/settingsMenu.js').then(({isPointInSettingsButton, isPointInBounds, getSettingsMenuBounds}) => {
+            this._isPointInSettingsButton = isPointInSettingsButton;
+            this._isPointInBounds = isPointInBounds;
+            this._getSettingsMenuBounds = getSettingsMenuBounds;
+        });
+
+        // Listen for fullscreen change events to sync state
+        document.addEventListener('fullscreenchange', () => this.syncFullscreenState());
+        document.addEventListener('webkitfullscreenchange', () => this.syncFullscreenState());
+        document.addEventListener('mozfullscreenchange', () => this.syncFullscreenState());
+        document.addEventListener('MSFullscreenChange', () => this.syncFullscreenState());
+
+        mapCanvas.addEventListener('click', (evt) => {
+            if (!this._isPointInSettingsButton) {
+                return;
+            }
+            const rect = mapCanvas.getBoundingClientRect();
+            const x = evt.clientX - rect.left;
+            const y = evt.clientY - rect.top;
+
+            // Check settings menu interactions first (when open)
+            if (this.settingsOpen && this._getSettingsMenuBounds && this._isPointInBounds) {
+                const menuBounds = this._getSettingsMenuBounds();
+                
+                // Close button
+                if (menuBounds.closeButton && this._isPointInBounds(x, y, menuBounds.closeButton)) {
+                    this.closeSettings();
+                    return;
+                }
+                
+                // Fullscreen toggle
+                if (menuBounds.fullscreenToggle && this._isPointInBounds(x, y, menuBounds.fullscreenToggle)) {
+                    this.toggleFullscreen();
+                    return;
+                }
+            }
+
+            // Settings button (gear icon)
+            if (this._isPointInSettingsButton(x, y, this.settingsButtonBounds)) {
+                this.toggleSettings();
+            }
+        });
+
+        mapCanvas.addEventListener('mousemove', (evt) => {
+            if (!this._isPointInSettingsButton) {
+                return;
+            }
+            const rect = mapCanvas.getBoundingClientRect();
+            const x = evt.clientX - rect.left;
+            const y = evt.clientY - rect.top;
+
+            let cursorPointer = false;
+
+            // Check settings menu hover states (when open)
+            if (this.settingsOpen && this._getSettingsMenuBounds && this._isPointInBounds) {
+                const menuBounds = this._getSettingsMenuBounds();
+                
+                // Close button hover
+                const closeHovered = menuBounds.closeButton && this._isPointInBounds(x, y, menuBounds.closeButton);
+                this.setCloseButtonHovered(closeHovered);
+                if (closeHovered) {
+                    cursorPointer = true;
+                }
+                
+                // Fullscreen toggle hover
+                const fullscreenHovered = menuBounds.fullscreenToggle && this._isPointInBounds(x, y, menuBounds.fullscreenToggle);
+                this.setFullscreenToggleHovered(fullscreenHovered);
+                if (fullscreenHovered) {
+                    cursorPointer = true;
+                }
+            } else {
+                this.setFullscreenToggleHovered(false);
+                this.setCloseButtonHovered(false);
+            }
+
+            // Settings button hover
+            const buttonHovered = this._isPointInSettingsButton(x, y, this.settingsButtonBounds);
+            this.setSettingsButtonHovered(buttonHovered);
+            if (buttonHovered) {
+                cursorPointer = true;
+            }
+
+            // Update cursor style
+            mapCanvas.style.cursor = cursorPointer ? 'pointer' : 'default';
+        });
     }
 
 }

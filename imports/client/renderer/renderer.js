@@ -14,6 +14,7 @@ import {renderCapacitorStatus, renderHullStrength, renderMissileStatus, renderSh
 import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
 import {renderTargetSelector} from './worldObjects/targetSelector.js';
+import {renderSettingsMenu, renderSettingsButton} from './settingsMenu.js';
 
 export class Renderer {
     constructor(mapRadius, options = {}) {
@@ -503,6 +504,19 @@ export class Renderer {
                 });
             }
 
+            // Render settings gear button
+            const settingsButtonBounds = renderSettingsButton(this.map, {
+                availableWidth: this.availableWidth,
+                availableHeight: this.availableHeight,
+                isHovered: typeof client !== 'undefined' && client.isSettingsButtonHovered && client.isSettingsButtonHovered(),
+                isActive: typeof client !== 'undefined' && client.isSettingsOpen && client.isSettingsOpen(),
+            });
+
+            // Store button bounds for hit testing
+            if (typeof client !== 'undefined' && client.setSettingsButtonBounds) {
+                client.setSettingsButtonBounds(settingsButtonBounds);
+            }
+
         }
 
         if (Client.gameMode == 'START_MODE' || overlayActive) {
@@ -519,6 +533,30 @@ export class Renderer {
                     gameObjects,
                     playerId: this.playerId,
                 }),
+            });
+
+            // Render settings gear button on landing screen too
+            const settingsButtonBounds = renderSettingsButton(this.map, {
+                availableWidth: this.availableWidth,
+                availableHeight: this.availableHeight,
+                isHovered: typeof client !== 'undefined' && client.isSettingsButtonHovered && client.isSettingsButtonHovered(),
+                isActive: typeof client !== 'undefined' && client.isSettingsOpen && client.isSettingsOpen(),
+            });
+
+            if (typeof client !== 'undefined' && client.setSettingsButtonBounds) {
+                client.setSettingsButtonBounds(settingsButtonBounds);
+            }
+        }
+
+        // Render settings menu overlay (on top of everything)
+        const settingsOpen = typeof client !== 'undefined' && client.isSettingsOpen && client.isSettingsOpen();
+        if (settingsOpen) {
+            renderSettingsMenu(this.map, {
+                availableWidth: this.availableWidth,
+                availableHeight: this.availableHeight,
+                settings: typeof client !== 'undefined' && client.getSettings ? client.getSettings() : {},
+                fullscreenToggleHovered: typeof client !== 'undefined' && client.isFullscreenToggleHovered && client.isFullscreenToggleHovered(),
+                closeButtonHovered: typeof client !== 'undefined' && client.isCloseButtonHovered && client.isCloseButtonHovered(),
             });
         }
 

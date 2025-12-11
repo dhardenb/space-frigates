@@ -7,6 +7,14 @@ export class Keyboard {
     }
 
     handleKeyPressEvents(evt) {
+        // ESCAPE - Open Settings Menu (close is done via button)
+        if (evt.key === 'Escape') {
+            if (typeof client !== 'undefined' && client.openSettings && !client.isSettingsOpen()) {
+                evt.preventDefault();
+                client.openSettings();
+            }
+            return;
+        }
         // BACKSPACE
         if (evt.key === 'Backspace') {
             if (Client.gameMode == 'START_MODE') {
