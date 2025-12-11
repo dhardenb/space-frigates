@@ -1,6 +1,6 @@
 export class DebugOverlay {
 
-    constructor({environment = 'prod', onApplyThrottle, onZoomChange, initialZoom = 1, zoomBounds, onZoomDelta, onApplyShipAttributes, onToggleBoundingBoxes, initialBoundingBoxesVisible = true} = {}) {
+    constructor({environment = 'prod', onApplyThrottle, onZoomChange, initialZoom = 1, zoomBounds, onZoomDelta, onApplyShipAttributes, onToggleBoundingBoxes, initialBoundingBoxesVisible = false} = {}) {
         this.environment = environment;
         this.onApplyThrottle = onApplyThrottle;
         this.onZoomChange = onZoomChange;

@@ -58,7 +58,7 @@ export class Renderer {
         this.renderTimeSeconds = 0;
         this.renderTimestampMs = 0;
         this.landingOverlayAlpha = 0;
-        this.showBoundingBoxes = true;
+        this.showBoundingBoxes = false;
         this.recentSoundKeys = [];
         this.soundDedupIntervalMs = 500;
         this.recentExplosionKeys = [];
