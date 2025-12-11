@@ -38,6 +38,7 @@ export class Renderer {
         this.focalX = 0;
         this.focalY = 0;
         this.camera = {"centerX":0, "centerY":0, "prevCenterX":0, "prevCenterY":0, "boundry": {"left":0, "right":0, "top":0, "bottom":0}};
+        this.cameraInitialized = false;
         this.map = document.getElementById("map").getContext('2d');
         this.background = document.getElementById("background").getContext('2d');
         this.devicePixelRatio = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
@@ -210,20 +211,31 @@ export class Renderer {
     updateCamera() {
         this.camera.prevCenterX = this.camera.centerX;
         this.camera.prevCenterY = this.camera.centerY;
-        if (typeof this.playerShip.locationX === 'undefined') {
-            this.camera.centerX = 0;
-        } else {
+
+        const hasValidShipPosition = typeof this.playerShip.locationX === 'number' 
+            && typeof this.playerShip.locationY === 'number';
+
+        if (hasValidShipPosition) {
+            // If camera hasn't been initialized yet and we now have a valid ship position,
+            // initialize both current and previous to avoid a visual jump from (0,0)
+            if (!this.cameraInitialized) {
+                this.camera.prevCenterX = this.playerShip.locationX;
+                this.camera.prevCenterY = this.playerShip.locationY;
+                this.cameraInitialized = true;
+            }
             this.camera.centerX = this.playerShip.locationX;
-        }
-        if (typeof this.playerShip.locationY === 'undefined') {
-            this.camera.centerY = 0;
-        } else {
             this.camera.centerY = this.playerShip.locationY;
+        } else {
+            this.camera.centerX = 0;
+            this.camera.centerY = 0;
         }
-        this.camera.left = this.playerShip.locationX - this.availableWidth / 2;
-        this.camera.right = this.playerShip.locationX + this.availableWidth / 2;
-        this.camera.top = this.playerShip.locationY - this.availableHeight / 2;
-        this.camera.bottom = this.playerShip.locationY + this.availableHeight / 2;
+
+        const locX = hasValidShipPosition ? this.playerShip.locationX : 0;
+        const locY = hasValidShipPosition ? this.playerShip.locationY : 0;
+        this.camera.left = locX - this.availableWidth / 2;
+        this.camera.right = locX + this.availableWidth / 2;
+        this.camera.top = locY - this.availableHeight / 2;
+        this.camera.bottom = locY + this.availableHeight / 2;
     }
 
     updateLocationOffset() {
@@ -270,11 +282,30 @@ export class Renderer {
     // is firts assigned a ship. It won't change after that until
     // the player dies and restarts
     updatePlayerShip(playerShipId) {
+        const previousShipId = this.playerShip ? this.playerShip.id : null;
+        let foundShip = null;
         for (let i = 0, j = gameObjects.length; i < j; i++) {
             if (gameObjects[i].id == playerShipId) {
-                this.playerShip = gameObjects[i];
+                foundShip = gameObjects[i];
+                break;
             }
         }
+
+        // If a new ship is found (different from previous), reset camera initialization
+        if (foundShip && foundShip.id !== previousShipId) {
+            this.cameraInitialized = false;
+        }
+
+        // Only update playerShip if we found one; otherwise preserve the last known
+        // position so the camera stays fixed at the death location during cooldown
+        if (foundShip) {
+            this.playerShip = foundShip;
+        }
+        // If no ship found and we don't have a previous ship, initialize to empty
+        else if (!this.playerShip || typeof this.playerShip.id === 'undefined') {
+            this.playerShip = {};
+        }
+        // Otherwise keep the existing playerShip reference (preserves death location)
     }
 
     renderMap(playerId, playerName, playerShipId) {
