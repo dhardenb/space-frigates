@@ -558,6 +558,8 @@ export class Renderer {
                 fullscreenToggleHovered: typeof client !== 'undefined' && client.isFullscreenToggleHovered && client.isFullscreenToggleHovered(),
                 volumeSliderHovered: typeof client !== 'undefined' && client.isVolumeSliderHovered && client.isVolumeSliderHovered(),
                 volumeSliderDragging: typeof client !== 'undefined' && client.isVolumeSliderDragging && client.isVolumeSliderDragging(),
+                zoomSliderHovered: typeof client !== 'undefined' && client.isZoomSliderHovered && client.isZoomSliderHovered(),
+                zoomSliderDragging: typeof client !== 'undefined' && client.isZoomSliderDragging && client.isZoomSliderDragging(),
                 closeButtonHovered: typeof client !== 'undefined' && client.isCloseButtonHovered && client.isCloseButtonHovered(),
             });
         }

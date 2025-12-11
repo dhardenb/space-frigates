@@ -59,6 +59,8 @@ export class Client {
         this.volume = 50; // 0-100, where 50 = 1x volume, 100 = 2x volume, 0 = muted
         this.volumeSliderHovered = false;
         this.volumeSliderDragging = false;
+        this.zoomSliderHovered = false;
+        this.zoomSliderDragging = false;
 
         window.gameObjects = []; // 7 files
     }
@@ -547,8 +549,62 @@ export class Client {
     getSettings() {
         return {
             volume: this.volume,
+            zoom: this.getZoomPercent(),
             fullscreen: this.fullscreenEnabled,
         };
+    }
+
+    /**
+     * Converts zoom factor (0.5-2.5) to percentage (0-100).
+     * Uses piecewise linear mapping: 0%=0.5, 50%=1.0, 100%=2.5
+     * @returns {number} Zoom as percentage (0-100)
+     */
+    getZoomPercent() {
+        if (!this.renderer) return 50;
+        const zoom = this.renderer.getZoomFactor();
+        const bounds = this.renderer.getZoomBounds();
+        const min = bounds.min;
+        const max = bounds.max;
+        const defaultZoom = 1.0;
+        
+        if (zoom <= defaultZoom) {
+            // Map min-default to 0-50%
+            return ((zoom - min) / (defaultZoom - min)) * 50;
+        } else {
+            // Map default-max to 50-100%
+            return 50 + ((zoom - defaultZoom) / (max - defaultZoom)) * 50;
+        }
+    }
+
+    /**
+     * Sets zoom from percentage (0-100).
+     * Uses piecewise linear mapping: 0%=min, 50%=1.0, 100%=max
+     * @param {number} percent - Zoom percentage (0-100)
+     */
+    setZoomFromPercent(percent) {
+        if (!this.renderer) return;
+        const bounds = this.renderer.getZoomBounds();
+        const min = bounds.min;
+        const max = bounds.max;
+        const defaultZoom = 1.0;
+        
+        let zoomFactor;
+        if (percent <= 50) {
+            // Map 0-50% to min-default
+            zoomFactor = min + (percent / 50) * (defaultZoom - min);
+        } else {
+            // Map 50-100% to default-max
+            zoomFactor = defaultZoom + ((percent - 50) / 50) * (max - defaultZoom);
+        }
+        
+        this.renderer.setZoomFactor(zoomFactor);
+        
+        // Sync debug overlay if present
+        if (this.debugOverlay && this.debugOverlay.dom && this.debugOverlay.dom.zoomSlider) {
+            const clamped = this.renderer.getZoomFactor();
+            this.debugOverlay.dom.zoomSlider.value = clamped;
+            this.debugOverlay.setZoomDisplay(clamped);
+        }
     }
 
     getVolume() {
@@ -587,6 +643,22 @@ export class Client {
 
     setVolumeSliderDragging(dragging) {
         this.volumeSliderDragging = dragging;
+    }
+
+    isZoomSliderHovered() {
+        return this.zoomSliderHovered;
+    }
+
+    setZoomSliderHovered(hovered) {
+        this.zoomSliderHovered = hovered;
+    }
+
+    isZoomSliderDragging() {
+        return this.zoomSliderDragging;
+    }
+
+    setZoomSliderDragging(dragging) {
+        this.zoomSliderDragging = dragging;
     }
 
     isFullscreenToggleHovered() {
@@ -697,7 +769,7 @@ export class Client {
             const x = evt.clientX - rect.left;
             const y = evt.clientY - rect.top;
 
-            // Check volume slider drag start
+            // Check slider drag starts
             if (this.settingsOpen && this._getSettingsMenuBounds && this._isPointInBounds && this._getSliderValueFromPosition) {
                 const menuBounds = this._getSettingsMenuBounds();
                 
@@ -706,16 +778,24 @@ export class Client {
                     const newVolume = this._getSliderValueFromPosition(x, menuBounds.volumeSlider, 0, 100);
                     this.setVolume(newVolume);
                 }
+                
+                if (menuBounds.zoomSlider && this._isPointInBounds(x, y, menuBounds.zoomSlider)) {
+                    this.setZoomSliderDragging(true);
+                    const newZoom = this._getSliderValueFromPosition(x, menuBounds.zoomSlider, 0, 100);
+                    this.setZoomFromPercent(newZoom);
+                }
             }
         });
 
         mapCanvas.addEventListener('mouseup', () => {
             this.setVolumeSliderDragging(false);
+            this.setZoomSliderDragging(false);
         });
 
         // Also handle mouseup outside the canvas
         document.addEventListener('mouseup', () => {
             this.setVolumeSliderDragging(false);
+            this.setZoomSliderDragging(false);
         });
 
         mapCanvas.addEventListener('click', (evt) => {
@@ -746,6 +826,11 @@ export class Client {
                 if (menuBounds.volumeSlider && this._isPointInBounds(x, y, menuBounds.volumeSlider)) {
                     return;
                 }
+
+                // Zoom slider click (handled in mousedown, so just prevent gear toggle)
+                if (menuBounds.zoomSlider && this._isPointInBounds(x, y, menuBounds.zoomSlider)) {
+                    return;
+                }
             }
 
             // Settings button (gear icon)
@@ -774,6 +859,16 @@ export class Client {
                 cursorPointer = true;
             }
 
+            // Handle zoom slider dragging
+            if (this.zoomSliderDragging && this._getSettingsMenuBounds && this._getSliderValueFromPosition) {
+                const menuBounds = this._getSettingsMenuBounds();
+                if (menuBounds.zoomSlider) {
+                    const newZoom = this._getSliderValueFromPosition(x, menuBounds.zoomSlider, 0, 100);
+                    this.setZoomFromPercent(newZoom);
+                }
+                cursorPointer = true;
+            }
+
             // Check settings menu hover states (when open)
             if (this.settingsOpen && this._getSettingsMenuBounds && this._isPointInBounds) {
                 const menuBounds = this._getSettingsMenuBounds();
@@ -798,10 +893,18 @@ export class Client {
                 if (volumeHovered || this.volumeSliderDragging) {
                     cursorPointer = true;
                 }
+
+                // Zoom slider hover
+                const zoomHovered = menuBounds.zoomSlider && this._isPointInBounds(x, y, menuBounds.zoomSlider);
+                this.setZoomSliderHovered(zoomHovered);
+                if (zoomHovered || this.zoomSliderDragging) {
+                    cursorPointer = true;
+                }
             } else {
                 this.setFullscreenToggleHovered(false);
                 this.setCloseButtonHovered(false);
                 this.setVolumeSliderHovered(false);
+                this.setZoomSliderHovered(false);
             }
 
             // Settings button hover

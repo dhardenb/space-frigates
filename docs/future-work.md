@@ -76,14 +76,11 @@
 
 - Autopilot toggle
 - Update rotational thrusters to use auto pilot
+- Rest of Sounds effects
 - Better energy meters
 - Damage system
 - Guided Missiles
 - Flares
-- Full Screen Option
-- Volume Control
-- Zoom Level
-- Rest of Sounds effects
 - "Warp in"
 - Add the ability of explosions to create force and do damage
 

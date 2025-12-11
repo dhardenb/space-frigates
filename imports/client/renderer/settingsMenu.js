@@ -7,6 +7,7 @@
 let settingsMenuBounds = {
     fullscreenToggle: null,
     volumeSlider: null,
+    zoomSlider: null,
     closeButton: null,
 };
 
@@ -26,10 +27,13 @@ export function getSettingsMenuBounds() {
  * @param {number} options.availableHeight - Viewport height in CSS pixels
  * @param {Object} options.settings - Current settings values
  * @param {number} options.settings.volume - Volume slider value (0-100, default 50)
+ * @param {number} options.settings.zoom - Zoom slider value (0-100, default 50)
  * @param {boolean} options.settings.fullscreen - Whether fullscreen is enabled
  * @param {boolean} options.fullscreenToggleHovered - Whether the fullscreen toggle is hovered
  * @param {boolean} options.volumeSliderHovered - Whether the volume slider is hovered
  * @param {boolean} options.volumeSliderDragging - Whether the volume slider is being dragged
+ * @param {boolean} options.zoomSliderHovered - Whether the zoom slider is hovered
+ * @param {boolean} options.zoomSliderDragging - Whether the zoom slider is being dragged
  * @param {boolean} options.closeButtonHovered - Whether the close button is hovered
  */
 export function renderSettingsMenu(ctx, {
@@ -39,10 +43,12 @@ export function renderSettingsMenu(ctx, {
     fullscreenToggleHovered = false,
     volumeSliderHovered = false,
     volumeSliderDragging = false,
+    zoomSliderHovered = false,
+    zoomSliderDragging = false,
     closeButtonHovered = false,
 }) {
     const menuWidth = Math.min(400, availableWidth * 0.85);
-    const menuHeight = Math.min(380, availableHeight * 0.75);
+    const menuHeight = Math.min(280, availableHeight * 0.6);
     const menuX = (availableWidth - menuWidth) / 2;
     const menuY = (availableHeight - menuHeight) / 2;
 
@@ -50,6 +56,7 @@ export function renderSettingsMenu(ctx, {
     settingsMenuBounds = {
         fullscreenToggle: null,
         volumeSlider: null,
+        zoomSlider: null,
         closeButton: null,
     };
 
@@ -111,33 +118,19 @@ export function renderSettingsMenu(ctx, {
     });
     settingsMenuBounds.volumeSlider = volumeBounds;
 
-    // Placeholder for future settings
-    renderSettingRow(ctx, {
+    // Zoom slider (interactive)
+    const zoomBounds = renderSliderRow(ctx, {
         x: contentX,
         y: contentY + rowHeight * 2,
-        label: 'Music',
-        value: 'Coming Soon',
+        label: 'Zoom Level',
+        value: settings.zoom !== undefined ? settings.zoom : 50,
+        min: 0,
+        max: 100,
         menuWidth: menuWidth - 60,
-        disabled: true,
+        isHovered: zoomSliderHovered,
+        isDragging: zoomSliderDragging,
     });
-
-    renderSettingRow(ctx, {
-        x: contentX,
-        y: contentY + rowHeight * 3,
-        label: 'Sound Effects',
-        value: 'Coming Soon',
-        menuWidth: menuWidth - 60,
-        disabled: true,
-    });
-
-    renderSettingRow(ctx, {
-        x: contentX,
-        y: contentY + rowHeight * 4,
-        label: 'Controls',
-        value: 'Coming Soon',
-        menuWidth: menuWidth - 60,
-        disabled: true,
-    });
+    settingsMenuBounds.zoomSlider = zoomBounds;
 
     // Close button
     const closeButtonBounds = renderCloseButton(ctx, {
@@ -146,15 +139,6 @@ export function renderSettingsMenu(ctx, {
         isHovered: closeButtonHovered,
     });
     settingsMenuBounds.closeButton = closeButtonBounds;
-
-    // Footer hint
-    ctx.save();
-    ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
-    ctx.font = 'italic 12px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('More settings coming in future updates', availableWidth / 2, menuY + menuHeight - 15);
-    ctx.restore();
 }
 
 /**
