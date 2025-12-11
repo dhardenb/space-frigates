@@ -27,6 +27,28 @@ export class Ai {
             return; // Don't create bots if no players
         }
         
+        // Count current AI ships
+        let aiShipCount = 0;
+        for (let i = 0, j = gameObjects.length; i < j; i++) {
+            if (gameObjects[i].type === 'Ship' && gameObjects[i].pilotType === 'Bot') {
+                aiShipCount++;
+            }
+        }
+        
+        // Hard cap on AI ships based on player count
+        let maxAiShips = 25;
+        if (numberOfPlayers == 2) {
+            maxAiShips = 12;
+        } else if (numberOfPlayers == 3) {
+            maxAiShips = 8;
+        } else if (numberOfPlayers >= 4) {
+            maxAiShips = 6;
+        }
+        
+        if (aiShipCount >= maxAiShips) {
+            return; // Don't spawn more AI ships if at cap
+        }
+        
         // Probability-based ship creation
         let spawnChance = 0;
         if (numberOfPlayers == 1) {
