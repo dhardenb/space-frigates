@@ -656,6 +656,9 @@ export class Ship {
         const facing = (this.facing + 180) % 360;
         const newThruster = new Thruster(Engine.getNextGameObjectId(), {sourceObject: this, facing});
         gameObjects.push(newThruster);
+        const newSound = new Sound();
+        newSound.init("ThrusterFired", this);
+        gameObjects.push(newSound);
         return true;
     }
 
@@ -681,6 +684,9 @@ export class Ship {
         const retroFacing = (this.facing + 180) % 360;
         Physics.findNewVelocity(this, retroFacing, velocityBoost);
         this.spawnRetrogradeThrusters();
+        const newSound = new Sound();
+        newSound.init("RetroThrusterFired", this);
+        gameObjects.push(newSound);
         return true;
     }
 
@@ -707,6 +713,9 @@ export class Ship {
         const lateralFacing = Ship.normalizeAngle(this.facing + angleOffset);
         Physics.findNewVelocity(this, lateralFacing, velocityBoost);
         this.spawnLateralThrusters(direction, lateralFacing);
+        const newSound = new Sound();
+        newSound.init("LateralThrusterFired", this);
+        gameObjects.push(newSound);
         return true;
     }
 
@@ -745,6 +754,9 @@ export class Ship {
             this.spawnRotationThrusters(false);
         }
 
+        const newSound = new Sound();
+        newSound.init("RotationThrusterFired", this);
+        gameObjects.push(newSound);
         return true;
     }
 

@@ -85,6 +85,7 @@
 - Zoom Level
 - Rest of Sounds effects
 - "Warp in"
+- Add the ability of explosions to create force and do damage
 
 # Bugs
 

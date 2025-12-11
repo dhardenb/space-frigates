@@ -654,6 +654,7 @@ export class Renderer {
             }
 
             let srcFile = '';
+            let spriteDuration = null; // null means play full sound
 
             if (sound.soundType == "LaserFired") {
                 
@@ -661,17 +662,42 @@ export class Renderer {
                 
                 srcFile = '/lazer.mp3';
 
+            } else if (sound.soundType == "ThrusterFired") {
+                
+                soundVolume = soundVolume * 1.0;
+                
+                srcFile = '/thruster.mp3';
+                spriteDuration = 250; // play only first 250ms
+
+            } else if (sound.soundType == "RetroThrusterFired" || 
+                       sound.soundType == "LateralThrusterFired" || 
+                       sound.soundType == "RotationThrusterFired") {
+                
+                soundVolume = soundVolume * 1.0;
+                
+                srcFile = '/thruster.mp3';
+                spriteDuration = 125; // play only first 125ms (half of main thruster)
+
             }
 
-            let howl = new Howl({
-                    
+            const howlOptions = {
                 src: [srcFile],
-
                 volume: soundVolume
+            };
+
+            if (spriteDuration !== null) {
+                howlOptions.sprite = {
+                    short: [0, spriteDuration]
+                };
+            }
+
+            let howl = new Howl(howlOptions);
             
-            });
-            
-            howl.play();
+            if (spriteDuration !== null) {
+                howl.play('short');
+            } else {
+                howl.play();
+            }
 
         }
 
