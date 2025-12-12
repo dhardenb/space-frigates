@@ -86,3 +86,4 @@
 # Bugs
 
 - Missiles do not work on Bobby and Micah's computers
+- On some 2k monitors, the stars go almost invisible when the ship is moving quickly
