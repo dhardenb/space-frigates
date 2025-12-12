@@ -74,8 +74,8 @@
 
 # New Features
 
-- Update rotational thrusters to use auto pilot
-- Rest of Sounds effects
+- Add shield sound effects
+- Add explosion sound effects
 - Better energy meters
 - Damage system
 - Guided Missiles
