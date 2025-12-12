@@ -14,6 +14,17 @@
 
     <canvas id="background"></canvas>
 
+    <!-- Custom crosshair cursor overlay -->
+    <div id="custom-cursor" class="custom-cursor" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 28 28">
+            <circle cx="14" cy="14" r="12" stroke="#666666" stroke-width="2" fill="none"/>
+            <line x1="14" y1="2" x2="14" y2="10" stroke="#666666" stroke-width="2"/>
+            <line x1="14" y1="18" x2="14" y2="26" stroke="#666666" stroke-width="2"/>
+            <line x1="2" y1="14" x2="10" y2="14" stroke="#666666" stroke-width="2"/>
+            <line x1="18" y1="14" x2="26" y2="14" stroke="#666666" stroke-width="2"/>
+        </svg>
+    </div>
+
     <div id="autopilot-indicator" class="hud-indicator hidden" aria-live="polite">
         Autopilot Engaged
     </div>

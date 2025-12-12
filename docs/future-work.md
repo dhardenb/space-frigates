@@ -74,7 +74,6 @@
 
 # New Features
 
-- Autopilot toggle
 - Update rotational thrusters to use auto pilot
 - Rest of Sounds effects
 - Better energy meters
@@ -86,4 +85,4 @@
 
 # Bugs
 
-- Stops making new AI ships sometimes
+- Missiles do not work on Bobby and Micah's computers

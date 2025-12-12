@@ -67,6 +67,10 @@ export class Client {
         this.autoPilotToggleBounds = null;
         this.autoPilotToggleHovered = false;
 
+        // Custom cursor element
+        this.customCursor = null;
+        this.canvasInteractiveHovered = false; // Track canvas-based interactive elements
+
         window.gameObjects = []; // 7 files
     }
 
@@ -75,9 +79,78 @@ export class Client {
         this.setupStreamListeners();
         this.setupDebugOverlay();
         this.setupSettingsInteraction();
+        this.setupCustomCursor();
         // Initialize volume to default (50% = 1x multiplier)
         this.setVolume(this.volume);
         window.requestAnimationFrame(this.gameLoop.bind(this));
+    }
+
+    /**
+     * Sets up the custom cursor element and global mouse tracking.
+     */
+    setupCustomCursor() {
+        this.customCursor = document.getElementById('custom-cursor');
+        if (!this.customCursor) {
+            return;
+        }
+
+        // Track mouse globally so cursor follows everywhere
+        document.addEventListener('mousemove', (evt) => {
+            const isInteractive = this._isOverInteractiveElement(evt.target) || this.canvasInteractiveHovered;
+            this._updateCustomCursor(evt.clientX, evt.clientY, isInteractive);
+        });
+
+        // Hide cursor when mouse leaves window
+        document.addEventListener('mouseleave', () => {
+            if (this.customCursor) {
+                this.customCursor.style.display = 'none';
+            }
+        });
+
+        // Show cursor when mouse enters window
+        document.addEventListener('mouseenter', () => {
+            if (this.customCursor) {
+                this.customCursor.style.display = 'block';
+            }
+        });
+    }
+
+    /**
+     * Checks if an element is an interactive DOM element (button, input, etc.)
+     * @param {Element} target - The element to check
+     * @returns {boolean} True if interactive
+     */
+    _isOverInteractiveElement(target) {
+        if (!target) return false;
+        const interactiveTags = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'A'];
+        if (interactiveTags.includes(target.tagName)) {
+            return true;
+        }
+        // Check if it's a clickable element with cursor styling
+        if (target.closest('button, input, select, textarea, a, [role="button"]')) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Updates the custom cursor position and spinning state.
+     * @param {number} x - Mouse X position
+     * @param {number} y - Mouse Y position
+     * @param {boolean} isInteractive - Whether hovering over an interactive element
+     */
+    _updateCustomCursor(x, y, isInteractive) {
+        if (!this.customCursor) return;
+        
+        this.customCursor.style.left = x + 'px';
+        this.customCursor.style.top = y + 'px';
+        this.customCursor.style.display = 'block';
+        
+        if (isInteractive) {
+            this.customCursor.classList.add('is-spinning');
+        } else {
+            this.customCursor.classList.remove('is-spinning');
+        }
     }
 
     setupStreamListeners() {
@@ -971,8 +1044,9 @@ export class Client {
                 cursorPointer = true;
             }
 
-            // Update cursor style
-            mapCanvas.style.cursor = cursorPointer ? 'pointer' : 'default';
+            // Hide native cursor and track canvas interactive state for custom cursor
+            mapCanvas.style.cursor = 'none';
+            this.canvasInteractiveHovered = cursorPointer;
         });
     }
 
