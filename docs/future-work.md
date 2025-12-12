@@ -77,7 +77,7 @@
 - Add shield sound effects
 - Add explosion sound effects
 - Better energy meters
-- Damage systemss
+- Damage systems
 - Guided Missiles
 - Flares
 - "Warp in"
