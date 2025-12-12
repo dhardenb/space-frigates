@@ -10,7 +10,7 @@ import {renderLaserParticle} from './worldObjects/laserParticle.js';
 import {renderMissile} from './worldObjects/missile.js';
 import {renderShip} from './worldObjects/ship.js';
 import {renderThruster} from './worldObjects/thruster.js';
-import {renderCapacitorStatus, renderHullStrength, renderMissileStatus, renderShieldStatus} from './hudMeters.js';
+import {renderAutoPilotModeStatus, renderCapacitorStatus, renderHullStrength, renderMissileStatus, renderShieldStatus} from './hudMeters.js';
 import {renderControlButtons} from './controlButtons.js';
 import {renderDamgeIndicator} from './damageIndicator.js';
 import {renderTargetSelector} from './worldObjects/targetSelector.js';
@@ -470,6 +470,17 @@ export class Renderer {
                 missilesArmed: this.playerShip.missilesArmed,
                 maxMissiles: this.playerShip.maxMissiles,
             });
+
+            const autoPilotBounds = renderAutoPilotModeStatus(this.map, {
+                availableHeight: this.availableHeight,
+                autoPilotModeEnabled: typeof client !== 'undefined' && client.isAutoPilotModeEnabled && client.isAutoPilotModeEnabled(),
+                isHovered: typeof client !== 'undefined' && client.isAutoPilotToggleHovered && client.isAutoPilotToggleHovered(),
+            });
+
+            // Store autopilot toggle bounds for hit testing
+            if (typeof client !== 'undefined' && client.setAutoPilotToggleBounds) {
+                client.setAutoPilotToggleBounds(autoPilotBounds);
+            }
 
             renderHullStrength(this.map, {
                 availableHeight: this.availableHeight,

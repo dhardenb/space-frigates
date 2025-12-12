@@ -15,7 +15,8 @@ ALT | Toggle Shields
 UP_ARROW OR W | Thrust Forward
 LEFT_ARROW OR A | Thrust Counter Clockwise
 RIGHT_ARROW OR D | Thrust Clockwise
-DOWN_ARROW OR S | Stop Ship Movement
+DOWN_ARROW OR S | Stop Ship (Auto Brake or Retro Thrust depending on mode)
+Z | Toggle Auto-Pilot Mode
 
 ## Debug & Networking Tools
 

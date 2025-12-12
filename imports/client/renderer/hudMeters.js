@@ -70,11 +70,53 @@ export function renderMissileStatus(map, {availableHeight, missilesRemaining, mi
     map.restore();
 }
 
+export function renderAutoPilotModeStatus(map, {availableHeight, autoPilotModeEnabled, isHovered = false}) {
+    const modeText = autoPilotModeEnabled ? 'ON' : 'OFF';
+    const modeColor = autoPilotModeEnabled ? 'rgba(80, 180, 80, 0.9)' : 'rgba(128, 128, 128, 0.7)';
+    const labelColor = isHovered ? 'rgba(255, 255, 0, 0.8)' : 'rgba(128, 128, 128, 0.5)';
+
+    // Calculate bounds for the clickable area
+    const x = 0;
+    const y = availableHeight - 160;
+    const width = 175;
+    const height = 24;
+
+    // Draw hover highlight background if hovered
+    if (isHovered) {
+        map.save();
+        map.fillStyle = 'rgba(255, 255, 0, 0.1)';
+        map.fillRect(x - 5, y - 18, width + 10, height);
+        map.restore();
+    }
+
+    map.save();
+    map.translate(0, y);
+    map.fillStyle = labelColor;
+    map.font = '20px Arial';
+    map.fillText('AUTO-PILOT', 0, 0);
+    map.restore();
+
+    map.save();
+    map.translate(130, y);
+    map.fillStyle = modeColor;
+    map.font = '20px Arial';
+    map.fillText(modeText, 0, 0);
+    map.restore();
+
+    // Return bounds for hit testing
+    return {
+        x: x,
+        y: y - 18,
+        width: width,
+        height: height,
+    };
+}
+
 export function renderInstructions(map, availableHeight) {
     map.save();
     map.fillStyle = "yellow";
     map.font = "20px Arial";
-    map.translate(0, availableHeight - 160);
+    map.translate(0, availableHeight - 185);
     map.fillText("ENTER => New Ship", 0, 0);
     map.translate(0, 25);
     map.fillText("W or UP ARROW => Thrust", 0, 0);
@@ -83,7 +125,9 @@ export function renderInstructions(map, availableHeight) {
     map.translate(0, 25);
     map.fillText("D or RIGHT ARROW => Rotate Right", 0, 0);
     map.translate(0, 25);
-    map.fillText("S or DOWN ARROW => Auto Brake", 0, 0);
+    map.fillText("S or DOWN ARROW => Brake / Retro", 0, 0);
+    map.translate(0, 25);
+    map.fillText("Z => Toggle Auto-Pilot Mode", 0, 0);
     map.translate(0, 25);
     map.fillText("ALT => Toggle Shields", 0, 0);
     map.translate(0, 25);

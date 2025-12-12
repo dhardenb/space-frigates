@@ -62,6 +62,11 @@ export class Client {
         this.zoomSliderHovered = false;
         this.zoomSliderDragging = false;
 
+        // Auto-pilot mode setting: when enabled, S/ArrowDown use autopilot braking instead of retro thrust
+        this.autoPilotModeEnabled = true;
+        this.autoPilotToggleBounds = null;
+        this.autoPilotToggleHovered = false;
+
         window.gameObjects = []; // 7 files
     }
 
@@ -741,6 +746,37 @@ export class Client {
         this.fullscreenEnabled = isFullscreen;
     }
 
+    // Auto-pilot mode methods
+    // When enabled, S/ArrowDown use autopilot braking; when disabled, they use manual retro thrust
+
+    isAutoPilotModeEnabled() {
+        return this.autoPilotModeEnabled;
+    }
+
+    setAutoPilotModeEnabled(enabled) {
+        this.autoPilotModeEnabled = Boolean(enabled);
+    }
+
+    toggleAutoPilotMode() {
+        this.autoPilotModeEnabled = !this.autoPilotModeEnabled;
+    }
+
+    getAutoPilotToggleBounds() {
+        return this.autoPilotToggleBounds;
+    }
+
+    setAutoPilotToggleBounds(bounds) {
+        this.autoPilotToggleBounds = bounds;
+    }
+
+    isAutoPilotToggleHovered() {
+        return this.autoPilotToggleHovered;
+    }
+
+    setAutoPilotToggleHovered(hovered) {
+        this.autoPilotToggleHovered = Boolean(hovered);
+    }
+
     setupSettingsInteraction() {
         const mapCanvas = document.getElementById('map');
         if (!mapCanvas) {
@@ -833,6 +869,15 @@ export class Client {
                 }
             }
 
+            // Autopilot toggle (only in PLAY_MODE and not when settings menu is open)
+            if (!this.settingsOpen && Client.gameMode === 'PLAY_MODE' && this._isPointInBounds) {
+                const autoPilotBounds = this.getAutoPilotToggleBounds();
+                if (autoPilotBounds && this._isPointInBounds(x, y, autoPilotBounds)) {
+                    this.toggleAutoPilotMode();
+                    return;
+                }
+            }
+
             // Settings button (gear icon)
             if (this._isPointInSettingsButton(x, y, this.settingsButtonBounds)) {
                 this.toggleSettings();
@@ -905,6 +950,18 @@ export class Client {
                 this.setCloseButtonHovered(false);
                 this.setVolumeSliderHovered(false);
                 this.setZoomSliderHovered(false);
+            }
+
+            // Autopilot toggle hover (only in PLAY_MODE and not when settings menu is open)
+            if (!this.settingsOpen && Client.gameMode === 'PLAY_MODE' && this._isPointInBounds) {
+                const autoPilotBounds = this.getAutoPilotToggleBounds();
+                const autoPilotHovered = autoPilotBounds && this._isPointInBounds(x, y, autoPilotBounds);
+                this.setAutoPilotToggleHovered(autoPilotHovered);
+                if (autoPilotHovered) {
+                    cursorPointer = true;
+                }
+            } else {
+                this.setAutoPilotToggleHovered(false);
             }
 
             // Settings button hover

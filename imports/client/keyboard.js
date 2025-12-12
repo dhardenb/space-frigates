@@ -78,11 +78,17 @@ export class Keyboard {
                 client.commandHandler({command: 3});
             }
         }
-        // DOWN_ARROW - Stop
+        // DOWN_ARROW - Stop (autopilot brake if mode enabled, otherwise retro thrust)
         else if (evt.key === 'ArrowDown') {
             if (Client.gameMode == 'PLAY_MODE') {
                 evt.preventDefault();
-                client.commandHandler({command: 'RETRO_THRUST'});
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'BRAKE_DOWN'});
+                    }
+                } else {
+                    client.commandHandler({command: 'RETRO_THRUST'});
+                }
             }
         }
         // A - Rotate CounterClockwise
@@ -107,7 +113,7 @@ export class Keyboard {
                 client.commandHandler({command: 3});
             }
         }
-        // S - Retro Thrust
+        // S - Stop (autopilot brake if mode enabled, otherwise retro thrust)
         else if (evt.key === 's' || evt.key === 'S') {
             evt.preventDefault();
             if (Client.gameMode == 'START_MODE') {
@@ -115,7 +121,13 @@ export class Keyboard {
                     client.playerName = client.playerName + evt.key.toUpperCase();
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 'RETRO_THRUST'});
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'BRAKE_DOWN'});
+                    }
+                } else {
+                    client.commandHandler({command: 'RETRO_THRUST'});
+                }
             }
         }
         // Q - Lateral thrust (left-side thrusters)
@@ -142,7 +154,7 @@ export class Keyboard {
                 client.commandHandler({command: 'LATERAL_THRUST_RIGHT'});
             }
         }
-        // Z - Autopilot Brake
+        // Z - Toggle Auto-Pilot Mode
         else if (evt.key === 'z' || evt.key === 'Z') {
             evt.preventDefault();
             if (Client.gameMode == 'START_MODE') {
@@ -153,7 +165,7 @@ export class Keyboard {
                 if (evt.repeat) {
                     return;
                 }
-                client.commandHandler({command: 'BRAKE_DOWN'});
+                client.toggleAutoPilotMode();
             }
         }
         // W - Forward Thruster
