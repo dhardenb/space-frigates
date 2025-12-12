@@ -7,16 +7,20 @@ framework, Canvas, and a home grown game engine.
 
 **Keyboard Controls**
 
+All maneuvering keys use tap-vs-hold behavior: tap for a single burst, hold for continuous autopilot-assisted control with auto-dampening on release.
+
 Button | Result
 ------ | ------
 ENTER | Start New Ship
 SPACE_BAR | Fire Laser
 ALT | Toggle Shields
 UP_ARROW OR W | Thrust Forward
-LEFT_ARROW OR A | Thrust Counter Clockwise
-RIGHT_ARROW OR D | Thrust Clockwise
-DOWN_ARROW OR S | Stop Ship (Auto Brake or Retro Thrust depending on mode)
-Z | Toggle Auto-Pilot Mode
+LEFT_ARROW OR A | Tap: rotation burst / Hold: auto-rotate CCW
+RIGHT_ARROW OR D | Tap: rotation burst / Hold: auto-rotate CW
+DOWN_ARROW OR S | Tap: retrograde thrust / Hold: auto-brake
+Q | Tap: lateral burst left / Hold: strafe left
+E | Tap: lateral burst right / Hold: strafe right
+M | Arm/Disarm Missiles
 
 ## Debug & Networking Tools
 

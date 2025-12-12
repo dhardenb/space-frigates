@@ -8,6 +8,7 @@ import {Thruster} from './thruster.js';
 const AUTO_PILOT_ANGLE_TOLERANCE_DEGREES = 3;
 const AUTO_PILOT_VELOCITY_THRESHOLD = 0.5;
 const AUTO_PILOT_ROTATION_THRESHOLD = 0.01;
+const LATERAL_HOLD_MAX_SPEED = 22.5; // Max lateral velocity when holding strafe keys
 
 export class Ship {
 
@@ -68,6 +69,8 @@ export class Ship {
             this.missileFireRequested = false;
             this.rotationDampeningActive = false;
             this.lateralDampeningActive = false;
+            this.lateralHoldLeft = false;
+            this.lateralHoldRight = false;
         }
     }
 
@@ -82,7 +85,9 @@ export class Ship {
             '3',
             'RETRO_THRUST',
             'LATERAL_THRUST_LEFT',
-            'LATERAL_THRUST_RIGHT'
+            'LATERAL_THRUST_RIGHT',
+            'LATERAL_HOLD_LEFT',
+            'LATERAL_HOLD_RIGHT'
         ]);
         let autoPilotRequested = false;
         let autoPilotCancelled = false;
@@ -94,6 +99,11 @@ export class Ship {
                 }
                 if (candidateCommand === 'BRAKE_DOWN' || candidateCommand === 4 || candidateCommand === '4') {
                     autoPilotRequested = true;
+                    continue;
+                }
+                if (candidateCommand === 'STOP_BRAKE') {
+                    this.disableAutoPilot();
+                    autoPilotCancelled = true;
                     continue;
                 }
                 if (cancelAutoPilotCommands.has(candidateCommand)) {
@@ -384,10 +394,36 @@ export class Ship {
     }
 
     updateLateralThrusters() {
+        // Single burst commands (tap behavior) - no speed limit
         if (this.currentCommand === 'LATERAL_THRUST_LEFT') {
             this.applyLateralThrust('Left');
         } else if (this.currentCommand === 'LATERAL_THRUST_RIGHT') {
             this.applyLateralThrust('Right');
+        }
+        
+        // Hold commands activate persistent lateral thrust mode
+        if (this.currentCommand === 'LATERAL_HOLD_LEFT') {
+            this.lateralHoldLeft = true;
+            this.lateralHoldRight = false;
+            this.lateralDampeningActive = false;
+        } else if (this.currentCommand === 'LATERAL_HOLD_RIGHT') {
+            this.lateralHoldRight = true;
+            this.lateralHoldLeft = false;
+            this.lateralDampeningActive = false;
+        }
+        
+        // Continuous thrust while hold mode is active (velocity-capped)
+        // Only apply thrust if lateral speed is below max
+        if (this.lateralHoldLeft || this.lateralHoldRight) {
+            const {rightSpeed} = this.getShipRelativeVelocity();
+            // rightSpeed > 0 means moving right, < 0 means moving left
+            // Left thrusters push ship right (positive rightSpeed)
+            // Right thrusters push ship left (negative rightSpeed)
+            if (this.lateralHoldLeft && rightSpeed < LATERAL_HOLD_MAX_SPEED) {
+                this.applyLateralThrust('Left');
+            } else if (this.lateralHoldRight && rightSpeed > -LATERAL_HOLD_MAX_SPEED) {
+                this.applyLateralThrust('Right');
+            }
         }
     }
 
@@ -414,13 +450,16 @@ export class Ship {
     }
 
     updateDampenLateral() {
-        // Activate lateral dampening when command received
+        // Activate lateral dampening when command received (and stop any hold mode)
         if (this.currentCommand === 'DAMPEN_LATERAL') {
             this.lateralDampeningActive = true;
+            this.lateralHoldLeft = false;
+            this.lateralHoldRight = false;
         }
 
         // Cancel lateral dampening if user manually uses lateral thrust
-        if (this.currentCommand === 'LATERAL_THRUST_LEFT' || this.currentCommand === 'LATERAL_THRUST_RIGHT') {
+        if (this.currentCommand === 'LATERAL_THRUST_LEFT' || this.currentCommand === 'LATERAL_THRUST_RIGHT' ||
+            this.currentCommand === 'LATERAL_HOLD_LEFT' || this.currentCommand === 'LATERAL_HOLD_RIGHT') {
             this.lateralDampeningActive = false;
         }
 
