@@ -44,6 +44,10 @@ export class Ship {
         this.lengthInMeters = 8;
         this.widthInMeters = 4;
 
+        // Autopilot-assisted dampening flags (persist until motion stops)
+        this.rotationDampeningActive = false;
+        this.lateralDampeningActive = false;
+
         // Initialize runtime state if requested (default true, false for deserialization)
         if (initializeState) {
             this.locationX = 0;
@@ -62,6 +66,8 @@ export class Ship {
             this.missilesRemaining = this.maxMissiles;
             this.missilesArmed = false;
             this.missileFireRequested = false;
+            this.rotationDampeningActive = false;
+            this.lateralDampeningActive = false;
         }
     }
 
@@ -385,6 +391,52 @@ export class Ship {
         }
     }
 
+    updateDampenRotation() {
+        // Activate rotation dampening when command received
+        if (this.currentCommand === 'DAMPEN_ROTATION') {
+            this.rotationDampeningActive = true;
+        }
+
+        // Cancel rotation dampening if user manually rotates (normal or autopilot mode)
+        if (this.currentCommand === 1 || this.currentCommand === 3 ||
+            this.currentCommand === '1' || this.currentCommand === '3' ||
+            this.currentCommand === 'ROTATE_CW_AUTOPILOT' || this.currentCommand === 'ROTATE_CCW_AUTOPILOT') {
+            this.rotationDampeningActive = false;
+        }
+
+        // Continue dampening until rotation stops
+        if (this.rotationDampeningActive) {
+            const stopped = this.dampenRotation();
+            if (stopped && this.rotationVelocity <= 0) {
+                this.rotationDampeningActive = false;
+            }
+        }
+    }
+
+    updateDampenLateral() {
+        // Activate lateral dampening when command received
+        if (this.currentCommand === 'DAMPEN_LATERAL') {
+            this.lateralDampeningActive = true;
+        }
+
+        // Cancel lateral dampening if user manually uses lateral thrust
+        if (this.currentCommand === 'LATERAL_THRUST_LEFT' || this.currentCommand === 'LATERAL_THRUST_RIGHT') {
+            this.lateralDampeningActive = false;
+        }
+
+        // Continue dampening until lateral velocity stops
+        if (this.lateralDampeningActive) {
+            const stopped = this.dampenLateral();
+            if (stopped) {
+                const {rightSpeed} = this.getShipRelativeVelocity();
+                const lateralThreshold = AUTO_PILOT_VELOCITY_THRESHOLD * 0.5;
+                if (Math.abs(rightSpeed) <= lateralThreshold) {
+                    this.lateralDampeningActive = false;
+                }
+            }
+        }
+    }
+
     rotateLeft() {
         if (this.currentCommand == 3) {
             this.applyRotationThrust('Clockwise');
@@ -394,6 +446,15 @@ export class Ship {
     rotateRight() {
         if (this.currentCommand == 1) {
             this.applyRotationThrust('CounterClockwise');
+        }
+    }
+
+    updateAutopilotRotation() {
+        // Autopilot rotation: starts at level 2 for faster constant rotation
+        if (this.currentCommand === 'ROTATE_CW_AUTOPILOT') {
+            this.applyRotationThrust('Clockwise', 2);
+        } else if (this.currentCommand === 'ROTATE_CCW_AUTOPILOT') {
+            this.applyRotationThrust('CounterClockwise', 2);
         }
     }
 
@@ -460,6 +521,9 @@ export class Ship {
         this.updateLateralThrusters();
         this.rotateLeft();
         this.rotateRight();
+        this.updateAutopilotRotation();
+        this.updateDampenRotation();
+        this.updateDampenLateral();
         this.updateAutoPilot();
         this.updateShields();
         this.updateVelocity();
@@ -719,7 +783,7 @@ export class Ship {
         return true;
     }
 
-    applyRotationThrust(direction) {
+    applyRotationThrust(direction, initialVelocity = 1) {
         const energyPerFrame = this.rotationEnergyPerSecond / Physics.framesPerSecond;
         let activate = false;
         if (this.capacitor >= energyPerFrame) {
@@ -735,7 +799,7 @@ export class Ship {
         }
         if (this.rotationDirection == 'None') {
             this.rotationDirection = direction;
-            this.rotationVelocity = 1;
+            this.rotationVelocity = initialVelocity;
         } else if (this.rotationDirection == direction) {
             if (this.rotationVelocity < 3) {
                 this.rotationVelocity = this.rotationVelocity + 1; // BAD! Should be with respect to time!!!
@@ -831,6 +895,49 @@ export class Ship {
         }
         const opposing = this.rotationDirection == 'Clockwise' ? 'CounterClockwise' : 'Clockwise';
         return this.applyRotationThrust(opposing);
+    }
+
+    /**
+     * Dampens the ship's lateral (perpendicular to facing) velocity component.
+     * Fires lateral thrusters to counter any drift perpendicular to the ship's facing.
+     * 
+     * @returns {boolean} True if lateral velocity was already zero or thruster was fired
+     */
+    dampenLateral() {
+        const {rightSpeed} = this.getShipRelativeVelocity();
+        const lateralThreshold = AUTO_PILOT_VELOCITY_THRESHOLD * 0.5;
+
+        // If lateral velocity is negligible, nothing to dampen
+        if (Math.abs(rightSpeed) <= lateralThreshold) {
+            return true;
+        }
+
+        const previousRightSpeed = rightSpeed;
+        let thrusterFired = false;
+
+        // Note: applyLateralThrust('Left') fires thrusters on the LEFT side,
+        // which pushes the ship to the RIGHT (and vice versa)
+        if (rightSpeed > 0) {
+            // Moving right relative to facing - fire RIGHT lateral (pushes ship left)
+            thrusterFired = this.applyLateralThrust('Right');
+        } else {
+            // Moving left relative to facing - fire LEFT lateral (pushes ship right)
+            thrusterFired = this.applyLateralThrust('Left');
+        }
+
+        // Check for overshoot on lateral velocity
+        if (thrusterFired) {
+            const {rightSpeed: newRightSpeed, forwardSpeed} = this.getShipRelativeVelocity();
+            // If we crossed zero (sign changed) or increased magnitude, we overshot
+            if ((previousRightSpeed > 0 && newRightSpeed < 0) ||
+                (previousRightSpeed < 0 && newRightSpeed > 0) ||
+                Math.abs(newRightSpeed) > Math.abs(previousRightSpeed)) {
+                // Zero out the lateral component
+                this.setVelocityFromShipRelative(forwardSpeed, 0);
+            }
+        }
+
+        return thrusterFired;
     }
 
     checkForComponentDamage() {

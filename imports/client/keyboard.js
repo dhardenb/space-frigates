@@ -4,6 +4,27 @@ export class Keyboard {
 
     constructor() {
         document.documentElement.addEventListener("keydown", this.handleKeyPressEvents, false);
+        document.documentElement.addEventListener("keyup", this.handleKeyReleaseEvents, false);
+    }
+
+    handleKeyReleaseEvents(evt) {
+        if (Client.gameMode !== 'PLAY_MODE') {
+            return;
+        }
+
+        // When autopilot mode is enabled, releasing rotation or lateral thrust keys
+        // triggers automatic dampening to stop the ship's rotation or lateral drift.
+        if (typeof client !== 'undefined' && client.isAutoPilotModeEnabled()) {
+            // Rotation keys: ArrowLeft, ArrowRight, A, D
+            if (evt.key === 'ArrowLeft' || evt.key === 'a' || evt.key === 'A' ||
+                evt.key === 'ArrowRight' || evt.key === 'd' || evt.key === 'D') {
+                client.commandHandler({command: 'DAMPEN_ROTATION'});
+            }
+            // Lateral thrust keys: Q, E
+            else if (evt.key === 'q' || evt.key === 'Q' || evt.key === 'e' || evt.key === 'E') {
+                client.commandHandler({command: 'DAMPEN_LATERAL'});
+            }
+        }
     }
 
     handleKeyPressEvents(evt) {
@@ -61,7 +82,14 @@ export class Keyboard {
         else if (evt.key === 'ArrowLeft') {
             evt.preventDefault();
             if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 1});
+                // In autopilot mode, only fire thruster once on initial press (constant rotation at level 2)
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'ROTATE_CCW_AUTOPILOT'});
+                    }
+                } else {
+                    client.commandHandler({command: 1});
+                }
             }
         }
         // UP_ARROW - Forward Thruster
@@ -75,7 +103,14 @@ export class Keyboard {
         else if (evt.key === 'ArrowRight') {
             evt.preventDefault();
             if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 3});
+                // In autopilot mode, only fire thruster once on initial press (constant rotation at level 2)
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'ROTATE_CW_AUTOPILOT'});
+                    }
+                } else {
+                    client.commandHandler({command: 3});
+                }
             }
         }
         // DOWN_ARROW - Stop (autopilot brake if mode enabled, otherwise retro thrust)
@@ -99,7 +134,14 @@ export class Keyboard {
                     client.playerName = client.playerName + evt.key.toUpperCase();
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 1});
+                // In autopilot mode, only fire thruster once on initial press (constant rotation at level 2)
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'ROTATE_CCW_AUTOPILOT'});
+                    }
+                } else {
+                    client.commandHandler({command: 1});
+                }
             }
         }
         // D - Rotate Clockwise
@@ -110,7 +152,14 @@ export class Keyboard {
                     client.playerName = client.playerName + evt.key.toUpperCase();
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
-                client.commandHandler({command: 3});
+                // In autopilot mode, only fire thruster once on initial press (constant rotation at level 2)
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'ROTATE_CW_AUTOPILOT'});
+                    }
+                } else {
+                    client.commandHandler({command: 3});
+                }
             }
         }
         // S - Stop (autopilot brake if mode enabled, otherwise retro thrust)
@@ -139,7 +188,14 @@ export class Keyboard {
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
                 evt.preventDefault();
-                client.commandHandler({command: 'LATERAL_THRUST_LEFT'});
+                // In autopilot mode, only fire thruster once on initial press
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'LATERAL_THRUST_LEFT'});
+                    }
+                } else {
+                    client.commandHandler({command: 'LATERAL_THRUST_LEFT'});
+                }
             }
         }
         // E - Lateral thrust (right-side thrusters)
@@ -151,7 +207,14 @@ export class Keyboard {
                 }
             } else if (Client.gameMode == 'PLAY_MODE') {
                 evt.preventDefault();
-                client.commandHandler({command: 'LATERAL_THRUST_RIGHT'});
+                // In autopilot mode, only fire thruster once on initial press
+                if (client.isAutoPilotModeEnabled()) {
+                    if (!evt.repeat) {
+                        client.commandHandler({command: 'LATERAL_THRUST_RIGHT'});
+                    }
+                } else {
+                    client.commandHandler({command: 'LATERAL_THRUST_RIGHT'});
+                }
             }
         }
         // Z - Toggle Auto-Pilot Mode
