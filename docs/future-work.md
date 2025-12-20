@@ -72,6 +72,49 @@
 9. **Energy management**
    - Monitor capacitor levels and temporarily disengage (stop firing, disable shields) to recharge if energy gets critically low, rather than draining shields for weapons.
 
+# Fruad Prevention
+
+1) Lock down stream write access and require authenticated identity
+Right now inputStream.allowWrite('all') accepts input from any client connection, which enables spoofing and automation. Require a verified identity (or session token) and bind inputs to the authenticated player/ship.
+
+2) Validate and sanitize all incoming command payloads
+Inputs are pushed directly into this.commands with no schema checks. Add strict validation (type checks, bounds, allowed command types) before accepting.
+
+3) Enforce per-connection and per-ship rate limiting
+Clients can spam input events. Add per-connection/ship rate limits and apply backpressure.
+
+4) Bind command authorization to ship ownership
+targetId is client-supplied. Ensure the sending connection actually owns the ship referenced by targetId to prevent hijacking.
+
+5) Sanitize and constrain player-facing inputs (e.g., name)
+createNewPlayerShip(name, mapRadius) accepts raw inputs. Add basic validation (length, allowed characters) and ignore client-supplied map radius in favor of server config.
+
+# Open World
+
+- Adopt a global world coordinate system and tiling: Replace the purely player-relative “map” with a persistent world grid or chunk system so sectors can stream in/out as ships travel, and update the background to a tileable parallax field that scrolls infinitely.
+
+- Add spatial partitioning and interest management: Partition the world (e.g., quadtrees or grid buckets) and send each client only nearby entities while keeping lightweight metadata for far targets (for HUD/minimap), aligning with the existing idea of proximity-based snapshots.
+
+- Streamed snapshots and deltas: Build on the binary snapshot pipeline by introducing per-client deltas or chunk-based state so crossing sector boundaries doesn’t require full-world payloads. This complements throttling and keeps bandwidth manageable for a larger map.
+
+- Zone/instance planning: Decide whether the world is a single shard, multiple instances, or zone servers. Define handoff rules (e.g., when crossing chunk boundaries) and authoritative ownership per entity to avoid cross-zone conflicts.
+
+- Persistence and progression: Add server-side persistence for ships, inventory, and world state so players can log out/in without losing progress; plan save points or safe docks aligned with the RPG loop.
+
+- Content layering and HUD: Extend the HUD with minimap/galaxy map overlays that use the new global coordinates and far-distance metadata, keeping the existing screen-fixed layer strategy.
+
+- Travel, spawning, and pacing: Introduce warp/fast-travel between sectors to manage travel time, and design spawn rules (stations, capitals) that respect population density to avoid overcrowding in starting areas.
+
+- Server performance and monitoring: Profile physics and AI under larger entity counts; consider lowering tick rate for distant sectors, and add ops tooling to observe chunk load, bandwidth, and entity counts per sector.
+
+# In-Game Economy
+
+- Establish core currencies and sinks tied to existing ship systems (fuel, repairs, ammo, respawn fees) so combat and travel naturally flow through the economy.
+
+- Create NPC stations/ports that act as repair/refuel vendors and buy/sell hubs for commodities or loot drops, giving players reasons to travel and trade.
+
+- Introduce crafting/upgrades using salvage from debris/ship kills to deepen progression and market demand.
+
 # New Features
 
 - Add shield sound effects
